@@ -1,0 +1,583 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>All Notes</title><script>
+      // This script runs synchronously in the head to prevent FOUC (Flash of Unstyled Content)
+      (function() {
+        const THEME_KEY = 'nord-theme';
+        const DARK = 'dark';
+        
+        function getStoredTheme() {
+          try {
+            return localStorage.getItem(THEME_KEY);
+          } catch {
+            return null;
+          }
+        }
+        
+        function getSystemTheme() {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+        }
+        
+        function getTheme() {
+          return getStoredTheme() || getSystemTheme();
+        }
+        
+        function applyTheme(theme) {
+          const html = document.documentElement;
+          if (theme === DARK) {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+        }
+        
+        // Apply theme immediately before page renders
+        applyTheme(getTheme());
+      })();
+    </script><style>.knowledge-graph-container[data-astro-cid-eoxcivfe]{border:1px solid var(--nord-4);border-radius:8px;background:var(--nord-6);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-eoxcivfe]:fullscreen,.knowledge-graph-container[data-astro-cid-eoxcivfe]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-eoxcivfe]:fullscreen .knowledge-graph-wrapper[data-astro-cid-eoxcivfe],.knowledge-graph-container[data-astro-cid-eoxcivfe]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-eoxcivfe]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--nord-4);border-radius:6px;background:var(--nord-6);color:var(--nord-2);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--nord-5);color:var(--nord-10)}.knowledge-graph-toolbar-btn:active{background:var(--nord-4)}.knowledge-graph-wrapper[data-astro-cid-eoxcivfe]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:#5e81ac;stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--nord-14);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--nord-10);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--nord-14);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--nord-15);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--nord-12);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--nord-4);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:#4c566a;stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--nord-11);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--nord-1);font-weight:500;text-shadow:0 0 3px var(--nord-6)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--nord-0);border:1px solid var(--nord-3);border-radius:4px;font-size:12px;color:var(--nord-6);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--nord-8);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--nord-2)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--nord-10)}.kg-legend--outlink{color:var(--nord-14)}.kg-legend--backlink{color:var(--nord-15)}.kg-legend--both{color:var(--nord-12)}.kg-legend--neighbor{color:var(--nord-4);opacity:.9}
+</style>
+<link rel="stylesheet" href="/_astro/_slug_.C9MBorz5.css"></head> <body class="bg-nord-6 dark:bg-nord-0 text-nord-3 dark:text-nord-5 transition-colors"> <header class="border-b border-nord-5 dark:border-nord-1 bg-nord-6 dark:bg-nord-0"> <nav class="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between gap-4"> <div class="flex items-center gap-2 min-w-0"> <a href="/" title="Liu" class="shrink-0 p-1.5 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-colors"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"> <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path> <circle cx="12" cy="7" r="4"></circle> </svg> </a> <h1 class="text-xl font-bold truncate"> <a href="/" class="text-nord-2 dark:text-nord-6 hover:text-nord-10 dark:hover:text-nord-8 transition-colors"> Liu </a> </h1> </div> <div class="flex items-center gap-2 shrink-0"> <a href="https://github.com/gh-liu" title="GitHub" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-200 ease-out hover:scale-110"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"> <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path> </svg> </a> <span class="w-px h-4 bg-nord-4 dark:bg-nord-2 shrink-0" aria-hidden="true"></span>  <a href="/notes/tags" title="Tags" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> </a> <div class="search-container" id="search-wrapper" data-astro-cid-otpdt6jm><button id="search-toggle" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-otpdt6jm><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-otpdt6jm><circle cx="11" cy="11" r="8" data-astro-cid-otpdt6jm></circle><path d="m21 21-4.35-4.35" data-astro-cid-otpdt6jm></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20" data-astro-cid-otpdt6jm><div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl w-full max-w-2xl border border-nord-5 dark:border-nord-1 max-h-[70vh] flex flex-col" data-astro-cid-otpdt6jm><div class="p-4 border-b border-nord-5 dark:border-nord-1" data-astro-cid-otpdt6jm><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full px-4 py-2 bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 placeholder-nord-3 dark:placeholder-nord-4 rounded focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-otpdt6jm></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-otpdt6jm><p class="text-nord-3 dark:text-nord-5 text-sm" data-astro-cid-otpdt6jm>Type to search...</p></div><div class="p-3 border-t border-nord-5 dark:border-nord-1 text-xs text-nord-3 dark:text-nord-4" data-astro-cid-otpdt6jm><p data-astro-cid-otpdt6jm>Press <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-otpdt6jm>Esc</kbd> to close | Use <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-otpdt6jm>#tag</kbd> to search by tag</p></div></div></div></div><script>(function(){const pagefindUrl = "/pagefind/pagefind.js";
+
+  if (!globalThis.pagefindLoaded) {
+    globalThis.pagefindLoaded = true;
+    
+    let pagefind;
+    let searchInput;
+    let searchModal;
+    let searchResults;
+    let isSearchOpen = false;
+
+    async function initSearch() {
+      if (typeof window === "undefined") return;
+
+      try {
+        pagefind = await import(pagefindUrl);
+        await pagefind.init();
+      } catch (error) {
+        console.log("Search not available.", error);
+        return;
+      }
+
+      searchInput = document.getElementById("search-input");
+      searchModal = document.getElementById("search-modal");
+      searchResults = document.getElementById("search-results");
+      const toggleBtn = document.getElementById("search-toggle");
+
+      if (!searchInput || !searchModal || !searchResults || !toggleBtn) return;
+
+      toggleBtn.addEventListener("click", () => {
+        openSearch();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeSearch();
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          e.preventDefault();
+          isSearchOpen ? closeSearch() : openSearch();
+        }
+      });
+
+      searchModal.addEventListener("click", (e) => {
+        if (e.target === searchModal) closeSearch();
+      });
+
+      searchInput.addEventListener("input", async (e) => {
+        const query = e.target.value.trim();
+        if (!query) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+          return;
+        }
+
+        // Check if query starts with #tag
+        const isTagSearch = query.startsWith('#');
+        let results;
+        
+        if (isTagSearch) {
+          // Tag search
+          const tag = query.slice(1).toUpperCase();
+          results = await pagefind.search(`tag:${tag}`);
+        } else {
+          // Regular text search
+          results = await pagefind.search(query);
+        }
+
+        if (results.results.length === 0) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">No results found.</p>';
+          return;
+        }
+
+        let html = '<ul class="space-y-2">';
+        for (const result of results.results) {
+          const data = await result.data();
+          // Extract title from h1 or use URL slug as fallback
+          const title = data.meta?.title || data.title || (data.url.split('/').pop() || 'untitled').replace(/-/g, ' ');
+          html += `<li><a href="${data.url}" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"><div class="font-medium">${title}</div><div class="text-xs text-nord-3 dark:text-nord-5 mt-1 line-clamp-2">${data.excerpt || ""}</div></a></li>`;
+        }
+        searchResults.innerHTML = html + "</ul>";
+      });
+    }
+
+    function openSearch() {
+      isSearchOpen = true;
+      searchModal.classList.remove("hidden");
+      searchInput.focus();
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSearch() {
+      isSearchOpen = false;
+      searchModal.classList.add("hidden");
+      searchInput.value = "";
+      searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+      document.body.style.overflow = "";
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initSearch);
+    } else {
+      initSearch();
+    }
+  }
+})();</script> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="group relative p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-4 transition-all duration-200 ease-out hover:scale-110"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="w-4 h-4 text-nord-13 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="w-4 h-4 text-nord-9 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script>
+  const THEME_KEY = 'nord-theme';
+  const DARK = 'dark';
+  
+  function getStoredTheme() {
+    return localStorage.getItem(THEME_KEY);
+  }
+  
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+  }
+  
+  function getTheme() {
+    return getStoredTheme() || getSystemTheme();
+  }
+  
+  function applyTheme(theme) {
+    const html = document.documentElement;
+    if (theme === DARK) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }
+  
+  function toggleTheme() {
+    const currentTheme = getTheme();
+    const newTheme = currentTheme === DARK ? 'light' : DARK;
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  }
+  
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+</script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body>  <div class="space-y-6"> <h1 class="text-3xl font-bold text-nord-2 dark:text-nord-6">All Notes</h1> <div class="space-y-3">  <div key="OS" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879846-udhh" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> OS </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="CS" href="/notes/tag/CS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> CS </a><a key="OS" href="/notes/tag/OS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> OS </a> </div> </div> </div>  </div> </div>  <div key="evergreen-notes" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769498924-crit" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> evergreen-notes </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="EF" href="/notes/tag/EF" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> EF </a> </div> </div> </div> <div class="flex items-center gap-4 shrink-0 text-sm">  <button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" title="Linked from 1 note(s)" data-modal-id="list-backlinks-evergreen-notes"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path> </svg> <span class="font-medium">1 backlinks</span> </button> </div> </div> </div> <div id="list-backlinks-evergreen-notes" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/readme" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">README</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/readme </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-backlinks-evergreen-notes";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <div key="gtd" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769584174-abhn" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> gtd </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="EF" href="/notes/tag/EF" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> EF </a> </div> </div> </div>  </div> </div>  <div key="how-to-explain-things-real-good" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769583983-zsez" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> how-to-explain-things-real-good </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="EF" href="/notes/tag/EF" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> EF </a> </div> </div> </div>  </div> </div>  <div key="mnemonic-medium" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769499013-tbzn" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> mnemonic-medium </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="EF" href="/notes/tag/EF" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> EF </a> </div> </div> </div> <div class="flex items-center gap-4 shrink-0 text-sm">  <button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" title="Linked from 1 note(s)" data-modal-id="list-backlinks-mnemonic-medium"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path> </svg> <span class="font-medium">1 backlinks</span> </button> </div> </div> </div> <div id="list-backlinks-mnemonic-medium" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/readme" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">README</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/readme </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-backlinks-mnemonic-medium";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <div key="para" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879846-luqh" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> para </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="EF" href="/notes/tag/EF" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> EF </a> </div> </div> </div>  </div> </div>  <div key="self-learning" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769583943-locb" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> self-learning </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="EF" href="/notes/tag/EF" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> EF </a> </div> </div> </div>  </div> </div>  <div key="time" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769583128-toli-grain" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> time </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="EF" href="/notes/tag/EF" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> EF </a> </div> </div> </div>  </div> </div>  <div key="write" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769582019-uspt" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> write </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="EF" href="/notes/tag/EF" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> EF </a> </div> </div> </div>  </div> </div>  <div key="zettelkasten" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769498717-uspt" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> zettelkasten </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="EF" href="/notes/tag/EF" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> EF </a> </div> </div> </div> <div class="flex items-center gap-4 shrink-0 text-sm">  <button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" title="Linked from 1 note(s)" data-modal-id="list-backlinks-zettelkasten"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path> </svg> <span class="font-medium">1 backlinks</span> </button> </div> </div> </div> <div id="list-backlinks-zettelkasten" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/readme" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">README</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/readme </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-backlinks-zettelkasten";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <div key="career" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769583771-uspt" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> career </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="HUA" href="/notes/tag/HUA" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> HUA </a> </div> </div> </div>  </div> </div>  <div key="life" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769583128-toli" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> life </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="EF" href="/notes/tag/EF" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> EF </a><a key="HUA" href="/notes/tag/HUA" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> HUA </a> </div> </div> </div>  </div> </div>  <div key="grammar-club-note" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879846-vvjx" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> grammar-club-note </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="LANG" href="/notes/tag/LANG" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> LANG </a><a key="EN" href="/notes/tag/EN" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> EN </a> </div> </div> </div>  </div> </div>  <div key="grammar" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879846-uoua" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> grammar </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="LANG" href="/notes/tag/LANG" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> LANG </a><a key="EN" href="/notes/tag/EN" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> EN </a> </div> </div> </div>  </div> </div>  <div key="pronunciation" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879846-owhn" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> pronunciation </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="LANG" href="/notes/tag/LANG" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> LANG </a><a key="EN" href="/notes/tag/EN" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> EN </a> </div> </div> </div>  </div> </div>  <div key="reed-kellogg-diagram" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879846-pikw" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> reed-kellogg-diagram </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="LANG" href="/notes/tag/LANG" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> LANG </a><a key="EN" href="/notes/tag/EN" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> EN </a> </div> </div> </div>  </div> </div>  <div key="JP" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879846-xagb" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> JP </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="LANG" href="/notes/tag/LANG" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> LANG </a><a key="JP" href="/notes/tag/JP" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> JP </a> </div> </div> </div>  </div> </div>  <div key="gorm" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879845-vabt" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> gorm </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="CS" href="/notes/tag/CS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> CS </a><a key="GO" href="/notes/tag/GO" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> GO </a> </div> </div> </div>  </div> </div>  <div key="memory" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879845-hhxy" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> memory </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="CS" href="/notes/tag/CS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> CS </a><a key="GO" href="/notes/tag/GO" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> GO </a> </div> </div> </div>  </div> </div>  <div key="practical" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879845-hfdt" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> practical </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="CS" href="/notes/tag/CS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> CS </a><a key="GO" href="/notes/tag/GO" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> GO </a> </div> </div> </div>  </div> </div>  <div key="preempt" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879845-burd" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> preempt </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="CS" href="/notes/tag/CS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> CS </a><a key="GO" href="/notes/tag/GO" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> GO </a> </div> </div> </div>  </div> </div>  <div key="profile" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879845-yvku" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> profile </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="CS" href="/notes/tag/CS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> CS </a><a key="GO" href="/notes/tag/GO" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> GO </a> </div> </div> </div>  </div> </div>  <div key="program-initialization-and-execution" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879845-brnu" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> program-initialization-and-execution </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="CS" href="/notes/tag/CS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> CS </a><a key="GO" href="/notes/tag/GO" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> GO </a> </div> </div> </div>  </div> </div>  <div key="race-detector" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879845-bnso" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> race-detector </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="CS" href="/notes/tag/CS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> CS </a><a key="GO" href="/notes/tag/GO" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> GO </a> </div> </div> </div>  </div> </div>  <div key="runtime" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879845-cqbf" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> runtime </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="CS" href="/notes/tag/CS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> CS </a><a key="GO" href="/notes/tag/GO" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> GO </a> </div> </div> </div>  </div> </div>  <div key="scheduler" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879845-urzr" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> scheduler </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="CS" href="/notes/tag/CS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> CS </a><a key="GO" href="/notes/tag/GO" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> GO </a> </div> </div> </div>  </div> </div>  <div key="slice" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879845-vzjj" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> slice </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="CS" href="/notes/tag/CS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> CS </a><a key="GO" href="/notes/tag/GO" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> GO </a> </div> </div> </div>  </div> </div>  <div key="stack" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879845-yyvw" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> stack </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="CS" href="/notes/tag/CS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> CS </a><a key="GO" href="/notes/tag/GO" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> GO </a> </div> </div> </div>  </div> </div>  <div key="style-guide" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879845-rrox" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> style-guide </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="CS" href="/notes/tag/CS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> CS </a><a key="GO" href="/notes/tag/GO" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> GO </a> </div> </div> </div>  </div> </div>  <div key="sync" class="border-b border-nord-5 dark:border-nord-1 pb-3 last:border-b-0"> <div class="flex items-start justify-between gap-4"> <div class="flex-1 min-w-0"> <a href="/notes/1769879845-kbja" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors font-medium"> sync </a> <div class="flex items-center gap-2 flex-wrap mt-1"> <span class="text-xs text-nord-3 dark:text-nord-5">2026-01-31</span>  <div class="flex gap-1 flex-wrap"> <a key="CS" href="/notes/tag/CS" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> CS </a><a key="GO" href="/notes/tag/GO" class="inline-block px-2 py-0.5 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors"> GO </a> </div> </div> </div>  </div> </div>  </div> <nav class="flex flex-wrap items-center justify-center gap-2 pt-6 pb-2" aria-label="分页"><span class="inline-flex items-center gap-1 px-3 py-2 rounded border border-nord-4 dark:border-nord-2 text-nord-4 dark:text-nord-3 cursor-not-allowed text-sm"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>
+上一页
+</span><div class="flex items-center gap-1"><span class="min-w-[2.25rem] px-2 py-2 rounded border border-nord-9 dark:border-nord-8 bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-2 text-sm text-center font-medium" aria-current="page">1</span><a href="/notes/page/2" class="min-w-[2.25rem] px-2 py-2 rounded border border-nord-4 dark:border-nord-2 text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 transition-colors text-sm text-center">2</a></div><a href="/notes/page/2" class="inline-flex items-center gap-1 px-3 py-2 rounded border border-nord-4 dark:border-nord-2 text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 transition-colors text-sm font-medium">
+下一页
+<svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg></a></nav> <details open class="group mt-12 border border-nord-4 dark:border-nord-2 rounded-lg bg-nord-6 dark:bg-nord-1 overflow-hidden"> <summary class="flex items-center gap-2 cursor-pointer list-none px-4 py-3 bg-nord-5 dark:bg-nord-2 text-nord-10 dark:text-nord-8 hover:opacity-80 transition-opacity"> <svg class="w-5 h-5 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M9 5l7 7-7 7"></path> </svg> <span class="font-medium">Knowledge Graph</span> <span class="text-sm text-nord-3 dark:text-nord-5 ml-2"> 51 notes · 3 links · avg 0.1 degree
+</span> </summary> <div class="p-4"> <p class="text-sm text-nord-3 dark:text-nord-5 mb-3">
+Drag to move · Scroll to zoom · Click node to open note · Hover to highlight
+</p> <div id="notes-index-graph" style="height: 70vh;" class="knowledge-graph-container" data-astro-cid-eoxcivfe> <div class="knowledge-graph-wrapper" data-astro-cid-eoxcivfe> <svg id="notes-index-graph-svg" style="width: 100%; height: 100%;" data-astro-cid-eoxcivfe></svg> </div> </div>  <script>(function(){const containerId = "notes-index-graph";
+const nodeRadius = 5;
+const showLabels = true;
+const enableZoom = true;
+const enableDrag = true;
+const dataJson = "{\"nodes\":[{\"id\":\"BN++A-Philosophy-of-Software-Design.md\",\"slug\":\"a_philosophy_of_software_design\",\"label\":\"A-Philosophy-of-Software-Design\",\"title\":\"A-Philosophy-of-Software-Design\",\"categories\":[\"BN\"],\"group\":\"BN\"},{\"id\":\"BN++中国哲学简史.md\",\"slug\":\"中国哲学简史\",\"label\":\"中国哲学简史\",\"title\":\"中国哲学简史\",\"categories\":[\"BN\"],\"group\":\"BN\"},{\"id\":\"BN++图解算法.md\",\"slug\":\"图解算法\",\"label\":\"图解算法\",\"title\":\"图解算法\",\"categories\":[\"BN\"],\"group\":\"BN\"},{\"id\":\"BN++如何阅读一本书.md\",\"slug\":\"如何阅读一本书\",\"label\":\"如何阅读一本书\",\"title\":\"如何阅读一本书\",\"categories\":[\"BN\"],\"group\":\"BN\"},{\"id\":\"CS++raft.md\",\"slug\":\"1769879844-zsez\",\"label\":\"raft\",\"title\":\"raft\",\"categories\":[\"CS\"],\"group\":\"CS\"},{\"id\":\"CS++async.md\",\"slug\":\"1769879844-crit\",\"label\":\"async\",\"title\":\"async\",\"categories\":[\"CS\"],\"group\":\"CS\"},{\"id\":\"CS++type-system.md\",\"slug\":\"1769879844-oule\",\"label\":\"type-system\",\"title\":\"type-system\",\"categories\":[\"CS\"],\"group\":\"CS\"},{\"id\":\"CS++lsp.md\",\"slug\":\"1769879844-locb\",\"label\":\"lsp\",\"title\":\"lsp\",\"categories\":[\"CS\"],\"group\":\"CS\"},{\"id\":\"CS++algo.md\",\"slug\":\"1769879844-uspt\",\"label\":\"algo\",\"title\":\"algo\",\"categories\":[\"CS\"],\"group\":\"CS\"},{\"id\":\"CS_GO++abi.md\",\"slug\":\"1769879844-vpav\",\"label\":\"abi\",\"title\":\"abi\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS++vim-internal.md\",\"slug\":\"1769879844-rfpd\",\"label\":\"vim-internal\",\"title\":\"vim-internal\",\"categories\":[\"CS\"],\"group\":\"CS\"},{\"id\":\"CS_GO++contiguous-stacks.md\",\"slug\":\"1769879844-damr\",\"label\":\"contiguous-stacks\",\"title\":\"contiguous-stacks\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++generic.md\",\"slug\":\"1769879844-wtsq\",\"label\":\"generic\",\"title\":\"generic\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++execution-tracer.md\",\"slug\":\"1769879844-nwdh\",\"label\":\"execution-tracer\",\"title\":\"execution-tracer\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++compile.md\",\"slug\":\"1769879844-rtod\",\"label\":\"compile\",\"title\":\"compile\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++gorm.md\",\"slug\":\"1769879845-vabt\",\"label\":\"gorm\",\"title\":\"gorm\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++memory.md\",\"slug\":\"1769879845-hhxy\",\"label\":\"memory\",\"title\":\"memory\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++practical.md\",\"slug\":\"1769879845-hfdt\",\"label\":\"practical\",\"title\":\"practical\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++preempt.md\",\"slug\":\"1769879845-burd\",\"label\":\"preempt\",\"title\":\"preempt\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++profile.md\",\"slug\":\"1769879845-yvku\",\"label\":\"profile\",\"title\":\"profile\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++program-initialization-and-execution.md\",\"slug\":\"1769879845-brnu\",\"label\":\"program-initialization-and-execution\",\"title\":\"program-initialization-and-execution\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++race-detector.md\",\"slug\":\"1769879845-bnso\",\"label\":\"race-detector\",\"title\":\"race-detector\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++runtime.md\",\"slug\":\"1769879845-cqbf\",\"label\":\"runtime\",\"title\":\"runtime\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++scheduler.md\",\"slug\":\"1769879845-urzr\",\"label\":\"scheduler\",\"title\":\"scheduler\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++slice.md\",\"slug\":\"1769879845-vzjj\",\"label\":\"slice\",\"title\":\"slice\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++stack.md\",\"slug\":\"1769879845-yyvw\",\"label\":\"stack\",\"title\":\"stack\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++style-guide.md\",\"slug\":\"1769879845-rrox\",\"label\":\"style-guide\",\"title\":\"style-guide\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++sync.md\",\"slug\":\"1769879845-kbja\",\"label\":\"sync\",\"title\":\"sync\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++test.md\",\"slug\":\"1769879845-coru\",\"label\":\"test\",\"title\":\"test\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++timer.md\",\"slug\":\"1769879845-zifh\",\"label\":\"timer\",\"title\":\"timer\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_GO++type-system-in-go.md\",\"slug\":\"1769879845-ktov\",\"label\":\"type-system-in-go\",\"title\":\"type-system-in-go\",\"categories\":[\"CS\",\"GO\"],\"group\":\"CS\"},{\"id\":\"CS_OS++linux-perf.md\",\"slug\":\"1769879845-nahh\",\"label\":\"linux-perf\",\"title\":\"linux-perf\",\"categories\":[\"CS\",\"OS\"],\"group\":\"CS\"},{\"id\":\"CS_OS++memory.md\",\"slug\":\"1769879845-fbyv\",\"label\":\"memory\",\"title\":\"memory\",\"categories\":[\"CS\",\"OS\"],\"group\":\"CS\"},{\"id\":\"CS_OS.md\",\"slug\":\"1769879846-udhh\",\"label\":\"OS\",\"title\":\"OS\",\"categories\":[\"CS\"],\"group\":\"CS\"},{\"id\":\"EF++evergreen-notes.md\",\"slug\":\"1769498924-crit\",\"label\":\"evergreen-notes\",\"title\":\"evergreen-notes\",\"categories\":[\"EF\"],\"group\":\"EF\"},{\"id\":\"EF++gtd.md\",\"slug\":\"1769584174-abhn\",\"label\":\"gtd\",\"title\":\"gtd\",\"categories\":[\"EF\"],\"group\":\"EF\"},{\"id\":\"EF++how-to-explain-things-real-good.md\",\"slug\":\"1769583983-zsez\",\"label\":\"how-to-explain-things-real-good\",\"title\":\"how-to-explain-things-real-good\",\"categories\":[\"EF\"],\"group\":\"EF\"},{\"id\":\"EF++mnemonic-medium.md\",\"slug\":\"1769499013-tbzn\",\"label\":\"mnemonic-medium\",\"title\":\"mnemonic-medium\",\"categories\":[\"EF\"],\"group\":\"EF\"},{\"id\":\"EF++para.md\",\"slug\":\"1769879846-luqh\",\"label\":\"para\",\"title\":\"para\",\"categories\":[\"EF\"],\"group\":\"EF\"},{\"id\":\"EF++self-learning.md\",\"slug\":\"1769583943-locb\",\"label\":\"self-learning\",\"title\":\"self-learning\",\"categories\":[\"EF\"],\"group\":\"EF\"},{\"id\":\"EF++time.md\",\"slug\":\"1769583128-toli-grain\",\"label\":\"time\",\"title\":\"time\",\"categories\":[\"EF\"],\"group\":\"EF\"},{\"id\":\"EF++write.md\",\"slug\":\"1769582019-uspt\",\"label\":\"write\",\"title\":\"write\",\"categories\":[\"EF\"],\"group\":\"EF\"},{\"id\":\"EF++zettelkasten.md\",\"slug\":\"1769498717-uspt\",\"label\":\"zettelkasten\",\"title\":\"zettelkasten\",\"categories\":[\"EF\"],\"group\":\"EF\"},{\"id\":\"HUA++career.md\",\"slug\":\"1769583771-uspt\",\"label\":\"career\",\"title\":\"career\",\"categories\":[\"HUA\"],\"group\":\"HUA\"},{\"id\":\"HUA++life.md\",\"slug\":\"1769583128-toli\",\"label\":\"life\",\"title\":\"life\",\"categories\":[\"HUA\"],\"group\":\"HUA\"},{\"id\":\"LANG_EN++grammar-club-note.md\",\"slug\":\"1769879846-vvjx\",\"label\":\"grammar-club-note\",\"title\":\"grammar-club-note\",\"categories\":[\"LANG\",\"EN\"],\"group\":\"LANG\"},{\"id\":\"LANG_EN++grammar.md\",\"slug\":\"1769879846-uoua\",\"label\":\"grammar\",\"title\":\"grammar\",\"categories\":[\"LANG\",\"EN\"],\"group\":\"LANG\"},{\"id\":\"LANG_EN++pronunciation.md\",\"slug\":\"1769879846-owhn\",\"label\":\"pronunciation\",\"title\":\"pronunciation\",\"categories\":[\"LANG\",\"EN\"],\"group\":\"LANG\"},{\"id\":\"LANG_EN++reed-kellogg-diagram.md\",\"slug\":\"1769879846-pikw\",\"label\":\"reed-kellogg-diagram\",\"title\":\"reed-kellogg-diagram\",\"categories\":[\"LANG\",\"EN\"],\"group\":\"LANG\"},{\"id\":\"LANG_JP.md\",\"slug\":\"1769879846-xagb\",\"label\":\"JP\",\"title\":\"JP\",\"categories\":[\"LANG\"],\"group\":\"LANG\"},{\"id\":\"README.md\",\"slug\":\"readme\",\"label\":\"README\",\"title\":\"README\",\"categories\":[],\"group\":\"default\"}],\"links\":[{\"source\":\"README.md\",\"target\":\"EF++evergreen-notes.md\"},{\"source\":\"README.md\",\"target\":\"EF++zettelkasten.md\"},{\"source\":\"README.md\",\"target\":\"EF++mnemonic-medium.md\"}]}";
+
+  (window.__KNOWLEDGE_GRAPH_QUEUE__ = window.__KNOWLEDGE_GRAPH_QUEUE__ || []).push({
+    containerId,
+    dataJson,
+    nodeRadius,
+    showLabels,
+    enableZoom,
+    enableDrag,
+  });
+})();</script> </div> </details> </div> <script>
+    document.querySelectorAll('.open-list-modal').forEach((btn) => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const modalId = btn.getAttribute('data-modal-id');
+        const modal = document.getElementById(modalId);
+        if (modal) {
+          modal.classList.remove('hidden');
+          document.body.style.overflow = 'hidden';
+        }
+      });
+    });
+  </script>  </main> <footer class="border-t border-nord-5 dark:border-nord-1 mt-12"> <div class="max-w-4xl mx-auto px-4 py-6 text-sm text-nord-3 dark:text-nord-4 text-center"> <p>&copy; 2026. All rights reserved.</p> </div> </footer> <script type="module" src="/src/scripts/knowledge-graph-init.ts"></script> <script>
+      (function() {
+        const root = document.getElementById('series-dropdown-root');
+        const trigger = document.getElementById('series-dropdown-trigger');
+        const panel = document.getElementById('series-dropdown-panel');
+        const listEl = document.getElementById('series-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let seriesList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (seriesList === null) {
+            fetch('/series-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                seriesList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无系列</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(name) {
+                    const url = '/notes/series/' + encodeURIComponent(name);
+                    return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(name) + '</a>';
+                  }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        trigger.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (panel.classList.contains('hidden')) open(); else close();
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> </body> </html>  <script>
+  // Language aliases (matches server-side)
+  const langAliases = {
+    js: 'javascript',
+    ts: 'typescript',
+    yml: 'yaml',
+    yaml: 'yaml',
+    sh: 'bash',
+    shell: 'bash',
+    sql: 'postgresql',
+    java: 'openjdk',
+  };
+
+  // Add headers and copy buttons to code blocks
+  function initCodeBlocks() {
+    document.querySelectorAll('pre[data-language]').forEach((pre) => {
+      // Skip if already processed
+      if (pre.parentNode.classList.contains('code-block-wrapper')) return;
+      
+      const lang = pre.getAttribute('data-language') || 'code';
+      
+      // Create wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block-wrapper';
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+      
+      // Create header
+      const header = document.createElement('div');
+      header.className = 'code-header';
+      
+      const langSpan = document.createElement('span');
+      langSpan.className = 'code-header-lang';
+      langSpan.title = lang;
+      langSpan.textContent = lang; // default to lang name
+      
+      // Fetch icon asynchronously (best effort)
+      const normalizedLang = lang.toLowerCase();
+      const iconName = langAliases[normalizedLang] || normalizedLang;
+      
+      (async () => {
+        try {
+          const res = await fetch(`https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${iconName}.svg`, {
+            signal: AbortSignal.timeout(2000)
+          });
+          if (res.ok) {
+            const svg = await res.text();
+            // Get color from simple-icons metadata or use currentColor
+            // Add size classes and ensure paths are visible
+            let modified = svg.replace('<svg', '<svg class="w-4 h-4" style="display: inline; fill: currentColor"');
+            // Ensure all path/circle elements have fill
+            modified = modified.replace(/<path /g, '<path fill="currentColor" ');
+            modified = modified.replace(/<circle /g, '<circle fill="currentColor" ');
+            langSpan.innerHTML = modified;
+          }
+        } catch (e) {
+          // Silent: keep text fallback
+        }
+      })();
+      
+      const button = document.createElement('button');
+      button.className = 'copy-code-btn';
+      button.title = 'Copy to clipboard';
+      button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      
+      let isCopying = false;
+      button.addEventListener('click', async () => {
+        if (isCopying) return;
+        isCopying = true;
+        
+        const code = pre.querySelector('code')?.textContent || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalHtml = button.innerHTML;
+          button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+          button.title = 'Copied!';
+          setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.title = 'Copy to clipboard';
+            isCopying = false;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+          isCopying = false;
+        }
+      });
+      
+      header.appendChild(langSpan);
+      header.appendChild(button);
+      wrapper.appendChild(header);
+    });
+  }
+
+  // Run ASAP, then on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCodeBlocks);
+  } else {
+    initCodeBlocks();
+  }
+
+  // Convert wikilinks to links on client side
+  // Matches [[ref]] or [[ref|display text]]
+  document.addEventListener('DOMContentLoaded', () => {
+    const wikiRegex = /\[\[([a-zA-Z0-9][a-zA-Z0-9_-]*?)(?:\|([^\]]+))?\]\]/g;
+    
+    // Process all text nodes in prose content
+    const walker = document.createTreeWalker(
+      document.querySelector('.prose') || document.body,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    const nodesToReplace = [];
+    let node;
+    
+    while (node = walker.nextNode()) {
+      if (node.nodeValue.includes('[[')) {
+        nodesToReplace.push(node);
+      }
+    }
+    
+    nodesToReplace.forEach((textNode) => {
+      const parent = textNode.parentNode;
+      let lastIndex = 0;
+      const matches = [...textNode.nodeValue.matchAll(wikiRegex)];
+      
+      if (matches.length === 0) return;
+      
+      const fragment = document.createDocumentFragment();
+      
+      matches.forEach((match) => {
+        const [fullMatch, ref, displayText] = match;
+        const startIndex = match.index;
+        
+        // Add text before match
+        if (startIndex > lastIndex) {
+          fragment.appendChild(
+            document.createTextNode(textNode.nodeValue.slice(lastIndex, startIndex))
+          );
+        }
+        
+        // Create link
+        const link = document.createElement('a');
+        link.href = `/notes/${ref.toLowerCase()}`;
+        link.textContent = (displayText || ref).trim();
+        link.className = 'text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors';
+        fragment.appendChild(link);
+        
+        lastIndex = startIndex + fullMatch.length;
+      });
+      
+      // Add remaining text
+      if (lastIndex < textNode.nodeValue.length) {
+        fragment.appendChild(
+          document.createTextNode(textNode.nodeValue.slice(lastIndex))
+        );
+      }
+      
+      parent.replaceChild(fragment, textNode);
+    });
+  });
+</script>

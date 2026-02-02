@@ -1,0 +1,1598 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>algo</title><script>
+      // This script runs synchronously in the head to prevent FOUC (Flash of Unstyled Content)
+      (function() {
+        const THEME_KEY = 'nord-theme';
+        const DARK = 'dark';
+        
+        function getStoredTheme() {
+          try {
+            return localStorage.getItem(THEME_KEY);
+          } catch {
+            return null;
+          }
+        }
+        
+        function getSystemTheme() {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+        }
+        
+        function getTheme() {
+          return getStoredTheme() || getSystemTheme();
+        }
+        
+        function applyTheme(theme) {
+          const html = document.documentElement;
+          if (theme === DARK) {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+        }
+        
+        // Apply theme immediately before page renders
+        applyTheme(getTheme());
+      })();
+    </script><style>.knowledge-graph-container[data-astro-cid-eoxcivfe]{border:1px solid var(--nord-4);border-radius:8px;background:var(--nord-6);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-eoxcivfe]:fullscreen,.knowledge-graph-container[data-astro-cid-eoxcivfe]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-eoxcivfe]:fullscreen .knowledge-graph-wrapper[data-astro-cid-eoxcivfe],.knowledge-graph-container[data-astro-cid-eoxcivfe]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-eoxcivfe]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--nord-4);border-radius:6px;background:var(--nord-6);color:var(--nord-2);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--nord-5);color:var(--nord-10)}.knowledge-graph-toolbar-btn:active{background:var(--nord-4)}.knowledge-graph-wrapper[data-astro-cid-eoxcivfe]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:#5e81ac;stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--nord-14);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--nord-10);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--nord-14);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--nord-15);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--nord-12);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--nord-4);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:#4c566a;stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--nord-11);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--nord-1);font-weight:500;text-shadow:0 0 3px var(--nord-6)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--nord-0);border:1px solid var(--nord-3);border-radius:4px;font-size:12px;color:var(--nord-6);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--nord-8);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--nord-2)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--nord-10)}.kg-legend--outlink{color:var(--nord-14)}.kg-legend--backlink{color:var(--nord-15)}.kg-legend--both{color:var(--nord-12)}.kg-legend--neighbor{color:var(--nord-4);opacity:.9}
+html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-word}
+</style>
+<link rel="stylesheet" href="/_astro/_slug_.C9MBorz5.css"></head> <body class="bg-nord-6 dark:bg-nord-0 text-nord-3 dark:text-nord-5 transition-colors"> <header class="border-b border-nord-5 dark:border-nord-1 bg-nord-6 dark:bg-nord-0"> <nav class="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between gap-4"> <div class="flex items-center gap-2 min-w-0"> <a href="/" title="Liu" class="shrink-0 p-1.5 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-colors"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"> <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path> <circle cx="12" cy="7" r="4"></circle> </svg> </a> <h1 class="text-xl font-bold truncate"> <a href="/" class="text-nord-2 dark:text-nord-6 hover:text-nord-10 dark:hover:text-nord-8 transition-colors"> Liu </a> </h1> </div> <div class="flex items-center gap-2 shrink-0"> <a href="https://github.com/gh-liu" title="GitHub" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-200 ease-out hover:scale-110"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"> <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path> </svg> </a> <span class="w-px h-4 bg-nord-4 dark:bg-nord-2 shrink-0" aria-hidden="true"></span>  <a href="/notes/tags" title="Tags" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> </a> <div class="search-container" id="search-wrapper" data-astro-cid-otpdt6jm><button id="search-toggle" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-otpdt6jm><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-otpdt6jm><circle cx="11" cy="11" r="8" data-astro-cid-otpdt6jm></circle><path d="m21 21-4.35-4.35" data-astro-cid-otpdt6jm></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20" data-astro-cid-otpdt6jm><div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl w-full max-w-2xl border border-nord-5 dark:border-nord-1 max-h-[70vh] flex flex-col" data-astro-cid-otpdt6jm><div class="p-4 border-b border-nord-5 dark:border-nord-1" data-astro-cid-otpdt6jm><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full px-4 py-2 bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 placeholder-nord-3 dark:placeholder-nord-4 rounded focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-otpdt6jm></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-otpdt6jm><p class="text-nord-3 dark:text-nord-5 text-sm" data-astro-cid-otpdt6jm>Type to search...</p></div><div class="p-3 border-t border-nord-5 dark:border-nord-1 text-xs text-nord-3 dark:text-nord-4" data-astro-cid-otpdt6jm><p data-astro-cid-otpdt6jm>Press <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-otpdt6jm>Esc</kbd> to close | Use <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-otpdt6jm>#tag</kbd> to search by tag</p></div></div></div></div><script>(function(){const pagefindUrl = "/pagefind/pagefind.js";
+
+  if (!globalThis.pagefindLoaded) {
+    globalThis.pagefindLoaded = true;
+    
+    let pagefind;
+    let searchInput;
+    let searchModal;
+    let searchResults;
+    let isSearchOpen = false;
+
+    async function initSearch() {
+      if (typeof window === "undefined") return;
+
+      try {
+        pagefind = await import(pagefindUrl);
+        await pagefind.init();
+      } catch (error) {
+        console.log("Search not available.", error);
+        return;
+      }
+
+      searchInput = document.getElementById("search-input");
+      searchModal = document.getElementById("search-modal");
+      searchResults = document.getElementById("search-results");
+      const toggleBtn = document.getElementById("search-toggle");
+
+      if (!searchInput || !searchModal || !searchResults || !toggleBtn) return;
+
+      toggleBtn.addEventListener("click", () => {
+        openSearch();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeSearch();
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          e.preventDefault();
+          isSearchOpen ? closeSearch() : openSearch();
+        }
+      });
+
+      searchModal.addEventListener("click", (e) => {
+        if (e.target === searchModal) closeSearch();
+      });
+
+      searchInput.addEventListener("input", async (e) => {
+        const query = e.target.value.trim();
+        if (!query) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+          return;
+        }
+
+        // Check if query starts with #tag
+        const isTagSearch = query.startsWith('#');
+        let results;
+        
+        if (isTagSearch) {
+          // Tag search
+          const tag = query.slice(1).toUpperCase();
+          results = await pagefind.search(`tag:${tag}`);
+        } else {
+          // Regular text search
+          results = await pagefind.search(query);
+        }
+
+        if (results.results.length === 0) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">No results found.</p>';
+          return;
+        }
+
+        let html = '<ul class="space-y-2">';
+        for (const result of results.results) {
+          const data = await result.data();
+          // Extract title from h1 or use URL slug as fallback
+          const title = data.meta?.title || data.title || (data.url.split('/').pop() || 'untitled').replace(/-/g, ' ');
+          html += `<li><a href="${data.url}" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"><div class="font-medium">${title}</div><div class="text-xs text-nord-3 dark:text-nord-5 mt-1 line-clamp-2">${data.excerpt || ""}</div></a></li>`;
+        }
+        searchResults.innerHTML = html + "</ul>";
+      });
+    }
+
+    function openSearch() {
+      isSearchOpen = true;
+      searchModal.classList.remove("hidden");
+      searchInput.focus();
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSearch() {
+      isSearchOpen = false;
+      searchModal.classList.add("hidden");
+      searchInput.value = "";
+      searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+      document.body.style.overflow = "";
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initSearch);
+    } else {
+      initSearch();
+    }
+  }
+})();</script> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="group relative p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-4 transition-all duration-200 ease-out hover:scale-110"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="w-4 h-4 text-nord-13 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="w-4 h-4 text-nord-9 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script>
+  const THEME_KEY = 'nord-theme';
+  const DARK = 'dark';
+  
+  function getStoredTheme() {
+    return localStorage.getItem(THEME_KEY);
+  }
+  
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+  }
+  
+  function getTheme() {
+    return getStoredTheme() || getSystemTheme();
+  }
+  
+  function applyTheme(theme) {
+    const html = document.documentElement;
+    if (theme === DARK) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }
+  
+  function toggleTheme() {
+    const currentTheme = getTheme();
+    const newTheme = currentTheme === DARK ? 'light' : DARK;
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  }
+  
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+</script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-xvrfupwn> <nav class="px-4 space-y-1" data-astro-cid-xvrfupwn> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-xvrfupwn> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-xvrfupwn></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-xvrfupwn>
+On this page
+</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#分治法divide-and-conquer" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 分治法(Divide-and-Conquer)： </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#动态规划法" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 动态规划法 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#贪心算法" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 贪心算法 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#回溯法-分支定界法" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 回溯法 分支定界法 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#回溯法" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 回溯法 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#分支定界法branch-and-bound" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 分支定界法（branch and bound） </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#algo" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> algo </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#概览" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 概览 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#数据结构-1" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 数据结构 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#算法-1" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 算法 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#must-read" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> must read </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#框架思维" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 框架思维 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#动态规划-dp" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 动态规划 DP </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#回溯-backtracking" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 回溯 backtracking </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#bfs" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> BFS </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#二分搜索-binary-search" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 二分搜索 binary search </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#滑动窗口-sliding-window" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 滑动窗口 sliding window </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#leetcode-股票买卖问题" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> leetcode 股票买卖问题 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#leetcode-打家劫舍问题" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> leetcode 打家劫舍问题 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#三道区间" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 三道区间 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#nsum-问题" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> nSum 问题 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#二叉树" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 二叉树 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#0-1背包问题变体" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0-1背包问题变体 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#数据结构-2" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 数据结构 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#链表" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 链表 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#二叉树-1" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 二叉树 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#数组" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 数组 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#设计数据结构" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 设计数据结构 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#dp-动态规划" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> DP 动态规划 </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
+  const TOC_KEY = 'toc-open';
+  const sidebar = document.getElementById('toc-sidebar');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+
+  function getSidebarState() {
+    return localStorage.getItem(TOC_KEY) !== 'false';
+  }
+
+  function setSidebarState(open) {
+    localStorage.setItem(TOC_KEY, open ? 'true' : 'false');
+  }
+
+  function updateSidebar() {
+    const isOpen = getSidebarState();
+    if (sidebar) {
+      if (isOpen) {
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    }
+  }
+
+  function toggleSidebar() {
+    const isOpen = getSidebarState();
+    setSidebarState(!isOpen);
+    updateSidebar();
+  }
+
+  // Initialize
+  updateSidebar();
+
+  // Event listeners
+  if (toggle) {
+    toggle.addEventListener('click', toggleSidebar);
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', toggleSidebar);
+  }
+
+  // Keyboard shortcut: left/right arrow to toggle
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.ctrlKey) {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  });
+
+  // Highlight current section on scroll
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          document.querySelectorAll('.toc-item a').forEach((link) => {
+            link.classList.remove('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+            link.classList.add('text-nord-3', 'dark:text-nord-4');
+          });
+          const activeLink = document.querySelector(
+            `.toc-item a[href="#${entry.target.id}"]`
+          );
+          if (activeLink) {
+            activeLink.classList.remove('text-nord-3', 'dark:text-nord-4');
+            activeLink.classList.add('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+          }
+        }
+      });
+    },
+    { rootMargin: '-50% 0px -50% 0px' }
+  );
+
+  document.querySelectorAll('h2, h3').forEach((heading) => {
+    if (heading.id) {
+      observer.observe(heading);
+    }
+  });
+
+  // Close sidebar on link click
+  document.querySelectorAll('.toc-item a').forEach((link) => {
+    link.addEventListener('click', () => {
+      setSidebarState(false);
+      updateSidebar();
+    });
+  });
+</script>  <article class="prose prose-nord dark:prose-nord max-w-none
+      prose-headings:font-serif
+      prose-code:before:content-none prose-code:after:content-none" data-astro-cid-v5yihett> <header class="mb-8" data-astro-cid-v5yihett> <h1 class="mb-3" data-pagefind-meta="title" data-astro-cid-v5yihett>algo</h1> <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4" data-astro-cid-v5yihett> <div class="text-sm text-nord-3 dark:text-nord-5" data-astro-cid-v5yihett> <div> <div class="flex flex-wrap gap-2 mb-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-7 dark:bg-nord-7 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>📅</span> <span> 2026-02-01 </span> </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-8 dark:bg-nord-8 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>✏️</span> <span> 2026-01-31 </span> </span> <div class="flex flex-wrap gap-2"> <a href="/notes/tag/CS" class="inline-block px-2.5 py-1 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors cursor-pointer !no-underline hover:!no-underline"> CS </a> </div>  </div> </div> </div> <div class="text-sm" data-astro-cid-v5yihett> <div> <div class="flex items-center gap-4"> <!-- Back to notes link - removed, now in footer --> <!-- Show only links and backlinks stats --> <!-- Outlinks -->  <!-- Backlinks -->  <!-- No links message --> <span class="text-nord-3 dark:text-nord-4 italic">No related notes</span> </div> <!-- Modals --> <div id="outlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No outlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "outlinks-modal";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <div id="backlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No backlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "backlinks-modal";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <script>
+  // Outlinks button - calls window.openOutlinksModal()
+  document.querySelectorAll('.open-outlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openOutlinksModal) {
+        window.openOutlinksModal();
+      }
+    });
+  });
+
+  // Backlinks button - calls window.openBacklinksModal()
+  document.querySelectorAll('.open-backlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openBacklinksModal) {
+        window.openBacklinksModal();
+      }
+    });
+  });
+</script> </div> </div> </div> </header>    <p><a href="https://houbb.github.io/2020/01/23/data-struct-learn-07-base">https://houbb.github.io/2020/01/23/data-struct-learn-07-base</a>
+<a href="https://leetcode-cn.com/leetbook/read/illustration-of-algorithm/px2ds5/">https://leetcode-cn.com/leetbook/read/illustration-of-algorithm/px2ds5/</a></p>
+<p>数据对象操作
+1）算术运算：加减乘除等运算
+2）逻辑运算：或、且、非等运算
+3）关系运算：大于、小于、等于、不等于等运算
+4）数据传输：输入、输出、赋值等运算</p>
+<p>结构：
+递归 迭代</p>
+<p><a href="https://en.wikipedia.org/wiki/Algorithmic_paradigm">https://en.wikipedia.org/wiki/Algorithmic_paradigm</a>
+穷举法、分治法、动态规划、贪心法、回溯法、分枝定界法  剪枝搜索?</p>
+<h3 id="分治法divide-and-conquer">分治法(Divide-and-Conquer)：</h3>
+<p>将原问题划分成n个规模较小而结构与原问题相似的子问题；
+递归地解决这些子问题；
+再合并其结果，就得到原问题的解。</p>
+<p>分治模式在每一层递归上都有三个步骤：</p>
+<ol>
+<li>分解(Divide)：将原问题分解成一系列子问题；</li>
+<li>解决(Conquer)：递归地解决各个子问题。若子问题足够小，则直接求解。</li>
+<li>合并(Combine)：将子问题的结果合并成原问题的解。</li>
+</ol>
+<p>合并排序(Merge Sort)是一个典型分治法的例子。其对应的直观的操作如下:
+分解： 将n个元素分成各含n/2个元素的子序列；
+解决：用合并排序法对两个子序列递归地排序；
+合并：合并两个已排序的子序列以得到排序结果。</p>
+<h3 id="动态规划法">动态规划法</h3>
+<blockquote>
+<p>分治法是指将问题划分成一些独立的子问题，递归的求解各子问题，然后合并子问题的解而得到原问题的解。</p>
+</blockquote>
+<blockquote>
+<p>与此不同，动态规划适用于子问题独立且重叠的情况，也就是各子问题包含公共的子子问题。
+在这种情况下，若用分治法则会做许多不必要的工作，即重复地求解公共的子子问题。
+动态规划算法对每个子子问题只求解一次，将其结果保存在一张表中，从而避免每次遇到各个子问题时重新计算答案。</p>
+</blockquote>
+<p>动态规划算法的设计可以分为如下4个步骤：</p>
+<ol>
+<li>描述最优解的结构</li>
+<li>递归定义最优解的值</li>
+<li>按自底向上的方式计算最优解的值</li>
+<li>由计算出的结果构造一个最优解</li>
+</ol>
+<p>适合采用动态规划方法的最优化问题中的两个要素：最优子结构和重叠子问题。</p>
+<ol>
+<li>最优子结构：
+如果问题的一个最优解中包含了子问题的最优解，则该问题具有最优子结构。</li>
+<li>重叠子问题：
+适用于动态规划求解的最优子问题必须具有的第二个要素是子问题的空间要很小，也就是用来求解原问题的递归算法会反复地求解同样的子问题。
+对两个子问题来说，如果它们确实是相同的子问题，只是作为不同问题的子问题出现的话，则它们是重叠的。</li>
+</ol>
+<p>In a word,
+分治法 —— 各子问题独立；
+动态规划 —— 各子问题重叠。</p>
+<p>算法导论：
+动态规划要求其子问题既要独立又要重叠，这看上去似乎有些奇怪。
+虽然这两点要求听起来可能矛盾的，但它们描述了两种不同的概念，而不是同一个问题的两个方面。
+如果同一个问题的两个子问题不共享资源，则它们就是独立的。
+对两个子问题俩说，如果它们确实是相同的子问题，只是作为不同问题的子问题出现的话，则它们是重叠的。</p>
+<h3 id="贪心算法">贪心算法</h3>
+<blockquote>
+<p>当前最优 —> 全局最优</p>
+</blockquote>
+<p>贪心算法是使所做的选择看起来都是当前最佳的，期望通过所做的局部最优选择来产生出一个全局最优解。
+贪心算法是通过做一系列的选择来给出某一问题的最优解，对算法中的每一个决策点，做一个当时看起来是最佳的选择。
+贪心算法对大多数优化问题来说能产生最优解，但也不一定总是这样的。</p>
+<p>贪心算法与动态规划与很多相似之处：
+特别地，贪心算法适用的问题也是最优子结构。</p>
+<p>贪心算法与动态规划显著的区别：
+贪心算法通常是以自顶向下的方式使用最优子结构的，自顶向下地做出贪心选择，不断地将给定的问题实例归约为更小的问题。
+贪心算法划分子问题的结果，通常是仅存在一个非空的子问题。</p>
+<p>动态规划中，每一步都要做出选择，但是这些选择依赖于子问题的解，因此，解动态规划问题一般是自底向上，从小子问题处理至大子问题。
+贪心算法会先做选择，在当时看起来是最优的选择，然后再求解上一步产生的一个结果子问题，而不是先寻找子问题的最优解，然后再做选择。
+贪心算法只需考虑一个选择（即，贪心的选择）；在做贪心选择时，子问题之一必须是空的，因此只留下一个非空子问题。</p>
+<h3 id="回溯法-分支定界法">回溯法 分支定界法</h3>
+<p><a href="https://www.jianshu.com/p/c738c8262087">https://www.jianshu.com/p/c738c8262087</a></p>
+<p>列出所有候选解，然后逐个检查，在检查所有或部分候选解之后，便可找到所需要的解。
+回溯法和分支定界法是对候选解进行系统检查的两种方法。
+这两种方法使最坏情况和一般情况下的求解时间大大减少。
+事实上，这两种方法可以省去对很大一部分候选解的检查，同时还能够找到所需要的解。
+一般回溯法使用深度优先方法搜索树，而分支定界法使用广度优先或最小耗费/最大收益的方式。
+相对而言，分支定界法的空间需求比回溯法要大得多，因此当内存容量有限时，回溯法常常更容易成功。</p>
+<h3 id="回溯法">回溯法</h3>
+<ol>
+<li>定义一个解空间，它包含对问题实例的解；</li>
+<li>用适合于搜索的方式组织解空间；典型的组织方法是图或树；</li>
+<li>用深度优先方式搜索解空间，利用界定函数避免进入无解的子空间。</li>
+</ol>
+<blockquote>
+<p>确定一个新到达的节点能否导致一个比当前最优解还要好的解，可加速对最优解的搜索过程。
+如果不能，则移动到该节点的任何一颗子树都是无意义的，这个节点可被立即“杀死”。
+用来杀死活动节点的策略称为界定函数（bounding function）。</p>
+</blockquote>
+<h3 id="分支定界法branch-and-bound">分支定界法（branch and bound）</h3>
+<p>分枝定界（branch and bound）是另一种系统地搜索解空间的方法，它与回溯法的主要区别在于对节点的扩充方式。</p>
+<p>在分支限界法中，每一个活结点只有一次机会成为扩展结点。
+活结点一旦成为扩展结点，就一次性产生其所有儿子结点。
+在这些儿子结点中，导致不可行解或导致非最优解的儿子结点被舍弃，其余儿子结点被加入活结点表中。
+然后，从活结点表中取下一节点（优先队列中最大或最小值）成为当前扩展结点，并重复上述扩展过程。
+这个过程一直持续到找到所需的解或活结点表为空时为止。</p>
+<p>有两种常用的方法可用来选择下一个节点（也可能存在其他的方法）：</p>
+<ol>
+<li>先进先出（FIFO）
+即从活节点表中取出节点的顺序与加入节点的顺序相同，因此活节点表的性质与队列相同。</li>
+<li>最小耗费或最大收益法
+在这种模式中，每个节点都有一个对应的耗费或收益。
+如果查找一个具有最小耗费的解，则活节点表可用最小堆来建立，下一个 E-节点就是具有最小耗费的活节点；
+如果希望搜索一个具有最大收益的解，则可用最大堆来构造活节点表，下一个 E节点是具有最大收益的活节点。</li>
+</ol>
+<p>一般来说，在内存利用方面，回溯法优于分支定界法。
+回溯法需要的内存是O(解空间的最长路径长度)，而分支定界法所占用的内存为O(解空间大小)。
+因此在实际应用中，在回溯法还没有超出时间的上限之前，分支定界法已经超出了内存的上限。</p>
+<p><a href="https://www.programiz.com/dsa">https://www.programiz.com/dsa</a>
+<a href="https://www.tutorialspoint.com/data_structures_algorithms/algorithms_basics.htm">https://www.tutorialspoint.com/data_structures_algorithms/algorithms_basics.htm</a></p>
+<p>算法：
+查找算法、排序算法、搜索算法
+动态规划、回溯算法、贪心算法、分治算法
+位运算、双指针、模拟、数学</p>
+<p>常见的数据结构可分为「线性数据结构」与「非线性数据结构」，具体为：「数组」、「链表」、「栈」、「队列」、「树」、「图」、「散列表」、「堆」。
+数据结构：
+数组、链表、栈、队列、
+字符串、树、图、堆、哈希表</p>
+<p>学习算法，是为了深刻理解问题；</p>
+<p>算法三阶段：</p>
+<ol>
+<li>
+<p>用编程语言能够解决问题</p>
+</li>
+<li>
+<p>熟悉算法背后的逻辑，可以使用纸笔解释清楚，证明其准确性与计算与分析大O运行时：推荐做一些抽象实现，并在多个问题里重复实现；</p>
+</li>
+<li>
+<p>第一次提交前多做检查，尽可能保证准确</p>
+</li>
+</ol>
+<p><a href="https://matklad.github.io/2023/08/13/role-of-algorithms.html">role-of-algorithms</a></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Linear search, binary search, quadratic sorting, quick sort, merge sort, heap sort, binary heap, growable array (aka ArrayList, vector), doubly-linked list, binary search tree, avl tree, red-black tree, B-tree, splay tree, hash table (chaining and open addressing), depth first search, breadth first search, topological sort, strongly connected components, minimal spanning tree (Prim &#x26; Kruskal), shortest paths (bfs, Dijkstra, Floyd–Warshall, Bellman–Ford), substring search (quadratic, Rabin-Karp, Boyer-Moore, Knuth-Morris-Pratt), trie, Aho-Corasick, dynamic programming (longest common subsequence, edit distance).</span></span></code></pre>
+<h2 id="algo">algo</h2>
+<h3 id="概览">概览</h3>
+<p>![algo_mindmap](/assets/algo_mindmap.png | 300)</p>
+<h4 id="数据结构">数据结构：</h4>
+<p><code>数组</code>和<code>链表</code>为基础，还有<code>散列表</code>、<code>栈</code>与<code>队列</code>、<code>树</code>、<code>堆</code>、<code>图</code>、<code>跳表</code>…</p>
+<h4 id="算法">算法：</h4>
+<p>两种循环（<a href="/notes/#%E8%BF%AD%E4%BB%A3%E3%80%81%E9%80%92%E5%BD%92">#迭代、递归</a>）：<code>递归</code>（重复调用自身、满足终止条件时逐层返回）、<code>迭代</code>（上次结果做本次初始值、计数器结束循环）</p>
+<p>范式：穷举，<a href="/notes/#%E5%88%86%E6%B2%BB">#分治</a>（子问题独立：分解、解决、合并），<a href="/notes/#%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92">#动态规划</a>（子问题重叠：多阶段的依据当前状态进行决策且改变状态），<a href="/notes/#%E8%B4%AA%E5%BF%83">#贪心</a>（近似求解：拆解、子问题最优解、合并），<a href="/notes/#%E5%9B%9E%E6%BA%AF">#回溯</a>（隐式DFS），<a href="/notes/#%E5%88%86%E6%94%AF%E9%99%90%E5%AE%9A">#分支限定</a>（隐式BFS）</p>
+<p>应用：排序、搜索</p>
+<h4 id="复杂度">复杂度：</h4>
+<p>以<code>时间</code>或<code>空间</code>衡量算法效率</p>
+<h3 id="数据结构-1">数据结构</h3>
+<p>线性：元素之间<code>一对一</code>
+树形：元素之间<code>一对多</code>
+图形：元素之间<code>多对多</code></p>
+<p>存储：连续（数组）、离散（链表）</p>
+<p>栈：先进后出
+队列：先进先出；双向队列（两个方向都可进出）</p>
+<p>哈希：映射、解决冲突（链式、开放地址）</p>
+<p>树：层序遍历BFS；前、中、后序遍历DFS；</p>
+<p>堆：大/小顶堆（二叉树、节点值大于子节点值）</p>
+<p>图：<code>顶点</code>和<code>边</code>的集合；BFS、DFS</p>
+<p>跳表：多层级链表，顶层是子层的子集；</p>
+<h3 id="算法-1">算法</h3>
+<h4 id="迭代递归">迭代、递归</h4>
+<p>递归一定是自上而下的；</p>
+<p>Any recursive code can be written as iterative code with a loop and a stack.
+任何<code>递归</code>都可以通过<code>循环</code>加<code>栈</code>的<code>迭代</code>形式完成。
+Any iterative loop can be rewritten as a recursive function.
+任何<code>迭代</code>形式的<code>循环</code>都可以通过<code>递归</code>形式完成。
+<code>递归</code>用于处理：类树形结构（子结构与父结构类似）、涉及回溯、不深（太深导致栈溢出）。</p>
+<h4 id="分治">分治</h4>
+<ol>
+<li>递归的分解问题为<code>独立</code>子问题，直至最小子问题；</li>
+<li>从最小子问题，自底向上的将子问题的解合并；</li>
+</ol>
+<h4 id="动态规划">动态规划</h4>
+<ol>
+<li>分解问题为<code>重叠</code>子问题；</li>
+<li>解决子问题，并<code>存储</code>子问题的解，避免重复计算；</li>
+</ol>
+<p><code>自顶向下</code>的记忆化搜索（备忘录），<code>递归</code>拆解子问题，记录子问题的解；
+<code>自底向上</code>的动态规划，<code>迭代</code>构建更大子问题的解；</p>
+<h4 id="贪心">贪心</h4>
+<p>每个决策阶段选择当前最优解，期望获取全局最优解；</p>
+<h4 id="回溯">回溯</h4>
+<p>通常采用<code>深度优先</code>遍历；</p>
+<h4 id="分支限定">分支限定</h4>
+<p>通常采用<code>广度优先</code>遍历；</p>
+<h1 id="alg">alg</h1>
+<p><a href="https://labuladong.gitbook.io/algo/">labuladong</a></p>
+<p>目标，可以量化的目标，清楚知道自己每一天需要做什么；<br>
+明白，清晰明白自己的目标；</p>
+<h2 id="must-read">must read</h2>
+<h3 id="框架思维">框架思维</h3>
+<p>数据结构的储存方式： 数组(顺序存储)、链表(链式储存)<br>
+数组： 紧凑连续存储，可以随机访问，索引快速找到原因，相对节约空间； 一次性分配、扩容需整体复制、插入删除需移动很多元素；<br>
+链表： 元素不连续，依靠指针指向下一个元素； 不能随机访问，相对消耗更多空间(指针的空间)；</p>
+<p>数据结构基本操作: 遍历+访问 ； 增删改查；<br>
+线性：for/while迭代 为代表<br>
+非线性： 递归 为代表</p>
+<p>刷体指南：<br>
+数据结构是工具、算法是通过合适的工具解决特定问题；<br>
+！先刷二叉树，培养框架思维；</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#F97583">void</span><span style="color:#B392F0"> traverse</span><span style="color:#E1E4E8">(TreeNode </span><span style="color:#FFAB70">root</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">    // 前序遍历</span></span>
+<span class="line"><span style="color:#B392F0">    traverse</span><span style="color:#E1E4E8">(root.left)</span></span>
+<span class="line"><span style="color:#6A737D">    // 中序遍历</span></span>
+<span class="line"><span style="color:#B392F0">    traverse</span><span style="color:#E1E4E8">(root.right)</span></span>
+<span class="line"><span style="color:#6A737D">    // 后序遍历</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>很多动态规划问题就是在遍历一棵树；<br>
+回溯算法是个N叉树的前后序遍历问题；</p>
+<h3 id="动态规划-dp">动态规划 DP</h3>
+<p>DP问题的一般形式，求最值；DP是运筹学的一种最优化方法；</p>
+<p>DP的核心问题： 穷举； 存在<strong>重叠的子问题</strong>，需要备忘录或DP table 优化穷举过程，避免不必要计算；<br>
+且DP问题具备<strong>最优子结构</strong>，通过子问题的值得到原问题的值；</p>
+<p>DP核心思想：穷举求最值；列出正确的<strong>状态转移方程</strong>正确的穷举；</p>
+<p>DP三要素： 重叠子问题，最优子结构，状态转移方程(难，思维框架:明确<code>base case</code> -> 明确<code>状态</code> -> 明确<code>选择</code> -> 定义<code>DP数组/函数</code>的含义)；</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span># 初始化 base case</span></span>
+<span class="line"><span>dp[0][0][...] = base</span></span>
+<span class="line"><span># 进行状态转移</span></span>
+<span class="line"><span>for 状态1 in 状态1的所有取值：</span></span>
+<span class="line"><span>    for 状态2 in 状态2的所有取值：</span></span>
+<span class="line"><span>        for ...</span></span>
+<span class="line"><span>            dp[状态1][状态2][...] = 求最值(选择1，选择2...)</span></span></code></pre>
+<ol>
+<li>
+<p>斐波那契数列： 重叠子问题</p>
+<ol>
+<li>
+<p>暴力递归 自顶向下 O(2^n)<br>
+画出递归树，分析算法复杂度；时间复杂度计算：子问题个数*解决子问题时间；<br>
+可以知道暴力递归的问题是存在大量重复计算，也就是<strong>重叠子问题</strong>；</p>
+</li>
+<li>
+<p>带备忘录的递归 自顶向下 O(n)<br>
+解决重复计算: 造一个<code>备忘录</code>(使用数组或哈希表)，每次遇到子问题，先去备忘录查有没有答案，没有再计算子问题且保存到备忘录；</p>
+</li>
+<li>
+<p>DP数组的迭代 自底向上 脱离递归，由循环迭代完成<br>
+备忘录独立出来一张表，叫DP table，由此表完成自底向上的推算；<br>
+状态转移：f(n)的状态n 由状态n-1 与状态 n-2 相加转移而来；<br>
+<strong>状态压缩</strong>：每次状态转移的只需要DP table的一部分，尝试压缩DP table 的大小，只记录必要的数据；</p>
+</li>
+</ol>
+</li>
+<li>
+<p>凑零钱问题(k种面值硬币，c1 .. ck，每种无限，给一个目标总金额，求凑出的最少硬币数量)： 状态转移方程</p>
+<ol>
+<li>
+<p>暴力递归
+自顶向下，多叉树；
+状态转移方程： base case，目标金额为0时，需要0数量；状态，目标金额的改变，向base的靠近；选择，每选择一种金币，目标金额随之改变；明确dp函数/数组，这里是递归的dp函数，参数是状态(会改变)；</p>
+</li>
+<li>
+<p>带备忘录递归
+通过备忘录消除子问题；</p>
+</li>
+<li>
+<p>DP数组迭代
+自底向上，<code>状态</code>从0开始(0就是base case)，当状态变大至目标状态的时候(<code>状态转移</code>)，根据不同的<code>选择</code>进而分解成不同的<code>子问题</code>(也就是先前更小的状态)；</p>
+</li>
+</ol>
+</li>
+</ol>
+<p>总结：<br>
+穷举，思考如何穷举，如何聪明的穷举；</p>
+<h3 id="回溯-backtracking">回溯 backtracking</h3>
+<p>回溯，就是DFS，本质上暴力穷举；</p>
+<p>决策树的遍历过程：1.路径(已经作出的选择) 2.选择列表(当作可以作的选择) 3.结束条件(到达无法选择的条件)</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>result = []</span></span>
+<span class="line"><span>def backtrack(路径, 选择列表):</span></span>
+<span class="line"><span>    if 满足结束条件:</span></span>
+<span class="line"><span>        result.add(路径)</span></span>
+<span class="line"><span>        return</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    for 选择 in 选择列表:</span></span>
+<span class="line"><span>        做选择(`选择项`不能重复则同时删除已选的`选择项`)</span></span>
+<span class="line"><span>        backtrack(路径, 选择列表)</span></span>
+<span class="line"><span>        撤销选择(该选择走不通，撤销选择，如做选择时删除了该`选择项`，则加回)</span></span></code></pre>
+<ol>
+<li>
+<p>全排列问题
+定义的bt函数像一个指针在决策树上游走，同时维护每个节点的属性(路径、选择)，到达树的底层时，路径就是一个全排列；
+DFS,选择某层某个节点后，进入下一层，遍历此层所有可选的节点重复前面的操作(选择节点(进入节点前)，进入下一层)，在某一层做完所有有效选择后，回撤((离开节点后)当前节点路径上删除此次选择)；</p>
+</li>
+<li>
+<p>N皇后问题： N×N 的棋盘，让你放置 N 个皇后，使得它们不能互相攻击(可以攻击同一行、同一列、左上左下右上右)
+棋盘N行，每一行对应决策树每一层，某一行的有效格子就是可选的<code>选择项</code>(放置一个皇后)；
+如何判断有效： 列是否冲突、右上方是否冲突、左上方是否冲突；</p>
+</li>
+</ol>
+<p>总结：<br>
+回溯，多叉树遍历(做选择)，在先序遍历(进入节点前执行，当前节点路径记录选择)与后序遍历(离开节点后执行，当前节点路径删除该节点，回撤)的位置做操作；</p>
+<p>bt的<code>路径</code>、<code>选择列表</code>、<code>结束条件</code> 与 dp 的<code>状态</code>、<code>选择</code>、<code>base case</code> 相对应，前者自顶向下，后者自底向上；</p>
+<h3 id="bfs">BFS</h3>
+<p>问题抽象成图，一个点开始，向四周扩散；
+使用队列，将一个节点的相邻节点加入队列； 与DFS相比，路径短，但空间复杂度大；</p>
+<p>常见场景：图内找到从start到target的最短路径；</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>// 计算从起点 start 到终点 target 的最近距离</span></span>
+<span class="line"><span>// 计算从起点 start 到终点 target 的最近距离</span></span>
+<span class="line"><span>int BFS(Node start, Node target) {</span></span>
+<span class="line"><span>    Queue&#x3C;Node> q; // 核心数据结构</span></span>
+<span class="line"><span>    Set&#x3C;Node> visited; // 避免走回头路</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    q.offer(start); // 将起点加入队列</span></span>
+<span class="line"><span>    visited.add(start);</span></span>
+<span class="line"><span>    int step = 0; // 记录扩散的步数</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    while (q not empty) {</span></span>
+<span class="line"><span>        int sz = q.size();</span></span>
+<span class="line"><span>        /* 将当前队列中的所有节点向四周扩散 */</span></span>
+<span class="line"><span>        for (int i = 0; i &#x3C; sz; i++) {</span></span>
+<span class="line"><span>            Node cur = q.poll();</span></span>
+<span class="line"><span>            /* 划重点：这里判断是否到达终点 */</span></span>
+<span class="line"><span>            if (cur is target)</span></span>
+<span class="line"><span>                return step;</span></span>
+<span class="line"><span>            /* 将 cur 的相邻节点加入队列 */</span></span>
+<span class="line"><span>            for (Node x : cur.adj())</span></span>
+<span class="line"><span>                if (x not in visited) {</span></span>
+<span class="line"><span>                    q.offer(x);</span></span>
+<span class="line"><span>                    visited.add(x);</span></span>
+<span class="line"><span>                }</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>        /* 划重点：更新步数在这里 */</span></span>
+<span class="line"><span>        step++;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<ol>
+<li>
+<p>二叉树的最小高度
+root节点为start，叶子节点(没有子节点)为target；</p>
+</li>
+<li>
+<p>打开密码锁的最少次数</p>
+</li>
+</ol>
+<h4 id="双向bfs优化">双向BFS优化</h4>
+<p>双向BFS从起点和起点同时开始，当两边有交集的时候停止；
+传统BFS单向，需要遍历整个树的节点，最后找到target；而双向BFS只遍历了半颗树就出现了交集，比传统高效；</p>
+<h3 id="二分搜索-binary-search">二分搜索 binary search</h3>
+<p>细节：mid 加一还是减一，while 判断用 &#x3C;= 还是 &#x3C; ；</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>int binarySearch(int[] nums, int target) {</span></span>
+<span class="line"><span>    int left = 0, right = ...;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    while(...) {</span></span>
+<span class="line"><span>        int mid = left + (right - left) / 2;   // 与(left + right) / 2 结果相同，但防止left right都太大，相加导致溢出</span></span>
+<span class="line"><span>        if (nums[mid] == target) {</span></span>
+<span class="line"><span>            ...</span></span>
+<span class="line"><span>        } else if (nums[mid] &#x3C; target) {</span></span>
+<span class="line"><span>            left = ...</span></span>
+<span class="line"><span>        } else if (nums[mid] > target) {</span></span>
+<span class="line"><span>            right = ...</span></span>
+<span class="line"><span>        }</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    return ...;</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<ol>
+<li>
+<p>搜索一个元素：
+right的值是<code>数组长度-1</code>；使得两个区间都是<code>左右都闭合 [left, right]</code>的区间；<br>
+while判断<code>left&#x3C;=right</code>,终止条件是<code>left==right+1</code>,区间<code>[right + 1, right]</code>为空；若为等于，区间<code>[right, right]</code>不为空，漏了一个数；</p>
+<p>left = mid + 1，right = mid - 1 ：在之前已经判断过mid是否为target，无需mid了；</p>
+<p>缺陷：重复target出现，搜索target的左侧边界或右侧边界，无法处理；</p>
+</li>
+<li>
+<p>target重复出现，搜索target的左、右边界：</p>
+<ol>
+<li>
+<p>左边界
+right的值是<code>数组长度</code>； 每次的搜索区间都是<code>左开右闭[left, right)</code>；
+while判断<code>left&#x3C;right</code>,终止条件<code>left == right</code>，搜索区间<code> [left, left)</code> 为空；  <strong>返回left与right是一样的</strong></p>
+<p>if (nums[mid] == target) {right = mid;} // 找到目标，定位为下一次搜索区间的右边界；由下面的left或right改变减小搜索区间；</p>
+<p>left = mid + 1，right = mid : 区间左开右闭，mid无意义；</p>
+<p>返回left；</p>
+<p>重新理解： 返回的值n(也就是left)，也就是数组下标n，在搜索左边界的时候，代表小于target的数字有n个(二分的前提是数组有序)；
+所以n的取值区间是<code>[0，数组长度]</code>，n就是left，那left为数组长度的时候，就是target比所有数都大，返回-1；再判断定位到的某个区间是否等于target；</p>
+<p>明白<code>搜索区间</code>，保证区间内没有元素；</p>
+</li>
+<li>
+<p>右边界<br>
+大部分同左边界一致；</p>
+<p>if (nums[mid] == target) {left = mid + 1; }  // 找到目标，定位为下一次搜索区间的左边界；由下面的left或right改变减小搜索区间；</p>
+<p>return left - 1; // while结束时， left = mid + 1 ，对应left下标的数组值一定不等于，left减1也就是mid可能等于；</p>
+</li>
+</ol>
+</li>
+</ol>
+<p>总结：<br>
+划分<code>搜索区间</code>时，如果区间左右都闭，mid取值<code>(left+right)/2</code>;如果是左闭右开，mid为左时，需要排除，所以+1 ，而mid为右时，区间开的，不包括，所以直接用mid；
+在判断是否结束时，也就是搜索区间内没有元素从而无法再划分时：区间左右都闭，终止条件为 <code>left==right+1 (left&#x3C;=right)</code> ，左闭右开，终止条件为<code>left==right  (left&#x3C;right)</code>；搜索左右边界的时候，需要注意找不到越界的情况；</p>
+<h3 id="滑动窗口-sliding-window">滑动窗口 sliding window</h3>
+<p>链表、字串、数组 用双指针；</p>
+<p>3种双指针： 快慢指针、左右指针、滑动窗口；</p>
+<ol>
+<li>
+<p>快慢指针： #todo</p>
+</li>
+<li>
+<p>左右指针： #todo</p>
+</li>
+<li>
+<p>滑动窗口： 维护一个窗口，不断滑动，然后更新答案</p>
+</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>// 不停移动右指针，当需要收缩窗口的时候，移动左指针； 时间复杂度是 O(N)</span></span>
+<span class="line"><span>int left = 0, right = 0;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>while (right &#x3C; s.size()) {`</span></span>
+<span class="line"><span>    // 增大窗口</span></span>
+<span class="line"><span>    window.add(s[right]);</span></span>
+<span class="line"><span>    right++;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    while (window needs shrink) {</span></span>
+<span class="line"><span>        // 缩小窗口</span></span>
+<span class="line"><span>        window.remove(s[left]);</span></span>
+<span class="line"><span>        left++;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<ol>
+<li>
+<p>最小覆盖子串
+right移动到满足要求，找到可行解；
+left移动，缩小窗口直到不满足要求；
+重复以上，直到right到s串尾；</p>
+<p>使用计数器，记录窗口的字符出现次数与目标字符的次数；</p>
+</li>
+<li>
+<p>字符串排列</p>
+</li>
+<li>
+<p>找所有字母异位词</p>
+</li>
+<li>
+<p>最长无重复字串</p>
+</li>
+</ol>
+<p>总结：<br>
+left移动(收缩窗口)促发的条件？如何更新答案？结束滑动的条件？</p>
+<h3 id="leetcode-股票买卖问题">leetcode 股票买卖问题</h3>
+<p>使用状态机，实际上就是DP table；</p>
+<p>题目：给定一个数组，第i个元素是一支股票第i天的价格。计算所获得的最大利润，最多k笔交易，不能多笔交易(再次购买需出售之前的股票)；
+解法：利用<code>状态</code>穷举； 总共几种状态，每个状态对应的选择，穷举的目的是根据对应的选择更新状态；</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>dp[0][0][...] = base</span></span>
+<span class="line"><span># 进行状态转移</span></span>
+<span class="line"><span>for 状态1 in 状态1的所有取值：</span></span>
+<span class="line"><span>    for 状态2 in 状态2的所有取值：</span></span>
+<span class="line"><span>        for ...</span></span>
+<span class="line"><span>            dp[状态1][状态2][...] = 择优(选择1，选择2...)</span></span></code></pre>
+<p>当前问题，三种选择：买入、卖出、无操作；但 卖出 得在 买入 之前 ，买入 得在 卖出之后， 无操作两种 买入后无操作 卖出后无操作； 还有交易次数k的限制；<br>
+三个状态： 天数n、交易次数K、持有状态(1持有 or 0未持有) <code>dp[n][k][0 or 1]</code>； <code>最终状态dp[n-1][k][0]</code>,最后一天最多k次交易不持有了所获得的利润；
+状态转移：每种状态有什么选择且状态如何更新:状态是每天的利润<br>
+<code>dp[i][k][0] = max(dp[i-1][k][0],dp[i-1][k][1]+prices[i])</code> 今天没持有，要不昨天没持有，要不昨天持有但今天卖了；<br>
+<code>dp[i][k][1] = max(dp[i-1][k][1],dp[i-1][k-1][0]-prices[i])</code> 今天持有，要不昨天持有，要不昨天未持有但今天买了；<br>
+base case：<br>
+<code>dp[-1][k][0] = 0</code> 天数0开始，-1没开始，利润为0<br>
+<code>dp[-1][k][1] = -infinity</code> 还没开始，不可能持有<br>
+<code>dp[-1][0][0] = 0</code>  k=0 不允许交易，利润为0
+<code>dp[-1][0][1] = -infinity</code>不允许交易，不可能持有</p>
+<h3 id="leetcode-打家劫舍问题">leetcode 打家劫舍问题</h3>
+<ol>
+<li>给定一个代表每个房屋存放金额的非负整数数组，相邻的房屋同一晚上闯入会触发报警装置；计算一天晚上能偷窃的最高金额；</li>
+</ol>
+<p>房子的索引是状态，抢或不抢是选择；</p>
+<p>base case [n]=0 ，不抢，去下家再看，抢，只能去下下家看；
+自顶向下，使用递归，存在重叠子问题(不同方式到达同一个房屋)，使用备忘录;</p>
+<p>自底向上，状态转移只与dp[i]最近的两个状态有关；</p>
+<ol start="2">
+<li>与题1基本一样，但是房子是一个圈；</li>
+</ol>
+<p>三种情况，首尾都不抢，抢首不抢尾，抢尾不抢首；</p>
+<p>比较情况中值最大的，事实考虑 抢首不抢尾 抢尾不抢首 即可，因为选择的余地更大；</p>
+<ol start="3">
+<li>房子是一棵二叉树；</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>int rob(TreeNode root) {</span></span>
+<span class="line"><span>    int[] res = dp(root);</span></span>
+<span class="line"><span>    return Math.max(res[0], res[1]);</span></span>
+<span class="line"><span>}</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>/* 返回一个大小为 2 的数组 arr</span></span>
+<span class="line"><span>arr[0] 表示不抢 root 的话，得到的最大钱数</span></span>
+<span class="line"><span>arr[1] 表示抢 root 的话，得到的最大钱数 */</span></span>
+<span class="line"><span>int[] dp(TreeNode root) {</span></span>
+<span class="line"><span>    if (root == null)</span></span>
+<span class="line"><span>        return new int[]{0, 0};</span></span>
+<span class="line"><span>    int[] left = dp(root.left);</span></span>
+<span class="line"><span>    int[] right = dp(root.right);</span></span>
+<span class="line"><span>    // 抢，下家就不能抢了</span></span>
+<span class="line"><span>    int rob = root.val + left[0] + right[0];</span></span>
+<span class="line"><span>    // 不抢，下家可抢可不抢，取决于收益大小</span></span>
+<span class="line"><span>    int not_rob = Math.max(left[0], left[1])</span></span>
+<span class="line"><span>                + Math.max(right[0], right[1]);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    return new int[]{not_rob, rob};</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<h3 id="三道区间">三道区间</h3>
+<p>区间问题，就是线段问题，合并所有线段、找出线段交集等等；
+使用排序、画图的技巧；</p>
+<ol>
+<li>
+<p>区间覆盖
+给一个区间列表，删除列表中被其他区间所覆盖的区间(包含关系，删除被包含的)；</p>
+<p>排序(按照起点升序排列，起点相同时降序排列,保证更长者在上面)后，相邻区间三种关系：覆盖(前者包含后者)、相交、不相交，分别处理；
+覆盖，结果+1；相交，合并；不相交，更新起点终点(循环新的开始)；</p>
+</li>
+<li>
+<p>区间合并
+给出一个区间集合，合并所有重叠区间；
+先排序，再观察规律；
+几个相交区间的x ，x.start 一定是几个区间中最小的start ，x.end一定是几个区间中最大的end；</p>
+</li>
+<li>
+<p>区间交集
+给定两个有一些闭区间组成的列表，每个区间列表成对不相交，且已经排序，返回者两个区间列表的交集；
+<code>A [a1,a2] B[b1,b2]</code></p>
+</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>if b2 &#x3C; a1 or a2 &#x3C; b1:</span></span>
+<span class="line"><span>    [a1,a2] 和 [b1,b2] 无交集</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># 上面逻辑的否命题是存在交集的条件 , 不等号取反，or 也要变成 and</span></span>
+<span class="line"><span>if b2 >= a1 and a2 >= b1:</span></span>
+<span class="line"><span>    [a1,a2] 和 [b1,b2] 存在交集</span></span></code></pre>
+<p>画出四种交集可能，交集区间是<code>[c1,c2]</code>,规律<code>c1=max(a1,b1)，c2=min(a2,b2)</code></p>
+<p>两个数组的下标如何移动，区间尾对比大小；</p>
+<h3 id="nsum-问题">nSum 问题</h3>
+<ol>
+<li>
+<p>2Sum:<br>
+结果只有一对：排序，双指针；<br>
+结果有多对且不能重复时：排序，双指针，找到满足的结果时，需要跳过相同的元素；</p>
+</li>
+<li>
+<p>3Sum:<br>
+包含n个整数的数组nums，nums中三个元素a b c，使得a+b+c=0? 找出所有满足且不重复的三元组；
+穷举，确定第一个数后，剩下的两个数就是2Sum问题了；</p>
+</li>
+<li>
+<p>4Sum：
+穷举，确定第一个数后，剩下的三个数就是3Sum问题了；</p>
+</li>
+<li>
+<p>nSum：
+穷举第一个数，然后递归调用(n-1)Sum;</p>
+</li>
+</ol>
+<h3 id="二叉树">二叉树</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>/* 二叉树遍历框架 */</span></span>
+<span class="line"><span>void traverse(TreeNode root) {</span></span>
+<span class="line"><span>    // 前序遍历</span></span>
+<span class="line"><span>    traverse(root.left)</span></span>
+<span class="line"><span>    // 中序遍历</span></span>
+<span class="line"><span>    traverse(root.right)</span></span>
+<span class="line"><span>    // 后序遍历</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<p>快速排序就是二叉树的前序遍历，归并排序就是二叉树的后续遍历；<br>
+快速排序：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>void sort(int[] nums, int lo, int hi) {</span></span>
+<span class="line"><span>    /****** 前序遍历位置 ******/</span></span>
+<span class="line"><span>    // 通过交换元素构建分界点 p</span></span>
+<span class="line"><span>    int p = partition(nums, lo, hi);</span></span>
+<span class="line"><span>    /************************/</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    sort(nums, lo, p - 1);</span></span>
+<span class="line"><span>    sort(nums, p + 1, hi);</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<p>归并排序：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>void sort(int[] nums, int lo, int hi) {</span></span>
+<span class="line"><span>    int mid = (lo + hi) / 2;</span></span>
+<span class="line"><span>    sort(nums, lo, mid);</span></span>
+<span class="line"><span>    sort(nums, mid + 1, hi);</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    /****** 后序遍历位置 ******/</span></span>
+<span class="line"><span>    // 合并两个排好序的子数组</span></span>
+<span class="line"><span>    merge(nums, lo, mid, hi);</span></span>
+<span class="line"><span>    /************************/</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<p>递归算法：明确函数的定义，利用定义推导最终结果。清楚当前root节点应该做什么，在递归调用子节点；</p>
+<p>二叉树，基本基于递归，先清楚root需要做什么，根据要求选择前序，中序，后序；</p>
+<ol>
+<li>
+<p>翻转二叉树
+把二叉树上的每一个节点的左右子节点进行交换，放在前序遍历的位置，后序也可以；</p>
+</li>
+<li>
+<p>填充完美二叉树节点的next右侧指针(同一层，右侧节点)
+问题：跨父节点的两个相邻节点：增加函数参数，一个节点做不到，我们就给他安排两个节点，「将每一层二叉树节点连接起来」可以细化成「将每两个相邻节点都连接起来」；</p>
+</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>// 定义：输入两个节点，将它俩连接起来</span></span>
+<span class="line"><span>void connectTwoNode(Node node1, Node node2) {</span></span>
+<span class="line"><span>    if (node1 == null || node2 == null) {</span></span>
+<span class="line"><span>        return;</span></span>
+<span class="line"><span>    }</span></span>
+<span class="line"><span>    /**** 前序遍历位置 ****/</span></span>
+<span class="line"><span>    // 将传入的两个节点连接</span></span>
+<span class="line"><span>    node1.next = node2;</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    // 连接相同父节点的两个子节点</span></span>
+<span class="line"><span>    connectTwoNode(node1.left, node1.right);</span></span>
+<span class="line"><span>    connectTwoNode(node2.left, node2.right);</span></span>
+<span class="line"><span>    // 连接跨越父节点的两个子节点</span></span>
+<span class="line"><span>    connectTwoNode(node1.right, node2.left);</span></span>
+<span class="line"><span>}</span></span></code></pre>
+<ol start="3">
+<li>将二叉树展开为单链表
+展开左节点，接着展开右节点，再把展开的右链接到左链后面，后序遍历；</li>
+</ol>
+<h3 id="0-1背包问题变体">0-1背包问题变体</h3>
+<p>背包问题： 可装重量W的包，和N个物品，每个物品有重量和价值，第i个物品重量wt[i]，价值val[i]，求背包最多能装的价值？</p>
+<p>分割等和子集：<br>
+给定一个包含正整数的非空数组，分割成两个子集，使得两个子集的元素和相等；<br>
+如何化解为背包问题， 数组sum/2 和 n个数，求是否有装法？<br>
+状态：背包的容量，可选的物品；选择：装进背包与否；
+dp数组： dp[i][j] = x表示，对于前i个物品，当前背包的容量为j时，若x为true，则说明可以恰好将背包装满，若x为false，则说明不能恰好将背包装满。<br>
+最终答案就是dp[n][sum/2], base case : dp[..][0] = true和dp[0][..] = false<br>
+选择： 当前容量为j的情况下，如果不把第i个物品放进包，能否装满取决于第i-1个物品；如果把第i个放进背包，能否装满取决于减去第i个的重量能否在i-1个时装满；<br>
+状态压缩：无论放不放，都取决于i-1，i可以省略；</p>
+<h2 id="数据结构-2">数据结构</h2>
+<p>二分图：拥有特殊性质的图，使用两种颜色为所有定点着色，使任何一条边的两个定点颜色不同；常见操作如何判定；</p>
+<h3 id="链表">链表</h3>
+<p>递归反转链表：不要跳进递归，使用明确的定义实现，将子问题看作已完成的状态，最后再补充base case；</p>
+<ol>
+<li>递归反转整个链表：</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#B392F0">ListNode</span><span style="color:#B392F0"> reverse</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">ListNode</span><span style="color:#FFAB70"> head</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (head.next </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> null) </span><span style="color:#F97583">return</span><span style="color:#E1E4E8"> head;</span></span>
+<span class="line"><span style="color:#E1E4E8">    ListNode last </span><span style="color:#F97583">=</span><span style="color:#B392F0"> reverse</span><span style="color:#E1E4E8">(head.next);</span><span style="color:#6A737D"> //箭头变化由 ->变为 &#x3C;-</span></span>
+<span class="line"><span style="color:#E1E4E8">    head.next.next </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> head;</span><span style="color:#6A737D"> // 将当前节点处理为 尾部节点</span></span>
+<span class="line"><span style="color:#E1E4E8">    head.next </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> null;</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> last;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<ol start="2">
+<li>
+<p>递归反转前N个节点
+记录第N个节点，在前N个反转完成后，将尾部指针指向第N个节点；</p>
+</li>
+<li>
+<p>反转部分节点
+m，n 前进到m-1，进行递归反转前N个节点；</p>
+</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#B392F0">ListNode</span><span style="color:#B392F0"> reverseBetween</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">ListNode</span><span style="color:#FFAB70"> head</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">int</span><span style="color:#FFAB70"> m</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">int</span><span style="color:#FFAB70"> n</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">    // base case</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (m </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#B392F0"> reverseN</span><span style="color:#E1E4E8">(head, n);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    // 前进到反转的起点触发 base case</span></span>
+<span class="line"><span style="color:#E1E4E8">    head.next </span><span style="color:#F97583">=</span><span style="color:#B392F0"> reverseBetween</span><span style="color:#E1E4E8">(head.next, m </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">, n </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">);</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> head;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>每K个一组进行反转：<br>
+与递归反转前N个节点相似，注意每一组反转后的指针连接；</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#6A737D">// 迭代反转</span></span>
+<span class="line"><span style="color:#6A737D">// 反转以 a 为头结点的链表</span></span>
+<span class="line"><span style="color:#B392F0">ListNode</span><span style="color:#B392F0"> reverse</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">ListNode</span><span style="color:#FFAB70"> a</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    ListNode pre, cur, nxt;</span></span>
+<span class="line"><span style="color:#E1E4E8">    pre </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> null; cur </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> a; nxt </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> a;</span></span>
+<span class="line"><span style="color:#F97583">    while</span><span style="color:#E1E4E8"> (cur </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> null) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        nxt </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> cur.next;</span></span>
+<span class="line"><span style="color:#6A737D">        // 逐个结点反转</span></span>
+<span class="line"><span style="color:#E1E4E8">        cur.next </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> pre;</span></span>
+<span class="line"><span style="color:#6A737D">        // 更新指针位置</span></span>
+<span class="line"><span style="color:#E1E4E8">        pre </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> cur;</span></span>
+<span class="line"><span style="color:#E1E4E8">        cur </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> nxt;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    // 返回反转后的头结点</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> pre;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>判断回文链表：
+寻找的核心思想，从中心向两端拓展；<br>
+判断的核心思想，双指针，两端向中间逼近；</p>
+<ol>
+<li>判断回文单链表
+1.单链表无法倒着遍历，无法使用双指针，可以反转后，再判断两者是否一致； 也可以使用遍历入栈，再出栈比较，利用栈的先进后出；
+2.借助二叉树的后序遍历，不需显式反转能可以倒序遍历，</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#6A737D">// 左侧指针</span></span>
+<span class="line"><span style="color:#E1E4E8">ListNode left;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">boolean</span><span style="color:#B392F0"> isPalindrome</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">ListNode</span><span style="color:#FFAB70"> head</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    left </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> head;</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#B392F0"> traverse</span><span style="color:#E1E4E8">(head);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">boolean</span><span style="color:#B392F0"> traverse</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">ListNode</span><span style="color:#FFAB70"> right</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (right </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> null) </span><span style="color:#F97583">return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    boolean res </span><span style="color:#F97583">=</span><span style="color:#B392F0"> traverse</span><span style="color:#E1E4E8">(right.next);</span></span>
+<span class="line"><span style="color:#6A737D">    // 后序遍历代码</span></span>
+<span class="line"><span style="color:#E1E4E8">    res </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> res </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> (right.val </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> left.val);</span></span>
+<span class="line"><span style="color:#E1E4E8">    left </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> left.next;</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> res;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="二叉树-1">二叉树</h3>
+<p>根节点需要做什么，前/中/后序再处理其他；<br>
+二：</p>
+<ol>
+<li>
+<p>数组构造最大二叉树： 根是数组最大元素，左子树是数组最大元素左边的最大二叉树，右子树是右边；</p>
+</li>
+<li>
+<p>通过前序、中序遍历结果构造二叉树；</p>
+</li>
+<li>
+<p>通过后序、中序遍历结果构造二叉树；</p>
+</li>
+</ol>
+<p>三：</p>
+<ol>
+<li>寻找重复的子树，给定二叉树，返回所有重复的子树，同一类的重复子树，返回任意一棵的根节点；<br>
+后序遍历某节点，知道以自己为根的子树长什么样，<code>lft，right，root</code>序列化二叉树，#表示null空指针；<br>
+借助外部数据，把每个节点子树序列化结果保存；保存的时候同时查询是否出现，即是否有重复；</li>
+</ol>
+<p>二叉搜索树：BST, 节点值大于左子树，小于右子树，同时左右子树也是BST； 基于BST有AVL树 红黑树 B+树 线段树等等；<br>
+BST中序遍历为升序的；<br>
+一：</p>
+<ol>
+<li>
+<p>二叉搜索树中第K小的元素；<br>
+中序遍历后找第k个元素，时间复杂度为n；
+第二种办法，节点记录额外信息size，以自己为根有多少节点，可以通过node.left的大小推导自己的排名，去对应子树进行查找，从而将时间复杂度降低为logn；</p>
+</li>
+<li>
+<p>BST 转化累加树(node的值=原树中大于或等于node值的和)
+利用二叉搜索树，中序遍历结果有序，先遍历右节点，再遍历左节点，结果为大->小；</p>
+</li>
+</ol>
+<p>二：<br>
+BST判断合法性、增、删、查；</p>
+<ol>
+<li>
+<p>判断合法性
+/* 限定以 root 为根的子树节点必须满足 max.val > root.val > min.val */
+boolean isValidBST(TreeNode root, TreeNode min, TreeNode max) {}</p>
+</li>
+<li>
+<p>插入
+查找到插入位置，进行插入；</p>
+</li>
+<li>
+<p>删除
+找到后，进行删除；但不能破坏BST的性质，修改调整；
+1.删除的为末端节点，直接删除；<br>
+2.删除的有一个非空子节点，接替自己的位置；<br>
+3.删除的有两个非空子节点，找到左子树中最大节点、或者右子树最小节点，接替自己的位置；</p>
+</li>
+<li>
+<p>查找
+遍历穷举；<br>
+第二种办法，二分查找思想：</p>
+</li>
+</ol>
+<p>二叉树序列化：<br>
+遍历；前序、后序、层级迭代，重要的是反序列化的时候定位root节点；</p>
+<p>对多叉树的理解：<br>
+迭代器惰性求值，先求出部分结果；</p>
+<p>二叉树最近公共祖先：给定两个指定节点，找到最近公共祖先；<br>
+git rebase;</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#6A737D">// 注意p,q必然存在树内, 且所有节点的值唯一!!!</span></span>
+<span class="line"><span style="color:#6A737D">// 递归思想, 对以root为根的(子)树进行查找p和q, 如果root == null || p || q 直接返回root</span></span>
+<span class="line"><span style="color:#6A737D">// 表示对于当前树的查找已经完毕, 否则对左右子树进行查找, 根据左右子树的返回值判断:</span></span>
+<span class="line"><span style="color:#6A737D">// 1. 左右子树的返回值都不为null, 由于值唯一左右子树的返回值就是p和q, 此时root为LCA</span></span>
+<span class="line"><span style="color:#6A737D">// 2. 如果左右子树返回值只有一个不为null, 说明只有p或q存在于左或右子树中, 返回回去，直到满足1</span></span>
+<span class="line"><span style="color:#6A737D">// 3. 左右子树返回值均为null, p和q均不在树中, 返回null</span></span>
+<span class="line"><span style="color:#B392F0">TreeNode</span><span style="color:#B392F0"> lowestCommonAncestor</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">TreeNode</span><span style="color:#FFAB70"> root</span><span style="color:#E1E4E8">, </span><span style="color:#B392F0">TreeNode</span><span style="color:#FFAB70"> p</span><span style="color:#E1E4E8">, </span><span style="color:#B392F0">TreeNode</span><span style="color:#FFAB70"> q</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">    // base case</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (root </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> null) </span><span style="color:#F97583">return</span><span style="color:#E1E4E8"> null;</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (root </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> p </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> root </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> q) </span><span style="color:#F97583">return</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    TreeNode left </span><span style="color:#F97583">=</span><span style="color:#B392F0"> lowestCommonAncestor</span><span style="color:#E1E4E8">(root.left, p, q);</span></span>
+<span class="line"><span style="color:#E1E4E8">    TreeNode right </span><span style="color:#F97583">=</span><span style="color:#B392F0"> lowestCommonAncestor</span><span style="color:#E1E4E8">(root.right, p, q);</span></span>
+<span class="line"><span style="color:#6A737D">    // 情况 1</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (left </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> null </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> right </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> null) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> root;</span><span style="color:#6A737D">  //注意是后序遍历，从下往上</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    // 情况 2</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (left </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> null </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> right </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> null) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> null;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    // 情况 3</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> left </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> null </span><span style="color:#F97583">?</span><span style="color:#E1E4E8"> right </span><span style="color:#F97583">:</span><span style="color:#E1E4E8"> left;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>根节点到达p、q的路径，装换为链边的公共节点问题；</p>
+<p>完全二叉树节点数：
+完全二叉树，每一层紧凑靠左；满二叉树，每一层都是满的；
+满二叉树，节点数量和高度呈指数关系，时间复杂负O(logN)；<br>
+完全二叉树，结合满二叉树与普通二叉树；</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="java"><code><span class="line"><span style="color:#6A737D">// 时间复杂度 O(logN*logN)</span></span>
+<span class="line"><span style="color:#F97583">public</span><span style="color:#F97583"> int</span><span style="color:#B392F0"> countNodes</span><span style="color:#E1E4E8">(TreeNode root) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    TreeNode l </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> root, r </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> root;</span></span>
+<span class="line"><span style="color:#6A737D">    // 记录左、右子树的高度</span></span>
+<span class="line"><span style="color:#F97583">    int</span><span style="color:#E1E4E8"> hl </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">, hr </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#F97583">    while</span><span style="color:#E1E4E8"> (l </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        l </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> l.left;</span></span>
+<span class="line"><span style="color:#E1E4E8">        hl</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    while</span><span style="color:#E1E4E8"> (r </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> null</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        r </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> r.right;</span></span>
+<span class="line"><span style="color:#E1E4E8">        hr</span><span style="color:#F97583">++</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    // 如果左右子树的高度相同，则是一棵满二叉树</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (hl </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> hr) {</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">)Math.</span><span style="color:#B392F0">pow</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, hl) </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">;</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#6A737D">    // 如果左右高度不同，则按照普通二叉树的逻辑计算</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#79B8FF"> 1</span><span style="color:#F97583"> +</span><span style="color:#B392F0"> countNodes</span><span style="color:#E1E4E8">(root.left) </span><span style="color:#F97583">+</span><span style="color:#B392F0"> countNodes</span><span style="color:#E1E4E8">(root.right);</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="数组">数组</h3>
+<p>二分搜索：有序数组中搜索给定的某个目标值的索引；通过二分减枝；</p>
+<ol>
+<li>
+<p>KoKo吃香蕉
+N堆香蕉，第i堆有<code>piles[i]</code>根香蕉，K根/小时吃，每个小时选一堆吃，此堆小于K，则吃完就行，在H小时内吃完，求最小K？<br>
+暴力：K从1到最多香蕉的那堆香蕉数，遍历，满足情况则返回；遍历是线性的，可以用二分查找；</p>
+</li>
+<li>
+<p>货物运输
+传送带上第i个包裹重量为<code>weights[i]</code>，每天按重量顺序装载包裹，求D天内的最低运载能力?
+暴力：确认最小值(单个包裹最大)与最大值(所有包裹重量和+1)，然后遍历；遍历是线性的，用二分查找；</p>
+</li>
+</ol>
+<p>双指针：<br>
+快慢指针(主要是链表问题)、左右指针(主要是数组问题)、滑动窗口；
+快慢指针：</p>
+<ol>
+<li>
+<p>判断链表中是否含有环<br>
+一快一慢，有环就会相遇；</p>
+</li>
+<li>
+<p>已知链表中含有环，返回这个环的起始位置
+第一次相遇，快指针走2k，慢指针走k，环长k，任意一个点回到链表头重新出发，另一个从相遇点出发，再次相遇就是环起点；</p>
+</li>
+<li>
+<p>寻找链表的中点
+一快一慢，快到达尾部，慢到达中部；</p>
+</li>
+<li>
+<p>寻找链表倒数第K个元素
+快先走K，到达尾部时，慢在倒数第K个；</p>
+</li>
+</ol>
+<p>左右指针：</p>
+<ol>
+<li>二分查找</li>
+<li>两数之和</li>
+<li>反转数组</li>
+<li>滑动窗口</li>
+</ol>
+<p>结合哈希表和数组，使得数组的删除和查找操作的时间复杂度为O(1);</p>
+<ol>
+<li>
+<p>常数时间插入、删除、获取随机元素
+将待操作元素与数组尾部元素进行交换；</p>
+</li>
+<li>
+<p>避开黑名单的随机数，等概率选区；
+将黑名单元素移动到数组末尾；如果数组末尾也有黑名单，用hash存储黑名单的值，移动的时候进行判断；</p>
+</li>
+</ol>
+<p>数组去重：</p>
+<ol>
+<li>去除重复字母，不能打断字符出现的相对顺序，字典序最小(a-z);<br>
+栈放入，数组记录是否在栈中，出栈顺序是反的，需要反转；满足去重与字符相对顺序；
+插入时，判断待插入与栈顶元素大小，待插入元素大于栈顶 且 栈顶元素后面会再次出现(使用计数器)，则弹出栈顶，循环进行，最后放入待插入元素；</li>
+</ol>
+<p>栈，先进后出，允许立即操作刚插入的字符；</p>
+<p>原地修改数组：</p>
+<ol>
+<li>删除排序数组中的重复项
+快慢指针</li>
+<li>删除有序列表的重复项
+同上，快慢指针</li>
+<li>移除数组元素，原地移除数值等于val的元素；
+快慢指针，fast遇到val，则天国，否则，赋值，同时slow+1;</li>
+<li>移动零，数组，原地修改，所有零到末尾；
+移除所有0，再把后面的元素全部赋值为0；</li>
+</ol>
+<p>2Sum核心思想：
+无序的时候，利用hash表；
+或者，在add一个新元素的时候，把其与其他元素的和全计算出来加进hash表，直接查询即可；</p>
+<h3 id="设计数据结构">设计数据结构</h3>
+<p>Union-Find并查集：解决图论中的<code>动态连通性</code>；<br>
+连通：自反性、对称性、传递性；
+实现API：q、p是否连通；图中有多少个连通分量；<br>
+数组模拟森林，节点 x 的父节点是 parent[x] ，利用<code>while (parent[x] != x) x = parent[x];</code>找到x的根节点；<br>
+优化平衡性： 在合并的时候，小树连接到大树的下面； 额外一个数组，记录以某节点为根的树的节点数；亦可以路径压缩<code>parent[x] = parent[parent[x]];</code>，缩短树的高度；
+应用： 将原问题转化成图的动态连通性问题；</p>
+<ol>
+<li>DFS替代方案
+给你一个 M×N 的二维矩阵，其中包含字符X和O，让你找到矩阵中完全被X围住的O，并且把它们替换成X。<br>
+二维转一维，（x,y）-> x * n + y ;
+增加虚拟节点dummy(m*n)，将首行，末行，首列，末列的0与dummy相连；遍历所有节点，等于0的，如果上下左右有0，则让两者相连，最终会与dummy相连；
+int[][] d = new int[][]{{1,0}, {0,1}, {0,-1}, {-1,0}};  // 方向数组 d 是上下左右搜索的常用手法 x+1 y+1 y-1 x-1</li>
+</ol>
+<p>主要思路是适时增加虚拟节点，想办法让元素「分门别类」，建立动态连通关系。</p>
+<ol start="2">
+<li>判定合法算式
+a==b或者a!=b
+先遍历==，建立连通关系；在遍历！=，看是否存在连通，则不合法；</li>
+</ol>
+<p>LRU：Least Recently Used<br>
+哈希链表；</p>
+<p>LFU：Least frequently used<br>
+key-freq；freq-key；key-val表；变量minFreq</p>
+<p>数据流的中位数：</p>
+<p>有序数据结构；使用两个优先级队列；大顶堆、小顶堆(large堆的堆顶元素>=small堆的堆顶元素)(利用堆特性，保证两个堆的元素数量之差不大于 1)；</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#E1E4E8">public </span><span style="color:#F97583">void</span><span style="color:#B392F0"> addNum</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> num) {</span></span>
+<span class="line"><span style="color:#F97583">    if</span><span style="color:#E1E4E8"> (small.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">>=</span><span style="color:#E1E4E8"> large.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">()) {</span></span>
+<span class="line"><span style="color:#E1E4E8">        small.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(num);</span></span>
+<span class="line"><span style="color:#E1E4E8">        large.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(small.</span><span style="color:#B392F0">poll</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    } </span><span style="color:#F97583">else</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">        large.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(num);</span></span>
+<span class="line"><span style="color:#E1E4E8">        small.</span><span style="color:#B392F0">offer</span><span style="color:#E1E4E8">(large.</span><span style="color:#B392F0">poll</span><span style="color:#E1E4E8">());</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>design twitter:timeline<br>
+合并多个有序列表、面向对象设计；
+api: postTweet, getNewsFeed, follow, unfollow;</p>
+<p>把用户各自的推文储存在链表里，每个链表节点储存文章id、时间戳，按time有序，如果某个用户关注了k个用户，那就可以合并k个有序链表；<br>
+实现合并k个有序链表的算法需要用到优先级队列，是二叉堆的重要应用：
+可以将优先级队列，理解为对插入的元素自动排序,乱序的元素插入其中就被放在了正确的位置,可以从大到小或从小到大有序取出元素；</p>
+<p>单调栈：<br>
+每次新元素入栈，站内的元素保持有序；</p>
+<ol>
+<li>下一个更大的元素<br>
+给一个数组，返回一个等长数组，对应index储存着下一个更大的元素，如果没有，就存-1；</li>
+</ol>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="cpp"><code><span class="line"><span style="color:#B392F0">vector</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">> </span><span style="color:#B392F0">nextGreaterElement</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">vector</span><span style="color:#E1E4E8">&#x3C;</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">></span><span style="color:#F97583">&#x26;</span><span style="color:#FFAB70"> nums</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    vector</span><span style="color:#F97583">&#x3C;int></span><span style="color:#B392F0"> res</span><span style="color:#E1E4E8">(nums.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">());</span><span style="color:#6A737D"> // 存放答案的数组</span></span>
+<span class="line"><span style="color:#E1E4E8">    stack</span><span style="color:#F97583">&#x3C;int></span><span style="color:#E1E4E8"> s;</span></span>
+<span class="line"><span style="color:#6A737D">    // 倒着往栈里放</span></span>
+<span class="line"><span style="color:#F97583">    for</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> i </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> nums.</span><span style="color:#B392F0">size</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">-</span><span style="color:#79B8FF"> 1</span><span style="color:#E1E4E8">; i </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">; i</span><span style="color:#F97583">--</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // 判定个子高矮</span></span>
+<span class="line"><span style="color:#F97583">        while</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">!</span><span style="color:#E1E4E8">s.</span><span style="color:#B392F0">empty</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> s.</span><span style="color:#B392F0">top</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">&#x3C;=</span><span style="color:#E1E4E8"> nums[i]) {</span></span>
+<span class="line"><span style="color:#6A737D">            // 矮个起开，反正也被挡着了。。。</span></span>
+<span class="line"><span style="color:#E1E4E8">            s.</span><span style="color:#B392F0">pop</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        // nums[i] 身后的 next great number</span></span>
+<span class="line"><span style="color:#E1E4E8">        res[i] </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> s.</span><span style="color:#B392F0">empty</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">?</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span><span style="color:#F97583"> :</span><span style="color:#E1E4E8"> s.</span><span style="color:#B392F0">top</span><span style="color:#E1E4E8">();</span></span>
+<span class="line"><span style="color:#6A737D">        //把自身放进去，被自己前面的数比较 </span></span>
+<span class="line"><span style="color:#E1E4E8">        s.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(nums[i]);</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"><span style="color:#F97583">    return</span><span style="color:#E1E4E8"> res;</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<ol start="2">
+<li>
+<p>一个月有多少天<br>
+给一个数组T，存放着近几天的天气气温，返回一个等长数组，对于每一天，还需要等几天才能等到更加温和的气温，如果没有，就0；<br>
+与1相似，但求距离；<br>
+存储索引，相减得距离；</p>
+</li>
+<li>
+<p>环形数组，下一个更大的元素
+数组使用%求余，获得下标，从而达到环形效果；
+常用套路，数组长度翻倍；</p>
+</li>
+</ol>
+<p>单调队列：<br>
+队列中的元素单调递增或单调递减的；</p>
+<ol>
+<li>滑动窗口最大值：给定一个数组nums，和一个正整数k，又一个大小为k的窗口在nums上从左至右滑动，输出每次移动，k个元素中的最大值；</li>
+</ol>
+<p>使用双链表实现单调队列，支持在头部、尾部进行插入和删除；<br>
+每一个元素入队时，当队尾的元素小于入队元素时，删除队尾元素；<br>
+那么头部元素一定是最大的；</p>
+<p><strong>二叉堆</strong>:实现优先级队列；<br>
+binary heap: sink swim; 堆排序，优先级队列；
+完全二叉树，储存在数组里；  数组指针作索引；
+数组index 0 空着不用， parent：index/2 left: index<em>2 right: index</em>2+1<br>
+最大堆、最小堆；</p>
+<p>delMax：堆顶与最后一个元素对调，删除最后一个元素，然后让堆顶下沉；
+insert：添加在最后一个元素后面，然后让其上升；</p>
+<p><strong>栈实现队列，队列实现栈</strong>:
+栈，先进后出； 队列，先进先出；</p>
+<p>双栈实现队列；</p>
+<p>队列实现栈，直接暴力把队首取出放队尾；</p>
+<h2 id="dp-动态规划">DP 动态规划</h2>
+<p><strong>最优子结构</strong>:
+从子问题的最优结果，推导出更大规模问题的最优结果；子问题之间互相独立，可以改造问题，使问题等价化，求各种最值；</p>
+<p><strong>DP数组遍历</strong>:<br>
+遍历过程中，所需的状态必须是已经计算出来的； 遍历的终点是存储结果的位置。</p>
+<p><strong>状态压缩</strong>:
+二维dp数组，如果计算<code>dp[i][j]</code>需要相临的状态，可以使用状态压缩，降低空间复杂度。
+核心思想，将二维数组，<code>投影</code>到一维数组(去掉某个维度)，将无法投影的值，使用临时变量存储；`</p> <!-- Diagrams rendered at build time -->  </article> <nav class="mt-12 pt-8 border-t border-nord-5 dark:border-nord-1" data-astro-cid-v5yihett> <a href="/notes" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" data-astro-cid-v5yihett>
+← Back to notes
+</a> </nav>  </main> <footer class="border-t border-nord-5 dark:border-nord-1 mt-12"> <div class="max-w-4xl mx-auto px-4 py-6 text-sm text-nord-3 dark:text-nord-4 text-center"> <p>&copy; 2026. All rights reserved.</p> </div> </footer> <script type="module" src="/src/scripts/knowledge-graph-init.ts"></script> <script>
+      (function() {
+        const root = document.getElementById('series-dropdown-root');
+        const trigger = document.getElementById('series-dropdown-trigger');
+        const panel = document.getElementById('series-dropdown-panel');
+        const listEl = document.getElementById('series-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let seriesList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (seriesList === null) {
+            fetch('/series-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                seriesList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无系列</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(name) {
+                    const url = '/notes/series/' + encodeURIComponent(name);
+                    return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(name) + '</a>';
+                  }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        trigger.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (panel.classList.contains('hidden')) open(); else close();
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> </body> </html>  <script>
+  // Language aliases (matches server-side)
+  const langAliases = {
+    js: 'javascript',
+    ts: 'typescript',
+    yml: 'yaml',
+    yaml: 'yaml',
+    sh: 'bash',
+    shell: 'bash',
+    sql: 'postgresql',
+    java: 'openjdk',
+  };
+
+  // Add headers and copy buttons to code blocks
+  function initCodeBlocks() {
+    document.querySelectorAll('pre[data-language]').forEach((pre) => {
+      // Skip if already processed
+      if (pre.parentNode.classList.contains('code-block-wrapper')) return;
+      
+      const lang = pre.getAttribute('data-language') || 'code';
+      
+      // Create wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block-wrapper';
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+      
+      // Create header
+      const header = document.createElement('div');
+      header.className = 'code-header';
+      
+      const langSpan = document.createElement('span');
+      langSpan.className = 'code-header-lang';
+      langSpan.title = lang;
+      langSpan.textContent = lang; // default to lang name
+      
+      // Fetch icon asynchronously (best effort)
+      const normalizedLang = lang.toLowerCase();
+      const iconName = langAliases[normalizedLang] || normalizedLang;
+      
+      (async () => {
+        try {
+          const res = await fetch(`https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${iconName}.svg`, {
+            signal: AbortSignal.timeout(2000)
+          });
+          if (res.ok) {
+            const svg = await res.text();
+            // Get color from simple-icons metadata or use currentColor
+            // Add size classes and ensure paths are visible
+            let modified = svg.replace('<svg', '<svg class="w-4 h-4" style="display: inline; fill: currentColor"');
+            // Ensure all path/circle elements have fill
+            modified = modified.replace(/<path /g, '<path fill="currentColor" ');
+            modified = modified.replace(/<circle /g, '<circle fill="currentColor" ');
+            langSpan.innerHTML = modified;
+          }
+        } catch (e) {
+          // Silent: keep text fallback
+        }
+      })();
+      
+      const button = document.createElement('button');
+      button.className = 'copy-code-btn';
+      button.title = 'Copy to clipboard';
+      button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      
+      let isCopying = false;
+      button.addEventListener('click', async () => {
+        if (isCopying) return;
+        isCopying = true;
+        
+        const code = pre.querySelector('code')?.textContent || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalHtml = button.innerHTML;
+          button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+          button.title = 'Copied!';
+          setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.title = 'Copy to clipboard';
+            isCopying = false;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+          isCopying = false;
+        }
+      });
+      
+      header.appendChild(langSpan);
+      header.appendChild(button);
+      wrapper.appendChild(header);
+    });
+  }
+
+  // Run ASAP, then on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCodeBlocks);
+  } else {
+    initCodeBlocks();
+  }
+
+  // Convert wikilinks to links on client side
+  // Matches [[ref]] or [[ref|display text]]
+  document.addEventListener('DOMContentLoaded', () => {
+    const wikiRegex = /\[\[([a-zA-Z0-9][a-zA-Z0-9_-]*?)(?:\|([^\]]+))?\]\]/g;
+    
+    // Process all text nodes in prose content
+    const walker = document.createTreeWalker(
+      document.querySelector('.prose') || document.body,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    const nodesToReplace = [];
+    let node;
+    
+    while (node = walker.nextNode()) {
+      if (node.nodeValue.includes('[[')) {
+        nodesToReplace.push(node);
+      }
+    }
+    
+    nodesToReplace.forEach((textNode) => {
+      const parent = textNode.parentNode;
+      let lastIndex = 0;
+      const matches = [...textNode.nodeValue.matchAll(wikiRegex)];
+      
+      if (matches.length === 0) return;
+      
+      const fragment = document.createDocumentFragment();
+      
+      matches.forEach((match) => {
+        const [fullMatch, ref, displayText] = match;
+        const startIndex = match.index;
+        
+        // Add text before match
+        if (startIndex > lastIndex) {
+          fragment.appendChild(
+            document.createTextNode(textNode.nodeValue.slice(lastIndex, startIndex))
+          );
+        }
+        
+        // Create link
+        const link = document.createElement('a');
+        link.href = `/notes/${ref.toLowerCase()}`;
+        link.textContent = (displayText || ref).trim();
+        link.className = 'text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors';
+        fragment.appendChild(link);
+        
+        lastIndex = startIndex + fullMatch.length;
+      });
+      
+      // Add remaining text
+      if (lastIndex < textNode.nodeValue.length) {
+        fragment.appendChild(
+          document.createTextNode(textNode.nodeValue.slice(lastIndex))
+        );
+      }
+      
+      parent.replaceChild(fragment, textNode);
+    });
+  });
+</script> 

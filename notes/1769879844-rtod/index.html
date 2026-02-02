@@ -1,0 +1,1156 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>compile</title><script>
+      // This script runs synchronously in the head to prevent FOUC (Flash of Unstyled Content)
+      (function() {
+        const THEME_KEY = 'nord-theme';
+        const DARK = 'dark';
+        
+        function getStoredTheme() {
+          try {
+            return localStorage.getItem(THEME_KEY);
+          } catch {
+            return null;
+          }
+        }
+        
+        function getSystemTheme() {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+        }
+        
+        function getTheme() {
+          return getStoredTheme() || getSystemTheme();
+        }
+        
+        function applyTheme(theme) {
+          const html = document.documentElement;
+          if (theme === DARK) {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+        }
+        
+        // Apply theme immediately before page renders
+        applyTheme(getTheme());
+      })();
+    </script><style>.knowledge-graph-container[data-astro-cid-eoxcivfe]{border:1px solid var(--nord-4);border-radius:8px;background:var(--nord-6);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-eoxcivfe]:fullscreen,.knowledge-graph-container[data-astro-cid-eoxcivfe]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-eoxcivfe]:fullscreen .knowledge-graph-wrapper[data-astro-cid-eoxcivfe],.knowledge-graph-container[data-astro-cid-eoxcivfe]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-eoxcivfe]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--nord-4);border-radius:6px;background:var(--nord-6);color:var(--nord-2);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--nord-5);color:var(--nord-10)}.knowledge-graph-toolbar-btn:active{background:var(--nord-4)}.knowledge-graph-wrapper[data-astro-cid-eoxcivfe]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:#5e81ac;stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--nord-14);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--nord-10);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--nord-14);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--nord-15);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--nord-12);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--nord-4);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:#4c566a;stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--nord-11);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--nord-1);font-weight:500;text-shadow:0 0 3px var(--nord-6)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--nord-0);border:1px solid var(--nord-3);border-radius:4px;font-size:12px;color:var(--nord-6);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--nord-8);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--nord-2)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--nord-10)}.kg-legend--outlink{color:var(--nord-14)}.kg-legend--backlink{color:var(--nord-15)}.kg-legend--both{color:var(--nord-12)}.kg-legend--neighbor{color:var(--nord-4);opacity:.9}
+html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-word}
+</style>
+<link rel="stylesheet" href="/_astro/_slug_.C9MBorz5.css"></head> <body class="bg-nord-6 dark:bg-nord-0 text-nord-3 dark:text-nord-5 transition-colors"> <header class="border-b border-nord-5 dark:border-nord-1 bg-nord-6 dark:bg-nord-0"> <nav class="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between gap-4"> <div class="flex items-center gap-2 min-w-0"> <a href="/" title="Liu" class="shrink-0 p-1.5 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-colors"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"> <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path> <circle cx="12" cy="7" r="4"></circle> </svg> </a> <h1 class="text-xl font-bold truncate"> <a href="/" class="text-nord-2 dark:text-nord-6 hover:text-nord-10 dark:hover:text-nord-8 transition-colors"> Liu </a> </h1> </div> <div class="flex items-center gap-2 shrink-0"> <a href="https://github.com/gh-liu" title="GitHub" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-200 ease-out hover:scale-110"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"> <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path> </svg> </a> <span class="w-px h-4 bg-nord-4 dark:bg-nord-2 shrink-0" aria-hidden="true"></span>  <a href="/notes/tags" title="Tags" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> </a> <div class="search-container" id="search-wrapper" data-astro-cid-otpdt6jm><button id="search-toggle" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-otpdt6jm><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-otpdt6jm><circle cx="11" cy="11" r="8" data-astro-cid-otpdt6jm></circle><path d="m21 21-4.35-4.35" data-astro-cid-otpdt6jm></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20" data-astro-cid-otpdt6jm><div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl w-full max-w-2xl border border-nord-5 dark:border-nord-1 max-h-[70vh] flex flex-col" data-astro-cid-otpdt6jm><div class="p-4 border-b border-nord-5 dark:border-nord-1" data-astro-cid-otpdt6jm><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full px-4 py-2 bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 placeholder-nord-3 dark:placeholder-nord-4 rounded focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-otpdt6jm></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-otpdt6jm><p class="text-nord-3 dark:text-nord-5 text-sm" data-astro-cid-otpdt6jm>Type to search...</p></div><div class="p-3 border-t border-nord-5 dark:border-nord-1 text-xs text-nord-3 dark:text-nord-4" data-astro-cid-otpdt6jm><p data-astro-cid-otpdt6jm>Press <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-otpdt6jm>Esc</kbd> to close | Use <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-otpdt6jm>#tag</kbd> to search by tag</p></div></div></div></div><script>(function(){const pagefindUrl = "/pagefind/pagefind.js";
+
+  if (!globalThis.pagefindLoaded) {
+    globalThis.pagefindLoaded = true;
+    
+    let pagefind;
+    let searchInput;
+    let searchModal;
+    let searchResults;
+    let isSearchOpen = false;
+
+    async function initSearch() {
+      if (typeof window === "undefined") return;
+
+      try {
+        pagefind = await import(pagefindUrl);
+        await pagefind.init();
+      } catch (error) {
+        console.log("Search not available.", error);
+        return;
+      }
+
+      searchInput = document.getElementById("search-input");
+      searchModal = document.getElementById("search-modal");
+      searchResults = document.getElementById("search-results");
+      const toggleBtn = document.getElementById("search-toggle");
+
+      if (!searchInput || !searchModal || !searchResults || !toggleBtn) return;
+
+      toggleBtn.addEventListener("click", () => {
+        openSearch();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeSearch();
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          e.preventDefault();
+          isSearchOpen ? closeSearch() : openSearch();
+        }
+      });
+
+      searchModal.addEventListener("click", (e) => {
+        if (e.target === searchModal) closeSearch();
+      });
+
+      searchInput.addEventListener("input", async (e) => {
+        const query = e.target.value.trim();
+        if (!query) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+          return;
+        }
+
+        // Check if query starts with #tag
+        const isTagSearch = query.startsWith('#');
+        let results;
+        
+        if (isTagSearch) {
+          // Tag search
+          const tag = query.slice(1).toUpperCase();
+          results = await pagefind.search(`tag:${tag}`);
+        } else {
+          // Regular text search
+          results = await pagefind.search(query);
+        }
+
+        if (results.results.length === 0) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">No results found.</p>';
+          return;
+        }
+
+        let html = '<ul class="space-y-2">';
+        for (const result of results.results) {
+          const data = await result.data();
+          // Extract title from h1 or use URL slug as fallback
+          const title = data.meta?.title || data.title || (data.url.split('/').pop() || 'untitled').replace(/-/g, ' ');
+          html += `<li><a href="${data.url}" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"><div class="font-medium">${title}</div><div class="text-xs text-nord-3 dark:text-nord-5 mt-1 line-clamp-2">${data.excerpt || ""}</div></a></li>`;
+        }
+        searchResults.innerHTML = html + "</ul>";
+      });
+    }
+
+    function openSearch() {
+      isSearchOpen = true;
+      searchModal.classList.remove("hidden");
+      searchInput.focus();
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSearch() {
+      isSearchOpen = false;
+      searchModal.classList.add("hidden");
+      searchInput.value = "";
+      searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+      document.body.style.overflow = "";
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initSearch);
+    } else {
+      initSearch();
+    }
+  }
+})();</script> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="group relative p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-4 transition-all duration-200 ease-out hover:scale-110"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="w-4 h-4 text-nord-13 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="w-4 h-4 text-nord-9 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script>
+  const THEME_KEY = 'nord-theme';
+  const DARK = 'dark';
+  
+  function getStoredTheme() {
+    return localStorage.getItem(THEME_KEY);
+  }
+  
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+  }
+  
+  function getTheme() {
+    return getStoredTheme() || getSystemTheme();
+  }
+  
+  function applyTheme(theme) {
+    const html = document.documentElement;
+    if (theme === DARK) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }
+  
+  function toggleTheme() {
+    const currentTheme = getTheme();
+    const newTheme = currentTheme === DARK ? 'light' : DARK;
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  }
+  
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+</script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-xvrfupwn> <nav class="px-4 space-y-1" data-astro-cid-xvrfupwn> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-xvrfupwn> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-xvrfupwn></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-xvrfupwn>
+On this page
+</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#go-compiler" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> Go compiler </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#gc" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> gc </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#go-gc" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> go gc </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#词法" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 词法 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#语法" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 语法 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#类型检查语义" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 类型检查(语义) </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#中端中间代码-ir-tree" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 中端：中间代码 IR TREE </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#包初始化-尽可能在编译器完成变量初始化" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 包初始化: 尽可能在编译器完成变量初始化 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#优化dead-code-减小可执行文件大小提升缓存命中率增加局部性" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 优化：dead code: 减小可执行文件大小，提升缓存命中率（增加局部性） </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#优化inline" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 优化：inline </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#逃逸分析" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 逃逸分析 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#后端编译成目标代码" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 后端：编译成目标代码 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#parser" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> parser </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#type-checker" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> type checker </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#对象-object" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 对象 Object </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#scope" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> scope </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#types" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> types </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#selection" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> selection </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#ids-标识符的唯一性" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> ids: 标识符的唯一性 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#method-set" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> method set </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#constants" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> constants </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#size-and-alignment" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> size and alignment </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#imports" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> imports </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#formatting-support" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> formatting-support </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#from-a-to-b" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> From A to B </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
+  const TOC_KEY = 'toc-open';
+  const sidebar = document.getElementById('toc-sidebar');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+
+  function getSidebarState() {
+    return localStorage.getItem(TOC_KEY) !== 'false';
+  }
+
+  function setSidebarState(open) {
+    localStorage.setItem(TOC_KEY, open ? 'true' : 'false');
+  }
+
+  function updateSidebar() {
+    const isOpen = getSidebarState();
+    if (sidebar) {
+      if (isOpen) {
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    }
+  }
+
+  function toggleSidebar() {
+    const isOpen = getSidebarState();
+    setSidebarState(!isOpen);
+    updateSidebar();
+  }
+
+  // Initialize
+  updateSidebar();
+
+  // Event listeners
+  if (toggle) {
+    toggle.addEventListener('click', toggleSidebar);
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', toggleSidebar);
+  }
+
+  // Keyboard shortcut: left/right arrow to toggle
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.ctrlKey) {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  });
+
+  // Highlight current section on scroll
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          document.querySelectorAll('.toc-item a').forEach((link) => {
+            link.classList.remove('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+            link.classList.add('text-nord-3', 'dark:text-nord-4');
+          });
+          const activeLink = document.querySelector(
+            `.toc-item a[href="#${entry.target.id}"]`
+          );
+          if (activeLink) {
+            activeLink.classList.remove('text-nord-3', 'dark:text-nord-4');
+            activeLink.classList.add('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+          }
+        }
+      });
+    },
+    { rootMargin: '-50% 0px -50% 0px' }
+  );
+
+  document.querySelectorAll('h2, h3').forEach((heading) => {
+    if (heading.id) {
+      observer.observe(heading);
+    }
+  });
+
+  // Close sidebar on link click
+  document.querySelectorAll('.toc-item a').forEach((link) => {
+    link.addEventListener('click', () => {
+      setSidebarState(false);
+      updateSidebar();
+    });
+  });
+</script>  <article class="prose prose-nord dark:prose-nord max-w-none
+      prose-headings:font-serif
+      prose-code:before:content-none prose-code:after:content-none" data-astro-cid-v5yihett> <header class="mb-8" data-astro-cid-v5yihett> <h1 class="mb-3" data-pagefind-meta="title" data-astro-cid-v5yihett>compile</h1> <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4" data-astro-cid-v5yihett> <div class="text-sm text-nord-3 dark:text-nord-5" data-astro-cid-v5yihett> <div> <div class="flex flex-wrap gap-2 mb-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-7 dark:bg-nord-7 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>📅</span> <span> 2026-02-01 </span> </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-8 dark:bg-nord-8 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>✏️</span> <span> 2026-01-31 </span> </span> <div class="flex flex-wrap gap-2"> <a href="/notes/tag/CS" class="inline-block px-2.5 py-1 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors cursor-pointer !no-underline hover:!no-underline"> CS </a><a href="/notes/tag/GO" class="inline-block px-2.5 py-1 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors cursor-pointer !no-underline hover:!no-underline"> GO </a> </div>  </div> </div> </div> <div class="text-sm" data-astro-cid-v5yihett> <div> <div class="flex items-center gap-4"> <!-- Back to notes link - removed, now in footer --> <!-- Show only links and backlinks stats --> <!-- Outlinks -->  <!-- Backlinks -->  <!-- No links message --> <span class="text-nord-3 dark:text-nord-4 italic">No related notes</span> </div> <!-- Modals --> <div id="outlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No outlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "outlinks-modal";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <div id="backlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No backlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "backlinks-modal";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <script>
+  // Outlinks button - calls window.openOutlinksModal()
+  document.querySelectorAll('.open-outlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openOutlinksModal) {
+        window.openOutlinksModal();
+      }
+    });
+  });
+
+  // Backlinks button - calls window.openBacklinksModal()
+  document.querySelectorAll('.open-backlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openBacklinksModal) {
+        window.openBacklinksModal();
+      }
+    });
+  });
+</script> </div> </div> </div> </header>    <p><a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/main.go">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/main.go</a></p>
+<p><a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/gc/main.go#L61">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/gc/main.go#L61</a></p>
+<ul>
+<li><code>cmd/compile/internal/types</code> (compiler types) 编译期间的类型kj</li>
+</ul>
+<p><a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/gc/main.go#L208">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/gc/main.go#L208</a>
+noder.LoadPackage =
+一个文件，一个noder[v]</p>
+<p><a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/noder/noder.go#L59">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/noder/noder.go#L59</a>
+syntax.Parse
+<a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/noder/noder.go#L77">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/noder/noder.go#L77</a>
+unified: ast -> type checking -> ir node
+只解析local package，不包含imported的
+<a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/noder/unified.go#L195">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/noder/unified.go#L195</a>
+<a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/noder/unified.go#L319">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/noder/unified.go#L319</a>
+<a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/noder/irgen.go#L95">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/noder/irgen.go#L95</a>
+<a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/types2/api.go#L486">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/types2/api.go#L486</a>
+type checking</p>
+<p><a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/gc/main.go#L307">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/gc/main.go#L307</a>
+enqueueFunc
+函数入列，进行walk -> 转换成一些runtime的调用</p>
+<p><a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/gc/compile.go#L122">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/gc/compile.go#L122</a>
+编译所有函数
+<a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/gc/compile.go#L189">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/gc/compile.go#L189</a>
+函数toSSA
+<a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/ssagen/ssa.go#L303">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/ssagen/ssa.go#L303</a>
+<a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/ssa/compile.go#L30">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/ssa/compile.go#L30</a></p>
+<p><a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/ssagen/ssa.go#L1454">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/ssagen/ssa.go#L1454</a>
+ast 转 SSA</p>
+<p><a href="https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/objw/prog.go#L110">https://github.com/golang/go/blob/34c8b14ca9f4096383d658fbd748322a993a2bd2/src/cmd/compile/internal/objw/prog.go#L110</a>
+obj.Progs -> machine code
+gc.typecheck 历史遗留的类型检查</p>
+<p>词法分析，syntax Token</p>
+<p>语法分析，syntax File  -> ast
+<a href="https://go.dev/ref/spec#Declarations_and_scope">https://go.dev/ref/spec#Declarations_and_scope</a></p>
+<p>type parser:
+scanner 词法
+fileOrNil: 解析顶层声明：
+SourceFile = PackageClause ”;” { ImportDecl ”;” } { TopLevelDecl ”;” } .
+Declaration  = ConstDecl | TypeDecl | VarDecl .
+TopLevelDecl = Declaration | FunctionDecl | MethodDecl .</p>
+<p>类型检查：
+第一次： type2, type2 为文件为单位进行检查
+类型checker检查器</p>
+<p>Object 接口，定义了各类命名实体，类型检查围绕此  Object 对象都与 AST 中的一个 Node 对应
+Type 接口，定义各种类型
+type2/*.go</p>
+<p>作用域？全局->包->文件->代码块, 存放Object
+ast  -> obj  collectObjects
+checker.objDecl<br>
+返回type2.Packagel
+pckWriter -> bit</p>
+<p>noding???</p>
+<p>walk zz</p>
+<p>internal 的gc包下，有个Main函数，是编译的入口
+会有一些准备工作，忽略；
+注意：noder.LoadPackage函数，对输入进行ast解析和类型检查，同时输出IR
+ast解析有这几个结构体：syntax.Token 词法解析、syntax.File 语法解析生成的AST、入口是syntax.Parse函数</p>
+<p>类型检查，分为两部分：先type2包检查，然后在typecheck包检查；这一步涉及到pkgwriter，生成当前包的可导出stub数据
+type2包检查发生在writer之前：ast节点，collectObjects转换成Object，针对Object进行检查checker.objDecl
+object在node的wirter写入pkgbit流后，在pkgreader读取，生成ir Node ->  ir.Package核心结构体</p>
+<p>包 inittask
+常量初始化在类型检查完成</p>
+<h2 id="go-compiler"><a href="https://github.com/golang/go/tree/master/src/cmd/compile">Go compiler</a></h2>
+<p>前端：词法分析、语法分析、语义分析、类型检查、中间代码生成
+后端：代码优化、机器码生产</p>
+<p>/src/cmd/compile/README.md</p>
+<ol>
+<li>词法与语法分析</li>
+<li>类型检查和 AST 转换</li>
+<li>通用 SSA 生成</li>
+<li>最后的机器代码生成</li>
+</ol>
+<p>src/cmd/compile:</p>
+<ol>
+<li>Parsing
+cmd/compile/internal/syntax(lexer, parser, syntax tree)
+source code is tokenized (lexical analysis), parsed (syntax analysis), and a syntax tree is constructed for each source file.
+Each syntax tree is an exact representation of the respective source file, with nodes corresponding to the various elements of the source such as expressions, declarations, and statements.
+The syntax tree also includes position information which is used for error reporting and the creation of debugging information.</li>
+<li>Type-checking and AST transformations
+cmd/compile/internal/gc(create compiler AST, type checking, AST transformations)
+convert the syntax package’s syntax tree to the compiler’s AST representation.
+type-checked: name resolution and type inference.
+Type-checking includes certain extra checks, such as “declared and not used” as well as determining whether or not a function terminates.
+Certain transformations are also done on the AST.
+Some nodes are refined based on type information, such as string additions being split from the arithmetic addition node type.
+Some other examples are dead code elimination, function call inlining, and escape analysis.</li>
+<li>Generic SSA
+cmd/compile/internal/gc(converting to SSA)
+cmd/compile/internal/ssa(SSA passes and rules)
+The AST is converted into Static Single Assignment (SSA) form,
+a lower-level intermediate representation with specific properties that make it easier to implement optimizations and to eventually generate machine code from it.
+During this conversion, function intrinsics are applied.
+Certain nodes are also lowered into simpler components during the AST to SSA conversion: the copy builtin is replaced by memory moves, and range loops are rewritten into for loops…
+a series of machine-independent passes and rules are applied:
+These passes include dead code elimination, removal of unneeded nil checks, and removal of unused branches.
+The generic rewrite rules mainly concern expressions, such as replacing some expressions with constant values, and optimizing multiplications and float operations.</li>
+<li>Generating machine code
+cmd/compile/internal/ssa(SSA lowering and arch-specific passes)
+cmd/internal/obj(machine code generation)
+The machine-dependent phase of the compiler begins with the “lower” pass, which rewrites generic values into their machine-specific variants.
+final code optimization passes are run:
+This includes yet another dead code elimination pass, moving values closer to their uses, the removal of local variables that are never read from, and register allocation.
+Other important pieces of work:
+stack frame layout, which assigns stack offsets to local variables;
+stack frame layout, which assigns stack offsets to local variables.
+the end:Go functions have been transformed into a series of obj.Prog instructions.
+These are passed to the assembler (cmd/internal/obj), which turns them into machine code and writes out the final object file.
+The object file will also contain reflect data, export data, and debugging information.</li>
+</ol>
+<p><a href="https://github.com/golang/go/blob/master/src/cmd/compile/internal/ssa/README.md">SSA</a>
+<a href="http://manpages.ubuntu.com/manpages/bionic/man1/ssadump.1.html">http://manpages.ubuntu.com/manpages/bionic/man1/ssadump.1.html</a></p>
+<p><a href="https://yuroyoro.github.io/goast-viewer/index.html">https://yuroyoro.github.io/goast-viewer/index.html</a></p>
+<p><a href="https://zhuanlan.zhihu.com/p/454419598">https://zhuanlan.zhihu.com/p/454419598</a>
+词法分析、语法分析、语义？
+类型检查
+中间代码生成<a href="https://en.wikipedia.org/wiki/Intermediate_representation">IR</a>
+SSA生成
+机器码生成</p>
+<p><a href="https://studygolang.com/articles/24554">https://studygolang.com/articles/24554</a>
+前端（frontend）：这个阶段从源代码进行分析，并生成一个抽象的源代码语法结构，称为 AST。 对应12
+后端（backend）：第二阶段将把源代码的表示转换为机器码，并进行一些优化。 对应34</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// tokenized.go</span></span>
+<span class="line"><span style="color:#6A737D">// https://gist.github.com/blanchonvincent/1f1cb850a436ffbb81df14eb586f52df</span></span>
+<span class="line"><span style="color:#F97583">package</span><span style="color:#B392F0"> main</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#E1E4E8"> (</span></span>
+<span class="line"><span style="color:#9ECBFF">	"</span><span style="color:#B392F0">fmt</span><span style="color:#9ECBFF">"</span></span>
+<span class="line"><span style="color:#9ECBFF">	"</span><span style="color:#B392F0">go/scanner</span><span style="color:#9ECBFF">"</span></span>
+<span class="line"><span style="color:#9ECBFF">	"</span><span style="color:#B392F0">go/token</span><span style="color:#9ECBFF">"</span></span>
+<span class="line"><span style="color:#9ECBFF">	"</span><span style="color:#B392F0">io/ioutil</span><span style="color:#9ECBFF">"</span></span>
+<span class="line"><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#6A737D">	// src is the input that we want to tokenize.</span></span>
+<span class="line"><span style="color:#E1E4E8">	src, _ </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> ioutil.</span><span style="color:#B392F0">ReadFile</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">`main.go`</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Initialize the scanner.</span></span>
+<span class="line"><span style="color:#F97583">	var</span><span style="color:#E1E4E8"> s </span><span style="color:#B392F0">scanner</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Scanner</span></span>
+<span class="line"><span style="color:#E1E4E8">	fset </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> token.</span><span style="color:#B392F0">NewFileSet</span><span style="color:#E1E4E8">()                      </span><span style="color:#6A737D">// positions are relative to fset</span></span>
+<span class="line"><span style="color:#E1E4E8">	file </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> fset.</span><span style="color:#B392F0">AddFile</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">""</span><span style="color:#E1E4E8">, fset.</span><span style="color:#B392F0">Base</span><span style="color:#E1E4E8">(), </span><span style="color:#B392F0">len</span><span style="color:#E1E4E8">(src)) </span><span style="color:#6A737D">// register input "file"</span></span>
+<span class="line"><span style="color:#E1E4E8">	s.</span><span style="color:#B392F0">Init</span><span style="color:#E1E4E8">(file, src, </span><span style="color:#79B8FF">nil</span><span style="color:#6A737D"> /* no error handler */</span><span style="color:#E1E4E8">, scanner.ScanComments)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Repeated calls to Scan yield the token sequence found in the input.</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		pos, tok, lit </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> s.</span><span style="color:#B392F0">Scan</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> tok </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> token.EOF {</span></span>
+<span class="line"><span style="color:#F97583">			break</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">		fmt.</span><span style="color:#B392F0">Printf</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">%s\t%s\t%q\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">, fset.</span><span style="color:#B392F0">Position</span><span style="color:#E1E4E8">(pos), tok, lit)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># 展示 抽象语法树 的转换</span></span>
+<span class="line"><span style="color:#B392F0">go</span><span style="color:#9ECBFF"> tool</span><span style="color:#9ECBFF"> compile</span><span style="color:#79B8FF"> -w</span><span style="color:#9ECBFF"> main.go</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#E1E4E8">GOSSAFUNC</span><span style="color:#F97583">=</span><span style="color:#9ECBFF">main</span><span style="color:#B392F0"> go</span><span style="color:#9ECBFF"> tool</span><span style="color:#9ECBFF"> compile</span><span style="color:#9ECBFF"> main.go</span></span>
+<span class="line"><span style="color:#6A737D"># 生成 HTML 文档的命令将在 SSA 包中完成所有不同的过程，因此可以转储 SSA 代码</span></span>
+<span class="line"><span style="color:#6A737D"># 完成所有过程之后，Go 编译器现在将生成一个中间汇编代码</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># 生成目标(object)文件</span></span>
+<span class="line"><span style="color:#6A737D"># 生成目标文件后，现在可以使用 go tool link 将其直接传递给链接器，二进制文件将最终就绪。</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># https://www.grant.pizza/blog/dissecting-go-binaries/</span></span>
+<span class="line"><span style="color:#6A737D"># see the assembly code before it gets turned into 1’s and 0’s by compiling your program</span></span>
+<span class="line"><span style="color:#B392F0">go</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> -gcflags</span><span style="color:#79B8FF"> -S</span><span style="color:#9ECBFF"> program.go</span></span>
+<span class="line"><span style="color:#6A737D"># already have a compiled program and want to see the assembly code</span></span>
+<span class="line"><span style="color:#B392F0">go</span><span style="color:#9ECBFF"> tool</span><span style="color:#9ECBFF"> objdump</span><span style="color:#9ECBFF"> binaryFile</span></span></code></pre>
+<p><a href="https://zhuanlan.zhihu.com/p/62922404">https://zhuanlan.zhihu.com/p/62922404</a></p>
+<p><a href="https://xiaomi-info.github.io/2019/11/13/golang-compiler-principle/">https://xiaomi-info.github.io/2019/11/13/golang-compiler-principle/</a></p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#6A737D"># 把编译期间涉及的命令全部打印出来，但不会真的执行</span></span>
+<span class="line"><span style="color:#B392F0">go</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> -n</span><span style="color:#E1E4E8"> </span></span>
+<span class="line"><span style="color:#6A737D"># 打印编译期间用到的命名，它与 -n 的区别是，它不仅打印还会执行</span></span>
+<span class="line"><span style="color:#B392F0">go</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> -x</span><span style="color:#E1E4E8"> </span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">package</span><span style="color:#B392F0"> main</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">import</span><span style="color:#9ECBFF"> "</span><span style="color:#B392F0">fmt</span><span style="color:#9ECBFF">"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> main</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">    a </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 1</span><span style="color:#F97583"> +</span><span style="color:#79B8FF"> 2</span></span>
+<span class="line"><span style="color:#E1E4E8">    b </span><span style="color:#F97583">:=</span><span style="color:#79B8FF"> 10</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    c </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> a </span><span style="color:#F97583">*</span><span style="color:#E1E4E8"> b</span></span>
+<span class="line"><span style="color:#E1E4E8">    fmt.</span><span style="color:#B392F0">Println</span><span style="color:#E1E4E8">(c)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span></code></pre>
+<p>go build -x main.go</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>#</span></span>
+<span class="line"><span># command-line-arguments</span></span>
+<span class="line"><span>#</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>mkdir -p $WORK/b001/</span></span>
+<span class="line"><span>cat >$WORK/b001/importcfg &#x3C;&#x3C; 'EOF' # internal</span></span>
+<span class="line"><span># import config</span></span>
+<span class="line"><span>packagefile runtime=/home/sr/env/golang/go/pkg/linux_amd64/runtime.a</span></span>
+<span class="line"><span>EOF</span></span>
+<span class="line"><span>cd /home/sr/dev/golang/pkg/learn-go/compiler</span></span>
+<span class="line"><span># compile buildid 命令</span></span>
+<span class="line"><span>/home/sr/env/golang/go/pkg/tool/linux_amd64/compile -o $WORK/b001/_pkg_.a -trimpath "$WORK/b001=>" -p main -complete -buildid qy66Pv6Y2DD0pNu6LZ_K/qy66Pv6Y2DD0pNu6LZ_K -goversion go1.18.1 -c=4 -nolocalimports -importcfg $WORK/b001/importcfg -pack ./main.go</span></span>
+<span class="line"><span>/home/sr/env/golang/go/pkg/tool/linux_amd64/buildid -w $WORK/b001/_pkg_.a # internal</span></span>
+<span class="line"><span>cat >$WORK/b001/importcfg.link &#x3C;&#x3C; 'EOF' # internal</span></span>
+<span class="line"><span>packagefile command-line-arguments=$WORK/b001/_pkg_.a</span></span>
+<span class="line"><span>packagefile runtime=/home/sr/env/golang/go/pkg/linux_amd64/runtime.a</span></span>
+<span class="line"><span>packagefile internal/abi=/home/sr/env/golang/go/pkg/linux_amd64/internal/abi.a</span></span>
+<span class="line"><span>packagefile internal/bytealg=/home/sr/env/golang/go/pkg/linux_amd64/internal/bytealg.a</span></span>
+<span class="line"><span>packagefile internal/cpu=/home/sr/env/golang/go/pkg/linux_amd64/internal/cpu.a</span></span>
+<span class="line"><span>packagefile internal/goarch=/home/sr/env/golang/go/pkg/linux_amd64/internal/goarch.a</span></span>
+<span class="line"><span>packagefile internal/goexperiment=/home/sr/env/golang/go/pkg/linux_amd64/internal/goexperiment.a</span></span>
+<span class="line"><span>packagefile internal/goos=/home/sr/env/golang/go/pkg/linux_amd64/internal/goos.a</span></span>
+<span class="line"><span>packagefile runtime/internal/atomic=/home/sr/env/golang/go/pkg/linux_amd64/runtime/internal/atomic.a</span></span>
+<span class="line"><span>packagefile runtime/internal/math=/home/sr/env/golang/go/pkg/linux_amd64/runtime/internal/math.a</span></span>
+<span class="line"><span>packagefile runtime/internal/sys=/home/sr/env/golang/go/pkg/linux_amd64/runtime/internal/sys.a</span></span>
+<span class="line"><span>packagefile runtime/internal/syscall=/home/sr/env/golang/go/pkg/linux_amd64/runtime/internal/syscall.a</span></span>
+<span class="line"><span>modinfo "0w\xaf\f\x92t\b\x02A\xe1\xc1\a\xe6\xd6\x18\xe6path\tcommand-line-arguments\nbuild\t-compiler=gc\nbuild\tCGO_ENABLED=1\nbuild\tCGO_CFLAGS=\nbuild\tCGO_CPPFLAGS=\nbuild\tCGO_CXXFLAGS=\nbuild\tCGO_LDFLAGS=\nbuild\tGOARCH=amd64\nbuild\tGOOS=linux\nbuild\tGOAMD64=v1\n\xf92C1\x86\x18 r\x00\x82B\x10A\x16\xd8\xf2"</span></span>
+<span class="line"><span>EOF</span></span>
+<span class="line"><span>mkdir -p $WORK/b001/exe/</span></span>
+<span class="line"><span>cd .</span></span>
+<span class="line"><span># link 命令</span></span>
+<span class="line"><span>/home/sr/env/golang/go/pkg/tool/linux_amd64/link -o $WORK/b001/exe/a.out -importcfg $WORK/b001/importcfg.link -buildmode=exe -buildid=0qotbwXHs85a8uyHulGB/qy66Pv6Y2DD0pNu6LZ_K/qy66Pv6Y2DD0pNu6LZ_K/0qotbwXHs85a8uyHulGB -extld=gcc $WORK/b001/_pkg_.a</span></span>
+<span class="line"><span>/home/sr/env/golang/go/pkg/tool/linux_amd64/buildid -w $WORK/b001/exe/a.out # internal</span></span>
+<span class="line"><span>mv $WORK/b001/exe/a.out main</span></span></code></pre>
+<p>编译器前端：
+词法、语法、语义
+编译器后端：
+IR、优化、机器码</p>
+<p>词法分析：
+给 Go 的 token 类型分个类：变量名、字面量、操作符、分隔符以及关键字。
+识别空格，如果是空格可以分一个词；遇到 ( 、)、’&#x3C;’、’>’ 等这些特殊运算符的时候算一个分词；遇到 “ 或者 数字字面量算分词。</p>
+<p>语法分析：
+Token 序列作为语法分析器的输入，经过处理后生成 AST 结构作为输出。
+自上而下：这种方式会首先构造根节点，然后就开始扫描 Token，遇到 STRING 或者其它类型就知道这是在进行类型申明，func 就表示是函数申明。就这样一直扫描直到程序结束。
+自下而上：先构造子树，然后再组装成一颗完整的树。</p>
+<p>语义分析：类型检查：
+AST 生成后，语义分析将使用它作为输入，并且的有一些相关的操作也会直接在这颗树上进行改写。
+Golang 进行类型检查，还有类型推断，查看类型是否匹配，是否进行隐式转化（go 没有隐式转化）， dead code 的消除，函数调用内联和逃逸分析。
+前端主要就是解析出编译器后端可以处理的正确的 AST 结构。</p>
+<p>中间码生成：
+各种各样的操作系统，有不同的 CPU 类型，每一种的位数可能不同；
+寄存器能够使用的指令也不同，像是复杂指令集与精简指令集等；
+在进行各个平台的兼容之前，我们还需要替换一些底层函数，比如我们使用 make 来初始化 slice，此时会根据传入的类型替换为：makeslice64 或者 makeslice。
+当然还有像 painc、channel 等等函数的替换也会在中间码生成过程中进行替换。
+中间码存在的另外一个价值是提升后端编译的重用，比如我们定义好了一套中间码应该是长什么样子，那么后端机器码生成就是相对固定的。每一种语言只需要完成自己的编译器前端工作即可。
+Golang 使用的就是 SSA 特性的中间码(IR)，这种形式的中间码，最重要的一个特性就是最在使用变量之前总是定义变量，并且每个变量只分配一次。</p>
+<p>代码优化：
+并行性，充分利用现在多核计算机的特性
+流水线，cpu 有时候在处理 a 指令的时候，还能同时处理 b 指令
+指令的选择，为了让 cpu 完成某些操作，需要使用指令，但是不同的指令效率有非常大的差别，这里会进行指令优化
+利用寄存器与高速缓存，我们都知道 cpu 从寄存器取是最快的，从高速缓存取次之。这里会进行充分的利用</p>
+<p>机器码生成：
+经过优化后的中间代码，首先会在这个阶段被转化为汇编代码（Plan9），而汇编语言仅仅是机器码的文本表示，机器还不能真的去执行它。
+所以这个阶段会调用汇编器，汇编器会根据我们在执行编译时设置的架构，调用对应代码来生成目标机器码。</p>
+<p><a href="https://segmentfault.com/a/1190000016523685">https://segmentfault.com/a/1190000016523685</a>
+<a href="https://getstream.io/blog/how-a-go-program-compiles-down-to-machine-code/">https://getstream.io/blog/how-a-go-program-compiles-down-to-machine-code/</a></p>
+<ol>
+<li>逐行扫描源代码，将之转换为一系列的 token，交给 parser 解析。</li>
+<li>parser，它将一系列 token 转换为 AST（抽象语法树），用于下一步生成代码。</li>
+<li>最后一步，代码生成，会利用上一步生成的 AST 并根据目标机器平台的不同，生成目标机器码。
+（go/scanner，go/parser，go/token，go/ast）主要是让我们可以方便地对 Go 代码进行解析和生成，做出更有趣的事情。但是 Go 本身的编译器并不是用这些代码包实现的。</li>
+</ol>
+<p>ssa.html: start 阶段是从 AST 生成的SSA；lower 阶段将非机器特定的 SSA 转换为机器特定的 SSA，最后的 genssa 就是生成的机器代码。</p>
+<p><a href="https://xiaomi-info.github.io/2019/11/27/golang-compiler-plan9/">https://xiaomi-info.github.io/2019/11/27/golang-compiler-plan9/</a></p>
+<p><a href="https://sitano.github.io/2018/03/18/howto-read-gossa/">https://sitano.github.io/2018/03/18/howto-read-gossa/</a>
+<a href="https://eli.thegreenplace.net/2019/go-compiler-internals-adding-a-new-statement-to-go-part-1/">https://eli.thegreenplace.net/2019/go-compiler-internals-adding-a-new-statement-to-go-part-1/</a>
+<a href="https://quasilyte.dev/blog/post/go_ssa_rules/">https://quasilyte.dev/blog/post/go_ssa_rules/</a></p>
+<p>Note:
+<a href="https://segmentfault.com/a/1190000016523685">https://segmentfault.com/a/1190000016523685</a>
+每个 v 都是一个新变量，可以点击来查看它被使用的位置。
+b 是块，这里有三块：b1，b2，b3。b1 始终会执行，b2 和 b3 是条件块，满足条件才执行。
+<a href="https://github.com/golang/go/blob/master/src/cmd/compile/internal/ssa/gen/genericOps.go">https://github.com/golang/go/blob/master/src/cmd/compile/internal/ssa/gen/genericOps.go</a>
+在HTML中，某些行是灰色的，这意味着它们将在下一个阶段中被删除或修改。</p>
+<p>##ssa</p>
+<blockquote>
+<p>each variable be assigned exactly once, and every variable be defined before it is used.</p>
+</blockquote>
+<p><a href="https://github.com/gopherchina/conference/tree/master/2020">https://github.com/gopherchina/conference/tree/master/2020</a>
+<a href="https://github.com/chai2010/go-ast-book">https://github.com/chai2010/go-ast-book</a></p>
+<p>GOSSAFUNC=foo go build a.go
+source和AST属于编译器前端，从start到writebarrier属于编译器中端，从lower到genssa属于编译器后端；
+start/writebarrier/genssa三道工序的输出：
+start工序是编译器前端的最后一步，输出原始IR序列；
+writebarrier是编译器中端的最后一步，输出经通用优化后的IR序列；
+genssa是后端的最后一步，输出真正的最优的x86_64汇编序列</p>
+<h2 id="gc">gc</h2>
+<p>词法分析：主语、谓语、宾语
+语法分析：主语+谓语+宾语
+语义分析：猪（主语）上（谓语）树（宾语）
+中间代码：IR（SSA），优化
+目标代码：优化</p>
+<p>词法分析用lex，语法分析用yacc</p>
+<p>模块简介、核心数据结构、核心逻辑、特殊案例</p>
+<p>编译器前端：词法分析、语法分析、类型检查
+编译器后端：中间代码，目标代码</p>
+<h2 id="go-gc">go gc</h2>
+<ol>
+<li>
+<p>parsing: <code>cmd/compile/internal/syntax</code> (lexer, parser, syntax tree) <code>go/{token,parser,ast}</code></p>
+</li>
+<li>
+<p>type checking: <code>cmd/compile/internal/types2</code> <code>go/types</code></p>
+</li>
+<li>
+<p>IR construction (“noding”): <code>cmd/compile/internal/{types,ir,noder}</code></p>
+</li>
+<li>
+<p>Middle end(perform optimizations): <code>cmd/compile/internal/{deadcode,inline,devirtualize,escape}</code></p>
+</li>
+<li>
+<p>Walk: <code>cmd/compile/internal/walk</code> (order of evaluation, desugaring)</p>
+</li>
+<li>
+<p>Generic SSA: <code>cmd/compile/internal/{ssa,ssagen}</code> (apply intrinsic functions, copy->memorymove, range->for, machine-independent passes and rules are applied(These passes include dead code elimination, removal of unneeded nil checks, and removal of unused branches…))</p>
+</li>
+<li>
+<p>Generating machine code: <code>cmd/compile/internal/ssa</code> <code>cmd/internal/obj</code>
+machine-dependent phase: rewrites generic values into their machine-specific variants;
+final code optimization passes: dead code elimination pass, moving values closer to their uses, the removal of local variables that are never read from, and register allocation;
+stack frame layout: which assigns stack offsets to local variables, and pointer liveness analysis, which computes which on-stack pointers are live at each GC safe point;</p>
+</li>
+</ol>
+<p>At the end: Go functions -> obj.Prog instructions, passed to <code>cmd/internal/obj</code>, -> machine code.</p>
+<p><code>stdlib/go/</code>:</p>
+<ol>
+<li>parser: a parser for Go source files, the output is an abstract syntax tree (AST) representing the Go source.</li>
+<li>ast: declares the types used to represent syntax trees for Go packages.</li>
+<li>token: defines constants representing the lexical tokens of the Go programming language.</li>
+</ol>
+<p><code>golang.org/x/tools/go/</code>:</p>
+<ol>
+<li>packages: loads Go packages for inspection and analysis.</li>
+</ol>
+<h3 id="词法">词法</h3>
+<p>源代码文件字节流 -> Token流</p>
+<p>sourcecode -> source code</p>
+<p>package: src/cmd/compile/internal/syntax
+files:
+tokens.go(各种类型的 token 声明)
+source.go(go代码扫描器)
+scanner.go(词法分析器)</p>
+<h4 id="1-go代码扫描">1. go代码扫描</h4>
+<h4 id="2-词法分析">2. 词法分析</h4>
+<p>token 类型、字面量类型、操作符类型</p>
+<h3 id="语法">语法</h3>
+<p><code>token流</code>根据<code>文法规则</code>构造成一棵<code>抽象语法树AST</code></p>
+<p>文法是定义形式语言结构的规则；终结符号集合、非终结符号集合、产生式、开始符号；
+上下文无关文法 CFG：使用产生式右侧替换左侧时，与左侧的位置及相邻的符号无关；
+推导：通过文法生产字符串的过程，分为最左、右推导，表示使用最哪边的非终结符号进行推导；
+解析树：推导过程的可视化是一棵树，叶子节点为终结符号，中间节点为非终结符号，叶子从左到右即为推导的最终结果；
+语法解析为还原推导过程，分为自顶向下、自底向上（区别在于如何选择产生式）；</p>
+<h4 id="自顶向下">自顶向下</h4>
+<p>最左推导的逆推导</p>
+<ol>
+<li>递归下降</li>
+<li>LL(1): 预测匹配</li>
+</ol>
+<h4 id="自底向上">自底向上</h4>
+<p>最右推导的逆推导</p>
+<ol>
+<li>Bottom-Up：规约，识别出产生式右侧部分，替换成左侧部分，无法完成规约时，则进位；</li>
+<li>LR(0): SLR预测</li>
+<li>LR(1): LALR</li>
+</ol>
+<h4 id="go">Go</h4>
+<p>递归下降，以文件为单位进行解析成ast；</p>
+<p>package: src/cmd/compile/internal/syntax
+files:
+parser.go(语法解析器)
+nodes.go(AST数据结构)
+syntax.go(入口函数Parse->file结构体)
+dumper.go可视化ast
+printer.go特定格式打印ast</p>
+<p>通过Parse函数得到file结构体，其中的DeclList数组，包含文件中所有声明（Declaration）；
+声明（Declaration）是go文件顶级作用域唯一合法结构；</p>
+<ol>
+<li><a href="https://go.dev/ref/spec#Declarations_and_scope">声明（Declaration</a>: 命名绑定</li>
+<li><a href="https://go.dev/ref/spec#Expressions">表达式</a>: 计算</li>
+<li><a href="https://go.dev/ref/spec#Statements">语句</a>:  控制</li>
+</ol>
+<p>入口：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// 源文件作为参数，完成语法解析与类型检查</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> LoadPackage</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">filenames</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">string</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// parser.go</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// parser的方法大概分为三类：</span></span>
+<span class="line"><span style="color:#6A737D">// 1. 词法相关</span></span>
+<span class="line"><span style="color:#6A737D">// 2. 解析对应的结构：声明、表达式、语句等</span></span>
+<span class="line"><span style="color:#6A737D">// 3. 错误相关</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// 主要控制解析流程方法：</span></span>
+<span class="line"><span style="color:#6A737D">// 三部分逻辑：1. 解析package 2. 解析import声明和顶级声明（根据类型进行进一步解析）</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#E1E4E8"> (</span><span style="color:#FFAB70">p </span><span style="color:#F97583">*</span><span style="color:#B392F0">parser</span><span style="color:#E1E4E8">) </span><span style="color:#B392F0">fileOrNil</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">*</span><span style="color:#B392F0">File</span></span></code></pre>
+<h3 id="类型检查语义">类型检查(语义)</h3>
+<p>入口：</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// compile/internal/noder/irgen.go</span></span>
+<span class="line"><span style="color:#6A737D">// 语法分析输出的ast作为输入，进行类型检查和生成IR</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> check2</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">noders</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">*</span><span style="color:#B392F0">noder</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<p>package: src/cmd/compile/internal/types2
+依赖syntax包
+files:
+check.go(类型检查主要控制逻辑，通过结构体Checker完成)
+scope.go(作用域)
+package.go 包Package 数据结构及辅助方法
+object.go 符号对象，类型检查展开的核心数据结构
+type.go 移动到syntax/type.go, 定义与所有类型相关的数据结构(base.go array.go slice.go map.go chan.go  struct.go interface.go…)
+predicates.go 类型性质断言
+universe.go 全局作用域：</p>
+<p>符号解析：预定义符号、依赖包、自定义符号</p>
+<p>作用域：go采用静态作用域（词法作用域），分为：全局、包、文件（仅编译器）、块
+包：对象文件（.a 或 .o 文件）在编译器中的数据结构
+符号对象：封装了各方面信息（包、作用域、类型、位置信息等），一个obj与ast中一个node对应</p>
+<p>类型数据结构：类型接口，基础类型、内置复合类型、结构体类型、接口类型、Named 类型、Tuple 类型…各有一文件对应
+类型的等价规则：Identical 函数，类型的结构一致，那么等价
+类型的比较规则：可比较（等或不等）、可排序（大小等）</p>
+<p>类型检查器：结构体Checker</p>
+<p>类型检查逻辑：</p>
+<ol>
+<li>包加载器：通过包名找到对应的对象文件: 接口Importer(types2/api.go), 实现gcimports(noder/import.go)
+对象文件为编译器的输出，链接器的输入；分为不同的块Section来组织数据；包含重定位信息，链接器为重定位的数据规划内存；go是静态链接；通过go tool objdump 看内容；</li>
+<li>初始化：
+1）全局作用域: 内置服务初始化，并注册到全局作用域，init函数(types2/universe.go)
+2）类型检查器: check2函数(noder/irgen.go), 初始化Config Info Checker</li>
+<li>检查逻辑 Checker.checkFiles 方法中(types2/check.go)：
+1）准备工作initFiles(文件是否同一个包)，collectObjects(通过 AST 创建出顶级声明对象 Object 与 declInfo)
+2）类型检查packageObjects(通过递归下降的方式对 check.objMap 中的对象调用check.objDecl()进行类型检查)，processDelayed(需要延时处理的逻辑)
+类型表达式Checker.typ(types2/typexpr.go)、求值表达式Checker.exprInternal(types2/expr.go)、类型兼容性Checker.assignment(types2/assignments.go)、
+delayed队列(函数体的类型检查、循环依赖检查、整理接口信息…)
+3）确定全局初始化顺序initOrder(全局变量和全局常量之间的依赖关系 types2/initorder.go Checker.initOrder)</li>
+</ol>
+<h3 id="中端中间代码-ir-tree">中端：中间代码 IR TREE</h3>
+<p>首先，基于AST的IR Tree 进行内联、逃逸分析等，再生成基于SSA的IR</p>
+<p>AST 中每个节点只反映了该程序片段的性质，IR Tree是一种信息更加丰富的数据结构</p>
+<p>IR Tree 相关，主要是在ir包; 生成的 IR Tree 保存在全局变量 typecheck.Target</p>
+<p>Node接口，实现Node的各种类型(type.go expr.go stmt.go func.go name.go)
+Name结构体：
+Func结构体：</p>
+<p>Op类型：操作, Node接口的Op方法</p>
+<p>IR Tree 构建逻辑由 irgen.generate (noder/irgen.go) 驱动</p>
+<h3 id="包初始化-尽可能在编译器完成变量初始化">包初始化: 尽可能在编译器完成变量初始化</h3>
+<p>依赖包的初始化、全局变量初始化（明确是在编译时或运行时初始化）、init函数初始化</p>
+<p>package: src/cmd/compile/internal/pkginit
+files:
+init.go 主要逻辑(Task函数)
+initorder.go 包级别变量初始化顺序(initOrder函数)</p>
+<p>package: src/cmd/compile/internal/staticinit
+files:
+sched.go 判断赋值语句是属于静态初始化还是动态初始化，两者不同处理方式(Schedule.StaticInit方法)</p>
+<h3 id="优化dead-code-减小可执行文件大小提升缓存命中率增加局部性">优化：dead code: 减小可执行文件大小，提升缓存命中率（增加局部性）</h3>
+<p>对于函数（包括方法）通过函数<code>deadcode.Func()</code>清除其无效代码。
+例：if分支、布尔运算</p>
+<h3 id="优化inline">优化：inline</h3>
+<p>函数调用会切换上下文，存在固定开销;
+内联，使用函数体替换函数调用；</p>
+<p>问题：缩短程序调用链，对错误信息展示不友好；函数调用替换，增大可执行文件体积</p>
+<p>package: src/cmd/compile/internal/inline
+files:
+inl.go 主要逻辑(InlinePackage函数)</p>
+<p>主要逻辑：遍历函数调用链(ir/scc.go VisitFuncsBottomUp函数)、判断是否可以内联(计算函数复杂度 hairyVisitor结构体)、进行内联(InlineCalls 函数)</p>
+<p>根据此原则优化代码：
+一个函数被频繁调用，但是只有部分会被执行，但是由于剩下部分代码过多，导致此函数不会被内联，
+所以可以抽出剩下代码为一个函数，减少此函数复杂度，使得此函数被内联</p>
+<h3 id="逃逸分析">逃逸分析</h3>
+<p>栈：函数局部内存空间，保存函数局部遍历，包括参数、返回值；生命周期与函数一致，函数调用时分配、完成时销毁；
+堆：程序全局内存空间，分配、释放需要单独管理（手动、GC）；</p>
+<p>Go 遵循值拷贝原则：赋值、传参、返回值，都是复制一份数据；</p>
+<p>package: src/cmd/compile/internal/escape</p>
+<p>仅对函数局部变量分析：围绕指针展开：</p>
+<ol>
+<li>指向栈上对象的指针，不能在堆上；</li>
+<li>指向栈上对象的指针，生命周期不能大于其指向的对象；
+大对象也会分配到堆上；</li>
+</ol>
+<p>算法思路(escape.go)：基于AST的静态数据流分析 TODO</p>
+<h3 id="后端编译成目标代码">后端：编译成目标代码</h3>
+<p>树形结构变为线性结构，再翻译成目标机器代码</p>
+<p>IR Tree -> SSA -> 目标机器代码</p>
+<h4 id="中间代码ssa">中间代码SSA</h4>
+<p>package: src/cmd/compile/internal/{ssagen,ssa}</p>
+<p>入口函数Compile(ssagen/pgen.go)</p>
+<h4 id="abi">ABI</h4>
+<p>基于寄存器的ABI</p>
+<h4 id="导出obj">导出obj</h4>
+<h2 id="parser">parser</h2>
+<p>parse: parser -> File{[]Decl}
+fileOrNil -> funcDeclOrNil -> funcBody -> blockStmt -> stmtList -> stmtOrNil -> declStmt -> varDecl -> typeOrNil</p>
+<h2 id="type-checker">type checker</h2>
+<p><a href="https://github.com/golang/example/blob/master/gotypes/README.md">gotypes</a></p>
+<p>typecheck: Checker -> Package,Info{Types,Defs…}
+unified -> checkFiles -> Checker.checkFiles</p>
+<p>The Go type checker does three main things.</p>
+<ol>
+<li>identifier resolution: which <code>declaration</code> the <code>name</code> refers to</li>
+<li>type deduction: determines what <code>type</code> that <code>expression</code> has</li>
+<li>constant evaluation: determines the value of that constant expression</li>
+</ol>
+<p><code>type deduction</code> and <code>constant evaluation</code> must be done together, cause:</p>
+<ol>
+<li>the value of constant may depend on the type</li>
+<li>the type of an expression may depend on the value of a constant</li>
+</ol>
+<p><code>identifier resolution</code> and <code>type deduction</code> are also inseparable, cause:</p>
+<ol>
+<li>cannot <code>resolve the identifier</code> k in the composite literal T{k: 0} until we know whether T is a struct <code>type</code>.</li>
+</ol>
+<p>token.FileSet 记录语法树每个节点的token.Pos；
+Config控制typechecker，如有import其他包，需要设置importer；
+Check方法返回pkg，含有package的信息；传入的Info参数会包含额外的信息‘
+pkg的scope方法，返回词法块，用于访问pkg级别的<code>对象</code>；imports方法，返回直接引用的包，用于初始化顺序；</p>
+<h3 id="对象-object">对象 Object</h3>
+<p>identifier resolution: 标识符号解析，映射每个ast上的标识符(ast.Ident)到一个<code>对象</code>；
+object: 对象，使用<code>Object</code>接口表示，通过声明(declaration)创建的<code>命名实体</code>，比如const, var, type, func…</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> Object</span><span style="color:#F97583"> interface</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">    Name</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">string</span><span style="color:#6A737D">   // package-local object name</span></span>
+<span class="line"><span style="color:#B392F0">    Exported</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">bool</span><span style="color:#6A737D"> // reports whether the name starts with a capital letter</span></span>
+<span class="line"><span style="color:#B392F0">    Type</span><span style="color:#E1E4E8">() </span><span style="color:#B392F0">Type</span><span style="color:#6A737D">     // object type</span></span>
+<span class="line"><span style="color:#B392F0">    Pos</span><span style="color:#E1E4E8">() </span><span style="color:#B392F0">token</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Pos</span><span style="color:#6A737D"> // position of object identifier in declaration</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">    Parent</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">*</span><span style="color:#B392F0">Scope</span><span style="color:#6A737D"> // scope in which this object is declared</span></span>
+<span class="line"><span style="color:#B392F0">    Pkg</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">*</span><span style="color:#B392F0">Package</span><span style="color:#6A737D">  // nil for objects in the Universe scope and labels</span></span>
+<span class="line"><span style="color:#B392F0">    Id</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">string</span><span style="color:#6A737D">     // object id (see Ids section below)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<h3 id="scope">scope</h3>
+<p>变量的作用域</p>
+<h3 id="types">types</h3>
+<h3 id="selection">selection</h3>
+<p><code>.f</code> f表示结构体字段会方法，通过在类型里面查找进而解析；</p>
+<h3 id="ids-标识符的唯一性">ids: 标识符的唯一性</h3>
+<h3 id="method-set">method set</h3>
+<p>类型的方法集
+方法调用时，进行隐式取址，所以类型T的值可以调用类型<code>*T</code>的方法，但是这些方法不属于类型T；</p>
+<h3 id="constants">constants</h3>
+<p>常量表达式的值在编译期完成；通过类型检查器完成；</p>
+<h3 id="size-and-alignment">size and alignment</h3>
+<p>类型检查器可以检查任何值的内存布局；</p>
+<p>types.StdSizes 结构体</p>
+<h3 id="imports">imports</h3>
+<p>通过 Importer 接口的 Import 方法，导入引用的包；
+抽离Importer出来，使得gc不需要知道GO工作区结构的具体细节；
+寻找gc写的.a文件，其包含了<code>export data</code>，里面有着这个包声明的所有对象，且包含着间接引用的其他包的对象；</p>
+<h3 id="formatting-support">formatting-support</h3>
+<p>formats the type or object in a readable notation</p>
+<h3 id="from-a-to-b">From A to B</h3>
+<p><strong><code>token.Pos</code></strong>  ->  <strong><code>ast.Node</code></strong></p>
+<p><strong><code>ast.Ident</code></strong> ->  <strong><code>Object</code></strong> :  Identifier Resolution</p>
+<p><strong><code>Object</code></strong> -> <strong>declaring syntax</strong></p> <!-- Diagrams rendered at build time -->  </article> <nav class="mt-12 pt-8 border-t border-nord-5 dark:border-nord-1" data-astro-cid-v5yihett> <a href="/notes" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" data-astro-cid-v5yihett>
+← Back to notes
+</a> </nav>  </main> <footer class="border-t border-nord-5 dark:border-nord-1 mt-12"> <div class="max-w-4xl mx-auto px-4 py-6 text-sm text-nord-3 dark:text-nord-4 text-center"> <p>&copy; 2026. All rights reserved.</p> </div> </footer> <script type="module" src="/src/scripts/knowledge-graph-init.ts"></script> <script>
+      (function() {
+        const root = document.getElementById('series-dropdown-root');
+        const trigger = document.getElementById('series-dropdown-trigger');
+        const panel = document.getElementById('series-dropdown-panel');
+        const listEl = document.getElementById('series-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let seriesList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (seriesList === null) {
+            fetch('/series-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                seriesList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无系列</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(name) {
+                    const url = '/notes/series/' + encodeURIComponent(name);
+                    return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(name) + '</a>';
+                  }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        trigger.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          if (panel.classList.contains('hidden')) open(); else close();
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> </body> </html>  <script>
+  // Language aliases (matches server-side)
+  const langAliases = {
+    js: 'javascript',
+    ts: 'typescript',
+    yml: 'yaml',
+    yaml: 'yaml',
+    sh: 'bash',
+    shell: 'bash',
+    sql: 'postgresql',
+    java: 'openjdk',
+  };
+
+  // Add headers and copy buttons to code blocks
+  function initCodeBlocks() {
+    document.querySelectorAll('pre[data-language]').forEach((pre) => {
+      // Skip if already processed
+      if (pre.parentNode.classList.contains('code-block-wrapper')) return;
+      
+      const lang = pre.getAttribute('data-language') || 'code';
+      
+      // Create wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block-wrapper';
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+      
+      // Create header
+      const header = document.createElement('div');
+      header.className = 'code-header';
+      
+      const langSpan = document.createElement('span');
+      langSpan.className = 'code-header-lang';
+      langSpan.title = lang;
+      langSpan.textContent = lang; // default to lang name
+      
+      // Fetch icon asynchronously (best effort)
+      const normalizedLang = lang.toLowerCase();
+      const iconName = langAliases[normalizedLang] || normalizedLang;
+      
+      (async () => {
+        try {
+          const res = await fetch(`https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${iconName}.svg`, {
+            signal: AbortSignal.timeout(2000)
+          });
+          if (res.ok) {
+            const svg = await res.text();
+            // Get color from simple-icons metadata or use currentColor
+            // Add size classes and ensure paths are visible
+            let modified = svg.replace('<svg', '<svg class="w-4 h-4" style="display: inline; fill: currentColor"');
+            // Ensure all path/circle elements have fill
+            modified = modified.replace(/<path /g, '<path fill="currentColor" ');
+            modified = modified.replace(/<circle /g, '<circle fill="currentColor" ');
+            langSpan.innerHTML = modified;
+          }
+        } catch (e) {
+          // Silent: keep text fallback
+        }
+      })();
+      
+      const button = document.createElement('button');
+      button.className = 'copy-code-btn';
+      button.title = 'Copy to clipboard';
+      button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      
+      let isCopying = false;
+      button.addEventListener('click', async () => {
+        if (isCopying) return;
+        isCopying = true;
+        
+        const code = pre.querySelector('code')?.textContent || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalHtml = button.innerHTML;
+          button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+          button.title = 'Copied!';
+          setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.title = 'Copy to clipboard';
+            isCopying = false;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+          isCopying = false;
+        }
+      });
+      
+      header.appendChild(langSpan);
+      header.appendChild(button);
+      wrapper.appendChild(header);
+    });
+  }
+
+  // Run ASAP, then on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCodeBlocks);
+  } else {
+    initCodeBlocks();
+  }
+
+  // Convert wikilinks to links on client side
+  // Matches [[ref]] or [[ref|display text]]
+  document.addEventListener('DOMContentLoaded', () => {
+    const wikiRegex = /\[\[([a-zA-Z0-9][a-zA-Z0-9_-]*?)(?:\|([^\]]+))?\]\]/g;
+    
+    // Process all text nodes in prose content
+    const walker = document.createTreeWalker(
+      document.querySelector('.prose') || document.body,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    const nodesToReplace = [];
+    let node;
+    
+    while (node = walker.nextNode()) {
+      if (node.nodeValue.includes('[[')) {
+        nodesToReplace.push(node);
+      }
+    }
+    
+    nodesToReplace.forEach((textNode) => {
+      const parent = textNode.parentNode;
+      let lastIndex = 0;
+      const matches = [...textNode.nodeValue.matchAll(wikiRegex)];
+      
+      if (matches.length === 0) return;
+      
+      const fragment = document.createDocumentFragment();
+      
+      matches.forEach((match) => {
+        const [fullMatch, ref, displayText] = match;
+        const startIndex = match.index;
+        
+        // Add text before match
+        if (startIndex > lastIndex) {
+          fragment.appendChild(
+            document.createTextNode(textNode.nodeValue.slice(lastIndex, startIndex))
+          );
+        }
+        
+        // Create link
+        const link = document.createElement('a');
+        link.href = `/notes/${ref.toLowerCase()}`;
+        link.textContent = (displayText || ref).trim();
+        link.className = 'text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors';
+        fragment.appendChild(link);
+        
+        lastIndex = startIndex + fullMatch.length;
+      });
+      
+      // Add remaining text
+      if (lastIndex < textNode.nodeValue.length) {
+        fragment.appendChild(
+          document.createTextNode(textNode.nodeValue.slice(lastIndex))
+        );
+      }
+      
+      parent.replaceChild(fragment, textNode);
+    });
+  });
+</script> 
