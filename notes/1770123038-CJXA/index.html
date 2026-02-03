@@ -1,0 +1,1275 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>Go: Channel</title><script>
+      // This script runs synchronously in the head to prevent FOUC (Flash of Unstyled Content)
+      (function() {
+        const THEME_KEY = 'nord-theme';
+        const DARK = 'dark';
+        
+        function getStoredTheme() {
+          try {
+            return localStorage.getItem(THEME_KEY);
+          } catch {
+            return null;
+          }
+        }
+        
+        function getSystemTheme() {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+        }
+        
+        function getTheme() {
+          return getStoredTheme() || getSystemTheme();
+        }
+        
+        function applyTheme(theme) {
+          const html = document.documentElement;
+          if (theme === DARK) {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+        }
+        
+        // Apply theme immediately before page renders
+        applyTheme(getTheme());
+      })();
+    </script><style>.knowledge-graph-container[data-astro-cid-eoxcivfe]{border:1px solid var(--nord-4);border-radius:8px;background:var(--nord-6);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-eoxcivfe]:fullscreen,.knowledge-graph-container[data-astro-cid-eoxcivfe]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-eoxcivfe]:fullscreen .knowledge-graph-wrapper[data-astro-cid-eoxcivfe],.knowledge-graph-container[data-astro-cid-eoxcivfe]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-eoxcivfe]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--nord-4);border-radius:6px;background:var(--nord-6);color:var(--nord-2);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--nord-5);color:var(--nord-10)}.knowledge-graph-toolbar-btn:active{background:var(--nord-4)}.knowledge-graph-wrapper[data-astro-cid-eoxcivfe]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:#5e81ac;stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--nord-14);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--nord-10);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--nord-14);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--nord-15);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--nord-12);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--nord-4);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:#4c566a;stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--nord-11);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--nord-1);font-weight:500;text-shadow:0 0 3px var(--nord-6)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--nord-0);border:1px solid var(--nord-3);border-radius:4px;font-size:12px;color:var(--nord-6);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--nord-8);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--nord-2)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--nord-10)}.kg-legend--outlink{color:var(--nord-14)}.kg-legend--backlink{color:var(--nord-15)}.kg-legend--both{color:var(--nord-12)}.kg-legend--neighbor{color:var(--nord-4);opacity:.9}
+html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-word}
+</style>
+<link rel="stylesheet" href="/_astro/_id_.BiD0Vxzt.css"></head> <body class="bg-nord-6 dark:bg-nord-0 text-nord-3 dark:text-nord-5 transition-colors"> <header class="border-b border-nord-5 dark:border-nord-1 bg-nord-6 dark:bg-nord-0"> <nav class="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between gap-4"> <div class="flex items-center gap-2 min-w-0"> <a href="/" title="Liu" class="shrink-0 p-1.5 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"> <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path> <circle cx="12" cy="7" r="4"></circle> </svg> </a> <h1 class="text-xl font-bold truncate"> <a href="/" class="text-nord-2 dark:text-nord-6 hover:text-nord-10 dark:hover:text-nord-8 transition-colors"> Liu </a> </h1> </div> <div class="flex items-center gap-2 shrink-0"> <a href="https://github.com/gh-liu" title="GitHub" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-200 ease-out hover:scale-110 inline-flex"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"> <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path> </svg> </a> <span class="w-px h-4 bg-nord-4 dark:bg-nord-2 shrink-0" aria-hidden="true"></span> <div class="relative series-dropdown" id="series-dropdown-root"> <a href="/notes/series" title="Series" aria-expanded="false" aria-haspopup="true" aria-controls="series-dropdown-panel" id="series-dropdown-trigger" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110 inline-flex"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> </a> <div id="series-dropdown-panel" class="absolute right-0 top-full mt-1 py-2 min-w-[12rem] max-h-[70vh] overflow-y-auto rounded-lg border border-nord-4 dark:border-nord-2 bg-nord-6 dark:bg-nord-1 shadow-lg z-50 hidden" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">加载中…</span> </div> <div class="border-t border-nord-4 dark:border-nord-2 pt-1 mt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors">
+查看全部系列 →
+</a> </div> </div> </div> <a href="/notes/tags" title="Tags" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110 inline-flex"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> </a> <div class="search-container" id="search-wrapper" data-astro-cid-otpdt6jm><button id="search-toggle" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110 inline-flex" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-otpdt6jm><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-otpdt6jm><circle cx="11" cy="11" r="8" data-astro-cid-otpdt6jm></circle><path d="m21 21-4.35-4.35" data-astro-cid-otpdt6jm></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20" data-astro-cid-otpdt6jm><div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl w-full max-w-2xl border border-nord-5 dark:border-nord-1 max-h-[70vh] flex flex-col" data-astro-cid-otpdt6jm><div class="p-4 border-b border-nord-5 dark:border-nord-1" data-astro-cid-otpdt6jm><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full px-4 py-2 bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 placeholder-nord-3 dark:placeholder-nord-4 rounded focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-otpdt6jm></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-otpdt6jm><p class="text-nord-3 dark:text-nord-5 text-sm" data-astro-cid-otpdt6jm>Type to search...</p></div><div class="p-3 border-t border-nord-5 dark:border-nord-1 text-xs text-nord-3 dark:text-nord-4" data-astro-cid-otpdt6jm><p data-astro-cid-otpdt6jm>Press <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-otpdt6jm>Esc</kbd> to close | Use <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-otpdt6jm>#tag</kbd> to search by tag</p></div></div></div></div><script>(function(){const pagefindUrl = "/pagefind/pagefind.js";
+
+  if (!globalThis.pagefindLoaded) {
+    globalThis.pagefindLoaded = true;
+    
+    let pagefind;
+    let searchInput;
+    let searchModal;
+    let searchResults;
+    let isSearchOpen = false;
+
+    async function initSearch() {
+      if (typeof window === "undefined") return;
+
+      try {
+        pagefind = await import(pagefindUrl);
+        await pagefind.init();
+      } catch (error) {
+        console.log("Search not available.", error);
+        return;
+      }
+
+      searchInput = document.getElementById("search-input");
+      searchModal = document.getElementById("search-modal");
+      searchResults = document.getElementById("search-results");
+      const toggleBtn = document.getElementById("search-toggle");
+
+      if (!searchInput || !searchModal || !searchResults || !toggleBtn) return;
+
+      toggleBtn.addEventListener("click", () => {
+        openSearch();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeSearch();
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          e.preventDefault();
+          isSearchOpen ? closeSearch() : openSearch();
+        }
+      });
+
+      searchModal.addEventListener("click", (e) => {
+        if (e.target === searchModal) closeSearch();
+      });
+
+      searchInput.addEventListener("input", async (e) => {
+        const query = e.target.value.trim();
+        if (!query) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+          return;
+        }
+
+        // Check if query starts with #tag
+        const isTagSearch = query.startsWith('#');
+        let results;
+        
+        if (isTagSearch) {
+          // Tag search
+          const tag = query.slice(1).toUpperCase();
+          results = await pagefind.search(`tag:${tag}`);
+        } else {
+          // Regular text search
+          results = await pagefind.search(query);
+        }
+
+        if (results.results.length === 0) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">No results found.</p>';
+          return;
+        }
+
+        let html = '<ul class="space-y-2">';
+        for (const result of results.results) {
+          const data = await result.data();
+          // Extract title from h1 or use URL slug as fallback
+          const title = data.meta?.title || data.title || (data.url.split('/').pop() || 'untitled').replace(/-/g, ' ');
+          html += `<li><a href="${data.url}" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"><div class="font-medium">${title}</div><div class="text-xs text-nord-3 dark:text-nord-5 mt-1 line-clamp-2">${data.excerpt || ""}</div></a></li>`;
+        }
+        searchResults.innerHTML = html + "</ul>";
+      });
+    }
+
+    function openSearch() {
+      isSearchOpen = true;
+      searchModal.classList.remove("hidden");
+      searchInput.focus();
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSearch() {
+      isSearchOpen = false;
+      searchModal.classList.add("hidden");
+      searchInput.value = "";
+      searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+      document.body.style.overflow = "";
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initSearch);
+    } else {
+      initSearch();
+    }
+  }
+})();</script> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="group relative p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-4 transition-all duration-200 ease-out hover:scale-110 inline-flex"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="w-4 h-4 text-nord-13 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="w-4 h-4 text-nord-9 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script>
+  const THEME_KEY = 'nord-theme';
+  const DARK = 'dark';
+  
+  function getStoredTheme() {
+    return localStorage.getItem(THEME_KEY);
+  }
+  
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+  }
+  
+  function getTheme() {
+    return getStoredTheme() || getSystemTheme();
+  }
+  
+  function applyTheme(theme) {
+    const html = document.documentElement;
+    if (theme === DARK) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }
+  
+  function toggleTheme() {
+    const currentTheme = getTheme();
+    const newTheme = currentTheme === DARK ? 'light' : DARK;
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  }
+  
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+</script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-xvrfupwn> <nav class="px-4 space-y-1" data-astro-cid-xvrfupwn> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-xvrfupwn> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-xvrfupwn></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-xvrfupwn>
+On this page
+</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#创建" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 创建 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#关闭" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 关闭 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#发送" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 发送 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#接收" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 接收 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#思考" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 思考 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#深入阅读" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 深入阅读 </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
+  const TOC_KEY = 'toc-open';
+  const sidebar = document.getElementById('toc-sidebar');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+
+  function getSidebarState() {
+    return localStorage.getItem(TOC_KEY) !== 'false';
+  }
+
+  function setSidebarState(open) {
+    localStorage.setItem(TOC_KEY, open ? 'true' : 'false');
+  }
+
+  function updateSidebar() {
+    const isOpen = getSidebarState();
+    if (sidebar) {
+      if (isOpen) {
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    }
+  }
+
+  function toggleSidebar() {
+    const isOpen = getSidebarState();
+    setSidebarState(!isOpen);
+    updateSidebar();
+  }
+
+  // Initialize
+  updateSidebar();
+
+  // Event listeners
+  if (toggle) {
+    toggle.addEventListener('click', toggleSidebar);
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', toggleSidebar);
+  }
+
+  // Keyboard shortcut: left/right arrow to toggle
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.ctrlKey) {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  });
+
+  // Highlight current section on scroll
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          document.querySelectorAll('.toc-item a').forEach((link) => {
+            link.classList.remove('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+            link.classList.add('text-nord-3', 'dark:text-nord-4');
+          });
+          const activeLink = document.querySelector(
+            `.toc-item a[href="#${entry.target.id}"]`
+          );
+          if (activeLink) {
+            activeLink.classList.remove('text-nord-3', 'dark:text-nord-4');
+            activeLink.classList.add('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+          }
+        }
+      });
+    },
+    { rootMargin: '-50% 0px -50% 0px' }
+  );
+
+  document.querySelectorAll('h2, h3').forEach((heading) => {
+    if (heading.id) {
+      observer.observe(heading);
+    }
+  });
+
+  // Close sidebar on link click
+  document.querySelectorAll('.toc-item a').forEach((link) => {
+    link.addEventListener('click', () => {
+      setSidebarState(false);
+      updateSidebar();
+    });
+  });
+</script>  <article class="prose prose-nord dark:prose-nord max-w-none
+      prose-headings:font-serif
+      prose-code:before:content-none prose-code:after:content-none" data-astro-cid-v5yihett> <header class="mb-8" data-astro-cid-v5yihett> <h1 class="mb-3" data-pagefind-meta="title" data-astro-cid-v5yihett>Go: Channel</h1> <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4" data-astro-cid-v5yihett> <div class="text-sm text-nord-3 dark:text-nord-5" data-astro-cid-v5yihett> <div> <div class="flex flex-wrap gap-2 mb-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-7 dark:bg-nord-7 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>📅</span> <span>2026-02-03</span> </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-8 dark:bg-nord-8 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>✏️</span> <span>2026-02-03</span> </span> <a href="/notes/series/inside-go" class="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-nord-14 dark:bg-nord-14 text-nord-0 dark:text-nord-0 rounded font-medium hover:opacity-90 transition-opacity cursor-pointer !no-underline hover:!no-underline" title="系列：Inside Go"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> <span>Inside Go</span> </a> <div class="flex flex-wrap gap-2"> <a href="/notes/tag/CS" class="inline-block px-2.5 py-1 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors cursor-pointer !no-underline hover:!no-underline"> CS </a><a href="/notes/tag/GO" class="inline-block px-2.5 py-1 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors cursor-pointer !no-underline hover:!no-underline"> GO </a> </div> </div> </div> </div> <div class="text-sm" data-astro-cid-v5yihett> <div> <div class="flex items-center gap-4"> <!-- Back to notes link - removed, now in footer --> <!-- Show only links and backlinks stats --> <!-- Outlinks -->  <!-- Backlinks -->  <!-- No links message --> <span class="text-nord-3 dark:text-nord-4 italic">No related notes</span> </div> <!-- Modals --> <div id="outlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No outlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "outlinks-modal";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <div id="backlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No backlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "backlinks-modal";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <script>
+  // Outlinks button - calls window.openOutlinksModal()
+  document.querySelectorAll('.open-outlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openOutlinksModal) {
+        window.openOutlinksModal();
+      }
+    });
+  });
+
+  // Backlinks button - calls window.openBacklinksModal()
+  document.querySelectorAll('.open-backlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openBacklinksModal) {
+        window.openBacklinksModal();
+      }
+    });
+  });
+</script> </div> </div> </div> </header>    <p>channel翻译成<code>通道</code>： 那么
+<code>通道</code>会有什么类型： 缓冲，非缓冲；
+<code>通道</code>会有什么操作： 创建，发送，接收，关闭；</p>
+<p>channel分为 带缓冲、不带缓冲两种；可看作异步（带缓冲）、同步（不带缓冲）模式；
+对channel的发送，接收等操作，会在编译器，转换成底层的发送，接收等函数；</p>
+<h3 id="创建">创建</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">//无缓冲</span></span>
+<span class="line"><span style="color:#E1E4E8">ch1 </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> make</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">chan</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#6A737D">// 有缓冲</span></span>
+<span class="line"><span style="color:#E1E4E8">ch2 </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> make</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">chan</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">)</span></span></code></pre>
+<p>查看汇编，可知创建chan的函数是runtime.makechan；</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// 用户代码创建的chan是一个指针，指向runtime包的hchan值，所以chan是一种引用类型</span></span>
+<span class="line"><span style="color:#6A737D">// t是chan内的元素类型，size是缓冲区大小</span></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> makechan</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">t</span><span style="color:#F97583"> *</span><span style="color:#B392F0">chantype</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">size</span><span style="color:#F97583"> int64</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">*</span><span style="color:#B392F0">hchan</span><span style="color:#E1E4E8"> {}</span></span></code></pre>
+<p>TL;DR 查看makechan源码</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">type</span><span style="color:#B392F0"> chantype</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	typ  </span><span style="color:#B392F0">_type</span></span>
+<span class="line"><span style="color:#E1E4E8">	elem </span><span style="color:#F97583">*</span><span style="color:#B392F0">_type</span></span>
+<span class="line"><span style="color:#E1E4E8">	dir  </span><span style="color:#F97583">uintptr</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> makechan</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">t</span><span style="color:#F97583"> *</span><span style="color:#B392F0">chantype</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">size</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">*</span><span style="color:#B392F0">hchan</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	elem </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> t.elem</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// compiler checks this but be safe.</span></span>
+<span class="line"><span style="color:#6A737D">	// 编译器检查 channel size，align</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> elem.size </span><span style="color:#F97583">>=</span><span style="color:#79B8FF"> 1</span><span style="color:#F97583">&#x3C;&#x3C;</span><span style="color:#79B8FF">16</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">		throw</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"makechan: invalid channel element type"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> hchanSize</span><span style="color:#F97583">%</span><span style="color:#E1E4E8">maxAlign </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> ||</span><span style="color:#E1E4E8"> elem.align </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> maxAlign {</span></span>
+<span class="line"><span style="color:#B392F0">		throw</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"makechan: bad alignment"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	mem, overflow </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> math.</span><span style="color:#B392F0">MulUintptr</span><span style="color:#E1E4E8">(elem.size, </span><span style="color:#F97583">uintptr</span><span style="color:#E1E4E8">(size))</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> overflow </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> mem </span><span style="color:#F97583">></span><span style="color:#E1E4E8"> maxAlloc</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">hchanSize </span><span style="color:#F97583">||</span><span style="color:#E1E4E8"> size </span><span style="color:#F97583">&#x3C;</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">		panic</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">plainError</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"makechan: size out of range"</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Hchan does not contain pointers interesting for GC when elements stored in buf do not contain pointers.</span></span>
+<span class="line"><span style="color:#6A737D">	// buf points into the same allocation, elemtype is persistent.</span></span>
+<span class="line"><span style="color:#6A737D">	// SudoG's are referenced from their owning thread so they can't be collected.</span></span>
+<span class="line"><span style="color:#6A737D">	// TODO(dvyukov,rlh): Rethink when collector can move allocated objects.</span></span>
+<span class="line"><span style="color:#F97583">	var</span><span style="color:#E1E4E8"> c </span><span style="color:#F97583">*</span><span style="color:#B392F0">hchan</span></span>
+<span class="line"><span style="color:#F97583">	switch</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">	// 大小等于0，只分配hchan结构体大小</span></span>
+<span class="line"><span style="color:#F97583">	case</span><span style="color:#E1E4E8"> mem </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#6A737D">		// Queue or element size is zero.</span></span>
+<span class="line"><span style="color:#E1E4E8">		c </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">*</span><span style="color:#B392F0">hchan</span><span style="color:#E1E4E8">)(</span><span style="color:#B392F0">mallocgc</span><span style="color:#E1E4E8">(hchanSize, </span><span style="color:#79B8FF">nil</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#6A737D">		// Race detector uses this location for synchronization.</span></span>
+<span class="line"><span style="color:#E1E4E8">		c.buf </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> c.</span><span style="color:#B392F0">raceaddr</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// 元素类型不包含指针，GC不会扫描，只进行一次分配,只分配 hchan结构体大小+元素大小*个数</span></span>
+<span class="line"><span style="color:#6A737D">	// c.buf为底层数组</span></span>
+<span class="line"><span style="color:#F97583">	case</span><span style="color:#E1E4E8"> elem.ptrdata </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#6A737D">		// Elements do not contain pointers.</span></span>
+<span class="line"><span style="color:#6A737D">		// Allocate hchan and buf in one call.</span></span>
+<span class="line"><span style="color:#E1E4E8">		c </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> (</span><span style="color:#F97583">*</span><span style="color:#B392F0">hchan</span><span style="color:#E1E4E8">)(</span><span style="color:#B392F0">mallocgc</span><span style="color:#E1E4E8">(hchanSize</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">mem, </span><span style="color:#79B8FF">nil</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#E1E4E8">		c.buf </span><span style="color:#F97583">=</span><span style="color:#B392F0"> add</span><span style="color:#E1E4E8">(unsafe.</span><span style="color:#B392F0">Pointer</span><span style="color:#E1E4E8">(c), hchanSize)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	//	元素类型包含指针,进行两次内存分配操作</span></span>
+<span class="line"><span style="color:#F97583">	default</span><span style="color:#E1E4E8">:</span></span>
+<span class="line"><span style="color:#6A737D">		// Elements contain pointers.</span></span>
+<span class="line"><span style="color:#E1E4E8">		c </span><span style="color:#F97583">=</span><span style="color:#B392F0"> new</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">hchan</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">		c.buf </span><span style="color:#F97583">=</span><span style="color:#B392F0"> mallocgc</span><span style="color:#E1E4E8">(mem, elem, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">	c.elemsize </span><span style="color:#F97583">=</span><span style="color:#F97583"> uint16</span><span style="color:#E1E4E8">(elem.size)</span></span>
+<span class="line"><span style="color:#E1E4E8">	c.elemtype </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> elem</span></span>
+<span class="line"><span style="color:#E1E4E8">	c.dataqsiz </span><span style="color:#F97583">=</span><span style="color:#F97583"> uint</span><span style="color:#E1E4E8">(size)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> debugChan {</span></span>
+<span class="line"><span style="color:#B392F0">		print</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"makechan: chan="</span><span style="color:#E1E4E8">, c, </span><span style="color:#9ECBFF">"; elemsize="</span><span style="color:#E1E4E8">, elem.size, </span><span style="color:#9ECBFF">"; dataqsiz="</span><span style="color:#E1E4E8">, size, </span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> c</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">    type</span><span style="color:#B392F0"> hchan</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    	qcount   </span><span style="color:#F97583">uint</span><span style="color:#6A737D">           // chan队列里面的元素数量</span></span>
+<span class="line"><span style="color:#E1E4E8">    	dataqsiz </span><span style="color:#F97583">uint</span><span style="color:#6A737D">           // chan底层循环数组的长度</span></span>
+<span class="line"><span style="color:#E1E4E8">    	buf      </span><span style="color:#B392F0">unsafe</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Pointer</span><span style="color:#6A737D"> // 指向底层循环数组的指针，只有缓冲型的 channel 才有</span></span>
+<span class="line"><span style="color:#E1E4E8">    	elemsize </span><span style="color:#F97583">uint16</span><span style="color:#6A737D">         // chan中的元素大小</span></span>
+<span class="line"><span style="color:#E1E4E8">    	closed   </span><span style="color:#F97583">uint32</span><span style="color:#6A737D">         // chan是否关闭</span></span>
+<span class="line"><span style="color:#E1E4E8">    	elemtype </span><span style="color:#F97583">*</span><span style="color:#B392F0">_type</span><span style="color:#6A737D">         // chan中的元素类型</span></span>
+<span class="line"><span style="color:#E1E4E8">    	sendx    </span><span style="color:#F97583">uint</span><span style="color:#6A737D">           // 已经发送的元素在底层循环数组的索引</span></span>
+<span class="line"><span style="color:#E1E4E8">    	recvx    </span><span style="color:#F97583">uint</span><span style="color:#6A737D">           // 已经接收的元素在底层循环数组的索引</span></span>
+<span class="line"><span style="color:#E1E4E8">    	recvq    </span><span style="color:#B392F0">waitq</span><span style="color:#6A737D">          // 等待接收 的goroutine队列（尝试从channel读取数据而堵塞）</span></span>
+<span class="line"><span style="color:#E1E4E8">    	sendq    </span><span style="color:#B392F0">waitq</span><span style="color:#6A737D">          // 等待发送 的goroutine队列（尝试发送数据至channel而堵塞）</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    	// lock protects all fields in hchan, as well as several</span></span>
+<span class="line"><span style="color:#6A737D">    	// fields in sudogs blocked on this channel.</span></span>
+<span class="line"><span style="color:#6A737D">    	//</span></span>
+<span class="line"><span style="color:#6A737D">    	// Do not change another G's status while holding this lock</span></span>
+<span class="line"><span style="color:#6A737D">    	// (in particular, do not ready a G), as this can deadlock</span></span>
+<span class="line"><span style="color:#6A737D">    	// with stack shrinking.</span></span>
+<span class="line"><span style="color:#E1E4E8">    	lock </span><span style="color:#B392F0">mutex</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // sudog 的双向链表，sudog代表一个在等待列表中的goroutine</span></span>
+<span class="line"><span style="color:#F97583">    type</span><span style="color:#B392F0"> waitq</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">    	first </span><span style="color:#F97583">*</span><span style="color:#B392F0">sudog</span></span>
+<span class="line"><span style="color:#E1E4E8">    	last  </span><span style="color:#F97583">*</span><span style="color:#B392F0">sudog</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // sudog represents a g in a wait list, such as for sending/receiving</span></span>
+<span class="line"><span style="color:#6A737D">    // on a channel.</span></span>
+<span class="line"><span style="color:#6A737D">    // sudog代表处于一个等待列表中的g，比如对channel进行发送中/接收中</span></span>
+<span class="line"><span style="color:#6A737D">    //</span></span>
+<span class="line"><span style="color:#6A737D">    // sudog is necessary because the g ↔ synchronization object relation</span></span>
+<span class="line"><span style="color:#6A737D">    // is many-to-many. A g can be on many wait lists, so there may be</span></span>
+<span class="line"><span style="color:#6A737D">    // many sudogs for one g; and many gs may be waiting on the same</span></span>
+<span class="line"><span style="color:#6A737D">    // synchronization object, so there may be many sudogs for one object.</span></span>
+<span class="line"><span style="color:#6A737D">    // sudog是必要的，原因是 goroutine与 同步对象的关系是多对多。一个goroutine可以处于多个等待列中，所以可能会有多个sudog对应一个goroutine，而且可能多个g会等待一个同步对象，所以可能多个sudog对应一个同步对象。</span></span>
+<span class="line"><span style="color:#6A737D">    //</span></span>
+<span class="line"><span style="color:#6A737D">    // sudogs are allocated from a special pool. Use acquireSudog and</span></span>
+<span class="line"><span style="color:#6A737D">    // releaseSudog to allocate and free them.</span></span>
+<span class="line"><span style="color:#6A737D">    // sudog 从一个特殊的池 分配，使用acquireSudog分配，releaseSudog释放；</span></span>
+<span class="line"><span style="color:#F97583">    type</span><span style="color:#B392F0"> sudog</span><span style="color:#F97583"> struct</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">    	// The following fields are protected by the hchan.lock of the</span></span>
+<span class="line"><span style="color:#6A737D">    	// channel this sudog is blocking on. shrinkstack depends on</span></span>
+<span class="line"><span style="color:#6A737D">    	// this for sudogs involved in channel ops.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    	g </span><span style="color:#F97583">*</span><span style="color:#B392F0">g</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    	// isSelect indicates g is participating in a select, so</span></span>
+<span class="line"><span style="color:#6A737D">    	// g.selectDone must be CAS'd to win the wake-up race.</span></span>
+<span class="line"><span style="color:#E1E4E8">    	isSelect </span><span style="color:#F97583">bool</span><span style="color:#6A737D"> // g是否参与select中</span></span>
+<span class="line"><span style="color:#E1E4E8">    	next     </span><span style="color:#F97583">*</span><span style="color:#B392F0">sudog</span></span>
+<span class="line"><span style="color:#E1E4E8">    	prev     </span><span style="color:#F97583">*</span><span style="color:#B392F0">sudog</span></span>
+<span class="line"><span style="color:#E1E4E8">    	elem     </span><span style="color:#B392F0">unsafe</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Pointer</span><span style="color:#6A737D"> // data element (may point to stack)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    	// The following fields are never accessed concurrently.</span></span>
+<span class="line"><span style="color:#6A737D">    	// For channels, waitlink is only accessed by g.</span></span>
+<span class="line"><span style="color:#6A737D">    	// For semaphores, all fields (including the ones above)</span></span>
+<span class="line"><span style="color:#6A737D">    	// are only accessed when holding a semaRoot lock.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    	acquiretime </span><span style="color:#F97583">int64</span></span>
+<span class="line"><span style="color:#E1E4E8">    	releasetime </span><span style="color:#F97583">int64</span></span>
+<span class="line"><span style="color:#E1E4E8">    	ticket      </span><span style="color:#F97583">uint32</span></span>
+<span class="line"><span style="color:#E1E4E8">    	parent      </span><span style="color:#F97583">*</span><span style="color:#B392F0">sudog</span><span style="color:#6A737D"> // semaRoot binary tree</span></span>
+<span class="line"><span style="color:#E1E4E8">    	waitlink    </span><span style="color:#F97583">*</span><span style="color:#B392F0">sudog</span><span style="color:#6A737D"> // g.waiting list or semaRoot</span></span>
+<span class="line"><span style="color:#E1E4E8">    	waittail    </span><span style="color:#F97583">*</span><span style="color:#B392F0">sudog</span><span style="color:#6A737D"> // semaRoot</span></span>
+<span class="line"><span style="color:#E1E4E8">    	c           </span><span style="color:#F97583">*</span><span style="color:#B392F0">hchan</span><span style="color:#6A737D"> // channel</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<h3 id="关闭">关闭</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#E1E4E8">ch </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> make</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">chan</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">close</span><span style="color:#E1E4E8">(ch)</span></span></code></pre>
+<p>查看汇编，可知关闭chan的函数是runtime.closechan；</p>
+<p>TL;DR 查看closechan源码</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> closechan</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">c</span><span style="color:#F97583"> *</span><span style="color:#B392F0">hchan</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">	// 关闭为nil的channel ，panic</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> c </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">		panic</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">plainError</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"close of nil channel"</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	// 加锁</span></span>
+<span class="line"><span style="color:#B392F0">	lock</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock)</span></span>
+<span class="line"><span style="color:#6A737D">	// 关闭已经关闭的channel，panic</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> c.closed </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">		unlock</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock)</span></span>
+<span class="line"><span style="color:#B392F0">		panic</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">plainError</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"close of closed channel"</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> raceenabled {</span></span>
+<span class="line"><span style="color:#E1E4E8">		callerpc </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> getcallerpc</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#B392F0">		racewritepc</span><span style="color:#E1E4E8">(c.</span><span style="color:#B392F0">raceaddr</span><span style="color:#E1E4E8">(), callerpc, </span><span style="color:#B392F0">funcPC</span><span style="color:#E1E4E8">(closechan))</span></span>
+<span class="line"><span style="color:#B392F0">		racerelease</span><span style="color:#E1E4E8">(c.</span><span style="color:#B392F0">raceaddr</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// 表明已经关闭</span></span>
+<span class="line"><span style="color:#E1E4E8">	c.closed </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	var</span><span style="color:#E1E4E8"> glist </span><span style="color:#B392F0">gList</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// release all readers</span></span>
+<span class="line"><span style="color:#6A737D">	// 循环，释放所有等待接受队列中的sudog</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		// 获取等待接受队列的第一个sudog</span></span>
+<span class="line"><span style="color:#E1E4E8">		sg </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> c.recvq.</span><span style="color:#B392F0">dequeue</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#6A737D">		// 如果为nil 说明没有等待接受的，直接跳出for循环</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> sg </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			break</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// 如果 elem 不为空，说明此 receiver 未忽略接收数据</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> sg.elem </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">			// 给它赋一个相应类型的零值</span></span>
+<span class="line"><span style="color:#B392F0">			typedmemclr</span><span style="color:#E1E4E8">(c.elemtype, sg.elem)</span></span>
+<span class="line"><span style="color:#E1E4E8">			sg.elem </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> sg.releasetime </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			sg.releasetime </span><span style="color:#F97583">=</span><span style="color:#B392F0"> cputicks</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// 取出sudog中g</span></span>
+<span class="line"><span style="color:#E1E4E8">		gp </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> sg.g</span></span>
+<span class="line"><span style="color:#E1E4E8">		gp.param </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> unsafe.</span><span style="color:#B392F0">Pointer</span><span style="color:#E1E4E8">(sg)</span></span>
+<span class="line"><span style="color:#E1E4E8">		sg.success </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> raceenabled {</span></span>
+<span class="line"><span style="color:#B392F0">			raceacquireg</span><span style="color:#E1E4E8">(gp, c.</span><span style="color:#B392F0">raceaddr</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// 将阻塞的g 放入glist中</span></span>
+<span class="line"><span style="color:#E1E4E8">		glist.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(gp)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// release all writers (they will panic)</span></span>
+<span class="line"><span style="color:#6A737D">	// 循环 释放所有等待发送队列中的sudog</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		sg </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> c.sendq.</span><span style="color:#B392F0">dequeue</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> sg </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">			break</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#E1E4E8">		sg.elem </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> sg.releasetime </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">			sg.releasetime </span><span style="color:#F97583">=</span><span style="color:#B392F0"> cputicks</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// 取出sudog中的g</span></span>
+<span class="line"><span style="color:#E1E4E8">		gp </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> sg.g</span></span>
+<span class="line"><span style="color:#E1E4E8">		gp.param </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> unsafe.</span><span style="color:#B392F0">Pointer</span><span style="color:#E1E4E8">(sg)</span></span>
+<span class="line"><span style="color:#E1E4E8">		sg.success </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> raceenabled {</span></span>
+<span class="line"><span style="color:#B392F0">			raceacquireg</span><span style="color:#E1E4E8">(gp, c.</span><span style="color:#B392F0">raceaddr</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// 将阻塞的g 放入glist中</span></span>
+<span class="line"><span style="color:#E1E4E8">		glist.</span><span style="color:#B392F0">push</span><span style="color:#E1E4E8">(gp)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	// 解锁</span></span>
+<span class="line"><span style="color:#B392F0">	unlock</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Ready all Gs now that we've dropped the channel lock.</span></span>
+<span class="line"><span style="color:#6A737D">	// 唤醒glist中的g</span></span>
+<span class="line"><span style="color:#F97583">	for</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">glist.</span><span style="color:#B392F0">empty</span><span style="color:#E1E4E8">() {</span></span>
+<span class="line"><span style="color:#E1E4E8">		gp </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> glist.</span><span style="color:#B392F0">pop</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">		gp.schedlink </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#B392F0">		goready</span><span style="color:#E1E4E8">(gp, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>note：close(ch&#x3C;-)
+内建函数 close 关闭一个双向的或者只发送的channel。
+close函数应该由发送方调用，而不是接收方。
+在channel的最后一个值被接收后，关闭channel。
+从一个关闭的channel获取值，不会被阻塞，获取的值是channel元素的零值，可以使用<code>x, ok := &#x3C;-ch</code>的ok判断channel是否关闭。</p>
+<p>应用：
+由于从一个已经关闭的channel中获取值不会被阻塞，若某些协程中阻塞在接收一个channel的值的操作，可以使用close函数来关闭channel，这些阻塞的协程将不再阻塞。</p>
+<h3 id="发送">发送</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#E1E4E8">ch </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> make</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">chan</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">ch </span><span style="color:#F97583">&#x3C;-</span><span style="color:#79B8FF"> 1</span></span></code></pre>
+<p>查看汇编，可知往chan发送数据的函数是runtime.chansend；</p>
+<p>TL;DR 查看chansend源码</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> chansend</span><span style="color:#E1E4E8">(</span><span style="color:#FFAB70">c</span><span style="color:#F97583"> *</span><span style="color:#B392F0">hchan</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">ep</span><span style="color:#B392F0"> unsafe</span><span style="color:#E1E4E8">.</span><span style="color:#B392F0">Pointer</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">block</span><span style="color:#F97583"> bool</span><span style="color:#E1E4E8">, </span><span style="color:#FFAB70">callerpc</span><span style="color:#F97583"> uintptr</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">	// 如果channel是nil</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> c </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		// channel不阻塞,直接返回，表示发送失败</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">block {</span></span>
+<span class="line"><span style="color:#F97583">			return</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// channel阻塞，将当前g挂起</span></span>
+<span class="line"><span style="color:#B392F0">		gopark</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">nil</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">nil</span><span style="color:#E1E4E8">, waitReasonChanSendNilChan, traceEvGoStop, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">		throw</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"unreachable"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> debugChan {</span></span>
+<span class="line"><span style="color:#B392F0">		print</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"chansend: chan="</span><span style="color:#E1E4E8">, c, </span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> raceenabled {</span></span>
+<span class="line"><span style="color:#B392F0">		racereadpc</span><span style="color:#E1E4E8">(c.</span><span style="color:#B392F0">raceaddr</span><span style="color:#E1E4E8">(), callerpc, </span><span style="color:#B392F0">funcPC</span><span style="color:#E1E4E8">(chansend))</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Fast path: check for failed non-blocking operation without acquiring the lock.</span></span>
+<span class="line"><span style="color:#6A737D">	//</span></span>
+<span class="line"><span style="color:#6A737D">	// After observing that the channel is not closed, we observe that the channel is</span></span>
+<span class="line"><span style="color:#6A737D">	// not ready for sending. Each of these observations is a single word-sized read</span></span>
+<span class="line"><span style="color:#6A737D">	// (first c.closed and second c.recvq.first or c.qcount depending on kind of channel).</span></span>
+<span class="line"><span style="color:#6A737D">	// Because a closed channel cannot transition from 'ready for sending' to</span></span>
+<span class="line"><span style="color:#6A737D">	// 'not ready for sending', even if the channel is closed between the two observations,</span></span>
+<span class="line"><span style="color:#6A737D">	// they imply a moment between the two when the channel was both not yet closed</span></span>
+<span class="line"><span style="color:#6A737D">	// and not ready for sending. We behave as if we observed the channel at that moment,</span></span>
+<span class="line"><span style="color:#6A737D">	// and report that the send cannot proceed.</span></span>
+<span class="line"><span style="color:#6A737D">	//</span></span>
+<span class="line"><span style="color:#6A737D">	// It is okay if the reads are reordered here: if we observe that the channel is not</span></span>
+<span class="line"><span style="color:#6A737D">	// ready for sending and then observe that it is not closed, that implies that the</span></span>
+<span class="line"><span style="color:#6A737D">	// channel wasn't closed during the first observation.</span></span>
+<span class="line"><span style="color:#6A737D">	// 以上与 接收部分 意思基本一致</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// 非阻塞且未关闭  1.非缓冲型，没有接收的g  2.缓冲型，底层循环数组已经满了 ； 直接返回</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">block </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#E1E4E8"> c.closed </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> ((c.dataqsiz </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> c.recvq.first </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8">) </span><span style="color:#F97583">||</span></span>
+<span class="line"><span style="color:#E1E4E8">		(c.dataqsiz </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> c.qcount </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> c.dataqsiz)) {</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">	var</span><span style="color:#E1E4E8"> t0 </span><span style="color:#F97583">int64</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> blockprofilerate </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		t0 </span><span style="color:#F97583">=</span><span style="color:#B392F0"> cputicks</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	// 加锁</span></span>
+<span class="line"><span style="color:#B392F0">	lock</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock)</span></span>
+<span class="line"><span style="color:#6A737D">	// channel关闭，不能发送，直接panic</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> c.closed </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">		unlock</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock)</span></span>
+<span class="line"><span style="color:#B392F0">		panic</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">plainError</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"send on closed channel"</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	// 接收g队列里有，调用send函数  直接数据拷贝 到 接收g</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> sg </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> c.recvq.</span><span style="color:#B392F0">dequeue</span><span style="color:#E1E4E8">(); sg </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">		// Found a waiting receiver. We pass the value we want to send</span></span>
+<span class="line"><span style="color:#6A737D">		// directly to the receiver, bypassing the channel buffer (if any).</span></span>
+<span class="line"><span style="color:#B392F0">		send</span><span style="color:#E1E4E8">(c, sg, ep, </span><span style="color:#F97583">func</span><span style="color:#E1E4E8">() { </span><span style="color:#B392F0">unlock</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock) }, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> true</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	// 底层循环数组大小 大于 channel内元素个数，还有缓冲空间</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> c.qcount </span><span style="color:#F97583">&#x3C;</span><span style="color:#E1E4E8"> c.dataqsiz {</span></span>
+<span class="line"><span style="color:#6A737D">		// Space is available in the channel buffer. Enqueue the element to send.</span></span>
+<span class="line"><span style="color:#6A737D">		// qp 指向 buf 的 sendx 位置</span></span>
+<span class="line"><span style="color:#E1E4E8">		qp </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> chanbuf</span><span style="color:#E1E4E8">(c, c.sendx)</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> raceenabled {</span></span>
+<span class="line"><span style="color:#B392F0">			raceacquire</span><span style="color:#E1E4E8">(qp)</span></span>
+<span class="line"><span style="color:#B392F0">			racerelease</span><span style="color:#E1E4E8">(qp)</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// 将数据从 ep 处拷贝到 qp</span></span>
+<span class="line"><span style="color:#B392F0">		typedmemmove</span><span style="color:#E1E4E8">(c.elemtype, qp, ep)</span></span>
+<span class="line"><span style="color:#6A737D">		// 发送游标值加 1</span></span>
+<span class="line"><span style="color:#E1E4E8">		c.sendx</span><span style="color:#F97583">++</span></span>
+<span class="line"><span style="color:#6A737D">		//如果发送游标值等于容量值，游标值归 0</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> c.sendx </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> c.dataqsiz {</span></span>
+<span class="line"><span style="color:#E1E4E8">			c.sendx </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#6A737D">		// 缓冲区的元素数量加一</span></span>
+<span class="line"><span style="color:#E1E4E8">		c.qcount</span><span style="color:#F97583">++</span></span>
+<span class="line"><span style="color:#B392F0">		unlock</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock)</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> true</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// 如果不阻塞，直接返回</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">block {</span></span>
+<span class="line"><span style="color:#B392F0">		unlock</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock)</span></span>
+<span class="line"><span style="color:#F97583">		return</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// Block on the channel. Some receiver will complete our operation for us.</span></span>
+<span class="line"><span style="color:#6A737D">	// channel阻塞，构造等待发送g，加入channel的等待发送队列</span></span>
+<span class="line"><span style="color:#E1E4E8">	gp </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> getg</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	mysg </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> acquireSudog</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">	mysg.releasetime </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> t0 </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">		mysg.releasetime </span><span style="color:#F97583">=</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#6A737D">	// No stack splits between assigning elem and enqueuing mysg</span></span>
+<span class="line"><span style="color:#6A737D">	// on gp.waiting where copystack can find it.</span></span>
+<span class="line"><span style="color:#E1E4E8">	mysg.elem </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ep</span></span>
+<span class="line"><span style="color:#E1E4E8">	mysg.waitlink </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#E1E4E8">	mysg.g </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> gp</span></span>
+<span class="line"><span style="color:#E1E4E8">	mysg.isSelect </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#E1E4E8">	mysg.c </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> c</span></span>
+<span class="line"><span style="color:#E1E4E8">	gp.waiting </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mysg</span></span>
+<span class="line"><span style="color:#E1E4E8">	gp.param </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#6A737D">	// 加入channel的等待发送队列</span></span>
+<span class="line"><span style="color:#E1E4E8">	c.sendq.</span><span style="color:#B392F0">enqueue</span><span style="color:#E1E4E8">(mysg)</span></span>
+<span class="line"><span style="color:#6A737D">	// 阻塞当前等待发送的g</span></span>
+<span class="line"><span style="color:#B392F0">	gopark</span><span style="color:#E1E4E8">(chanparkcommit, unsafe.</span><span style="color:#B392F0">Pointer</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock), waitReasonChanSend, traceEvGoBlockSend, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#6A737D">	// Ensure the value being sent is kept alive until the</span></span>
+<span class="line"><span style="color:#6A737D">	// receiver copies it out. The sudog has a pointer to the</span></span>
+<span class="line"><span style="color:#6A737D">	// stack object, but sudogs aren't considered as roots of the</span></span>
+<span class="line"><span style="color:#6A737D">	// stack tracer.</span></span>
+<span class="line"><span style="color:#B392F0">	KeepAlive</span><span style="color:#E1E4E8">(ep)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">	// someone woke us up.</span></span>
+<span class="line"><span style="color:#6A737D">	// 唤醒后，可以往channel发送了</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> mysg </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> gp.waiting {</span></span>
+<span class="line"><span style="color:#B392F0">		throw</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"G waiting list is corrupted"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	gp.waiting </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#E1E4E8">	gp.activeStackChans </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> gp.param </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">		if</span><span style="color:#E1E4E8"> c.closed </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">			throw</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"chansend: spurious wakeup"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">		}</span></span>
+<span class="line"><span style="color:#B392F0">		panic</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">plainError</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"send on closed channel"</span><span style="color:#E1E4E8">))</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	gp.param </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#F97583">	if</span><span style="color:#E1E4E8"> mysg.releasetime </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">		blockevent</span><span style="color:#E1E4E8">(mysg.releasetime</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">t0, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">	}</span></span>
+<span class="line"><span style="color:#E1E4E8">	mysg.c </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#B392F0">	releaseSudog</span><span style="color:#E1E4E8">(mysg)</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#79B8FF"> true</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>检测到 channel 是空的，当前 goroutine 会被挂起；
+如果检测到 channel 已经关闭，直接 panic。</p>
+<p>channel中的recvq 和 sendq 中分别保存了阻塞的发送者和接收者。</p>
+<p>关闭 channel 后：
+对于等待接收者而言，会收到一个相应类型的零值。
+对于等待发送者，会直接 panic。在不了解 channel 还有没有接收者的情况下，不能贸然关闭 channel。</p>
+<p>close 函数先上一把大锁，接着把所有挂在这个 channel 上的 sender 和 receiver 全都连成一个 sudog 链表 glist，再解锁。
+最后，再将所有的 sudog 全都唤醒。</p>
+<p>note:
+A send to a nil channel blocks forever
+A send to a closed channel panics</p>
+<h3 id="接收">接收</h3>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#E1E4E8">ch </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> make</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">chan</span><span style="color:#F97583"> int</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">val </span><span style="color:#F97583">&#x3C;-</span><span style="color:#E1E4E8"> ch</span></span>
+<span class="line"><span style="color:#6A737D">// 或者</span></span>
+<span class="line"><span style="color:#E1E4E8">val,ok </span><span style="color:#F97583">&#x3C;-</span><span style="color:#E1E4E8"> ch</span></span></code></pre>
+<p>分为是否带ok两种，查看汇编，可知往chan发送数据的函数是runtime.chanrecv1或runtime.chanrecv2；</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">    // entry points for &#x3C;- c from compiled code</span></span>
+<span class="line"><span style="color:#6A737D">    //go:nosplit</span></span>
+<span class="line"><span style="color:#F97583">    func</span><span style="color:#B392F0"> chanrecv1</span><span style="color:#E1E4E8">(c </span><span style="color:#F97583">*</span><span style="color:#E1E4E8">hchan, elem unsafe.Pointer) {</span></span>
+<span class="line"><span style="color:#B392F0">    	chanrecv</span><span style="color:#E1E4E8">(c, elem, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    //go:nosplit</span></span>
+<span class="line"><span style="color:#F97583">    func</span><span style="color:#B392F0"> chanrecv2</span><span style="color:#E1E4E8">(c </span><span style="color:#F97583">*</span><span style="color:#E1E4E8">hchan, elem unsafe.Pointer) (received </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#E1E4E8">    	_, received </span><span style="color:#F97583">=</span><span style="color:#B392F0"> chanrecv</span><span style="color:#E1E4E8">(c, elem, </span><span style="color:#79B8FF">true</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">    	return</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>TL;DR 查看chanrecv源码</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">    // chanrecv receives on channel c and writes the received data to ep.</span></span>
+<span class="line"><span style="color:#6A737D">    // ep may be nil, in which case received data is ignored.</span></span>
+<span class="line"><span style="color:#6A737D">    // If block == false and no elements are available, returns (false, false).</span></span>
+<span class="line"><span style="color:#6A737D">    // Otherwise, if c is closed, zeros *ep and returns (true, false).</span></span>
+<span class="line"><span style="color:#6A737D">    // Otherwise, fills in *ep with an element and returns (true, true).</span></span>
+<span class="line"><span style="color:#6A737D">    // A non-nil ep must point to the heap or the caller's stack.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">    // 接收一个channel c 且从c获取数据，写入ep,ep也许会是nil，在这种情况下，忽略接收的数据；</span></span>
+<span class="line"><span style="color:#6A737D">    // 如果block==false，即非阻塞型接收，且没有有效元素，return false，false</span></span>
+<span class="line"><span style="color:#6A737D">    // 如果c是关闭的，返回零值</span></span>
+<span class="line"><span style="color:#6A737D">    // 否则，将一个元素放入ep指向的地址中</span></span>
+<span class="line"><span style="color:#6A737D">    // 一个非nil的ep必须指向堆 或者 调用者 的栈空间</span></span>
+<span class="line"><span style="color:#F97583">    func</span><span style="color:#B392F0"> chanrecv</span><span style="color:#E1E4E8">(c </span><span style="color:#F97583">*</span><span style="color:#E1E4E8">hchan, ep unsafe.Pointer, block </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8">) (selected, received </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8">) {</span></span>
+<span class="line"><span style="color:#6A737D">        // raceenabled: don't need to check ep, as it is always on the stack</span></span>
+<span class="line"><span style="color:#6A737D">        // or is new memory allocated by reflect.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> debugChan {</span></span>
+<span class="line"><span style="color:#B392F0">            print</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"chanrecv: chan="</span><span style="color:#E1E4E8">, c, </span><span style="color:#9ECBFF">"</span><span style="color:#79B8FF">\n</span><span style="color:#9ECBFF">"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // 如果channel 为nil：不阻塞，直接返回，否则，接收一个为nil的channel，将当前goroutine挂起</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> c </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">block {</span></span>
+<span class="line"><span style="color:#F97583">                return</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#B392F0">            gopark</span><span style="color:#E1E4E8">(</span><span style="color:#79B8FF">nil</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">nil</span><span style="color:#E1E4E8">, waitReasonChanReceiveNilChan, traceEvGoStop, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">            throw</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"unreachable"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // Fast path: check for failed non-blocking operation without acquiring the lock.</span></span>
+<span class="line"><span style="color:#6A737D">        // 快速路径： 在不获取锁的情况下，检查非阻塞操作是否失败。</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">block </span><span style="color:#F97583">&#x26;&#x26;</span><span style="color:#B392F0"> empty</span><span style="color:#E1E4E8">(c) {</span></span>
+<span class="line"><span style="color:#6A737D">            // After observing that the channel is not ready for receiving, we observe whether the</span></span>
+<span class="line"><span style="color:#6A737D">            // channel is closed.</span></span>
+<span class="line"><span style="color:#6A737D">            // 在观察到这个channel没有准备好接收时，我们观察到chennel是否处于关闭状态。</span></span>
+<span class="line"><span style="color:#6A737D">            //</span></span>
+<span class="line"><span style="color:#6A737D">            // Reordering of these checks could lead to incorrect behavior when racing with a close.</span></span>
+<span class="line"><span style="color:#6A737D">            // 对这些检查的重新排序会带近距离竞争时(?)导致不准确的行为。</span></span>
+<span class="line"><span style="color:#6A737D">            // For example, if the channel was open and not empty, was closed, and then drained,</span></span>
+<span class="line"><span style="color:#6A737D">            // reordered reads could incorrectly indicate "open and empty". To prevent reordering,</span></span>
+<span class="line"><span style="color:#6A737D">            // we use atomic loads for both checks, and rely on emptying and closing to happen in</span></span>
+<span class="line"><span style="color:#6A737D">            // separate critical sections under the same lock.  This assumption fails when closing</span></span>
+<span class="line"><span style="color:#6A737D">            // an unbuffered channel with a blocked send, but that is an error condition anyway.</span></span>
+<span class="line"><span style="color:#6A737D">            // 举个例子，如果channel处于打开状态，且不为空，则先关闭，然后再全部排空；重新排序的读取，可能会错误地指示“打开并清空”。</span></span>
+<span class="line"><span style="color:#6A737D">            // 为了阻止重新排序，我们对两个检查都使用原子负载，并依靠清空和关闭 在同一锁下的单独关键部分中进行。</span></span>
+<span class="line"><span style="color:#6A737D">            // 当关闭具有发送阻塞的未缓冲通道时，此假设将失败，但是无论如何这都是错误情况。</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> atomic.</span><span style="color:#B392F0">Load</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.closed) </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                // Because a channel cannot be reopened, the later observation of the channel</span></span>
+<span class="line"><span style="color:#6A737D">                // being not closed implies that it was also not closed at the moment of the</span></span>
+<span class="line"><span style="color:#6A737D">                // first observation. We behave as if we observed the channel at that moment</span></span>
+<span class="line"><span style="color:#6A737D">                // and report that the receive cannot proceed.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">                // 因为 channel 不可能被重复打开，所以前一个观测的时候 channel 也是未关闭的，</span></span>
+<span class="line"><span style="color:#6A737D">                // 因此在这种情况下可以直接宣布接收失败，返回 (false, false)</span></span>
+<span class="line"><span style="color:#6A737D">                // 未关闭，非阻塞，空：接收失败</span></span>
+<span class="line"><span style="color:#F97583">                return</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            // The channel is irreversibly closed. Re-check whether the channel has any pending data</span></span>
+<span class="line"><span style="color:#6A737D">            // to receive, which could have arrived between the empty and closed checks above.</span></span>
+<span class="line"><span style="color:#6A737D">            // Sequential consistency is also required here, when racing with such a send.</span></span>
+<span class="line"><span style="color:#6A737D">            // 关闭，非阻塞，空：零值</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#B392F0"> empty</span><span style="color:#E1E4E8">(c) {</span></span>
+<span class="line"><span style="color:#6A737D">                // The channel is irreversibly closed and empty.</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> raceenabled {</span></span>
+<span class="line"><span style="color:#B392F0">                    raceacquire</span><span style="color:#E1E4E8">(c.</span><span style="color:#B392F0">raceaddr</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#F97583">                if</span><span style="color:#E1E4E8"> ep </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                    // typedmemclr 根据类型清理相应地址的内存</span></span>
+<span class="line"><span style="color:#B392F0">                    typedmemclr</span><span style="color:#E1E4E8">(c.elemtype, ep)</span></span>
+<span class="line"><span style="color:#E1E4E8">                }</span></span>
+<span class="line"><span style="color:#F97583">                return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">false</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">        var</span><span style="color:#E1E4E8"> t0 </span><span style="color:#F97583">int64</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> blockprofilerate </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            t0 </span><span style="color:#F97583">=</span><span style="color:#B392F0"> cputicks</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        // 加锁</span></span>
+<span class="line"><span style="color:#B392F0">        lock</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // channel 已关闭，并且循环数组 buf 里没有元素</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> c.closed </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> 0</span><span style="color:#F97583"> &#x26;&#x26;</span><span style="color:#E1E4E8"> c.qcount </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> raceenabled {</span></span>
+<span class="line"><span style="color:#B392F0">                raceacquire</span><span style="color:#E1E4E8">(c.</span><span style="color:#B392F0">raceaddr</span><span style="color:#E1E4E8">())</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#B392F0">            unlock</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock)</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> ep </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                // 从一个已关闭的 channel 执行接收操作，且未忽略返回值</span></span>
+<span class="line"><span style="color:#6A737D">                // 那么接收的值将是一个该类型的零值</span></span>
+<span class="line"><span style="color:#6A737D">                // typedmemclr 根据类型清理相应地址的内存</span></span>
+<span class="line"><span style="color:#B392F0">                typedmemclr</span><span style="color:#E1E4E8">(c.elemtype, ep)</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">false</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // 等待发送队列里有 goroutine 存在，说明 buf 是满的</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> sg </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> c.sendq.</span><span style="color:#B392F0">dequeue</span><span style="color:#E1E4E8">(); sg </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            // Found a waiting sender. If buffer is size 0, receive value</span></span>
+<span class="line"><span style="color:#6A737D">            // directly from sender. Otherwise, receive from head of queue</span></span>
+<span class="line"><span style="color:#6A737D">            // and add sender's value to the tail of the queue (both map to</span></span>
+<span class="line"><span style="color:#6A737D">            // the same buffer slot because the queue is full).</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">            // 发现一个等待中的 发送者，如果buffer的大小是0，直接从发送者处接收值，</span></span>
+<span class="line"><span style="color:#6A737D">            // 否则，接收到循环数组头部的元素，并将发送者的元素放到循环数组尾部</span></span>
+<span class="line"><span style="color:#B392F0">            recv</span><span style="color:#E1E4E8">(c, sg, ep, </span><span style="color:#F97583">func</span><span style="color:#E1E4E8">() { </span><span style="color:#B392F0">unlock</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock) }, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // 缓冲型channel，buf 里有元素，可以正常接收</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> c.qcount </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">            // Receive directly from queue</span></span>
+<span class="line"><span style="color:#E1E4E8">            qp </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> chanbuf</span><span style="color:#E1E4E8">(c, c.recvx)</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> raceenabled {</span></span>
+<span class="line"><span style="color:#B392F0">                raceacquire</span><span style="color:#E1E4E8">(qp)</span></span>
+<span class="line"><span style="color:#B392F0">                racerelease</span><span style="color:#E1E4E8">(qp)</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            // 没有忽略要接收的值</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> ep </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> nil</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#6A737D">                // qp移动到ep</span></span>
+<span class="line"><span style="color:#B392F0">                typedmemmove</span><span style="color:#E1E4E8">(c.elemtype, ep, qp)</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            // 清除</span></span>
+<span class="line"><span style="color:#B392F0">            typedmemclr</span><span style="color:#E1E4E8">(c.elemtype, qp)</span></span>
+<span class="line"><span style="color:#6A737D">            // 接收 下表移动；等于底层循环数组大小时，归零</span></span>
+<span class="line"><span style="color:#E1E4E8">            c.recvx</span><span style="color:#F97583">++</span></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> c.recvx </span><span style="color:#F97583">==</span><span style="color:#E1E4E8"> c.dataqsiz {</span></span>
+<span class="line"><span style="color:#E1E4E8">                c.recvx </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#E1E4E8">            }</span></span>
+<span class="line"><span style="color:#6A737D">            // 元素个数减1</span></span>
+<span class="line"><span style="color:#E1E4E8">            c.qcount</span><span style="color:#F97583">--</span></span>
+<span class="line"><span style="color:#B392F0">            unlock</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock)</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">true</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        // 非阻塞接收，解锁；没有接收到值</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#F97583"> !</span><span style="color:#E1E4E8">block {</span></span>
+<span class="line"><span style="color:#B392F0">            unlock</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock)</span></span>
+<span class="line"><span style="color:#F97583">            return</span><span style="color:#79B8FF"> false</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">false</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // no sender available: block on this channel.</span></span>
+<span class="line"><span style="color:#6A737D">        // 没有 有效发送者；接收操作 被阻塞</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // 获取当前g</span></span>
+<span class="line"><span style="color:#E1E4E8">        gp </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> getg</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#6A737D">        // 阻塞，构造sudog</span></span>
+<span class="line"><span style="color:#E1E4E8">        mysg </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> acquireSudog</span><span style="color:#E1E4E8">()</span></span>
+<span class="line"><span style="color:#E1E4E8"> mysg.releasetime </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 0</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> t0 </span><span style="color:#F97583">!=</span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">            mysg.releasetime </span><span style="color:#F97583">=</span><span style="color:#F97583"> -</span><span style="color:#79B8FF">1</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#6A737D">        // No stack splits between assigning elem and enqueuing mysg</span></span>
+<span class="line"><span style="color:#6A737D">        // on gp.waiting where copystack can find it.</span></span>
+<span class="line"><span style="color:#6A737D">        // 待接收数据的地址保存下来</span></span>
+<span class="line"><span style="color:#E1E4E8">        mysg.elem </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> ep2 也是同样的遭遇。现在 G1 和 G2 都被挂起了，等待着一个 sender 往 channel 里发送数据，才能得到解救。</span></span>
+<span class="line"><span style="color:#E1E4E8">        mysg.waitlink </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#E1E4E8">        gp.waiting </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> mysg</span></span>
+<span class="line"><span style="color:#E1E4E8">        mysg.g </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> gp</span></span>
+<span class="line"><span style="color:#E1E4E8">        mysg.isSelect </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#E1E4E8">        mysg.c </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> c</span></span>
+<span class="line"><span style="color:#E1E4E8">        gp.param </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#6A737D">        // 进入channel 的等待接收队列</span></span>
+<span class="line"><span style="color:#E1E4E8">        c.recvq.</span><span style="color:#B392F0">enqueue</span><span style="color:#E1E4E8">(mysg)</span></span>
+<span class="line"><span style="color:#6A737D">        // Signal to anyone trying to shrink our stack that we're about</span></span>
+<span class="line"><span style="color:#6A737D">        // to park on a channel. The window between when this G's status</span></span>
+<span class="line"><span style="color:#6A737D">        // changes and when we set gp.activeStackChans is not safe for</span></span>
+<span class="line"><span style="color:#6A737D">        // stack shrinking.</span></span>
+<span class="line"><span style="color:#E1E4E8">        atomic.</span><span style="color:#B392F0">Store8</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">gp.parkingOnChan, </span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#B392F0">        gopark</span><span style="color:#E1E4E8">(chanparkcommit, unsafe.</span><span style="color:#B392F0">Pointer</span><span style="color:#E1E4E8">(</span><span style="color:#F97583">&#x26;</span><span style="color:#E1E4E8">c.lock), waitReasonChanReceive, traceEvGoBlockRecv, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">        // someone woke us up</span></span>
+<span class="line"><span style="color:#6A737D">        // 被唤醒了,扫尾工作，一些参数的修改</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> mysg </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> gp.waiting {</span></span>
+<span class="line"><span style="color:#B392F0">            throw</span><span style="color:#E1E4E8">(</span><span style="color:#9ECBFF">"G waiting list is corrupted"</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        gp.waiting </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#E1E4E8">        gp.activeStackChans </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> false</span></span>
+<span class="line"><span style="color:#F97583">        if</span><span style="color:#E1E4E8"> mysg.releasetime </span><span style="color:#F97583">></span><span style="color:#79B8FF"> 0</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#B392F0">            blockevent</span><span style="color:#E1E4E8">(mysg.releasetime</span><span style="color:#F97583">-</span><span style="color:#E1E4E8">t0, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">        }</span></span>
+<span class="line"><span style="color:#E1E4E8">        closed </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> gp.param </span><span style="color:#F97583">==</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#E1E4E8">        gp.param </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#E1E4E8">        mysg.c </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> nil</span></span>
+<span class="line"><span style="color:#B392F0">        releaseSudog</span><span style="color:#E1E4E8">(mysg)</span></span>
+<span class="line"><span style="color:#F97583">        return</span><span style="color:#79B8FF"> true</span><span style="color:#E1E4E8">, </span><span style="color:#F97583">!</span><span style="color:#E1E4E8">closed</span></span>
+<span class="line"><span style="color:#E1E4E8">    }</span></span></code></pre>
+<p>如果channel为nil，在非阻塞模式下，直接返回；
+在阻塞模式下，gopark当前goroutine，一直阻塞；</p>
+<p>channel没有准备好接收时：</p>
+<ol>
+<li>非缓冲型，等待发送列队里没有 goroutine 在等待</li>
+<li>缓冲型，但 buf 里没有元素</li>
+</ol>
+<p>channel没有关闭：直接接收失败，返回；</p>
+<p>加锁，channel已经关闭，返回零值；</p>
+<p>有等待发送队列，正常接收；
+调用recv函数：</p>
+<ol>
+<li>非缓冲型，直接拷贝</li>
+<li>缓冲型，buf满了，取buf头元素，将等待发送队列头元素放入buf尾部
+返回</li>
+</ol>
+<p>无等待发送队列，阻塞：
+构造当前g为sudog，添加到等待接收队列；
+使用gopark将当前g挂起；
+唤醒后，收尾工作；</p>
+<p>从一个关闭的channel获取值，不会被阻塞，获取的值是channel元素的零值，可以使用<code>x, ok := &#x3C;-ch</code>的ok判断channel是否关闭。</p>
+<p>A receive from a nil channel blocks forever
+A receive from a closed channel returns the zero value immediately</p>
+<p>unbuffered chan 必须等 reader 和 writer 都准备好了才能交流，否则就会阻塞。</p>
+<h3 id="思考">思考</h3>
+<p>Do not communicate by sharing memory; instead, share memory by communicating.
+翻译：不要通过分享内存进行通信，而是通过通信进行分享内存。</p>
+<p>理解：
+communicate是多个程序之间进行通信；
+sharing memory是分享一块内存的信息；
+前半句中，通过分享内存，从而进行通信；目的是通信，方法是分享内存；举个例子，多个人之间，共用一个内存块，利用这一个内存块，进行通信；
+后半句中，通过通信，从而分享内存；目的是分享内存，方法是通信；举个例子，我想知道这个内存块的信息（分享），使用通信（channel）的方式复制这个块的信息，从而达到分享内存信息的目的；</p>
+<p>注意：go是值传递</p>
+<p>场景：
+共享资源的并发访问使用传统并发原语；
+复杂的任务编排和消息传递使用 Channel；
+消息通知机制使用 Channel，除非只想 signal 一个 goroutine，才使用 Cond；
+简单等待所有任务的完成用 WaitGroup，也有 Channel 的推崇者用 Channel，都可以；
+需要和 Select 语句结合，使用 Channel；
+需要和超时配合时，使用 Channel 和 Context。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>   nil / empty / full / not full&#x26;empty / closed</span></span></code></pre>
+<p>rec    阻塞/ 阻塞 / 读元素 / 读元素/ 返回未读元素，无元素则零值
+send   阻塞/ 写元素 / 阻塞 / 写元素 / panic
+close  panic/                      /panic</p>
+<p>chan编排：Or-Done 模式、扇入模式、扇出模式、Stream 和 map-reduce</p>
+<p>Or-Done 模式
+make chan
+go func(){defer close chan}
+return chan</p>
+<p>扇入模式: 多个输入，一个输出(多个源 Channel 输入、一个目的 Channel 输出)</p>
+<p>扇出模式: 一个输入，多个输出(一个输入源 Channel，多个目标 Channel 输出)</p>
+<p>Stream: 把 Channel 看作流（Stream），提供跳过几个元素，或者是只取其中的几个元素等方法</p>
+<p>map-reduce 分为两个步骤，第一步是映射（map），处理队列中的数据，第二步是规约（reduce），把列表中的每一个元素按照一定的处理方式处理成结果，放入到结果队列中。</p>
+<h3 id="深入阅读">深入阅读</h3>
+<ol>
+<li><a href="https://jishuin.proginn.com/p/763bfbd65456">无缓冲和有缓冲通道</a></li>
+<li><a href="https://dave.cheney.net/2014/03/19/channel-axioms">Channel Axioms</a></li>
+<li><a href="https://go.dev/blog/pipelines">Go Concurrency Patterns: Pipelines and cancellation</a></li>
+</ol> <!-- Diagrams rendered at build time -->  </article> <nav class="mt-12 pt-8 border-t border-nord-4 dark:border-nord-1" data-astro-cid-v5yihett> <a href="/notes" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" data-astro-cid-v5yihett>
+← Back to notes
+</a> </nav>  </main> <footer class="border-t border-nord-5 dark:border-nord-1 mt-12"> <div class="max-w-4xl mx-auto px-4 py-6 text-sm text-nord-3 dark:text-nord-4 text-center"> <p>&copy; 2026. All rights reserved.</p> </div> </footer> <script type="module" src="/_astro/Base.astro_astro_type_script_index_0_lang.WDMQca9J.js"></script> <script>
+      (function() {
+        const root = document.getElementById('series-dropdown-root');
+        const trigger = document.getElementById('series-dropdown-trigger');
+        const panel = document.getElementById('series-dropdown-panel');
+        const listEl = document.getElementById('series-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let seriesList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (seriesList === null) {
+            fetch('/series-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                seriesList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无系列</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(name) {
+                     const slug = name.toLowerCase().replace(/\s+/g, '-');
+                     const url = '/notes/series/' + slug;
+                     return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(name) + '</a>';
+                   }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        // On click: allow default navigation to /notes/series
+        // On hover: show dropdown menu
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          // Don't preventDefault - allow link to navigate
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> </body> </html>  <script>
+  // Language aliases (matches server-side)
+  const langAliases = {
+    js: 'javascript',
+    ts: 'typescript',
+    yml: 'yaml',
+    yaml: 'yaml',
+    sh: 'bash',
+    shell: 'bash',
+    sql: 'postgresql',
+    java: 'openjdk',
+  };
+
+  // Add headers and copy buttons to code blocks
+  function initCodeBlocks() {
+    document.querySelectorAll('pre[data-language]').forEach((pre) => {
+      // Skip if already processed
+      if (pre.parentNode.classList.contains('code-block-wrapper')) return;
+      
+      const lang = pre.getAttribute('data-language') || 'code';
+      
+      // Create wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block-wrapper';
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+      
+      // Create header
+      const header = document.createElement('div');
+      header.className = 'code-header';
+      
+      const langSpan = document.createElement('span');
+      langSpan.className = 'code-header-lang';
+      langSpan.title = lang;
+      langSpan.textContent = lang; // default to lang name
+      
+      // Fetch icon asynchronously (best effort)
+      const normalizedLang = lang.toLowerCase();
+      const iconName = langAliases[normalizedLang] || normalizedLang;
+      
+      (async () => {
+        try {
+          const res = await fetch(`https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${iconName}.svg`, {
+            signal: AbortSignal.timeout(2000)
+          });
+          if (res.ok) {
+            const svg = await res.text();
+            // Get color from simple-icons metadata or use currentColor
+            // Add size classes and ensure paths are visible
+            let modified = svg.replace('<svg', '<svg class="w-4 h-4" style="display: inline; fill: currentColor"');
+            // Ensure all path/circle elements have fill
+            modified = modified.replace(/<path /g, '<path fill="currentColor" ');
+            modified = modified.replace(/<circle /g, '<circle fill="currentColor" ');
+            langSpan.innerHTML = modified;
+          }
+        } catch (e) {
+          // Silent: keep text fallback
+        }
+      })();
+      
+      const button = document.createElement('button');
+      button.className = 'copy-code-btn';
+      button.title = 'Copy to clipboard';
+      button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      
+      let isCopying = false;
+      button.addEventListener('click', async () => {
+        if (isCopying) return;
+        isCopying = true;
+        
+        const code = pre.querySelector('code')?.textContent || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalHtml = button.innerHTML;
+          button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+          button.title = 'Copied!';
+          setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.title = 'Copy to clipboard';
+            isCopying = false;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+          isCopying = false;
+        }
+      });
+      
+      header.appendChild(langSpan);
+      header.appendChild(button);
+      wrapper.appendChild(header);
+    });
+  }
+
+  // Run ASAP, then on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCodeBlocks);
+  } else {
+    initCodeBlocks();
+  }
+
+  // Convert wikilinks to links on client side
+  // Matches [[ref]] or [[ref|display text]]
+  document.addEventListener('DOMContentLoaded', () => {
+    const wikiRegex = /\[\[([a-zA-Z0-9][a-zA-Z0-9_-]*?)(?:\|([^\]]+))?\]\]/g;
+    
+    // Process all text nodes in prose content
+    const walker = document.createTreeWalker(
+      document.querySelector('.prose') || document.body,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    const nodesToReplace = [];
+    let node;
+    
+    while (node = walker.nextNode()) {
+      if (node.nodeValue.includes('[[')) {
+        nodesToReplace.push(node);
+      }
+    }
+    
+    nodesToReplace.forEach((textNode) => {
+      const parent = textNode.parentNode;
+      let lastIndex = 0;
+      const matches = [...textNode.nodeValue.matchAll(wikiRegex)];
+      
+      if (matches.length === 0) return;
+      
+      const fragment = document.createDocumentFragment();
+      
+      matches.forEach((match) => {
+        const [fullMatch, ref, displayText] = match;
+        const startIndex = match.index;
+        
+        // Add text before match
+        if (startIndex > lastIndex) {
+          fragment.appendChild(
+            document.createTextNode(textNode.nodeValue.slice(lastIndex, startIndex))
+          );
+        }
+        
+        // Create link
+        const link = document.createElement('a');
+        link.href = `/notes/${ref.toLowerCase()}`;
+        link.textContent = (displayText || ref).trim();
+        link.className = 'text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors';
+        fragment.appendChild(link);
+        
+        lastIndex = startIndex + fullMatch.length;
+      });
+      
+      // Add remaining text
+      if (lastIndex < textNode.nodeValue.length) {
+        fragment.appendChild(
+          document.createTextNode(textNode.nodeValue.slice(lastIndex))
+        );
+      }
+      
+      parent.replaceChild(fragment, textNode);
+    });
+  });
+</script> 
