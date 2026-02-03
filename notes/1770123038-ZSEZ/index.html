@@ -1,0 +1,752 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>raft</title><script>
+      // This script runs synchronously in the head to prevent FOUC (Flash of Unstyled Content)
+      (function() {
+        const THEME_KEY = 'nord-theme';
+        const DARK = 'dark';
+        
+        function getStoredTheme() {
+          try {
+            return localStorage.getItem(THEME_KEY);
+          } catch {
+            return null;
+          }
+        }
+        
+        function getSystemTheme() {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+        }
+        
+        function getTheme() {
+          return getStoredTheme() || getSystemTheme();
+        }
+        
+        function applyTheme(theme) {
+          const html = document.documentElement;
+          if (theme === DARK) {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+        }
+        
+        // Apply theme immediately before page renders
+        applyTheme(getTheme());
+      })();
+    </script><style>.knowledge-graph-container[data-astro-cid-eoxcivfe]{border:1px solid var(--nord-4);border-radius:8px;background:var(--nord-6);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-eoxcivfe]:fullscreen,.knowledge-graph-container[data-astro-cid-eoxcivfe]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-eoxcivfe]:fullscreen .knowledge-graph-wrapper[data-astro-cid-eoxcivfe],.knowledge-graph-container[data-astro-cid-eoxcivfe]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-eoxcivfe]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--nord-4);border-radius:6px;background:var(--nord-6);color:var(--nord-2);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--nord-5);color:var(--nord-10)}.knowledge-graph-toolbar-btn:active{background:var(--nord-4)}.knowledge-graph-wrapper[data-astro-cid-eoxcivfe]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:#5e81ac;stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--nord-14);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--nord-10);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--nord-14);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--nord-15);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--nord-12);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--nord-4);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:#4c566a;stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--nord-11);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--nord-1);font-weight:500;text-shadow:0 0 3px var(--nord-6)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--nord-0);border:1px solid var(--nord-3);border-radius:4px;font-size:12px;color:var(--nord-6);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--nord-8);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--nord-2)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--nord-10)}.kg-legend--outlink{color:var(--nord-14)}.kg-legend--backlink{color:var(--nord-15)}.kg-legend--both{color:var(--nord-12)}.kg-legend--neighbor{color:var(--nord-4);opacity:.9}
+html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-word}
+</style>
+<link rel="stylesheet" href="/_astro/_id_.Cwr2jlpx.css"></head> <body class="bg-nord-6 dark:bg-nord-0 text-nord-3 dark:text-nord-5 transition-colors"> <header class="border-b border-nord-5 dark:border-nord-1 bg-nord-6 dark:bg-nord-0"> <nav class="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between gap-4"> <div class="flex items-center gap-2 min-w-0"> <a href="/" title="Liu" class="shrink-0 p-1.5 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"> <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path> <circle cx="12" cy="7" r="4"></circle> </svg> </a> <h1 class="text-xl font-bold truncate"> <a href="/" class="text-nord-2 dark:text-nord-6 hover:text-nord-10 dark:hover:text-nord-8 transition-colors"> Liu </a> </h1> </div> <div class="flex items-center gap-2 shrink-0"> <a href="https://github.com/gh-liu" title="GitHub" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-200 ease-out hover:scale-110"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"> <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path> </svg> </a> <span class="w-px h-4 bg-nord-4 dark:bg-nord-2 shrink-0" aria-hidden="true"></span> <div class="relative series-dropdown" id="series-dropdown-root"> <a href="/notes/series" title="Series" aria-expanded="false" aria-haspopup="true" aria-controls="series-dropdown-panel" id="series-dropdown-trigger" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110 inline-flex"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> </a> <div id="series-dropdown-panel" class="absolute right-0 top-full mt-1 py-2 min-w-[12rem] max-h-[70vh] overflow-y-auto rounded-lg border border-nord-4 dark:border-nord-2 bg-nord-6 dark:bg-nord-1 shadow-lg z-50 hidden" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">加载中…</span> </div> <div class="border-t border-nord-4 dark:border-nord-2 pt-1 mt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors">
+查看全部系列 →
+</a> </div> </div> </div> <a href="/notes/tags" title="Tags" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> </a> <div class="search-container" id="search-wrapper" data-astro-cid-otpdt6jm><button id="search-toggle" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-otpdt6jm><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-otpdt6jm><circle cx="11" cy="11" r="8" data-astro-cid-otpdt6jm></circle><path d="m21 21-4.35-4.35" data-astro-cid-otpdt6jm></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20" data-astro-cid-otpdt6jm><div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl w-full max-w-2xl border border-nord-5 dark:border-nord-1 max-h-[70vh] flex flex-col" data-astro-cid-otpdt6jm><div class="p-4 border-b border-nord-5 dark:border-nord-1" data-astro-cid-otpdt6jm><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full px-4 py-2 bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 placeholder-nord-3 dark:placeholder-nord-4 rounded focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-otpdt6jm></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-otpdt6jm><p class="text-nord-3 dark:text-nord-5 text-sm" data-astro-cid-otpdt6jm>Type to search...</p></div><div class="p-3 border-t border-nord-5 dark:border-nord-1 text-xs text-nord-3 dark:text-nord-4" data-astro-cid-otpdt6jm><p data-astro-cid-otpdt6jm>Press <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-otpdt6jm>Esc</kbd> to close | Use <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-otpdt6jm>#tag</kbd> to search by tag</p></div></div></div></div><script>(function(){const pagefindUrl = "/pagefind/pagefind.js";
+
+  if (!globalThis.pagefindLoaded) {
+    globalThis.pagefindLoaded = true;
+    
+    let pagefind;
+    let searchInput;
+    let searchModal;
+    let searchResults;
+    let isSearchOpen = false;
+
+    async function initSearch() {
+      if (typeof window === "undefined") return;
+
+      try {
+        pagefind = await import(pagefindUrl);
+        await pagefind.init();
+      } catch (error) {
+        console.log("Search not available.", error);
+        return;
+      }
+
+      searchInput = document.getElementById("search-input");
+      searchModal = document.getElementById("search-modal");
+      searchResults = document.getElementById("search-results");
+      const toggleBtn = document.getElementById("search-toggle");
+
+      if (!searchInput || !searchModal || !searchResults || !toggleBtn) return;
+
+      toggleBtn.addEventListener("click", () => {
+        openSearch();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeSearch();
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          e.preventDefault();
+          isSearchOpen ? closeSearch() : openSearch();
+        }
+      });
+
+      searchModal.addEventListener("click", (e) => {
+        if (e.target === searchModal) closeSearch();
+      });
+
+      searchInput.addEventListener("input", async (e) => {
+        const query = e.target.value.trim();
+        if (!query) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+          return;
+        }
+
+        // Check if query starts with #tag
+        const isTagSearch = query.startsWith('#');
+        let results;
+        
+        if (isTagSearch) {
+          // Tag search
+          const tag = query.slice(1).toUpperCase();
+          results = await pagefind.search(`tag:${tag}`);
+        } else {
+          // Regular text search
+          results = await pagefind.search(query);
+        }
+
+        if (results.results.length === 0) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">No results found.</p>';
+          return;
+        }
+
+        let html = '<ul class="space-y-2">';
+        for (const result of results.results) {
+          const data = await result.data();
+          // Extract title from h1 or use URL slug as fallback
+          const title = data.meta?.title || data.title || (data.url.split('/').pop() || 'untitled').replace(/-/g, ' ');
+          html += `<li><a href="${data.url}" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"><div class="font-medium">${title}</div><div class="text-xs text-nord-3 dark:text-nord-5 mt-1 line-clamp-2">${data.excerpt || ""}</div></a></li>`;
+        }
+        searchResults.innerHTML = html + "</ul>";
+      });
+    }
+
+    function openSearch() {
+      isSearchOpen = true;
+      searchModal.classList.remove("hidden");
+      searchInput.focus();
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSearch() {
+      isSearchOpen = false;
+      searchModal.classList.add("hidden");
+      searchInput.value = "";
+      searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+      document.body.style.overflow = "";
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initSearch);
+    } else {
+      initSearch();
+    }
+  }
+})();</script> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="group relative p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-4 transition-all duration-200 ease-out hover:scale-110"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="w-4 h-4 text-nord-13 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="w-4 h-4 text-nord-9 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script>
+  const THEME_KEY = 'nord-theme';
+  const DARK = 'dark';
+  
+  function getStoredTheme() {
+    return localStorage.getItem(THEME_KEY);
+  }
+  
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+  }
+  
+  function getTheme() {
+    return getStoredTheme() || getSystemTheme();
+  }
+  
+  function applyTheme(theme) {
+    const html = document.documentElement;
+    if (theme === DARK) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }
+  
+  function toggleTheme() {
+    const currentTheme = getTheme();
+    const newTheme = currentTheme === DARK ? 'light' : DARK;
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  }
+  
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+</script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-xvrfupwn> <nav class="px-4 space-y-1" data-astro-cid-xvrfupwn> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-xvrfupwn> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-xvrfupwn></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-xvrfupwn>
+On this page
+</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#总览" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 总览 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#1选举领导" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 1.选举领导 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#2日志复制" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 2.日志复制 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#3安全性" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 3.安全性 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#1-选举限制" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 1. 选举限制 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#2-来自前一个term的提交日志" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 2. 来自前一个term的提交日志 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#3-安全性保证-543" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 3. 安全性保证 5.4.3 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#4-跟随节点候选者节点崩了" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 4. 跟随节点、候选者节点崩了 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#5-时间和可用性" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 5. 时间和可用性 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#6-集群成员变更" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 6. 集群成员变更 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#7-日志压缩" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 7. 日志压缩 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#实现" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 实现 </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
+  const TOC_KEY = 'toc-open';
+  const sidebar = document.getElementById('toc-sidebar');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+
+  function getSidebarState() {
+    return localStorage.getItem(TOC_KEY) !== 'false';
+  }
+
+  function setSidebarState(open) {
+    localStorage.setItem(TOC_KEY, open ? 'true' : 'false');
+  }
+
+  function updateSidebar() {
+    const isOpen = getSidebarState();
+    if (sidebar) {
+      if (isOpen) {
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    }
+  }
+
+  function toggleSidebar() {
+    const isOpen = getSidebarState();
+    setSidebarState(!isOpen);
+    updateSidebar();
+  }
+
+  // Initialize
+  updateSidebar();
+
+  // Event listeners
+  if (toggle) {
+    toggle.addEventListener('click', toggleSidebar);
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', toggleSidebar);
+  }
+
+  // Keyboard shortcut: left/right arrow to toggle
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.ctrlKey) {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  });
+
+  // Highlight current section on scroll
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          document.querySelectorAll('.toc-item a').forEach((link) => {
+            link.classList.remove('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+            link.classList.add('text-nord-3', 'dark:text-nord-4');
+          });
+          const activeLink = document.querySelector(
+            `.toc-item a[href="#${entry.target.id}"]`
+          );
+          if (activeLink) {
+            activeLink.classList.remove('text-nord-3', 'dark:text-nord-4');
+            activeLink.classList.add('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+          }
+        }
+      });
+    },
+    { rootMargin: '-50% 0px -50% 0px' }
+  );
+
+  document.querySelectorAll('h2, h3').forEach((heading) => {
+    if (heading.id) {
+      observer.observe(heading);
+    }
+  });
+
+  // Close sidebar on link click
+  document.querySelectorAll('.toc-item a').forEach((link) => {
+    link.addEventListener('click', () => {
+      setSidebarState(false);
+      updateSidebar();
+    });
+  });
+</script>  <article class="prose prose-nord dark:prose-nord max-w-none
+      prose-headings:font-serif
+      prose-code:before:content-none prose-code:after:content-none" data-astro-cid-v5yihett> <header class="mb-8" data-astro-cid-v5yihett> <h1 class="mb-3" data-pagefind-meta="title" data-astro-cid-v5yihett>raft</h1> <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4" data-astro-cid-v5yihett> <div class="text-sm text-nord-3 dark:text-nord-5" data-astro-cid-v5yihett> <div> <div class="flex flex-wrap gap-2 mb-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-7 dark:bg-nord-7 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>📅</span> <span>2026-02-03</span> </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-8 dark:bg-nord-8 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>✏️</span> <span>2026-02-03</span> </span>  <div class="flex flex-wrap gap-2"> <a href="/notes/tag/CS" class="inline-block px-2.5 py-1 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors cursor-pointer !no-underline hover:!no-underline"> CS </a> </div> </div> </div> </div> <div class="text-sm" data-astro-cid-v5yihett> <div> <div class="flex items-center gap-4"> <!-- Back to notes link - removed, now in footer --> <!-- Show only links and backlinks stats --> <!-- Outlinks -->  <!-- Backlinks -->  <!-- No links message --> <span class="text-nord-3 dark:text-nord-4 italic">No related notes</span> </div> <!-- Modals --> <div id="outlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No outlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "outlinks-modal";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <div id="backlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No backlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "backlinks-modal";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <script>
+  // Outlinks button - calls window.openOutlinksModal()
+  document.querySelectorAll('.open-outlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openOutlinksModal) {
+        window.openOutlinksModal();
+      }
+    });
+  });
+
+  // Backlinks button - calls window.openBacklinksModal()
+  document.querySelectorAll('.open-backlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openBacklinksModal) {
+        window.openBacklinksModal();
+      }
+    });
+  });
+</script> </div> </div> </div> </header>    <h1 id="raft">raft</h1>
+<blockquote>
+<p><a href="https://raft.github.io">https://raft.github.io</a></p>
+</blockquote>
+<blockquote>
+<p><a href="https://raft.github.io/raft.pdf">https://raft.github.io/raft.pdf</a></p>
+</blockquote>
+<blockquote>
+<p><a href="https://thesecretlivesofdata.com/raft">https://thesecretlivesofdata.com/raft</a></p>
+</blockquote>
+<p>问题拆分：</p>
+<ol>
+<li>leader election</li>
+<li>log replication</li>
+<li>safety</li>
+<li>and membership changes</li>
+</ol>
+<p>reducing the number of states to consider
+减少需要考虑的状态，减少不确定性</p>
+<h2 id="总览">总览</h2>
+<blockquote>
+<p>选举出领导：领导全权管理复制日志，从客户端获取，复制到其他服务器；</p>
+</blockquote>
+<p>服务器状态：leader, follower, candidate
+正常情况下，只有一个leader，其余都是follower
+follower不会进行请求，只会响应来自leader/follower的请求
+leader处理所有来自客户端的请求
+candidate状态，是用来选举leader的</p>
+<p>时间分为任意长度的terms，
+terms以连续整数编号，
+每一个term以一次选举开始，一个或多个的candidata会尝试成为leader，
+如果一个candidate成功选举为leader，那么其负责这一term的剩余时间；</p>
+<p>在某些情况下，选举会导致票数分裂，以无领导产生为结果，
+一个新的选举会产生，也就是新的term；</p>
+<p>状态变化：</p>
+<div class="mermaid-container mermaid-fallback" data-format="svg"><pre class="mermaid"><code>flowchart
+  Follower --1.timeout, start election--> Candidata
+  Candidata --2.receive majority votes--> Leader
+
+  Leader --3.discover higher term server --> Follower
+  Candidata --4.discover current Leader or new term--> Follower</code></pre></div>
+<p>term 用作逻辑锁：持续递增，同步高term值的日志，Candidata/Leader回退Follower状态，低term值的Leader表示数据过期</p>
+<p>RPC调用：RequestVote, Append-Entries(复制日志、心跳), 还有一个快照的RPC</p>
+<h2 id="1选举领导">1.选举领导</h2>
+<p>心跳机制触发领导选举</p>
+<p>跟随者只要收到领导或候选者的RPC，那么就一直是跟随者状态</p>
+<p>领导会阶段性的发送心跳给跟随者，
+如果一个跟随者在一段时间内没有收到领导发送的心跳，那么就会开启选举，
+跟随者会增加自身的term，进入候选者状态，
+候选者进行投票的RPC调用其他集群内的节点，
+在这些情况下停止选举：1）获胜选举 2）其他节点是领导 3）没有获胜者，重新开始
+1.候选者会在当前term赢得集群内大多数节点的投票而选举获胜；
+2.等待投票期间，如果高term的领导节点发送心跳给候选者节点，候选者回退成跟随者状态，如果低于，则忽略
+3.多个候选者且票数一致，则开启新一轮选举!!!!这种情况可能一直发生
+解决3问题，跟随者进入候选者的超时时间是随机的，大概率保证只有一个候选者；候选者从新开始选举的超时时间也是随机的；</p>
+<h2 id="2日志复制">2.日志复制</h2>
+<p>客户端向领导节点请求，领导节点记录请求执行的命令并追加到日志，
+然后发送追加日志项RPC给集群内其他节点进行复制，
+当领导节点认为安全的时候（比如大部份节点成功复制日志后），
+领导节点会应用这个命令，并响应命令结果到客户端，
+如果其他节点失败了，领导节点会一直重试RPC请求集群内其他节点</p>
+<p>日志项含命令，含term值（用于判断一致性），index位置</p>
+<p>领导节点请求的追加项的RPC中，会含有index，当跟随者知道有log项被应用了，其也会应用在本地</p>
+<p>日志属性：不同日志相同索引的值相同；如果索引N的值相同，那么N以前的值都相同</p>
+<p>跟随者节点会在收到追加项（包含之前的索引）的RPC的时，检查索引；如果不符合，会拒绝</p>
+<p>领导节点出问题的时候，可能导致<code>日志不一致</code>；
+当日志不一致的时候，领导节点会强制跟随者和其一致：找到日志相同的最晚的哪个索引处，删除跟随者后续的日志项，复制领导者节点的；
+领导节点维护了跟随者节点的nextIDX表，发送RPC后，如果跟随者节点拒绝了，则减1，在发送RPC，循环往复，直到匹配，此时日志就一致了；
+跟随节点可以在拒绝的时候，返回冲突的第一个索引；</p>
+<p>领导节点不会重写其日志；</p>
+<p>正常来说，一个日志项会在一次RPC调用时间内完成，慢节点不会影响性能。</p>
+<h2 id="3安全性">3.安全性</h2>
+<p>一个跟随者节点可能变得不可用，此时领导节点已经提交了多个日志项；
+然后这个跟随者节点可能选举成功，变成领导节点，就会覆写上诉的日志项；</p>
+<p>Leader Completeness Property 领导者完整性属性
+限制：如果一个节点成为了领导节点，必须包含其term前所有term的日志提交；</p>
+<h3 id="1-选举限制">1. 选举限制</h3>
+<p>从新领导节点当选的那一刻起，所有来自前几任任期的已提交条目都会出现在新领导节点。
+保证：日志项的数据流只会从领导节点到跟随者节点。</p>
+<p>在投票阶段，如果一个候选者节点没有先前提交的所有日志项，那会被阻止成为赢得选举。
+请求投票RPC会包含候选者节点的日志信息，投票者会根据其本身日志，和候选者日志进行对比后，再进行投票。</p>
+<h3 id="2-来自前一个term的提交日志">2. 来自前一个term的提交日志</h3>
+<p>领导节点当前term的日志被提交，需要集群内大多数节点已经保存，
+如果在日志提交之前，领导节点崩溃了，未来的领导会尝试完成这个日志的复制；</p>
+<p>即使大多数节点被保存，也可能被未来领导节点覆写：Figure 8
+只有当前领导者的日志可以被提交。</p>
+<h3 id="3-安全性保证-543">3. 安全性保证 5.4.3</h3>
+<p>假设：term N 的提交，没有被 term N+n 的领导节点保存：
+矛盾1：
+矛盾2：
+验证了假设的不可行</p>
+<p>结论：
+只要有一个节点应用了一个日志，那么其他节点一定一致；</p>
+<h2 id="4-跟随节点候选者节点崩了">4. 跟随节点、候选者节点崩了</h2>
+<p>重试AE或RV</p>
+<p>Raft 的 RPC 是幂等的</p>
+<h2 id="5-时间和可用性">5. 时间和可用性</h2>
+<p>安全性与时间无关；但可用性无可避免的依赖时间；</p>
+<p>时间在Raft的领导选举中很重要：</p>
+<p>广播时间(RPC调用) &#x3C;&#x3C; 选举timeout &#x3C;&#x3C; 节点失败时间</p>
+<h2 id="6-集群成员变更">6. 集群成员变更</h2>
+<h2 id="7-日志压缩">7. 日志压缩</h2>
+<h2 id="实现">实现</h2>
+<ol start="0">
+<li>
+<p>节点之间通过RPC调用，节点本身是一个RPC服务</p>
+</li>
+<li>
+<p>每个节点一启动就是跟随者节点状态：跟随者、候选者、领导</p>
+</li>
+<li>
+<p>候选时间超时，那么跟随者修改自身状态为候选者，并向集群内其他节点请求RPC投票</p>
+</li>
+<li>
+<p>候选者处理RPC响应</p>
+</li>
+<li>
+<p>超时时间到了，判断投票是否占多数，如果不是重新发起投票，是则成为领导节点</p>
+</li>
+<li>
+<p>用户请求领导节点</p>
+</li>
+<li>
+<p>领导节点将未提交的数据追加到自己日志，并RPC请求集群内其他节点</p>
+</li>
+<li>
+<p>跟随者节点处理RPC请求</p>
+</li>
+<li>
+<p>领导节点收到跟随者节点确认后，执行命令并更新<code>commitIndex</code>并返回用户？</p>
+</li>
+</ol> <!-- Diagrams rendered at build time -->  </article> <nav class="mt-12 pt-8 border-t border-nord-5 dark:border-nord-1" data-astro-cid-v5yihett> <a href="/notes" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" data-astro-cid-v5yihett>
+← Back to notes
+</a> </nav>  </main> <footer class="border-t border-nord-5 dark:border-nord-1 mt-12"> <div class="max-w-4xl mx-auto px-4 py-6 text-sm text-nord-3 dark:text-nord-4 text-center"> <p>&copy; 2026. All rights reserved.</p> </div> </footer> <script type="module" src="/_astro/Base.astro_astro_type_script_index_0_lang.WDMQca9J.js"></script> <script>
+      (function() {
+        const root = document.getElementById('series-dropdown-root');
+        const trigger = document.getElementById('series-dropdown-trigger');
+        const panel = document.getElementById('series-dropdown-panel');
+        const listEl = document.getElementById('series-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let seriesList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (seriesList === null) {
+            fetch('/series-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                seriesList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无系列</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(name) {
+                     const slug = name.toLowerCase().replace(/\s+/g, '-');
+                     const url = '/notes/series/' + slug;
+                     return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(name) + '</a>';
+                   }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        // On click: allow default navigation to /notes/series
+        // On hover: show dropdown menu
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          // Don't preventDefault - allow link to navigate
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> </body> </html>  <script>
+  // Language aliases (matches server-side)
+  const langAliases = {
+    js: 'javascript',
+    ts: 'typescript',
+    yml: 'yaml',
+    yaml: 'yaml',
+    sh: 'bash',
+    shell: 'bash',
+    sql: 'postgresql',
+    java: 'openjdk',
+  };
+
+  // Add headers and copy buttons to code blocks
+  function initCodeBlocks() {
+    document.querySelectorAll('pre[data-language]').forEach((pre) => {
+      // Skip if already processed
+      if (pre.parentNode.classList.contains('code-block-wrapper')) return;
+      
+      const lang = pre.getAttribute('data-language') || 'code';
+      
+      // Create wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block-wrapper';
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+      
+      // Create header
+      const header = document.createElement('div');
+      header.className = 'code-header';
+      
+      const langSpan = document.createElement('span');
+      langSpan.className = 'code-header-lang';
+      langSpan.title = lang;
+      langSpan.textContent = lang; // default to lang name
+      
+      // Fetch icon asynchronously (best effort)
+      const normalizedLang = lang.toLowerCase();
+      const iconName = langAliases[normalizedLang] || normalizedLang;
+      
+      (async () => {
+        try {
+          const res = await fetch(`https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${iconName}.svg`, {
+            signal: AbortSignal.timeout(2000)
+          });
+          if (res.ok) {
+            const svg = await res.text();
+            // Get color from simple-icons metadata or use currentColor
+            // Add size classes and ensure paths are visible
+            let modified = svg.replace('<svg', '<svg class="w-4 h-4" style="display: inline; fill: currentColor"');
+            // Ensure all path/circle elements have fill
+            modified = modified.replace(/<path /g, '<path fill="currentColor" ');
+            modified = modified.replace(/<circle /g, '<circle fill="currentColor" ');
+            langSpan.innerHTML = modified;
+          }
+        } catch (e) {
+          // Silent: keep text fallback
+        }
+      })();
+      
+      const button = document.createElement('button');
+      button.className = 'copy-code-btn';
+      button.title = 'Copy to clipboard';
+      button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      
+      let isCopying = false;
+      button.addEventListener('click', async () => {
+        if (isCopying) return;
+        isCopying = true;
+        
+        const code = pre.querySelector('code')?.textContent || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalHtml = button.innerHTML;
+          button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+          button.title = 'Copied!';
+          setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.title = 'Copy to clipboard';
+            isCopying = false;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+          isCopying = false;
+        }
+      });
+      
+      header.appendChild(langSpan);
+      header.appendChild(button);
+      wrapper.appendChild(header);
+    });
+  }
+
+  // Run ASAP, then on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCodeBlocks);
+  } else {
+    initCodeBlocks();
+  }
+
+  // Convert wikilinks to links on client side
+  // Matches [[ref]] or [[ref|display text]]
+  document.addEventListener('DOMContentLoaded', () => {
+    const wikiRegex = /\[\[([a-zA-Z0-9][a-zA-Z0-9_-]*?)(?:\|([^\]]+))?\]\]/g;
+    
+    // Process all text nodes in prose content
+    const walker = document.createTreeWalker(
+      document.querySelector('.prose') || document.body,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    const nodesToReplace = [];
+    let node;
+    
+    while (node = walker.nextNode()) {
+      if (node.nodeValue.includes('[[')) {
+        nodesToReplace.push(node);
+      }
+    }
+    
+    nodesToReplace.forEach((textNode) => {
+      const parent = textNode.parentNode;
+      let lastIndex = 0;
+      const matches = [...textNode.nodeValue.matchAll(wikiRegex)];
+      
+      if (matches.length === 0) return;
+      
+      const fragment = document.createDocumentFragment();
+      
+      matches.forEach((match) => {
+        const [fullMatch, ref, displayText] = match;
+        const startIndex = match.index;
+        
+        // Add text before match
+        if (startIndex > lastIndex) {
+          fragment.appendChild(
+            document.createTextNode(textNode.nodeValue.slice(lastIndex, startIndex))
+          );
+        }
+        
+        // Create link
+        const link = document.createElement('a');
+        link.href = `/notes/${ref.toLowerCase()}`;
+        link.textContent = (displayText || ref).trim();
+        link.className = 'text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors';
+        fragment.appendChild(link);
+        
+        lastIndex = startIndex + fullMatch.length;
+      });
+      
+      // Add remaining text
+      if (lastIndex < textNode.nodeValue.length) {
+        fragment.appendChild(
+          document.createTextNode(textNode.nodeValue.slice(lastIndex))
+        );
+      }
+      
+      parent.replaceChild(fragment, textNode);
+    });
+  });
+</script> 

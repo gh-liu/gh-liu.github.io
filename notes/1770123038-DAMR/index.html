@@ -1,0 +1,693 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>contiguous-stacks</title><script>
+      // This script runs synchronously in the head to prevent FOUC (Flash of Unstyled Content)
+      (function() {
+        const THEME_KEY = 'nord-theme';
+        const DARK = 'dark';
+        
+        function getStoredTheme() {
+          try {
+            return localStorage.getItem(THEME_KEY);
+          } catch {
+            return null;
+          }
+        }
+        
+        function getSystemTheme() {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+        }
+        
+        function getTheme() {
+          return getStoredTheme() || getSystemTheme();
+        }
+        
+        function applyTheme(theme) {
+          const html = document.documentElement;
+          if (theme === DARK) {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+        }
+        
+        // Apply theme immediately before page renders
+        applyTheme(getTheme());
+      })();
+    </script><style>.knowledge-graph-container[data-astro-cid-eoxcivfe]{border:1px solid var(--nord-4);border-radius:8px;background:var(--nord-6);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-eoxcivfe]:fullscreen,.knowledge-graph-container[data-astro-cid-eoxcivfe]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-eoxcivfe]:fullscreen .knowledge-graph-wrapper[data-astro-cid-eoxcivfe],.knowledge-graph-container[data-astro-cid-eoxcivfe]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-eoxcivfe]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--nord-4);border-radius:6px;background:var(--nord-6);color:var(--nord-2);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--nord-5);color:var(--nord-10)}.knowledge-graph-toolbar-btn:active{background:var(--nord-4)}.knowledge-graph-wrapper[data-astro-cid-eoxcivfe]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:#5e81ac;stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--nord-14);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--nord-10);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--nord-14);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--nord-15);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--nord-12);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--nord-4);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:#4c566a;stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--nord-11);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--nord-1);font-weight:500;text-shadow:0 0 3px var(--nord-6)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--nord-0);border:1px solid var(--nord-3);border-radius:4px;font-size:12px;color:var(--nord-6);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--nord-8);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--nord-2)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--nord-10)}.kg-legend--outlink{color:var(--nord-14)}.kg-legend--backlink{color:var(--nord-15)}.kg-legend--both{color:var(--nord-12)}.kg-legend--neighbor{color:var(--nord-4);opacity:.9}
+html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-word}
+</style>
+<link rel="stylesheet" href="/_astro/_id_.Cwr2jlpx.css"></head> <body class="bg-nord-6 dark:bg-nord-0 text-nord-3 dark:text-nord-5 transition-colors"> <header class="border-b border-nord-5 dark:border-nord-1 bg-nord-6 dark:bg-nord-0"> <nav class="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between gap-4"> <div class="flex items-center gap-2 min-w-0"> <a href="/" title="Liu" class="shrink-0 p-1.5 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"> <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path> <circle cx="12" cy="7" r="4"></circle> </svg> </a> <h1 class="text-xl font-bold truncate"> <a href="/" class="text-nord-2 dark:text-nord-6 hover:text-nord-10 dark:hover:text-nord-8 transition-colors"> Liu </a> </h1> </div> <div class="flex items-center gap-2 shrink-0"> <a href="https://github.com/gh-liu" title="GitHub" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-200 ease-out hover:scale-110"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"> <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path> </svg> </a> <span class="w-px h-4 bg-nord-4 dark:bg-nord-2 shrink-0" aria-hidden="true"></span> <div class="relative series-dropdown" id="series-dropdown-root"> <a href="/notes/series" title="Series" aria-expanded="false" aria-haspopup="true" aria-controls="series-dropdown-panel" id="series-dropdown-trigger" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110 inline-flex"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> </a> <div id="series-dropdown-panel" class="absolute right-0 top-full mt-1 py-2 min-w-[12rem] max-h-[70vh] overflow-y-auto rounded-lg border border-nord-4 dark:border-nord-2 bg-nord-6 dark:bg-nord-1 shadow-lg z-50 hidden" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">加载中…</span> </div> <div class="border-t border-nord-4 dark:border-nord-2 pt-1 mt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors">
+查看全部系列 →
+</a> </div> </div> </div> <a href="/notes/tags" title="Tags" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> </a> <div class="search-container" id="search-wrapper" data-astro-cid-otpdt6jm><button id="search-toggle" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-200 ease-out hover:scale-110" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-otpdt6jm><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-otpdt6jm><circle cx="11" cy="11" r="8" data-astro-cid-otpdt6jm></circle><path d="m21 21-4.35-4.35" data-astro-cid-otpdt6jm></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20" data-astro-cid-otpdt6jm><div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl w-full max-w-2xl border border-nord-5 dark:border-nord-1 max-h-[70vh] flex flex-col" data-astro-cid-otpdt6jm><div class="p-4 border-b border-nord-5 dark:border-nord-1" data-astro-cid-otpdt6jm><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full px-4 py-2 bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 placeholder-nord-3 dark:placeholder-nord-4 rounded focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-otpdt6jm></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-otpdt6jm><p class="text-nord-3 dark:text-nord-5 text-sm" data-astro-cid-otpdt6jm>Type to search...</p></div><div class="p-3 border-t border-nord-5 dark:border-nord-1 text-xs text-nord-3 dark:text-nord-4" data-astro-cid-otpdt6jm><p data-astro-cid-otpdt6jm>Press <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-otpdt6jm>Esc</kbd> to close | Use <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-otpdt6jm>#tag</kbd> to search by tag</p></div></div></div></div><script>(function(){const pagefindUrl = "/pagefind/pagefind.js";
+
+  if (!globalThis.pagefindLoaded) {
+    globalThis.pagefindLoaded = true;
+    
+    let pagefind;
+    let searchInput;
+    let searchModal;
+    let searchResults;
+    let isSearchOpen = false;
+
+    async function initSearch() {
+      if (typeof window === "undefined") return;
+
+      try {
+        pagefind = await import(pagefindUrl);
+        await pagefind.init();
+      } catch (error) {
+        console.log("Search not available.", error);
+        return;
+      }
+
+      searchInput = document.getElementById("search-input");
+      searchModal = document.getElementById("search-modal");
+      searchResults = document.getElementById("search-results");
+      const toggleBtn = document.getElementById("search-toggle");
+
+      if (!searchInput || !searchModal || !searchResults || !toggleBtn) return;
+
+      toggleBtn.addEventListener("click", () => {
+        openSearch();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeSearch();
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          e.preventDefault();
+          isSearchOpen ? closeSearch() : openSearch();
+        }
+      });
+
+      searchModal.addEventListener("click", (e) => {
+        if (e.target === searchModal) closeSearch();
+      });
+
+      searchInput.addEventListener("input", async (e) => {
+        const query = e.target.value.trim();
+        if (!query) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+          return;
+        }
+
+        // Check if query starts with #tag
+        const isTagSearch = query.startsWith('#');
+        let results;
+        
+        if (isTagSearch) {
+          // Tag search
+          const tag = query.slice(1).toUpperCase();
+          results = await pagefind.search(`tag:${tag}`);
+        } else {
+          // Regular text search
+          results = await pagefind.search(query);
+        }
+
+        if (results.results.length === 0) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">No results found.</p>';
+          return;
+        }
+
+        let html = '<ul class="space-y-2">';
+        for (const result of results.results) {
+          const data = await result.data();
+          // Extract title from h1 or use URL slug as fallback
+          const title = data.meta?.title || data.title || (data.url.split('/').pop() || 'untitled').replace(/-/g, ' ');
+          html += `<li><a href="${data.url}" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"><div class="font-medium">${title}</div><div class="text-xs text-nord-3 dark:text-nord-5 mt-1 line-clamp-2">${data.excerpt || ""}</div></a></li>`;
+        }
+        searchResults.innerHTML = html + "</ul>";
+      });
+    }
+
+    function openSearch() {
+      isSearchOpen = true;
+      searchModal.classList.remove("hidden");
+      searchInput.focus();
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSearch() {
+      isSearchOpen = false;
+      searchModal.classList.add("hidden");
+      searchInput.value = "";
+      searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+      document.body.style.overflow = "";
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initSearch);
+    } else {
+      initSearch();
+    }
+  }
+})();</script> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="group relative p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-4 transition-all duration-200 ease-out hover:scale-110"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="w-4 h-4 text-nord-13 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="w-4 h-4 text-nord-9 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script>
+  const THEME_KEY = 'nord-theme';
+  const DARK = 'dark';
+  
+  function getStoredTheme() {
+    return localStorage.getItem(THEME_KEY);
+  }
+  
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+  }
+  
+  function getTheme() {
+    return getStoredTheme() || getSystemTheme();
+  }
+  
+  function applyTheme(theme) {
+    const html = document.documentElement;
+    if (theme === DARK) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }
+  
+  function toggleTheme() {
+    const currentTheme = getTheme();
+    const newTheme = currentTheme === DARK ? 'light' : DARK;
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  }
+  
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+</script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-xvrfupwn> <nav class="px-4 space-y-1" data-astro-cid-xvrfupwn> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-xvrfupwn> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-xvrfupwn></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-xvrfupwn>
+On this page
+</h3> <p class="text-sm text-nord-3 dark:text-nord-4 px-2 py-4" data-astro-cid-xvrfupwn>No headings</p> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
+  const TOC_KEY = 'toc-open';
+  const sidebar = document.getElementById('toc-sidebar');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+
+  function getSidebarState() {
+    return localStorage.getItem(TOC_KEY) !== 'false';
+  }
+
+  function setSidebarState(open) {
+    localStorage.setItem(TOC_KEY, open ? 'true' : 'false');
+  }
+
+  function updateSidebar() {
+    const isOpen = getSidebarState();
+    if (sidebar) {
+      if (isOpen) {
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    }
+  }
+
+  function toggleSidebar() {
+    const isOpen = getSidebarState();
+    setSidebarState(!isOpen);
+    updateSidebar();
+  }
+
+  // Initialize
+  updateSidebar();
+
+  // Event listeners
+  if (toggle) {
+    toggle.addEventListener('click', toggleSidebar);
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', toggleSidebar);
+  }
+
+  // Keyboard shortcut: left/right arrow to toggle
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.ctrlKey) {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  });
+
+  // Highlight current section on scroll
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          document.querySelectorAll('.toc-item a').forEach((link) => {
+            link.classList.remove('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+            link.classList.add('text-nord-3', 'dark:text-nord-4');
+          });
+          const activeLink = document.querySelector(
+            `.toc-item a[href="#${entry.target.id}"]`
+          );
+          if (activeLink) {
+            activeLink.classList.remove('text-nord-3', 'dark:text-nord-4');
+            activeLink.classList.add('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+          }
+        }
+      });
+    },
+    { rootMargin: '-50% 0px -50% 0px' }
+  );
+
+  document.querySelectorAll('h2, h3').forEach((heading) => {
+    if (heading.id) {
+      observer.observe(heading);
+    }
+  });
+
+  // Close sidebar on link click
+  document.querySelectorAll('.toc-item a').forEach((link) => {
+    link.addEventListener('click', () => {
+      setSidebarState(false);
+      updateSidebar();
+    });
+  });
+</script>  <article class="prose prose-nord dark:prose-nord max-w-none
+      prose-headings:font-serif
+      prose-code:before:content-none prose-code:after:content-none" data-astro-cid-v5yihett> <header class="mb-8" data-astro-cid-v5yihett> <h1 class="mb-3" data-pagefind-meta="title" data-astro-cid-v5yihett>contiguous-stacks</h1> <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4" data-astro-cid-v5yihett> <div class="text-sm text-nord-3 dark:text-nord-5" data-astro-cid-v5yihett> <div> <div class="flex flex-wrap gap-2 mb-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-7 dark:bg-nord-7 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>📅</span> <span>2026-02-03</span> </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-8 dark:bg-nord-8 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>✏️</span> <span>2026-02-03</span> </span>  <div class="flex flex-wrap gap-2"> <a href="/notes/tag/CS" class="inline-block px-2.5 py-1 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors cursor-pointer !no-underline hover:!no-underline"> CS </a><a href="/notes/tag/GO" class="inline-block px-2.5 py-1 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors cursor-pointer !no-underline hover:!no-underline"> GO </a> </div> </div> </div> </div> <div class="text-sm" data-astro-cid-v5yihett> <div> <div class="flex items-center gap-4"> <!-- Back to notes link - removed, now in footer --> <!-- Show only links and backlinks stats --> <!-- Outlinks -->  <!-- Backlinks -->  <!-- No links message --> <span class="text-nord-3 dark:text-nord-4 italic">No related notes</span> </div> <!-- Modals --> <div id="outlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No outlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "outlinks-modal";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <div id="backlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No backlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "backlinks-modal";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <script>
+  // Outlinks button - calls window.openOutlinksModal()
+  document.querySelectorAll('.open-outlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openOutlinksModal) {
+        window.openOutlinksModal();
+      }
+    });
+  });
+
+  // Backlinks button - calls window.openBacklinksModal()
+  document.querySelectorAll('.open-backlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openBacklinksModal) {
+        window.openBacklinksModal();
+      }
+    });
+  });
+</script> </div> </div> </div> </header>    <p>连续栈：
+给每一个goroutine的栈分配一段连续的空间，当空间填满时，使用reallocation/copy增长空间。
+为什么：
+1.当前分裂栈机制有一个”hot split”问题-如果栈差不多满的时候，一个调用将会强制生成一个新栈块。当调用返回的时候，这个新栈块就释放掉了。如果这个调用重复发生在一个紧密的循环中，这个调用产生的分配/释放开销会造成十分明显的开销。
+2.有拆分stack时候，stack分配/取消分配工作永远不会完成-每当stack大小在任一方向上超过阈值时，都需要进行额外的工作。
+使用连续栈，我们解决了两种方式，stack增加到所需的大小，当不在被工作需要的时候就收缩。
+如何：
+你怎么可以移动一个stack？结果是编译器的逃逸分析提供了一个非常重要的不变值：stack上指向数据的指针，其只在调用树中传递。任何其他的逃逸（写到全局变量，返回至父，写至堆等。）阻止这个数据分配到栈上。这个不变量意味着指向stack数据的唯一指针在stack本身中（下面有意外），其使的我们可以轻易找到并修改当我们需要复制这个栈的时候。
+溢出检查：
+栈溢出检查与分裂栈的溢出检查相似，主要的不同是我们不再需要知道参数大小，因为不在需要复制参数到一个新栈段内。这在一定程度上简化了拓展stack的goroutine族的激增，并且消除了大部分对nosplit指令的需求。
+我们甚至也不需要知道帧的大小。只要将当前栈大小乘2即可，如果依旧不能满足，将会促发栈溢出检查并再次将栈乘2。重复直至满足栈大小需要。
+复制：
+当栈溢出检查促发时：
+分配一个比旧栈大小稍大的新栈。我们应该以指数增长大小的方式分配（限制已经完成的复制工作），并可能会四舍五入为一个不错的大小的倍数（因此分配器可以变的更加有效）。！！我目前正在计划使用两种大小的幂，并且将每次重新分配加倍。
+复制旧的栈到新的栈，栈被视作为一个字节指针的数组，且每一个指针从旧栈复制到新栈，每个字节指针与旧栈的边界进行比较，如果在范围内，将会调整指针相同偏移量从TOS到新栈。
+只有真的指针才可以被调整 - 我们需要避免整型看起来像指针。所以我们需要一个数据结构，其可以告诉我们，在栈上每一个指针大小的word，是否是个指针。幸运的是，Carl正在生成一个用于精确GC的数据结构。
+所有从外进入到栈的指针需要被调整。尽管有逃逸分析，但是还是有一些，包括：
+<code>延迟调用（deferred）的函数对象； </code>延迟调用（deferred）的参数；
+<code>延迟调用（deferred）的函数对象的闭包参数； </code>将要传递到溢出帧的函数对象（在寄存器中传递，而不是在stack中传递，至少在x86中是这样）
+`传递到溢出帧的函数对象的闭包参数
+相同的规则试用于复制的时候，我们需要知道这个数据确实是一个指针，并且如果是的话，知道其是否指向旧栈
+Reflect.call:
+Reflect.call调用一个函数，其被给与一个指向参数区域与参数大小的指针。旧的栈分裂机制，强制生成一个栈块，所以这个可变大小的参数区域可以分配到栈的顶部。新机制需要分配这些参数在栈的任何地方，为了模拟一个可变大小帧，我们定义了一系列2次幂大小的固定大小的帧的函数，其可以用来做跳板。</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#E1E4E8">    reflect.</span><span style="color:#B392F0">call</span><span style="color:#E1E4E8">(function, args, argsize)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> argsize </span><span style="color:#F97583">&#x3C;=</span><span style="color:#79B8FF"> 16</span><span style="color:#E1E4E8">: jump reflect.</span><span style="color:#B392F0">call16</span><span style="color:#E1E4E8">(function, args, argsize)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> argsize </span><span style="color:#F97583">&#x3C;=</span><span style="color:#79B8FF"> 32</span><span style="color:#E1E4E8">: jump reflect.</span><span style="color:#B392F0">call32</span><span style="color:#E1E4E8">(function, args, argsize)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            if</span><span style="color:#E1E4E8"> argsize </span><span style="color:#F97583">&#x3C;=</span><span style="color:#79B8FF"> 64</span><span style="color:#E1E4E8">: jump reflect.</span><span style="color:#B392F0">call64</span><span style="color:#E1E4E8">(function, args, argsize)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    …</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">    reflect.</span><span style="color:#B392F0">call16</span><span style="color:#E1E4E8">(function, args, argsize)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            sp </span><span style="color:#F97583">-=</span><span style="color:#79B8FF"> 16</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            copy [args, args</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">argsize] to [sp, sp</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">argsize]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            call function</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            copy [sp, sp</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">argsize] to [args, args</span><span style="color:#F97583">+</span><span style="color:#E1E4E8">argsize]  (</span><span style="color:#F97583">for</span><span style="color:#F97583"> return</span><span style="color:#E1E4E8"> values)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#E1E4E8">            sp </span><span style="color:#F97583">+=</span><span style="color:#79B8FF"> 16</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">            return</span></span></code></pre>
+<p>我建议reflect.call的参数大小最大为64k
+复制器需要知道哪些是这些帧的指针，哪些不是。这个信息可以通过查看被调用函数的签名来获得。 (and for vararg calls also the argument size?对vararg调用也是这个参数大小么？)
+栈追踪：
+栈追踪在一定程度上简化了，因为其不在需要处理栈上的分裂了。
+GC：
+和栈追踪差不多，GC对一个g的栈扫描也得到了简化。
+Defer/panic/recover：
+这些机制的实现有轻微的变化，并且大多数实例得到了简化。旧机制使用栈分裂点去标记哪里发生了panic。
+测试：
+对于测试来说，所有的栈将会分配到堆外的某处。当一个栈复制完成，旧栈将会munmap(),所以对旧栈的错误范围会被trap。
+CGo：
+不确定，我目前还不知道问题是什么。
+Shrinking：
+当一个goroutine在其生命周期的开始使用了许多栈空间，但是在剩下的生命周期使用了很少的栈空间，就会有很多空闲的栈空间。我们需要使用某种方式回收这些空闲的空间，想法：
+在GC的时候，如果一个goroutine使用未超过其总共栈空间的X%，复制其到一个小一点的栈。当其需要更多空间的时候，就会拓展栈空间。
+在GC的时候，如果一个goroutine使用未超过其总共栈空间的X%，降低其stack guard的值，如果在下次GC的时候没有触发到guard，就复制其到一个小一点的栈。
+我当前的计划是在GC的时候，!!如果goroutine最多使用了其stack的¼，则释放栈底部的½。如果stack足够大，我将直接释放它，否则复制。
+Starting stacks:
+所有的g默认以最小的栈空间开始。当一个G完成时，我们释放它的stack，因为它可能很大，而不是恰好在该G上启动的下一个go例程所需要的(也许我们使用栈收缩代码处理这里)。
+我们可以保留每个go例程使用多少stack的统计信息（由函数地址键控），并在启动go例程之前预先分配这些stack。每一次一个g执行完成时，统计信息可以被更新。这不是完美的，例如一个goroutine栈的使用依赖于数据，！！但这可能是一个适当的起点。
+如果我们想要在一个g中记录栈的最大使用情况，这个机制同样适用与分裂栈。然而，其必须更加保守，在拆分裂栈中，分配太大的初始栈是无法撤消的。
+Disadvantages：
+更多的虚拟内存压力/碎片。尤其是很大的栈空间的时候，找到一个连续内存空间放入栈变成非常困难。可能的话，一些混合模式可以做到更好，举例来说，复制栈空间到1Mb，在后面可以分裂它。这可能有帮助，但是我不认为这值得额外的实现复杂性去获得这两种机制。
+进入栈的指针的限制。所有进入栈空间的指针需要被严格的解释。目前，我们的逃逸分析，确保栈中没有杂散指针。将来也许会有一些场景，我们希望允许一些指针进入栈，但这个实现可能会阻止。我还不知道这些场景会是什么，但是这个限制值得注意。
+可能需要对运行时的C/asm代码进行审核，以确保栈指针没有任何问题。</p>
+<p><a href="https://docs.google.com/document/d/1wAaf1rYoM4S4gtnPh0zOlGzWtrZFQ5suE8qr2sD8uWQ/pub">本文是翻译此文章部分</a></p> <!-- Diagrams rendered at build time -->  </article> <nav class="mt-12 pt-8 border-t border-nord-5 dark:border-nord-1" data-astro-cid-v5yihett> <a href="/notes" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" data-astro-cid-v5yihett>
+← Back to notes
+</a> </nav>  </main> <footer class="border-t border-nord-5 dark:border-nord-1 mt-12"> <div class="max-w-4xl mx-auto px-4 py-6 text-sm text-nord-3 dark:text-nord-4 text-center"> <p>&copy; 2026. All rights reserved.</p> </div> </footer> <script type="module" src="/_astro/Base.astro_astro_type_script_index_0_lang.WDMQca9J.js"></script> <script>
+      (function() {
+        const root = document.getElementById('series-dropdown-root');
+        const trigger = document.getElementById('series-dropdown-trigger');
+        const panel = document.getElementById('series-dropdown-panel');
+        const listEl = document.getElementById('series-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let seriesList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (seriesList === null) {
+            fetch('/series-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                seriesList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无系列</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(name) {
+                     const slug = name.toLowerCase().replace(/\s+/g, '-');
+                     const url = '/notes/series/' + slug;
+                     return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(name) + '</a>';
+                   }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        // On click: allow default navigation to /notes/series
+        // On hover: show dropdown menu
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          // Don't preventDefault - allow link to navigate
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> </body> </html>  <script>
+  // Language aliases (matches server-side)
+  const langAliases = {
+    js: 'javascript',
+    ts: 'typescript',
+    yml: 'yaml',
+    yaml: 'yaml',
+    sh: 'bash',
+    shell: 'bash',
+    sql: 'postgresql',
+    java: 'openjdk',
+  };
+
+  // Add headers and copy buttons to code blocks
+  function initCodeBlocks() {
+    document.querySelectorAll('pre[data-language]').forEach((pre) => {
+      // Skip if already processed
+      if (pre.parentNode.classList.contains('code-block-wrapper')) return;
+      
+      const lang = pre.getAttribute('data-language') || 'code';
+      
+      // Create wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block-wrapper';
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+      
+      // Create header
+      const header = document.createElement('div');
+      header.className = 'code-header';
+      
+      const langSpan = document.createElement('span');
+      langSpan.className = 'code-header-lang';
+      langSpan.title = lang;
+      langSpan.textContent = lang; // default to lang name
+      
+      // Fetch icon asynchronously (best effort)
+      const normalizedLang = lang.toLowerCase();
+      const iconName = langAliases[normalizedLang] || normalizedLang;
+      
+      (async () => {
+        try {
+          const res = await fetch(`https://cdn.jsdelivr.net/npm/simple-icons@latest/icons/${iconName}.svg`, {
+            signal: AbortSignal.timeout(2000)
+          });
+          if (res.ok) {
+            const svg = await res.text();
+            // Get color from simple-icons metadata or use currentColor
+            // Add size classes and ensure paths are visible
+            let modified = svg.replace('<svg', '<svg class="w-4 h-4" style="display: inline; fill: currentColor"');
+            // Ensure all path/circle elements have fill
+            modified = modified.replace(/<path /g, '<path fill="currentColor" ');
+            modified = modified.replace(/<circle /g, '<circle fill="currentColor" ');
+            langSpan.innerHTML = modified;
+          }
+        } catch (e) {
+          // Silent: keep text fallback
+        }
+      })();
+      
+      const button = document.createElement('button');
+      button.className = 'copy-code-btn';
+      button.title = 'Copy to clipboard';
+      button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      
+      let isCopying = false;
+      button.addEventListener('click', async () => {
+        if (isCopying) return;
+        isCopying = true;
+        
+        const code = pre.querySelector('code')?.textContent || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalHtml = button.innerHTML;
+          button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+          button.title = 'Copied!';
+          setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.title = 'Copy to clipboard';
+            isCopying = false;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+          isCopying = false;
+        }
+      });
+      
+      header.appendChild(langSpan);
+      header.appendChild(button);
+      wrapper.appendChild(header);
+    });
+  }
+
+  // Run ASAP, then on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCodeBlocks);
+  } else {
+    initCodeBlocks();
+  }
+
+  // Convert wikilinks to links on client side
+  // Matches [[ref]] or [[ref|display text]]
+  document.addEventListener('DOMContentLoaded', () => {
+    const wikiRegex = /\[\[([a-zA-Z0-9][a-zA-Z0-9_-]*?)(?:\|([^\]]+))?\]\]/g;
+    
+    // Process all text nodes in prose content
+    const walker = document.createTreeWalker(
+      document.querySelector('.prose') || document.body,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    const nodesToReplace = [];
+    let node;
+    
+    while (node = walker.nextNode()) {
+      if (node.nodeValue.includes('[[')) {
+        nodesToReplace.push(node);
+      }
+    }
+    
+    nodesToReplace.forEach((textNode) => {
+      const parent = textNode.parentNode;
+      let lastIndex = 0;
+      const matches = [...textNode.nodeValue.matchAll(wikiRegex)];
+      
+      if (matches.length === 0) return;
+      
+      const fragment = document.createDocumentFragment();
+      
+      matches.forEach((match) => {
+        const [fullMatch, ref, displayText] = match;
+        const startIndex = match.index;
+        
+        // Add text before match
+        if (startIndex > lastIndex) {
+          fragment.appendChild(
+            document.createTextNode(textNode.nodeValue.slice(lastIndex, startIndex))
+          );
+        }
+        
+        // Create link
+        const link = document.createElement('a');
+        link.href = `/notes/${ref.toLowerCase()}`;
+        link.textContent = (displayText || ref).trim();
+        link.className = 'text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors';
+        fragment.appendChild(link);
+        
+        lastIndex = startIndex + fullMatch.length;
+      });
+      
+      // Add remaining text
+      if (lastIndex < textNode.nodeValue.length) {
+        fragment.appendChild(
+          document.createTextNode(textNode.nodeValue.slice(lastIndex))
+        );
+      }
+      
+      parent.replaceChild(fragment, textNode);
+    });
+  });
+</script> 
