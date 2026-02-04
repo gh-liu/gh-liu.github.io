@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>grammar</title><script>
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>Go: slice</title><script>
       // This script runs synchronously in the head to prevent FOUC (Flash of Unstyled Content)
       (function() {
         const THEME_KEY = 'nord-theme';
@@ -179,7 +179,7 @@ html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-wo
   }
 </script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-xvrfupwn> <nav class="px-4 space-y-1" data-astro-cid-xvrfupwn> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-xvrfupwn> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-xvrfupwn></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-xvrfupwn>
 On this page
-</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#语法" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 语法 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#单词种类" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 单词种类 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#句子成份" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 句子成份 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#句子" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 句子 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#基础句型" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 基础句型： </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#复杂句型" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 复杂句型 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#特殊句型" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 特殊句型 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#单词" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 单词 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#动词" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 动词 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#形容词副词" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 形容词/副词 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#限定词" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 限定词 </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#介词" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 介词 </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
+</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#初始化" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 初始化 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#相关操作" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 相关操作 </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#扩容growslice" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 扩容：growslice </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#slices包依赖范型" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> slices包（依赖范型） </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#inside-slice" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> Inside Slice </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
   const TOC_KEY = 'toc-open';
   const sidebar = document.getElementById('toc-sidebar');
   const toggle = document.getElementById('toc-toggle');
@@ -267,7 +267,7 @@ On this page
   });
 </script>  <article class="prose prose-nord dark:prose-nord max-w-none
       prose-headings:font-serif
-      prose-code:before:content-none prose-code:after:content-none" data-astro-cid-v5yihett> <header class="mb-8" data-astro-cid-v5yihett> <h1 class="mb-3" data-pagefind-meta="title" data-astro-cid-v5yihett>grammar</h1> <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4" data-astro-cid-v5yihett> <div class="text-sm text-nord-3 dark:text-nord-5" data-astro-cid-v5yihett> <div> <div class="flex flex-wrap gap-2 mb-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-7 dark:bg-nord-7 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>📅</span> <span>2026-02-03</span> </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-8 dark:bg-nord-8 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>✏️</span> <span>2026-02-03</span> </span>  <div class="flex flex-wrap gap-2"> <a href="/notes/tag/LANG" class="inline-block px-2.5 py-1 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors cursor-pointer !no-underline hover:!no-underline"> LANG </a><a href="/notes/tag/EN" class="inline-block px-2.5 py-1 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors cursor-pointer !no-underline hover:!no-underline"> EN </a> </div> </div> </div> </div> <div class="text-sm" data-astro-cid-v5yihett> <div> <div class="flex items-center gap-4"> <!-- Back to notes link - removed, now in footer --> <!-- Show only links and backlinks stats --> <!-- Outlinks -->  <!-- Backlinks -->  <!-- No links message --> <span class="text-nord-3 dark:text-nord-4 italic">No related notes</span> </div> <!-- Modals --> <div id="outlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+      prose-code:before:content-none prose-code:after:content-none" data-astro-cid-v5yihett> <header class="mb-8" data-astro-cid-v5yihett> <h1 class="mb-3" data-pagefind-meta="title" data-astro-cid-v5yihett>Go: slice</h1> <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4" data-astro-cid-v5yihett> <div class="text-sm text-nord-3 dark:text-nord-5" data-astro-cid-v5yihett> <div> <div class="flex flex-wrap gap-2 mb-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-7 dark:bg-nord-7 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>📅</span> <span>2026-02-04</span> </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-8 dark:bg-nord-8 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>✏️</span> <span>2026-02-04</span> </span> <a href="/notes/series/inside-go" class="inline-flex items-center gap-1 px-2 py-0.5 text-xs bg-nord-14 dark:bg-nord-14 text-nord-0 dark:text-nord-0 rounded font-medium hover:opacity-90 transition-opacity cursor-pointer !no-underline hover:!no-underline" title="系列：Inside Go"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> <span>Inside Go</span> </a> <div class="flex flex-wrap gap-2"> <a href="/notes/tag/CS" class="inline-block px-2.5 py-1 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors cursor-pointer !no-underline hover:!no-underline"> CS </a><a href="/notes/tag/GO" class="inline-block px-2.5 py-1 text-xs bg-nord-5 dark:bg-nord-2 text-nord-2 dark:text-nord-6 rounded font-medium hover:bg-nord-4 dark:hover:bg-nord-1 transition-colors cursor-pointer !no-underline hover:!no-underline"> GO </a> </div> </div> </div> </div> <div class="text-sm" data-astro-cid-v5yihett> <div> <div class="flex items-center gap-4"> <!-- Back to notes link - removed, now in footer --> <!-- Show only links and backlinks stats --> <!-- Outlinks -->  <!-- Backlinks -->  <!-- No links message --> <span class="text-nord-3 dark:text-nord-4 italic">No related notes</span> </div> <!-- Modals --> <div id="outlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
 (0)
 </span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
 No outlinks found
@@ -383,183 +383,135 @@ const type = "backlinks";
       }
     });
   });
-</script> </div> </div> </div> </header>    <p>+++
-draft = true
-date = 2021-07-24T10:29:01+08:00
-title = “英语语法总结”
-description = ""
-authors = [“Liu”]
-tags = [“English”, “grammar”]
-categories = [“English”]
-+++</p>
+</script> </div> </div> </div> </header>    <h1 id="slice-切片">slice 切片</h1>
 <blockquote>
-<p>英语学习中，不断学习，不断总结。</p>
+<p><a href="https://go.dev/ref/spec#Slice_types">https://go.dev/ref/spec#Slice_types</a>
+<a href="https://go.dev/blog/slices">https://go.dev/blog/slices</a>
+<a href="https://go.dev/blog/slices-intro">https://go.dev/blog/slices-intro</a></p>
 </blockquote>
-<!-- TOC GFM -->
-<ul>
-<li><a href="#%E8%AF%AD%E6%B3%95">语法</a>
-<ul>
-<li><a href="#%E5%8D%95%E8%AF%8D%E7%A7%8D%E7%B1%BB">单词种类</a></li>
-<li><a href="#%E5%8F%A5%E5%AD%90%E6%88%90%E4%BB%BD">句子成份</a></li>
-</ul>
-</li>
-<li><a href="#%E5%8F%A5%E5%AD%90">句子</a>
-<ul>
-<li><a href="#%E5%9F%BA%E7%A1%80%E5%8F%A5%E5%9E%8B">基础句型：</a></li>
-<li><a href="#%E5%A4%8D%E6%9D%82%E5%8F%A5%E5%9E%8B">复杂句型</a>
-<ul>
-<li><a href="#%E5%A4%8D%E5%90%88%E5%8F%A5">复合句</a></li>
-<li><a href="#%E5%A4%8D%E6%9D%82%E5%8F%A5">复杂句</a></li>
-</ul>
-</li>
-<li><a href="#%E7%89%B9%E6%AE%8A%E5%8F%A5%E5%9E%8B">特殊句型</a>
-<ul>
-<li><a href="#%E5%80%92%E8%A3%85%E5%8F%A5">倒装句</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><a href="#%E5%8D%95%E8%AF%8D">单词</a>
-<ul>
-<li><a href="#%E5%8A%A8%E8%AF%8D">动词</a>
-<ul>
-<li><a href="#%E5%8A%A9%E5%8A%A8%E8%AF%8D">助动词</a></li>
-<li><a href="#%E5%8A%A8%E8%AF%8D%E6%97%B6tense%E4%BD%93aspect%E6%80%81voice%E5%BC%8Fmood">动词：时(tense)体(aspect)态(voice)式(mood)</a></li>
-<li><a href="#%E9%9D%9E%E8%B0%93%E8%AF%AD%E5%8A%A8%E8%AF%8D">非谓语动词</a></li>
-</ul>
-</li>
-<li><a href="#%E5%BD%A2%E5%AE%B9%E8%AF%8D%E5%89%AF%E8%AF%8D">形容词/副词</a></li>
-<li><a href="#%E9%99%90%E5%AE%9A%E8%AF%8D">限定词</a></li>
-<li><a href="#%E4%BB%8B%E8%AF%8D">介词</a></li>
-</ul>
-</li>
-</ul>
-<!-- /TOC -->
-<h2 id="语法">语法</h2>
-<p>口头语或书面语中，语言由句子、词组、单词组成；语法就是组成规则。</p>
-<p>句子，可以拆作一个一个句子成份，也可以拆作一个一个单词(单词作句子成份或词组作句子成份)；那么需要知道有哪些句子成份，有哪些单词种类。</p>
-<p>句子成份有：主语、谓语、宾语、定语、状语、补语、同位语…</p>
-<p>单词种类有：名词、动词、形容词、副词、代词、限定词、介词、连词、感叹词…</p>
-<h3 id="单词种类">单词种类</h3>
-<ol>
-<li>名词：表示人或物；</li>
-<li>动词：表示动作或状态；</li>
-<li>形容词：修饰名词；</li>
-<li>副词：修饰动词、形容词、副词；</li>
-<li>代词：替代一个名词；</li>
-<li>限定词：限制或确定一个名词；</li>
-<li>介词：表达名词与其他句子成份的关系；</li>
-<li>连词：连接从句、句子、单词；</li>
-<li>感叹词：表达喜悦、惊讶等情感的词；</li>
-</ol>
-<p>查单词的时候，需要注意，一个单词可以作不同的词类。</p>
-<h3 id="句子成份">句子成份</h3>
-<ol>
-<li>主语：句子的主体；</li>
-<li>谓语：主语的状态或动作；</li>
-<li>宾语：动作的对象或承受者；</li>
-<li>定语：修饰、限定、说明名词或代词的相关特征；</li>
-<li>状语：与副词作用类似；</li>
-<li>补语：宾语补语或主语补语(表语)，补充表达宾语或主语；</li>
-<li>同位语：两个同指一个人或物的句子成份，其中一个用于解释说明另一个，那么前者就是同位语。</li>
-</ol>
-<h2 id="句子">句子</h2>
-<h3 id="基础句型">基础句型：</h3>
-<p><strong>根据谓语动词的不同特性(系动词、及物动词、不及物动词…)，分为几种基础句型</strong></p>
-<ol>
-<li>主语+谓语: 主语独立完成一个动作；不及物动词。</li>
-<li>主语+谓语+宾语: 主语的动作有一个承受者；及物动词。</li>
-<li>主语+谓语+宾语+宾语：主语的动作有两个承受者；双及物动词。</li>
-<li>主语+谓语+表语：谓语不是一个动作，是系动词，赋予主语一些信息，表达<code>是</code>的意思。</li>
-<li>主语+谓语+宾语+宾语补语：主语的动作只有一个承受者，但与2的不同之处是，对宾语有补充信息。</li>
-</ol>
-<h3 id="复杂句型">复杂句型</h3>
-<h4 id="复合句">复合句</h4>
-<p>两个各自能独立表达完整意思的句子，通过and、or、but等连接词连接起来。</p>
-<h4 id="复杂句">复杂句</h4>
-<p>一个句子(从句)充当另一个句子(主句)中的某个句子成份。</p>
-<ol>
-<li>名词从句：从句作名词</li>
-<li>定语从句：从句作形容词</li>
-<li>状语从句：从句作副词</li>
-</ol>
-<h3 id="特殊句型">特殊句型</h3>
-<h4 id="倒装句">倒装句</h4>
-<ol>
-<li>完全倒装</li>
-<li>部分倒装</li>
-<li>形式倒装</li>
-</ol>
-<h2 id="单词">单词</h2>
-<h3 id="动词">动词</h3>
-<p>动词分为<code>谓语动词</code>与<code>非谓语动词</code>，也就是作为句子成份中的谓语部分或其他部分。</p>
-<h4 id="助动词">助动词</h4>
-<p>协助主要动词构成谓语。</p>
-<p>be/am/is/are/was/were, have/has/had, do/does/did, shall/should, will/would, may/might.</p>
-<h4 id="动词时tense体aspect态voice式mood">动词：时(tense)体(aspect)态(voice)式(mood)</h4>
-<p>时间tense：现在、过去、将来、过去将来。时间上理解：动作发生在现在、过去、将来、过去的将来(在过去的点说将来，可能是过去、现在、将来)</p>
-<p>状态aspect：一般、进行、完成、完成进行。状态上理解：进行中、完成了、一般（通常的、习惯的、事实的）、完成进行（长时间的持续）</p>
-<p>语态voice：主动、被动：</p>
-<p>语气mood：表示动作的不同程度的<code>真、假</code>语气的口吻(陈述：事实(真的)，条件(有条件，真假未知)，假设(虚拟，与事实相反)，祈使(希望成真，但未实现))。</p>
-<p><strong>借助助动词与动词的变形，完成动词的时体态式</strong></p>
-<p>将时间与状态进行组合，就有了16种动词时态组合：</p>
 <blockquote>
-<p>思考：动作是否发生，什么时候发生的，持续了多久，何时结束？</p>
+<p>A slice is a descriptor for a contiguous segment of an underlying array and provides access to a numbered sequence of elements from that array.</p>
+<p>可以把切片看作指向某块连续区域，其底层是一个数组，有长度、有容量。</p>
+<p>SliceType = ”[” ”]” ElementType .</p>
+<p>长度不是类型的一部分。</p>
+<p>其长度不像数组（在编译期就固定了），可以在运行时改变。</p>
+<p>访问类似数组，可以通过下标访问。</p>
+<p>多个切片，可以指向同一个数组（可能导致问题）；这里与数组不同（不同数组对应不同的空间）。</p>
+<p>底层数组是支持扩容的（可能导致问题）：追加append扩容，但是reslice超过长度不扩容</p>
 </blockquote>
+<h2 id="初始化">初始化</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// 1. literal:</span></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> slice1 []</span><span style="color:#F97583">int</span></span>
+<span class="line"><span style="color:#E1E4E8">slice2 </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> []</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">{</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">// 2. make: make([]T, length, capacity)</span></span>
+<span class="line"><span style="color:#E1E4E8">slice3 </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> make</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#E1E4E8">slice4 </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> make</span><span style="color:#E1E4E8">([]</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">10</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">100</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#6A737D">// 3. slice expression:</span></span>
+<span class="line"><span style="color:#E1E4E8">slice5 </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> slice3[:</span><span style="color:#79B8FF">50</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#B392F0">println</span><span style="color:#E1E4E8">(slice1, slice2, slice3, slice4, slice5)</span></span></code></pre>
+<h2 id="相关操作">相关操作</h2>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> slice []</span><span style="color:#F97583">int</span></span>
+<span class="line"><span style="color:#6A737D">// 1. 下标访问、写入</span></span>
+<span class="line"><span style="color:#E1E4E8">e </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> slice[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#E1E4E8">slice[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 33</span></span>
+<span class="line"><span style="color:#6A737D">// 2. 遍历</span></span>
+<span class="line"><span style="color:#F97583">for</span><span style="color:#E1E4E8"> i, e </span><span style="color:#F97583">:=</span><span style="color:#F97583"> range</span><span style="color:#E1E4E8"> slice {</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#6A737D">// 3. 长度、容量</span></span>
+<span class="line"><span style="color:#E1E4E8">len </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> len</span><span style="color:#E1E4E8">(slice)</span></span>
+<span class="line"><span style="color:#E1E4E8">cap </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> cap</span><span style="color:#E1E4E8">(slice)</span></span>
+<span class="line"><span style="color:#6A737D">// 4. 追加</span></span>
+<span class="line"><span style="color:#E1E4E8">slice </span><span style="color:#F97583">=</span><span style="color:#B392F0"> append</span><span style="color:#E1E4E8">(slice, </span><span style="color:#79B8FF">123</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#6A737D">// 5. 复制</span></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> dstSlice []</span><span style="color:#F97583">int</span></span>
+<span class="line"><span style="color:#E1E4E8">n </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> copy</span><span style="color:#E1E4E8">(dstSlice, slice)</span></span>
+<span class="line"><span style="color:#6A737D">// 6. 再切片</span></span>
+<span class="line"><span style="color:#E1E4E8">slice2 </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> slice[:] </span><span style="color:#6A737D">// 左闭右开</span></span>
+<span class="line"><span style="color:#6A737D">// slice3 := slice[low:high:max]  // 「截出一段」并限制其容量，避免后续 append 改到原切片后面的元素（此时会重新分配）</span></span>
+<span class="line"><span style="color:#6A737D">// 7. 清空（设置为零值）</span></span>
+<span class="line"><span style="color:#B392F0">clear</span><span style="color:#E1E4E8">(slice2)</span></span>
+<span class="line"></span></code></pre>
+<h2 id="扩容growslice">扩容：growslice</h2>
 <ol>
-<li>一般现在时：动词原形或动词原形+s(第三人称单数)，表达事实、习惯/重复的事、预计发生的事</li>
-<li>现在进行时：助动词be(am/is/are)+现在分词(在非谓语动词提到)，表达动作<code>当前</code>正在进行</li>
-<li>现在完成时：助动词hava+过去分词(在非谓语动词提到)，表达动作已经完成，且隐含对<code>当前</code>造成影响的信息</li>
-<li>现在完成进行时：助动词have+been+现在分词(结合了现在完成时与现在进行时，be变形为过去分词been)，表达动作从某一时间(<code>当前</code>的过去)开始，一直持续到<code>当前</code>，或刚刚终止，或可能仍然要继续下去</li>
-<li>过去时：在<code>现在时态</code>往<code>前</code>推一个时间段，动词过去式(区分过去分词)</li>
-<li>过去进行时：助动词be(was/were)+现在分词</li>
-<li>过去完成时：助动词hava(had)+过去分词</li>
-<li>过去完成进行时：助动词hava(had)+been+现在分词</li>
-<li>将来时：在<code>现在时态</code>往<code>后</code>推一个时间段，使用助动词will：will+动词原形，说话者十分确定将来发生；或 be(am/is/are)+going/about+to+动词原形，表示很快将要发生</li>
-<li>将来进行时：will+be+现在分词</li>
-<li>将来完成时：will+hava+过去分词</li>
-<li>将来完成进行时：will+hava+be+现在分词</li>
-<li>过去将来时：相对于<code>过去</code>某个点的<code>将来</code>(可在<code>当前</code>之前或之后)，同<code>将来时态</code>相比，will->would：would+动词原形或be(was/were)+going/about+to+动词原形</li>
-<li>过去将来进行时：would+be+现在分词</li>
-<li>过去将来完成时：would+hava+过去分词</li>
-<li>过去将来完成进行：would+hava+be+现在分词时</li>
+<li>如果要求的cap大于old.cap的两倍，则newcap = cap</li>
+<li>否则：</li>
 </ol>
-<h4 id="非谓语动词">非谓语动词</h4>
-<p>谓语动词表达了对时间，状态，语气，语态的限制，也称作限定性动词(finite verb)；而非限定性动词，也就是非谓语动词，不受这些限制。</p>
-<p>种类：</p>
-<ol>
-<li>
-<p>动词不定式：to+动原，to可能省略，可作主语、宾语、宾补、定语、状语…(不定嘛，多种句子成份都可)</p>
-</li>
-<li>
-<p>动名词：含有名词与动词的两种属性，可作名词</p>
-</li>
-<li>
-<p>分词(现在分词、过去分词)：
-现在进行时=be+现在分词，但是现在分词未带<code>现在时间</code>，基本相当于一个形容词；
-过去分词，不带过去时间，不规则变化，也是形容词，作表语时暗含被动关系</p>
-</li>
+<ul>
+<li>如果old.cap小于256，newcap = old.cap*2;</li>
+<li>否则，循环：newcap += (newcap + 1024) / 4 直到 newcap > cap, 大约有1.25倍增长</li>
+</ul>
+<ol start="3">
+<li>计算newcap比特数，分配内存p</li>
+<li>计算old.len比特数lenmem</li>
+<li>从old.array出移动lenmem个比特到p处</li>
 </ol>
-<h3 id="形容词副词">形容词/副词</h3>
-<p>形容词修饰名词；副词修饰动词、形容词、副词；</p>
-<h3 id="限定词">限定词</h3>
-<p>在名词或名词短语前，表达该名词的范围。</p>
-<p>冠词：a an the : a(n)可看作one的弱化；the可看作that/those的弱化</p>
-<h3 id="介词">介词</h3>
-<p>增添附加信息(时间、空间、方式、逻辑(原因、目的、对象…)…)</p>
-<p>如何理解：从本义(空间)->引申义(非空间)</p>
-<p>空间介词：点at，线on，面on，体in <cr>
-over直上方, above更上方, under直下方, below更下方, near, by/beside, next to, across, through, past, in front of, before, behind, between, among, round/around, along, to, onto, into, outof, opposite, against, up, down, off</cr></p>
-<p>时间介词：时间点at，长时间in，特定日on <cr>
-during, for, since, before, after, form to, by, until</cr></p>
-<p>方式介词：…方式in, 通过…(电子设备居多)on <cr>
-through, by, with</cr></p>
-<p>原因介词：for, with, because of, due to, owing to, on account of</p>
-<p>关于：about, of, on</p>
-<p>数值：at, by, for</p>
-<p>状态：在状态中in, 收到…支持的状态on, 在某个状态on, 在框架、前提under</p>
-<p>排除：beside, except, except for</p>
-<p>介词短语和短语介词的区别，前者是介词+宾语，有完整意义，可作<code>主定补表状语</code>，后者就是介词。</p> <!-- Diagrams rendered at build time -->  </article> <nav class="mt-12 pt-8 border-t border-nord-4 dark:border-nord-1" data-astro-cid-v5yihett> <a href="/notes" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" data-astro-cid-v5yihett>
+<h2 id="slices包依赖范型">slices包（依赖范型）</h2>
+<blockquote>
+<p><a href="https://pkg.go.dev/slices@go1.25.6">https://pkg.go.dev/slices@go1.25.6</a></p>
+</blockquote>
+<h2 id="inside-slice">Inside Slice</h2>
+<p>编译期:
+src/cmd/compile/internal/types/type.go:NewSlice
+src/cmd/compile/internal/types/type.go:Slice
+切片的操作基本都是在编译期间完成的，除了访问切片的长度、容量或者其中的元素之外，编译期间也会将包含 range 关键字的遍历转换成形式更简单的循环。</p>
+<p>运行时:
+src/reflect/value.go:SliceHeader
+src/cmd/compile/internal/gc/ssa.go:state.append
+src/runtime/slice.go:growslice</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#B392F0">go</span><span style="color:#9ECBFF"> tool</span><span style="color:#9ECBFF"> compile</span><span style="color:#79B8FF"> -S</span><span style="color:#9ECBFF"> main.go</span><span style="color:#F97583"> ></span><span style="color:#9ECBFF">main.s</span></span>
+<span class="line"><span style="color:#B392F0">go</span><span style="color:#9ECBFF"> build</span><span style="color:#79B8FF"> -gcflags</span><span style="color:#9ECBFF"> "-N -l -S"</span><span style="color:#9ECBFF"> main.go</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#F97583">package</span><span style="color:#B392F0"> opslicemake</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> newSlice</span><span style="color:#E1E4E8">() []</span><span style="color:#F97583">int</span><span style="color:#E1E4E8"> {</span></span>
+<span class="line"><span style="color:#E1E4E8">	arr </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> [</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">{</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">, </span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#E1E4E8">	slice </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> arr[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">:</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">]</span></span>
+<span class="line"><span style="color:#F97583">	return</span><span style="color:#E1E4E8"> slice</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#6A737D">// GOSSAFUNC=newSlice 得到一系列 SSA 中间代码，其中 slice := arr[0:1] 语句在 “decompose builtin” 阶段对应的代码如下所示：</span></span>
+<span class="line"><span style="color:#6A737D">// 使用下标初始化切片不会拷贝原数组或者原切片中的数据，它只会创建一个指向原数组的切片结构体，所以修改新切片的数据也会修改原切片。</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// src/cmd/compile/internal/gc/sinit.go:slicelit</span></span>
+<span class="line"><span style="color:#6A737D">// 在编译期间展开</span></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> vstat [</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">int</span></span>
+<span class="line"><span style="color:#E1E4E8">vstat[</span><span style="color:#79B8FF">0</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 1</span></span>
+<span class="line"><span style="color:#E1E4E8">vstat[</span><span style="color:#79B8FF">1</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 2</span></span>
+<span class="line"><span style="color:#E1E4E8">vstat[</span><span style="color:#79B8FF">2</span><span style="color:#E1E4E8">] </span><span style="color:#F97583">=</span><span style="color:#79B8FF"> 3</span></span>
+<span class="line"><span style="color:#F97583">var</span><span style="color:#E1E4E8"> vauto </span><span style="color:#F97583">*</span><span style="color:#E1E4E8">[</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">int</span><span style="color:#F97583"> =</span><span style="color:#B392F0"> new</span><span style="color:#E1E4E8">([</span><span style="color:#79B8FF">3</span><span style="color:#E1E4E8">]</span><span style="color:#F97583">int</span><span style="color:#E1E4E8">)</span></span>
+<span class="line"><span style="color:#F97583">*</span><span style="color:#E1E4E8">vauto </span><span style="color:#F97583">=</span><span style="color:#E1E4E8"> vstat</span></span>
+<span class="line"><span style="color:#E1E4E8">slice </span><span style="color:#F97583">:=</span><span style="color:#E1E4E8"> vauto[:]</span></span>
+<span class="line"><span style="color:#6A737D">// 根据切片中的元素数量对底层数组的大小进行推断并创建一个数组；</span></span>
+<span class="line"><span style="color:#6A737D">// 将这些字面量元素存储到初始化的数组中；</span></span>
+<span class="line"><span style="color:#6A737D">// 创建一个同样指向 [3]int 类型的数组指针；</span></span>
+<span class="line"><span style="color:#6A737D">// 将静态存储区的数组 vstat 赋值给 vauto 指针所在的地址；</span></span>
+<span class="line"><span style="color:#6A737D">// 通过 [:] 操作获取一个底层使用 vauto 的切片；</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#6A737D">// 向 make 函数传入切片的大小以及可选的容量</span></span>
+<span class="line"><span style="color:#6A737D">// src/cmd/compile/internal/gc/typecheck.go:typecheck1</span></span>
+<span class="line"><span style="color:#6A737D">// src/cmd/compile/internal/gc/walk.go:walkexpr</span></span>
+<span class="line"><span style="color:#6A737D">// 依据下面两个条件转换 OMAKESLICE 类型的节点</span></span>
+<span class="line"><span style="color:#6A737D">// 切片的大小和容量是否足够小</span></span>
+<span class="line"><span style="color:#6A737D">// 切片是否发生了逃逸，最终在堆上初始化</span></span>
+<span class="line"><span style="color:#6A737D">// 当切片发生逃逸或者非常大时，运行时需要 runtime.makeslice 在堆上初始化切片</span></span>
+<span class="line"><span style="color:#6A737D">// 如果当前的切片不会发生逃逸并且切片非常小的时候，新建数据，下标获取切片。这两部分操作都会在编译阶段完成。</span></span>
+<span class="line"><span style="color:#6A737D">// runtime.makeslice（内存空间=切片中元素大小×切片容量） -> runtime.mallocgc（遇到了比较小的对象会直接初始化在 Go 语言调度器里面的 P 结构中，而大于 32KB 的对象会在堆上初始化）</span></span></code></pre>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>如果期望容量大于当前容量的两倍就会使用期望容量；</span></span>
+<span class="line"><span>如果当前切片的长度小于 1024 就会将容量翻倍；</span></span>
+<span class="line"><span>如果当前切片的长度大于 1024 就会每次增加 25% 的容量，直到新容量大于期望容量；</span></span></code></pre>
+<p>src/runtime/msize.go:roundupsize
+仅会确定切片的大致容量，下面还需要根据切片中的元素大小对齐内存，当数组中元素所占的字节大小为 1、8 或者 2 的倍数时，运行时会使用如下所示的代码对齐内存</p>
+<p>src/cmd/compile/internal/gc/walk.go:copyany
+不是在运行时调用:</p>
+<pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#E1E4E8">n </span><span style="color:#F97583">:=</span><span style="color:#B392F0"> len</span><span style="color:#E1E4E8">(a)</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> n </span><span style="color:#F97583">></span><span style="color:#B392F0"> len</span><span style="color:#E1E4E8">(b) {</span></span>
+<span class="line"><span style="color:#E1E4E8">	n </span><span style="color:#F97583">=</span><span style="color:#B392F0"> len</span><span style="color:#E1E4E8">(b)</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span>
+<span class="line"><span style="color:#F97583">if</span><span style="color:#E1E4E8"> a.ptr </span><span style="color:#F97583">!=</span><span style="color:#E1E4E8"> b.ptr {</span></span>
+<span class="line"><span style="color:#B392F0">	memmove</span><span style="color:#E1E4E8">(a.ptr, b.ptr, n</span><span style="color:#F97583">*</span><span style="color:#B392F0">sizeof</span><span style="color:#E1E4E8">(</span><span style="color:#B392F0">elem</span><span style="color:#E1E4E8">(a)))</span></span>
+<span class="line"><span style="color:#E1E4E8">}</span></span></code></pre>
+<p>在运行时:
+使用 runtime.slicecopy 替换运行期间调用的 copy</p>
+<p>大切片上执行拷贝操作时一定要注意对性能的影响
+<a href="https://stackoverflow.com/questions/30525184/array-vs-slice-accessing-speed">https://stackoverflow.com/questions/30525184/array-vs-slice-accessing-speed</a></p> <!-- Diagrams rendered at build time -->  </article> <nav class="mt-12 pt-8 border-t border-nord-4 dark:border-nord-1" data-astro-cid-v5yihett> <a href="/notes" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" data-astro-cid-v5yihett>
 ← Back to notes
 </a> </nav>  </main> <footer class="border-t border-nord-5 dark:border-nord-1 mt-12"> <div class="max-w-4xl mx-auto px-4 py-6 text-sm text-nord-3 dark:text-nord-4 text-center"> <p>&copy; 2026. All rights reserved.</p> </div> </footer> <script type="module" src="/_astro/Base.astro_astro_type_script_index_0_lang.WDMQca9J.js"></script> <script>
       (function() {
