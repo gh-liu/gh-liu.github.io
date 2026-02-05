@@ -179,7 +179,7 @@ html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-wo
   }
 </script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-xvrfupwn> <nav class="px-4 space-y-1" data-astro-cid-xvrfupwn> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-xvrfupwn> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-xvrfupwn></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-xvrfupwn>
 On this page
-</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#21-contiguous-stacks" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 2.1 Contiguous stacks </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
+</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#21--contiguous-stacks" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 2.1 · Contiguous stacks </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
   const TOC_KEY = 'toc-open';
   const sidebar = document.getElementById('toc-sidebar');
   const toggle = document.getElementById('toc-toggle');
@@ -383,7 +383,7 @@ const type = "backlinks";
       }
     });
   });
-</script> </div> </div> </div> </header>    <h1 id="1-stack">1 stack</h1>
+</script> </div> </div> </div> </header>    <h1 id="1--stack">1 · stack</h1>
 <p>函数调用栈：todo
 分为调用者栈、被调用者栈
 调用者栈：caller parent BP，（BP pseudo SP）local var0 …local varN，callee arg2 … callee arg0 ，（FP virtual register）return addr
@@ -398,7 +398,7 @@ PC，程序计数器，跳转和分支<br>
 SB，静态基指针全局符号 用来申明函数或者全局变量
 SP，栈指针，栈顶 指向当前栈帧的局部变量的开始位置，symbol+offset(SP)方式引用函数的局部变量，offset 的合法取值是 [-framesize, 0)
 手写汇编代码时，如果是 symbol+offset(SP) 形式，则表示伪寄存器 SP,表示栈底。如果是 offset(SP) 则表示硬件寄存器 SP，表示栈顶。务必注意。对于编译输出(go tool compile -S / go tool objdump)的代码来讲，目前所有的 SP 都是硬件寄存器 SP，无论是否带 symbol.</p>
-<h4 id="1001-stack">1.0.0.1 stack</h4>
+<h4 id="1001--stack">1.0.0.1 · stack</h4>
 <p>go栈、用户栈
 <strong>函数调用栈：todo</strong>
 分为调用者栈、被调用者栈
@@ -414,12 +414,12 @@ PC，程序计数器，跳转和分支<br>
 SB，静态基指针全局符号 用来申明函数或者全局变量
 SP，栈指针，栈顶 指向当前栈帧的局部变量的开始位置，symbol+offset(SP)方式引用函数的局部变量，offset 的合法取值是 [-framesize, 0)
 手写汇编代码时，如果是 symbol+offset(SP) 形式，则表示伪寄存器 SP。如果是 offset(SP) 则表示硬件寄存器 SP。务必注意。对于编译输出(go tool compile -S / go tool objdump)的代码来讲，目前所有的 SP 都是硬件寄存器 SP，无论是否带 symbol。</p>
-<h1 id="2-think-in-stack">2 think in stack</h1>
+<h1 id="2--think-in-stack">2 · think in stack</h1>
 <pre class="astro-code github-dark" style="background-color:#24292e;color:#e1e4e8; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Go 1.2 ：协程的堆栈大小从 4Kb 增加到 8Kb。</span></span>
 <span class="line"><span>Go 1.4 ：协程的堆栈大小从 8Kb 减小到 2Kb。  </span></span>
 <span class="line"><span></span></span>
 <span class="line"><span>连续堆栈 VS 分段堆栈。</span></span></code></pre>
-<h2 id="21-contiguous-stacks">2.1 Contiguous stacks</h2> <!-- Diagrams rendered at build time -->  </article> <nav class="mt-12 pt-8 border-t border-nord-4 dark:border-nord-1" data-astro-cid-v5yihett> <a href="/notes" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" data-astro-cid-v5yihett>
+<h2 id="21--contiguous-stacks">2.1 · Contiguous stacks</h2> <!-- Diagrams rendered at build time -->  </article> <nav class="mt-12 pt-8 border-t border-nord-4 dark:border-nord-1" data-astro-cid-v5yihett> <a href="/notes" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" data-astro-cid-v5yihett>
 ← Back to notes
 </a> </nav>  </main> <footer class="border-t border-nord-5 dark:border-nord-1 mt-12"> <div class="max-w-4xl mx-auto px-4 py-6 text-sm text-nord-3 dark:text-nord-4 text-center"> <p>&copy; 2026. All rights reserved.</p> </div> </footer> <script type="module" src="/_astro/Base.astro_astro_type_script_index_0_lang.WDMQca9J.js"></script> <script>
       (function() {

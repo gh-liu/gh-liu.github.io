@@ -179,7 +179,7 @@ html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-wo
   }
 </script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-xvrfupwn> <nav class="px-4 space-y-1" data-astro-cid-xvrfupwn> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-xvrfupwn> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-xvrfupwn></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-xvrfupwn>
 On this page
-</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#001-alloc" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.0.1 Alloc </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#002-gc" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.0.2 GC </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#01-garbage-collection" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 0.1 Garbage collection </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#011-gc-phases" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.1.1 GC Phases </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#012-stw" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.1.2 STW </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#013-tri-color-mark--sweep" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.1.3 Tri-color mark &amp;&amp; sweep </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#014-gc-writer-barrier" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.1.4 GC writer barrier </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#015-gc-pacing-algorithm" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.1.5 Gc pacing algorithm </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
+</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#001--alloc" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.0.1 · Alloc </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#002--gc" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.0.2 · GC </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#01--garbage-collection" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 0.1 · Garbage collection </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#011--gc-phases" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.1.1 · GC Phases </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#012--stw" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.1.2 · STW </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#013--tri-color-mark--sweep" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.1.3 · Tri-color mark &amp;&amp; sweep </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#014--gc-writer-barrier" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.1.4 · GC writer barrier </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#015--gc-pacing-algorithm" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.1.5 · Gc pacing algorithm </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
   const TOC_KEY = 'toc-open';
   const sidebar = document.getElementById('toc-sidebar');
   const toggle = document.getElementById('toc-toggle');
@@ -394,7 +394,7 @@ const type = "backlinks";
 <li>Prepared - ？</li>
 <li>Ready - 可安全访问</li>
 </ol>
-<h3 id="001-alloc">0.0.1 Alloc</h3>
+<h3 id="001--alloc">0.0.1 · Alloc</h3>
 <p><a href="https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-memory-allocator/">https://draveness.me/golang/docs/part3-runtime/ch07-memory/golang-memory-allocator/</a>
 <a href="http://t.zoukankan.com/zpcoding-p-13259943.html">http://t.zoukankan.com/zpcoding-p-13259943.html</a></p>
 <ol>
@@ -437,7 +437,7 @@ mheap中以treap的结构维护空闲连续page. 归还内存到mheap时, 连续
 go代码分配内存优先从当前p的mcache对应size的span中获取; 有的话, 再从对应size的mcentral中获取一个span; 还没有的话, 从mheap中sweep一个span; sweep不出来, 则从mheap中空闲块找到对应span大小的内存. mheap中如果还没有, 则从系统申请内存. 从无锁到全局1/(67</em>2)粒度的锁, 再到全局锁, 再到系统调用.
 stack分配也是多层次和多class的.减少分配的锁争抢, 减少栈浪费.
 对象由GC进行释放. sysmon会定时把mheap空余的内存归还给操作系统</p>
-<h3 id="002-gc">0.0.2 GC</h3>
+<h3 id="002--gc">0.0.2 · GC</h3>
 <p><a href="https://making.pusher.com/golangs-real-time-gc-in-theory-and-practice/">https://making.pusher.com/golangs-real-time-gc-in-theory-and-practice/</a></p>
 <p><a href="https://studygolang.com/articles/23364">https://studygolang.com/articles/23364</a></p>
 <p><a href="https://juejin.cn/post/6844903940186701831">https://juejin.cn/post/6844903940186701831</a></p>
@@ -523,7 +523,7 @@ P1 in GC,other ps still work
 <span class="line"></span>
 <span class="line"><span style="color:#6A737D">// 是否所有span被清除</span></span>
 <span class="line"><span style="color:#F97583">func</span><span style="color:#B392F0"> isSweepDone</span><span style="color:#E1E4E8">() </span><span style="color:#F97583">bool</span><span style="color:#E1E4E8">{}</span></span></code></pre>
-<h4 id="0021-gc-trace">0.0.2.1 GC trace</h4>
+<h4 id="0021--gc-trace">0.0.2.1 · GC trace</h4>
 <p>GODEBUG=gctrace=1 go run main.go
 GODEBUG=gctrace=1 ./main</p>
 <p>gc 1405 @6.068s 11%: 0.058+1.2+0.083 ms clock, 0.70+2.5/1.5/0+0.99 ms cpu, 7->11->6 MB, 10 MB goal, 12 P</p>
@@ -548,13 +548,13 @@ gc 1404     : The 1404 GC run since the program started
 10MB        : Collection goal for heap memory in-use after Marking finished</p>
 <p>// Threads
 12P         : Number of logical processors or threads used to run Goroutines</p>
-<h4 id="0022-pacing">0.0.2.2 pacing</h4>
+<h4 id="0022--pacing">0.0.2.2 · pacing</h4>
 <p>gcpacertrace=1</p>
 <p>pacing algorithm determine when a collection is to start.
 feedback loop,gather information about the running application,stress the application is putting on the heap.Stress can be defined as how fast the application is allocating heap memory within a given amount of time.stress that determines the pace at which the collector needs to run.</p>
 <p>Before the collector starts a collection,
 it calculates the amount of time it believes it will take to finish the collection.</p>
-<h4 id="0023-collector-latency-costs">0.0.2.3 Collector Latency Costs</h4>
+<h4 id="0023--collector-latency-costs">0.0.2.3 · Collector Latency Costs</h4>
 <p>help collecotr:</p>
 <ol>
 <li>Maintain the smallest heap possible.
@@ -566,24 +566,24 @@ it calculates the amount of time it believes it will take to finish the collecti
 <li>Minimize the duration of every collection, STW and Mark Assist.
 最大限度地缩短每次收集、STW 和 Mark Assist 的持续时间。</li>
 </ol>
-<h4 id="0024-stack">0.0.2.4 stack</h4>
+<h4 id="0024--stack">0.0.2.4 · stack</h4>
 <p><a href="https://docs.google.com/document/d/1un-Jn47yByHL7I0aVIP_uVCMxjdM5mpelJhiKlIqxkE/edit#">https://docs.google.com/document/d/1un-Jn47yByHL7I0aVIP_uVCMxjdM5mpelJhiKlIqxkE/edit#</a></p>
-<h2 id="01-garbage-collection">0.1 Garbage collection</h2>
-<h3 id="011-gc-phases">0.1.1 GC Phases</h3>
+<h2 id="01--garbage-collection">0.1 · Garbage collection</h2>
+<h3 id="011--gc-phases">0.1.1 · GC Phases</h3>
 <p>Mark prepare<br>
 Concurrent marking<br>
 Mark termination<br>
 Background sweep , scvg</p>
-<h3 id="012-stw">0.1.2 STW</h3>
+<h3 id="012--stw">0.1.2 · STW</h3>
 <p>OLD:
 NEW: Stack Rescan has been elimited</p>
-<h3 id="013-tri-color-mark--sweep">0.1.3 Tri-color mark &#x26;&#x26; sweep</h3>
+<h3 id="013--tri-color-mark--sweep">0.1.3 · Tri-color mark &#x26;&#x26; sweep</h3>
 <p>colors: gray white black
 Background mark workers
 Gc assist</p>
-<h3 id="014-gc-writer-barrier">0.1.4 GC writer barrier</h3>
+<h3 id="014--gc-writer-barrier">0.1.4 · GC writer barrier</h3>
 <p>Insert when compile</p>
-<h3 id="015-gc-pacing-algorithm">0.1.5 Gc pacing algorithm</h3>
+<h3 id="015--gc-pacing-algorithm">0.1.5 · Gc pacing algorithm</h3>
 <p>GOGC</p> <!-- Diagrams rendered at build time -->  </article> <nav class="mt-12 pt-8 border-t border-nord-4 dark:border-nord-1" data-astro-cid-v5yihett> <a href="/notes" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" data-astro-cid-v5yihett>
 ← Back to notes
 </a> </nav>  </main> <footer class="border-t border-nord-5 dark:border-nord-1 mt-12"> <div class="max-w-4xl mx-auto px-4 py-6 text-sm text-nord-3 dark:text-nord-4 text-center"> <p>&copy; 2026. All rights reserved.</p> </div> </footer> <script type="module" src="/_astro/Base.astro_astro_type_script_index_0_lang.WDMQca9J.js"></script> <script>

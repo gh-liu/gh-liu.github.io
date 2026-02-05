@@ -179,7 +179,7 @@ html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-wo
   }
 </script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-xvrfupwn> <nav class="px-4 space-y-1" data-astro-cid-xvrfupwn> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-xvrfupwn> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-xvrfupwn></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-xvrfupwn>
 On this page
-</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#01-type-system-in-go" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 0.1 Type System In Go </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#011-1-type-system" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.1.1 1. Type System </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#012-2-go-type-system-overview" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.1.2 2. Go Type System Overview </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
+</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#01--type-system-in-go" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 0.1 · Type System In Go </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#011--1-type-system" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.1.1 · 1. Type System </a> </li><li class="toc-item pl-4" data-astro-cid-xvrfupwn> <a href="#012--2-go-type-system-overview" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-xvrfupwn> 0.1.2 · 2. Go Type System Overview </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
   const TOC_KEY = 'toc-open';
   const sidebar = document.getElementById('toc-sidebar');
   const toggle = document.getElementById('toc-toggle');
@@ -383,23 +383,23 @@ const type = "backlinks";
       }
     });
   });
-</script> </div> </div> </div> </header>    <h2 id="01-type-system-in-go">0.1 Type System In Go</h2>
-<h3 id="011-1-type-system">0.1.1 1. <a href="https://en.wikipedia.org/wiki/Type_system" title="Type System">Type System</a></h3>
+</script> </div> </div> </div> </header>    <h2 id="01--type-system-in-go">0.1 · Type System In Go</h2>
+<h3 id="011--1-type-system">0.1.1 · 1. <a href="https://en.wikipedia.org/wiki/Type_system" title="Type System">Type System</a></h3>
 <p>01构成，数据无意义；人为定义数据，具有意义；类型对数据添加属性，可对数据进行分类（数据的表示，类型检查），对不同的数据类型如何操作（数据的行为），不同的数据类型之间如何互相作用。</p>
 <p>类型系统是什么？
 类型系统的好处？</p>
 <p>类型系统的作用是定义编程语言中值和表达式的类型，将它们归类，赋予它们不同的行为，指导它们如何相互作用。</p>
-<h3 id="012-2-go-type-system-overview">0.1.2 2. Go Type System Overview</h3>
+<h3 id="012--2-go-type-system-overview">0.1.2 · 2. Go Type System Overview</h3>
 <p><a href="https://github.com/ardanlabs/gotraining/tree/master/topics/go#data-oriented-design" title="go#data-oriented-design">Data-Oriented Design In Go</a></p>
 <p><strong>If you don’t understand the data, you don’t understand the problem.</strong>
 <strong>All problems are unique and specific to the data you are working with.</strong>
 <strong>Data transformations are at the heart of solving problems. Each function, method and work-flow must focus on implementing the specific data transformations required to solve the problems.</strong></p>
-<h4 id="0121-21-basic-types-vs-composite-types">0.1.2.1 2.1. Basic Types vs. Composite Types</h4>
-<h5 id="01211-211-basic-types">0.1.2.1.1 2.1.1. Basic Types</h5>
+<h4 id="0121--21-basic-types-vs-composite-types">0.1.2.1 · 2.1. Basic Types vs. Composite Types</h4>
+<h5 id="01211--211-basic-types">0.1.2.1.1 · 2.1.1. Basic Types</h5>
 <p>boolean type(bool),<br>
 numeric(int8, uint8(byte), int16, uint16, int32(rune), uint32, int64, uint64, int, uint, uintptr,float32, float64, complex64, complex128),<br>
 string(string)</p>
-<h5 id="01212-212-composite-types">0.1.2.1.2 2.1.2. Composite types</h5>
+<h5 id="01212--212-composite-types">0.1.2.1.2 · 2.1.2. Composite types</h5>
 <p>复杂数据的表示, be constructed using type literals:</p>
 <p>array, slice(len, cap, underlying array), map(hashmap):
 struct(a sequence of fields):
@@ -407,22 +407,22 @@ pointer(pointers to variables of a given type):<br>
 function(same parameter and result types):
 interface(a type set):<br>
 channel(CSP):</p>
-<h4 id="0122-22-generic">0.1.2.2 2.2. <a href="https://en.wikipedia.org/wiki/Generic_programming">Generic</a></h4>
+<h4 id="0122--22-generic">0.1.2.2 · 2.2. <a href="https://en.wikipedia.org/wiki/Generic_programming">Generic</a></h4>
 <p>使用的时候再决定具体类型</p>
 <p>type parameter</p>
 <p>function, type works</p>
 <p>Instantiations: substitute, check if implements constraint</p>
-<h4 id="0123-22-syntax-type-definitions--type-alias-declarations">0.1.2.3 2.2. Syntax: Type Definitions &#x26; Type Alias Declarations</h4>
+<h4 id="0123--22-syntax-type-definitions--type-alias-declarations">0.1.2.3 · 2.2. Syntax: Type Definitions &#x26; Type Alias Declarations</h4>
 <p>类型定义 -> 产生新类型
 类型别名 -> 未产生新类型</p>
 <p><a href="https://go.dev/play/p/00gLfuzL1_t">Go Playground</a></p>
-<h4 id="0124-23-named-types-vs-unnamed-types">0.1.2.4 2.3. Named Types vs. Unnamed Types</h4>
-<h5 id="01241-231-named-types">0.1.2.4.1 2.3.1. Named Types</h5>
+<h4 id="0124--23-named-types-vs-unnamed-types">0.1.2.4 · 2.3. Named Types vs. Unnamed Types</h4>
+<h5 id="01241--231-named-types">0.1.2.4.1 · 2.3.1. Named Types</h5>
 <p>Predeclared types, defined types, and type parameters are called named types.<br>
 An alias denotes a named type if the type given in the alias declaration is a named type.</p>
-<h5 id="01242-232-unnamed-types">0.1.2.4.2 2.3.2. Unnamed Types</h5>
+<h5 id="01242--232-unnamed-types">0.1.2.4.2 · 2.3.2. Unnamed Types</h5>
 <p>Other types are called unnamed types.</p>
-<h4 id="0125-24-underlying-types--core-types--type-identity--assignability">0.1.2.5 2.4. Underlying Types &#x26; Core types &#x26; Type Identity &#x26; Assignability</h4>
+<h4 id="0125--24-underlying-types--core-types--type-identity--assignability">0.1.2.5 · 2.4. Underlying Types &#x26; Core types &#x26; Type Identity &#x26; Assignability</h4>
 <p>Each type T has an underlying type: If T is one of the predeclared boolean, numeric, or string types, or a type literal, the corresponding underlying type is T itself.
 Otherwise, T’s underlying type is the underlying type of the type to which T refers in its declaration.
 For a type parameter that is the underlying type of its type constraint, which is always an interface.</p>
@@ -434,11 +434,11 @@ interface type: one of the following conditions is satisfied:</p>
 </ol>
 <p>A named type is always different from any other type.
 Otherwise, two types are identical if their underlying type literals are structurally equivalent;</p>
-<h4 id="0126-25-pointers-vs-values">0.1.2.6 2.5. Pointers vs. Values</h4>
+<h4 id="0126--25-pointers-vs-values">0.1.2.6 · 2.5. Pointers vs. Values</h4>
 <p>Pointers: indirect
 Values: direct</p>
-<h4 id="0127-26-reflections--interfaces">0.1.2.7 2.6. Reflections &#x26; Interfaces</h4>
-<h4 id="0128-3-dynamic-typing-vs-static-typing">0.1.2.8 3. Dynamic Typing vs. Static Typing</h4>
+<h4 id="0127--26-reflections--interfaces">0.1.2.7 · 2.6. Reflections &#x26; Interfaces</h4>
+<h4 id="0128--3-dynamic-typing-vs-static-typing">0.1.2.8 · 3. Dynamic Typing vs. Static Typing</h4>
 <p>[]: <a href="https://lenciel.com/2016/09/types-in-programming-languages">https://lenciel.com/2016/09/types-in-programming-languages</a> “types-in-programming-languages”
 []: <a href="https://rakyll.org/typesystem/">https://rakyll.org/typesystem/</a> “The Go type system for newcomers”
 []: <a href="https://www.jianshu.com/p/e1991e6c3fff">https://www.jianshu.com/p/e1991e6c3fff</a> “Golang的Named Type与Unamed Type”

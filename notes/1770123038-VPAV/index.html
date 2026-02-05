@@ -179,7 +179,7 @@ html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-wo
   }
 </script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-xvrfupwn> <nav class="px-4 space-y-1" data-astro-cid-xvrfupwn> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-xvrfupwn> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-xvrfupwn></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-xvrfupwn>
 On this page
-</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#11-memory-layout" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 1.1 Memory layout </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#12-function-call-argument-and-result-passing" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 1.2 Function call argument and result passing </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
+</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#11--memory-layout" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 1.1 · Memory layout </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#12--function-call-argument-and-result-passing" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 1.2 · Function call argument and result passing </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
   const TOC_KEY = 'toc-open';
   const sidebar = document.getElementById('toc-sidebar');
   const toggle = document.getElementById('toc-toggle');
@@ -383,16 +383,16 @@ const type = "backlinks";
       }
     });
   });
-</script> </div> </div> </div> </header>    <h1 id="1-go-internal-abi-specification">1 Go internal ABI specification</h1>
+</script> </div> </div> </div> </header>    <h1 id="1--go-internal-abi-specification">1 · Go internal ABI specification</h1>
 <p><a href="https://github.com/golang/go/blob/master/src/cmd/compile/abi-internal.md">internal-abi.md</a></p>
 <p>ABI: application binary interface</p>
 <p>Go’s ABI defines the layout of data in memory and the conventions for calling between Go functions.
 数据在内存中的布局，Go函数之间的调用规约。</p>
 <p>Go uses a common ABI design across all architectures. We first describe the common ABI, and then cover per-architecture specifics.
 跨架构通用ABI设计，然后描述每个架构的特定性。</p>
-<h2 id="11-memory-layout">1.1 Memory layout</h2>
+<h2 id="11--memory-layout">1.1 · Memory layout</h2>
 <p>sizeof, alignof, offset</p>
-<h2 id="12-function-call-argument-and-result-passing">1.2 Function call argument and result passing</h2>
+<h2 id="12--function-call-argument-and-result-passing">1.2 · Function call argument and result passing</h2>
 <p>Function calls pass arguments and results using a combination of the stack and machine registers.
 函数调用使用栈（内存）和机器寄存器的组合来传递参数和返回值。</p>
 <p>访问寄存器通常比栈（内存）要快。

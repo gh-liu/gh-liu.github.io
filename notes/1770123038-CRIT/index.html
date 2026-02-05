@@ -179,7 +179,7 @@ html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-wo
   }
 </script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-xvrfupwn> <nav class="px-4 space-y-1" data-astro-cid-xvrfupwn> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-xvrfupwn> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-xvrfupwn></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-xvrfupwn>
 On this page
-</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#11-如何实现-asyncawait" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 1.1 如何实现 async/await </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#21-concurrent-code" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 2.1 concurrent code </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#22-asyncawait-syntax" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 2.2 async/await syntax </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
+</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-xvrfupwn> <li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#11--如何实现-asyncawait" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 1.1 · 如何实现 async/await </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#21--concurrent-code" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 2.1 · concurrent code </a> </li><li class="toc-item pl-0" data-astro-cid-xvrfupwn> <a href="#22--asyncawait-syntax" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-xvrfupwn> 2.2 · async/await syntax </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-xvrfupwn> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-xvrfupwn> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-xvrfupwn></path> </svg> </button> <script>
   const TOC_KEY = 'toc-open';
   const sidebar = document.getElementById('toc-sidebar');
   const toggle = document.getElementById('toc-toggle');
@@ -383,7 +383,7 @@ const type = "backlinks";
       }
     });
   });
-</script> </div> </div> </div> </header>    <h1 id="1-图解-asyncawait">1 图解 async/await</h1>
+</script> </div> </div> </div> </header>    <h1 id="1--图解-asyncawait">1 · 图解 async/await</h1>
 <p>在操作系统中，线程是执行任务的最小单位。</p>
 <p>一般来说，运行一个用户程序，其就会创建一个线程负责处理任务：
 来一个任务，处理一个任务；来了多个任务，则需要排队，一个一个执行；
@@ -411,7 +411,7 @@ const type = "backlinks";
 <li>一般来说，async函数是不可以直接调用的，需要使用await关键字调用函数，表示调用这个函数且在遇到IO等待点时挂起来，去执行其他已经就绪的async函数</li>
 <li>当await调用的函数完成后，会继续往下执行，不需要拆分任务和使用回调函数</li>
 </ol>
-<h2 id="11-如何实现-asyncawait">1.1 如何实现 async/await</h2>
+<h2 id="11--如何实现-asyncawait">1.1 · 如何实现 async/await</h2>
 <p>lua <a href="https://www.lua.org/pil/contents.html#9">https://www.lua.org/pil/contents.html#9</a>
 python <a href="https://docs.python.org/3/reference/expressions.html#yield-expressions">https://docs.python.org/3/reference/expressions.html#yield-expressions</a></p>
 <p><a href="https://rainingcomputers.blog/dist/building_a_mental_model_for_async_programs.md">https://rainingcomputers.blog/dist/building_a_mental_model_for_async_programs.md</a></p>
@@ -421,7 +421,7 @@ python <a href="https://docs.python.org/3/reference/expressions.html#yield-expre
 <p><a href="https://eli.thegreenplace.net/2017/concurrent-servers-part-1-introduction/">https://eli.thegreenplace.net/2017/concurrent-servers-part-1-introduction/</a></p>
 <p><a href="https://www.youtube.com/watch?v=Z_OAlIhXziw">https://www.youtube.com/watch?v=Z_OAlIhXziw</a></p>
 <p>async/await <a href="https://peps.python.org/pep-0492/">https://peps.python.org/pep-0492/</a></p>
-<h1 id="2-图解-python-asyncio">2 图解 python asyncio</h1>
+<h1 id="2--图解-python-asyncio">2 · 图解 python asyncio</h1>
 <p><a href="https://docs.python.org/3/library/asyncio.html">https://docs.python.org/3/library/asyncio.html</a>
 标准库，提供api运行管理 coroutine</p>
 <blockquote>
@@ -431,8 +431,8 @@ python <a href="https://docs.python.org/3/reference/expressions.html#yield-expre
 什么是 async/await syntax?</p>
 <p>cooperative multitasking
 协作式多任务：协程被调度并发执行</p>
-<h2 id="21-concurrent-code">2.1 concurrent code</h2>
-<h2 id="22-asyncawait-syntax">2.2 async/await syntax</h2>
+<h2 id="21--concurrent-code">2.1 · concurrent code</h2>
+<h2 id="22--asyncawait-syntax">2.2 · async/await syntax</h2>
 <p><a href="https://peps.python.org/pep-0492/#new-coroutine-declaration-syntax">https://peps.python.org/pep-0492/#new-coroutine-declaration-syntax</a>
 新增的语法为什么是定义 coroutine</p>
 <p><a href="https://peps.python.org/pep-0342/">https://peps.python.org/pep-0342/</a>
