@@ -1,0 +1,1080 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>sync</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css"><script>
+      // This script runs synchronously in the head to prevent FOUC (Flash of Unstyled Content)
+      (function() {
+        const THEME_KEY = 'nord-theme';
+        const DARK = 'dark';
+        
+        function getStoredTheme() {
+          try {
+            return localStorage.getItem(THEME_KEY);
+          } catch {
+            return null;
+          }
+        }
+        
+        function getSystemTheme() {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+        }
+        
+        function getTheme() {
+          return getStoredTheme() || getSystemTheme();
+        }
+        
+        function applyTheme(theme) {
+          const html = document.documentElement;
+          if (theme === DARK) {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+        }
+        
+        // Apply theme immediately before page renders
+        applyTheme(getTheme());
+      })();
+    </script><link rel="stylesheet" href="/_astro/_id_.6ed6JusR.css">
+<style>.knowledge-graph-container[data-astro-cid-zjb43jqo]{border:1px solid var(--nord-4);border-radius:8px;background:var(--nord-6);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen,.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo],.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--nord-4);border-radius:6px;background:var(--nord-6);color:var(--nord-2);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--nord-5);color:var(--nord-10)}.knowledge-graph-toolbar-btn:active{background:var(--nord-4)}.knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:#5e81ac;stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--nord-14);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--nord-10);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--nord-14);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--nord-15);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--nord-12);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--nord-4);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:#4c566a;stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--nord-11);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--nord-1);font-weight:500;text-shadow:0 0 3px var(--nord-6)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--nord-0);border:1px solid var(--nord-3);border-radius:4px;font-size:12px;color:var(--nord-6);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--nord-8);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--nord-2)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--nord-10)}.kg-legend--outlink{color:var(--nord-14)}.kg-legend--backlink{color:var(--nord-15)}.kg-legend--both{color:var(--nord-12)}.kg-legend--neighbor{color:var(--nord-4);opacity:.9}
+html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-word}
+</style></head> <body class="text-nord-3 dark:text-nord-5 transition-all bg-gradient-light"> <header class="border-b border-nord-5 dark:border-nord-1 bg-nord-6 dark:bg-nord-0"> <nav class="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between gap-4"> <div class="flex items-center gap-2 min-w-0"> <a href="/" title="Liu" class="shrink-0 p-1.5 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-nord-8/20 active:scale-95"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"> <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path> <circle cx="12" cy="7" r="4"></circle> </svg> </a> <h1 class="text-xl font-bold truncate"> <a href="/" class="text-nord-2 dark:text-nord-6 hover:text-nord-10 dark:hover:text-nord-8 transition-colors"> Liu </a> </h1> </div> <div class="flex items-center gap-2 shrink-0"> <a href="https://github.com/gh-liu" title="GitHub" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"> <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path> </svg> </a> <a href="https://x.com" title="X" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="X"> <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.207-6.807-5.975 6.807H2.306l7.644-8.74-8.179-10.76h6.467l4.713 6.231 5.429-6.231zM17.002 18.807h1.844L6.983 4.126H5.025l11.977 14.681z"></path> </svg> </a> <span class="w-px h-4 bg-nord-4 dark:bg-nord-2 shrink-0" aria-hidden="true"></span> <div class="relative series-dropdown" id="series-dropdown-root"> <a href="/notes/series" title="Series" aria-expanded="false" aria-haspopup="true" aria-controls="series-dropdown-panel" id="series-dropdown-trigger" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> </a> <div id="series-dropdown-panel" class="absolute right-0 top-full mt-1 py-2 min-w-[12rem] max-h-[70vh] overflow-y-auto rounded-lg border border-nord-4 dark:border-nord-2 bg-nord-6 dark:bg-nord-1 shadow-lg z-50 hidden" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">加载中…</span> </div> <div class="border-t border-nord-4 dark:border-nord-2 pt-1 mt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors">
+查看全部系列 →
+</a> </div> </div> </div> <div class="relative tags-dropdown" id="tags-dropdown-root"> <a href="/notes/tags" title="Tags" aria-expanded="false" aria-haspopup="true" aria-controls="tags-dropdown-panel" id="tags-dropdown-trigger" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> </a> <div id="tags-dropdown-panel" class="absolute right-0 top-full mt-1 py-2 min-w-[12rem] max-h-[70vh] overflow-y-auto rounded-lg border border-nord-4 dark:border-nord-2 bg-nord-6 dark:bg-nord-1 shadow-lg z-50 hidden" role="menu"> <div id="tags-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">加载中…</span> </div> <div class="border-t border-nord-4 dark:border-nord-2 pt-1 mt-1"> <a href="/notes/tags" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors">
+查看全部标签 →
+</a> </div> </div> </div> <div class="search-container" id="search-wrapper" data-astro-cid-t47yvtpn><button id="search-toggle" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-t47yvtpn><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-t47yvtpn><circle cx="11" cy="11" r="8" data-astro-cid-t47yvtpn></circle><path d="m21 21-4.35-4.35" data-astro-cid-t47yvtpn></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-t47yvtpn><div class="bg-nord-6 dark:bg-nord-0 rounded-2xl shadow-2xl w-full max-w-2xl border border-nord-5 dark:border-nord-1 max-h-[70vh] flex flex-col overflow-hidden animate-fade-in" data-astro-cid-t47yvtpn><div class="p-4 border-b border-nord-5 dark:border-nord-1" data-astro-cid-t47yvtpn><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full px-4 py-2 bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 placeholder-nord-3 dark:placeholder-nord-4 rounded focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-t47yvtpn></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-t47yvtpn><p class="text-nord-3 dark:text-nord-5 text-sm" data-astro-cid-t47yvtpn>Type to search...</p></div><div class="p-3 border-t border-nord-5 dark:border-nord-1 text-xs text-nord-3 dark:text-nord-4" data-astro-cid-t47yvtpn><p data-astro-cid-t47yvtpn>Press <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-t47yvtpn>Esc</kbd> to close | Use <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-t47yvtpn>#tag</kbd> to search by tag</p></div></div></div></div><script>(function(){const pagefindUrl = "/pagefind/pagefind.js";
+
+  if (!globalThis.pagefindLoaded) {
+    globalThis.pagefindLoaded = true;
+    
+    let pagefind;
+    let searchInput;
+    let searchModal;
+    let searchResults;
+    let isSearchOpen = false;
+
+    async function initSearch() {
+      if (typeof window === "undefined") return;
+
+      try {
+        pagefind = await import(pagefindUrl);
+        await pagefind.init();
+      } catch (error) {
+        console.log("Search not available.", error);
+        return;
+      }
+
+      searchInput = document.getElementById("search-input");
+      searchModal = document.getElementById("search-modal");
+      searchResults = document.getElementById("search-results");
+      const toggleBtn = document.getElementById("search-toggle");
+
+      if (!searchInput || !searchModal || !searchResults || !toggleBtn) return;
+
+      toggleBtn.addEventListener("click", () => {
+        openSearch();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeSearch();
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          e.preventDefault();
+          isSearchOpen ? closeSearch() : openSearch();
+        }
+      });
+
+      searchModal.addEventListener("click", (e) => {
+        if (e.target === searchModal) closeSearch();
+      });
+
+      searchInput.addEventListener("input", async (e) => {
+        const query = e.target.value.trim();
+        if (!query) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+          return;
+        }
+
+        // Check if query starts with #tag
+        const isTagSearch = query.startsWith('#');
+        let results;
+        
+        if (isTagSearch) {
+          // Tag search
+          const tag = query.slice(1).toUpperCase();
+          results = await pagefind.search(`tag:${tag}`);
+        } else {
+          // Regular text search
+          results = await pagefind.search(query);
+        }
+
+        if (results.results.length === 0) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">No results found.</p>';
+          return;
+        }
+
+        let html = '<ul class="space-y-2">';
+        for (const result of results.results) {
+          const data = await result.data();
+          // Extract title from h1 or use URL slug as fallback
+          const title = data.meta?.title || data.title || (data.url.split('/').pop() || 'untitled').replace(/-/g, ' ');
+          html += `<li><a href="${data.url}" class="block p-3 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-2 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-all hover:shadow-md duration-200 border border-transparent hover:border-nord-9 dark:hover:border-nord-8"><div class="font-medium">${title}</div><div class="text-xs text-nord-3 dark:text-nord-5 mt-1 line-clamp-2">${data.excerpt || ""}</div></a></li>`;
+        }
+        searchResults.innerHTML = html + "</ul>";
+      });
+    }
+
+    function openSearch() {
+      isSearchOpen = true;
+      searchModal.classList.remove("hidden");
+      searchInput.focus();
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSearch() {
+      isSearchOpen = false;
+      searchModal.classList.add("hidden");
+      searchInput.value = "";
+      searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+      document.body.style.overflow = "";
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initSearch);
+    } else {
+      initSearch();
+    }
+  }
+})();</script> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="group relative p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-4 transition-all duration-200 ease-out hover:scale-110 inline-flex"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="w-4 h-4 text-nord-13 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="w-4 h-4 text-nord-9 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script>
+  const THEME_KEY = 'nord-theme';
+  const DARK = 'dark';
+  
+  function getStoredTheme() {
+    return localStorage.getItem(THEME_KEY);
+  }
+  
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+  }
+  
+  function getTheme() {
+    return getStoredTheme() || getSystemTheme();
+  }
+  
+  function applyTheme(theme) {
+    const html = document.documentElement;
+    if (theme === DARK) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }
+  
+  function toggleTheme() {
+    const currentTheme = getTheme();
+    const newTheme = currentTheme === DARK ? 'light' : DARK;
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  }
+  
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+</script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-vrmg3htk> <nav class="px-4 space-y-1" data-astro-cid-vrmg3htk> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-vrmg3htk> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-vrmg3htk> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-vrmg3htk></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-vrmg3htk>
+On this page
+</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-vrmg3htk> <li class="toc-item pl-0" data-astro-cid-vrmg3htk> <a href="#sync" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-vrmg3htk> sync </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#011--mutex" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.1.1 · Mutex: </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#012--rwmutex" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.1.2 · RWMutex </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#013--waitgroup" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.1.3 · WaitGroup </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#014--once" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.1.4 · Once </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#015--pool" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.1.5 · Pool </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#016--cond" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.1.6 · Cond </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#017--map" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.1.7 · Map </a> </li><li class="toc-item pl-0" data-astro-cid-vrmg3htk> <a href="#xsync" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-vrmg3htk> x/sync </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#021--errgroup" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.2.1 · errgroup </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#022--semaphore" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.2.2 · semaphore </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#023--singleflight" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.2.3 · singleflight </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#024--syncmap" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.2.4 · syncmap </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-vrmg3htk> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-vrmg3htk> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-vrmg3htk></path> </svg> </button> <script>
+  const TOC_KEY = 'toc-open';
+  const sidebar = document.getElementById('toc-sidebar');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+
+  function getSidebarState() {
+    return localStorage.getItem(TOC_KEY) !== 'false';
+  }
+
+  function setSidebarState(open) {
+    localStorage.setItem(TOC_KEY, open ? 'true' : 'false');
+  }
+
+  function updateSidebar() {
+    const isOpen = getSidebarState();
+    if (sidebar) {
+      if (isOpen) {
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    }
+  }
+
+  function toggleSidebar() {
+    const isOpen = getSidebarState();
+    setSidebarState(!isOpen);
+    updateSidebar();
+  }
+
+  // Initialize
+  updateSidebar();
+
+  // Event listeners
+  if (toggle) {
+    toggle.addEventListener('click', toggleSidebar);
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', toggleSidebar);
+  }
+
+  // Keyboard shortcut: left/right arrow to toggle
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.ctrlKey) {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  });
+
+  // Highlight current section on scroll
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          document.querySelectorAll('.toc-item a').forEach((link) => {
+            link.classList.remove('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+            link.classList.add('text-nord-3', 'dark:text-nord-4');
+          });
+          const activeLink = document.querySelector(
+            `.toc-item a[href="#${entry.target.id}"]`
+          );
+          if (activeLink) {
+            activeLink.classList.remove('text-nord-3', 'dark:text-nord-4');
+            activeLink.classList.add('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+          }
+        }
+      });
+    },
+    { rootMargin: '-50% 0px -50% 0px' }
+  );
+
+  document.querySelectorAll('h2, h3').forEach((heading) => {
+    if (heading.id) {
+      observer.observe(heading);
+    }
+  });
+
+  // Close sidebar on link click
+  document.querySelectorAll('.toc-item a').forEach((link) => {
+    link.addEventListener('click', () => {
+      setSidebarState(false);
+      updateSidebar();
+    });
+  });
+</script>  <article class="prose prose-nord dark:prose-nord max-w-none
+      prose-headings:font-serif
+      prose-code:before:content-none prose-code:after:content-none" data-astro-cid-v5yihett> <header class="mb-8" data-astro-cid-v5yihett> <h1 class="mb-3" data-pagefind-meta="title" data-astro-cid-v5yihett>sync</h1> <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4" data-astro-cid-v5yihett> <div class="text-sm text-nord-3 dark:text-nord-5" data-astro-cid-v5yihett> <div> <div class="flex flex-wrap gap-2 mb-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-7 dark:bg-nord-7 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>📅</span> <span>2026-02-05</span> </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-8 dark:bg-nord-8 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>✏️</span> <span>2026-02-05</span> </span>  <div class="flex flex-wrap gap-2"> <a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a> </div> </div> </div> </div> <div class="text-sm" data-astro-cid-v5yihett> <div> <div class="flex items-center gap-4"> <!-- Back to notes link - removed, now in footer --> <!-- Show only links and backlinks stats --> <!-- Outlinks -->  <!-- Backlinks -->  <!-- No links message --> <span class="text-nord-3 dark:text-nord-4 italic">No related notes</span> </div> <!-- Modals --> <div id="outlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No outlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "outlinks-modal";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <div id="backlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No backlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "backlinks-modal";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <script>
+  // Outlinks button - calls window.openOutlinksModal()
+  document.querySelectorAll('.open-outlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openOutlinksModal) {
+        window.openOutlinksModal();
+      }
+    });
+  });
+
+  // Backlinks button - calls window.openBacklinksModal()
+  document.querySelectorAll('.open-backlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openBacklinksModal) {
+        window.openBacklinksModal();
+      }
+    });
+  });
+</script> </div> </div> </div> </header>    <h2 id="sync"><a href="https://pkg.go.dev/sync">sync</a></h2>
+<h3 id="011--mutex">0.1.1 · Mutex:</h3>
+<p>Acquire and Release</p>
+<p>等待、饥饿、自旋（唤醒）、上锁</p>
+<p>两种模式：普通模式，饥饿模式；普通模式有着更好的性能</p>
+<ol>
+<li>
+<p>普通模式：先进先出
+唤醒的等待者g需要与新到来的g去竞争锁
+新到来的g有优势：已经运行在cpu，且可以有很多个新到来的g，唤醒的等待着很难获取到锁
+这种情况下，会把唤醒的等待者放到等待队列头
+如果唤醒的等待着等待超过1ms，进入饥饿模式</p>
+</li>
+<li>
+<p>饥饿模式：锁直接给等待队列头唤醒的g
+新到来的g不会去尝试获取锁，将其放在等待队列尾
+如果唤醒的等待者拿到锁，同时1）其是等待队列最后一个g 2）其等待小于1ms，退回普通模式</p>
+</li>
+</ol>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> Mutex </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">    // state状态: int32，32bit 分为四部分：</span></span>
+<span class="line"><span style="color:#616E88">    // 00000000000000000000000000000(29bit, 等待者数量) </span></span>
+<span class="line"><span style="color:#616E88">    // 0(1bit, Mutex是否处于饥饿模式) </span></span>
+<span class="line"><span style="color:#616E88">    // 0(1bit, 申请Mutex的g是否唤醒) </span></span>
+<span class="line"><span style="color:#616E88">    // 0(1bit, Mutex是否被锁)`</span></span>
+<span class="line"><span style="color:#D8DEE9">	state</span><span style="color:#81A1C1"> int32</span></span>
+<span class="line"><span style="color:#616E88">    // sema信号量: 唤醒g或让g等待</span></span>
+<span class="line"><span style="color:#D8DEE9">	sema</span><span style="color:#81A1C1">  uint32</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// 主要是Mutex的state状态的变化，涉及位操作：</span></span>
+<span class="line"><span style="color:#81A1C1">const</span><span style="color:#ECEFF4"> (</span></span>
+<span class="line"><span style="color:#D8DEE9">	mutexLocked</span><span style="color:#81A1C1"> =</span><span style="color:#B48EAD"> 1</span><span style="color:#81A1C1"> &#x3C;&#x3C;</span><span style="color:#81A1C1"> iota</span><span style="color:#616E88"> // mutex is locked  // 1</span></span>
+<span class="line"><span style="color:#D8DEE9">	mutexWoken</span><span style="color:#616E88"> // mutex has been woken  // 2</span></span>
+<span class="line"><span style="color:#D8DEE9">	mutexStarving</span><span style="color:#616E88"> // mutex is starving  // 4</span></span>
+<span class="line"><span style="color:#D8DEE9">	mutexWaiterShift</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> iota</span><span style="color:#616E88"> // number of waiters  // 3</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	starvationThresholdNs</span><span style="color:#81A1C1"> =</span><span style="color:#B48EAD"> 1</span><span style="color:#81A1C1">e</span><span style="color:#B48EAD">6</span><span style="color:#616E88"> // 1ms</span></span>
+<span class="line"><span style="color:#ECEFF4">)</span></span>
+<span class="line"></span></code></pre>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#81A1C1">func</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">m </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">Mutex</span><span style="color:#ECEFF4">)</span><span style="color:#88C0D0"> lockSlow</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">	var</span><span style="color:#D8DEE9"> waitStartTime</span><span style="color:#81A1C1"> int64</span></span>
+<span class="line"><span style="color:#D8DEE9">	starving</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> false</span></span>
+<span class="line"><span style="color:#D8DEE9">	awoke</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> false</span></span>
+<span class="line"><span style="color:#D8DEE9">	iter</span><span style="color:#81A1C1"> :=</span><span style="color:#B48EAD"> 0</span></span>
+<span class="line"><span style="color:#D8DEE9">	old</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">state</span></span>
+<span class="line"><span style="color:#81A1C1">	for</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">		// Don't spin in starvation mode, ownership is handed off to waiters</span></span>
+<span class="line"><span style="color:#616E88">		// so we won't be able to acquire the mutex anyway.</span></span>
+<span class="line"><span style="color:#616E88">        // old状态，锁被占有、无饥饿 且 g自旋有意义</span></span>
+<span class="line"><span style="color:#616E88">        // 当前g设置m.state有唤醒 => 设置当前g唤醒 ;  </span></span>
+<span class="line"><span style="color:#616E88">        // 进入自旋; 更新下方法内复制的old状态; continue跳回for循环</span></span>
+<span class="line"><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">&#x26;</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">mutexLocked</span><span style="color:#81A1C1">|</span><span style="color:#D8DEE9">mutexStarving</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> ==</span><span style="color:#D8DEE9"> mutexLocked</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#88C0D0"> runtime_canSpin</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">iter</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">			// Active spinning makes sense.</span></span>
+<span class="line"><span style="color:#616E88">			// Try to set mutexWoken flag to inform Unlock</span></span>
+<span class="line"><span style="color:#616E88">			// to not wake other blocked goroutines.</span></span>
+<span class="line"><span style="color:#616E88">			// 当前g未唤醒 且old状态无唤醒的g 且old状态等待的g数不为0 且old状态未被其他g修改</span></span>
+<span class="line"><span style="color:#81A1C1">			if</span><span style="color:#81A1C1"> !</span><span style="color:#D8DEE9">awoke</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">mutexWoken</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">>></span><span style="color:#D8DEE9">mutexWaiterShift</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#D8DEE9"> atomic</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">CompareAndSwapInt32</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">state</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> old</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">|</span><span style="color:#D8DEE9">mutexWoken</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">				awoke</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> true</span></span>
+<span class="line"><span style="color:#ECEFF4">			}</span></span>
+<span class="line"><span style="color:#88C0D0">			runtime_doSpin</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#D8DEE9">			iter</span><span style="color:#81A1C1">++</span></span>
+<span class="line"><span style="color:#D8DEE9">			old</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">state</span></span>
+<span class="line"><span style="color:#81A1C1">			continue</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span></span>
+<span class="line"><span style="color:#616E88">        // 复制old状态到new状态</span></span>
+<span class="line"><span style="color:#D8DEE9">		new</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> old</span></span>
+<span class="line"><span style="color:#616E88">		// Don't try to acquire starving mutex, new arriving goroutines must queue.</span></span>
+<span class="line"><span style="color:#616E88">		// 如果old状态没有饥饿的g，对new状态尝试上锁</span></span>
+<span class="line"><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">mutexStarving</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">			new</span><span style="color:#81A1C1"> |=</span><span style="color:#D8DEE9"> mutexLocked</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span></span>
+<span class="line"><span style="color:#616E88">		// 如果old状态有饥饿的g或锁被占有，new状态等待数量加1</span></span>
+<span class="line"><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">&#x26;</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">mutexLocked</span><span style="color:#81A1C1">|</span><span style="color:#D8DEE9">mutexStarving</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">			new</span><span style="color:#81A1C1"> +=</span><span style="color:#B48EAD"> 1</span><span style="color:#81A1C1"> &#x3C;&#x3C;</span><span style="color:#D8DEE9"> mutexWaiterShift</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span></span>
+<span class="line"><span style="color:#616E88">		// The current goroutine switches mutex to starvation mode.</span></span>
+<span class="line"><span style="color:#616E88">		// But if the mutex is currently unlocked, don't do the switch.</span></span>
+<span class="line"><span style="color:#616E88">		// Unlock expects that starving mutex has waiters, which will not</span></span>
+<span class="line"><span style="color:#616E88">		// be true in this case.</span></span>
+<span class="line"><span style="color:#616E88">		// 如果当前g为饥饿状态 且old状态锁被占有，对new状态设置有饥饿g</span></span>
+<span class="line"><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> starving</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">mutexLocked</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">			new</span><span style="color:#81A1C1"> |=</span><span style="color:#D8DEE9"> mutexStarving</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span></span>
+<span class="line"><span style="color:#616E88">		// 如果当前g被唤醒，清除new状态的有唤醒g标志(如果new状态的有唤醒g标志为0，则报错mutex状态不连续)</span></span>
+<span class="line"><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> awoke</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">			// The goroutine has been woken from sleep,</span></span>
+<span class="line"><span style="color:#616E88">			// so we need to reset the flag in either case.</span></span>
+<span class="line"><span style="color:#81A1C1">			if</span><span style="color:#D8DEE9"> new</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">mutexWoken</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">				throw</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">sync: inconsistent mutex state</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">			}</span></span>
+<span class="line"><span style="color:#D8DEE9">			new</span><span style="color:#81A1C1"> &#x26;^=</span><span style="color:#D8DEE9"> mutexWoken</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span></span>
+<span class="line"><span style="color:#616E88">		// old状态未被其他g修改且更新成new状态成功		</span></span>
+<span class="line"><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> atomic</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">CompareAndSwapInt32</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">state</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> old</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> new</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">			// (如果old状态无饥饿且无饥饿g，跳出for循环，也就是成功获取锁；</span></span>
+<span class="line"><span style="color:#81A1C1">			if</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">&#x26;</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">mutexLocked</span><span style="color:#81A1C1">|</span><span style="color:#D8DEE9">mutexStarving</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">				break</span><span style="color:#616E88"> // locked the mutex with CAS</span></span>
+<span class="line"><span style="color:#ECEFF4">			}</span></span>
+<span class="line"><span style="color:#616E88">			// If we were already waiting before, queue at the front of the queue.</span></span>
+<span class="line"><span style="color:#616E88">			// 当前g的等待开始时间不为0</span></span>
+<span class="line"><span style="color:#D8DEE9">			queueLifo</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> waitStartTime</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span></span>
+<span class="line"><span style="color:#81A1C1">			if</span><span style="color:#D8DEE9"> waitStartTime</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">				// 否则初始化等待开始时间</span></span>
+<span class="line"><span style="color:#D8DEE9">				waitStartTime</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> runtime_nanotime</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#ECEFF4">			}</span></span>
+<span class="line"><span style="color:#616E88">			// 如果queueLifo等于true，则把当前g放到等待队列队首</span></span>
+<span class="line"><span style="color:#88C0D0">			runtime_SemacquireMutex</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">sema</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> queueLifo</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#616E88">			// 如果当前g饥饿或当前时间减去开始等待时间大于1ms，标记当前g为饥饿；</span></span>
+<span class="line"><span style="color:#D8DEE9">			starving</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> starving</span><span style="color:#81A1C1"> ||</span><span style="color:#88C0D0"> runtime_nanotime</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1">-</span><span style="color:#D8DEE9">waitStartTime</span><span style="color:#81A1C1"> ></span><span style="color:#D8DEE9"> starvationThresholdNs</span></span>
+<span class="line"><span style="color:#616E88">			// 复制mutex的状态到old；</span></span>
+<span class="line"><span style="color:#D8DEE9">			old</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">state</span></span>
+<span class="line"><span style="color:#616E88">			// 如果old为饥饿状态</span></span>
+<span class="line"><span style="color:#81A1C1">			if</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">mutexStarving</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">				// If this goroutine was woken and mutex is in starvation mode,</span></span>
+<span class="line"><span style="color:#616E88">				// ownership was handed off to us but mutex is in somewhat</span></span>
+<span class="line"><span style="color:#616E88">				// inconsistent state: mutexLocked is not set and we are still</span></span>
+<span class="line"><span style="color:#616E88">				// accounted as waiter. Fix that.</span></span>
+<span class="line"><span style="color:#616E88">				// 如果old状态有唤醒g或锁被占有 或old状态等待数量为0，报错</span></span>
+<span class="line"><span style="color:#81A1C1">				if</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">&#x26;</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">mutexLocked</span><span style="color:#81A1C1">|</span><span style="color:#D8DEE9">mutexWoken</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1"> ||</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">>></span><span style="color:#D8DEE9">mutexWaiterShift</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">					throw</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">sync: inconsistent mutex state</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">				}</span></span>
+<span class="line"><span style="color:#616E88">				// 上锁且等待数量减1</span></span>
+<span class="line"><span style="color:#D8DEE9">				delta</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> int32</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">mutexLocked</span><span style="color:#81A1C1"> -</span><span style="color:#B48EAD"> 1</span><span style="color:#81A1C1">&#x3C;&#x3C;</span><span style="color:#D8DEE9">mutexWaiterShift</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#616E88">				// 如果当前g不饥饿或old状态的等待数为1</span></span>
+<span class="line"><span style="color:#81A1C1">				if</span><span style="color:#81A1C1"> !</span><span style="color:#D8DEE9">starving</span><span style="color:#81A1C1"> ||</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">>></span><span style="color:#D8DEE9">mutexWaiterShift</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">					// Exit starvation mode.</span></span>
+<span class="line"><span style="color:#616E88">					// Critical to do it here and consider wait time.</span></span>
+<span class="line"><span style="color:#616E88">					// Starvation mode is so inefficient, that two goroutines</span></span>
+<span class="line"><span style="color:#616E88">					// can go lock-step infinitely once they switch mutex</span></span>
+<span class="line"><span style="color:#616E88">					// to starvation mode.</span></span>
+<span class="line"><span style="color:#616E88">					// 退出饥饿模式</span></span>
+<span class="line"><span style="color:#D8DEE9">					delta</span><span style="color:#81A1C1"> -=</span><span style="color:#D8DEE9"> mutexStarving</span></span>
+<span class="line"><span style="color:#ECEFF4">				}</span></span>
+<span class="line"><span style="color:#616E88">				// 更新mutex状态</span></span>
+<span class="line"><span style="color:#D8DEE9">				atomic</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">AddInt32</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">state</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> delta</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#616E88">				// 退出for循环</span></span>
+<span class="line"><span style="color:#81A1C1">				break</span></span>
+<span class="line"><span style="color:#ECEFF4">			}</span></span>
+<span class="line"><span style="color:#616E88">			// 设置当前g唤醒，重置自旋参数</span></span>
+<span class="line"><span style="color:#D8DEE9">			awoke</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> true</span></span>
+<span class="line"><span style="color:#D8DEE9">			iter</span><span style="color:#81A1C1"> =</span><span style="color:#B48EAD"> 0</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span><span style="color:#81A1C1"> else</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">			// 否则其他g更新的状态，保存到当前g的old状态</span></span>
+<span class="line"><span style="color:#D8DEE9">			old</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">state</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> race</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">Enabled</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">		race</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Acquire</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Pointer</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">))</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<p><strong>Lock</strong>：</p>
+<ol>
+<li>此锁无等待g、非饥饿模式、无唤醒g、无g占有锁，当前g占有锁</li>
+<li>进入循环模式，可能多个g操作此锁，先保存当前的state为old
+2.1. old状态非饥饿模式、锁被其他g占有，同时当前g可以自旋，则当前g自旋，如果old无唤醒g，则修改锁state为有唤醒g；
+2.2. old状态非饥饿模式，修改new状态加锁；old状态饥饿模式或被其他g占有，new状态等待者加1；当前g饥饿且old状态被占有，修改new状态为饥饿；当前g唤醒，修改new状态为无唤醒g；如果old未被其他g修改，则更新new状态到state；
+假如更新成功，如果old状态无饥饿且无饥饿g，跳出for循环，也就是成功获取锁；
+2.3 否则，更新state到old；重新从2.1开始；</li>
+</ol>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#81A1C1">func</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">m </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">Mutex</span><span style="color:#ECEFF4">)</span><span style="color:#88C0D0"> Unlock</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> race</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">Enabled</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">		_</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">state</span></span>
+<span class="line"><span style="color:#D8DEE9">		race</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Release</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Pointer</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">))</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Fast path: drop lock bit.</span></span>
+<span class="line"><span style="color:#616E88">	// 释放锁，此时状态赋值为new</span></span>
+<span class="line"><span style="color:#D8DEE9">	new</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> atomic</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">AddInt32</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">state</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> -</span><span style="color:#D8DEE9">mutexLocked</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#616E88">	// 释放后state等于0则锁释放成功，</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> new</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">		// Outlined slow path to allow inlining the fast path.</span></span>
+<span class="line"><span style="color:#616E88">		// To hide unlockSlow during tracing we skip one extra frame when tracing GoUnblock.</span></span>
+<span class="line"><span style="color:#D8DEE9">		m</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">unlockSlow</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">new</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">func</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">m </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">Mutex</span><span style="color:#ECEFF4">)</span><span style="color:#88C0D0"> unlockSlow</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">new</span><span style="color:#81A1C1"> int32</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">	// 重新加锁，占有锁后的状态仍为0，报错</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">new</span><span style="color:#81A1C1">+</span><span style="color:#D8DEE9">mutexLocked</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">mutexLocked</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">		fatal</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">sync: unlock of unlocked mutex</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#616E88">	// new状态非饥饿模式</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> new</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">mutexStarving</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">		// 保存new状态到old</span></span>
+<span class="line"><span style="color:#D8DEE9">		old</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> new</span></span>
+<span class="line"><span style="color:#616E88">		// 开启for循环</span></span>
+<span class="line"><span style="color:#81A1C1">		for</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">			// If there are no waiters or a goroutine has already</span></span>
+<span class="line"><span style="color:#616E88">			// been woken or grabbed the lock, no need to wake anyone.</span></span>
+<span class="line"><span style="color:#616E88">			// In starvation mode ownership is directly handed off from unlocking</span></span>
+<span class="line"><span style="color:#616E88">			// goroutine to the next waiter. We are not part of this chain,</span></span>
+<span class="line"><span style="color:#616E88">			// since we did not observe mutexStarving when we unlocked the mutex above.</span></span>
+<span class="line"><span style="color:#616E88">			// So get off the way.</span></span>
+<span class="line"><span style="color:#616E88">			// 如果old状态等待者为0 或old状态锁被占有或有唤醒的g或有饥饿的g</span></span>
+<span class="line"><span style="color:#81A1C1">			if</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">>></span><span style="color:#D8DEE9">mutexWaiterShift</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1"> ||</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">&#x26;</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">mutexLocked</span><span style="color:#81A1C1">|</span><span style="color:#D8DEE9">mutexWoken</span><span style="color:#81A1C1">|</span><span style="color:#D8DEE9">mutexStarving</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">				// 直接返回不用释放锁</span></span>
+<span class="line"><span style="color:#81A1C1">				return</span></span>
+<span class="line"><span style="color:#ECEFF4">			}</span></span>
+<span class="line"><span style="color:#616E88">			// Grab the right to wake someone.</span></span>
+<span class="line"><span style="color:#616E88">			// old状态减去一个等待着且尝试加上有唤醒g标志 赋值为new状态</span></span>
+<span class="line"><span style="color:#D8DEE9">			new</span><span style="color:#81A1C1"> =</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">old</span><span style="color:#81A1C1"> -</span><span style="color:#B48EAD"> 1</span><span style="color:#81A1C1">&#x3C;&#x3C;</span><span style="color:#D8DEE9">mutexWaiterShift</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> |</span><span style="color:#D8DEE9"> mutexWoken</span></span>
+<span class="line"><span style="color:#616E88">			// 如果设置new状态成功，释放信号量且直接返回；</span></span>
+<span class="line"><span style="color:#81A1C1">			if</span><span style="color:#D8DEE9"> atomic</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">CompareAndSwapInt32</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">state</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> old</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> new</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">				runtime_Semrelease</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">sema</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> false</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#81A1C1">				return</span></span>
+<span class="line"><span style="color:#ECEFF4">			}</span></span>
+<span class="line"><span style="color:#616E88">			// 更新锁的状态到old</span></span>
+<span class="line"><span style="color:#D8DEE9">			old</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">state</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span><span style="color:#81A1C1"> else</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">		// Starving mode: handoff mutex ownership to the next waiter, and yield</span></span>
+<span class="line"><span style="color:#616E88">		// our time slice so that the next waiter can start to run immediately.</span></span>
+<span class="line"><span style="color:#616E88">		// Note: mutexLocked is not set, the waiter will set it after wakeup.</span></span>
+<span class="line"><span style="color:#616E88">		// But mutex is still considered locked if mutexStarving is set,</span></span>
+<span class="line"><span style="color:#616E88">		// so new coming goroutines won't acquire it.</span></span>
+<span class="line"><span style="color:#616E88">		// 饥饿模式，直接把锁给等待队列的队首</span></span>
+<span class="line"><span style="color:#616E88">		// 增加信号量</span></span>
+<span class="line"><span style="color:#616E88">		// 唤醒等待的g</span></span>
+<span class="line"><span style="color:#616E88">		// 如果第二个参数为true，直接传递给第一个等待g</span></span>
+<span class="line"><span style="color:#88C0D0">		runtime_Semrelease</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">sema</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> true</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<p><strong>UnLock</strong>:</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#81A1C1">func</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">m </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">Mutex</span><span style="color:#ECEFF4">)</span><span style="color:#88C0D0"> TryLock</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1"> bool</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">	old</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">state</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">&#x26;</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">mutexLocked</span><span style="color:#81A1C1">|</span><span style="color:#D8DEE9">mutexStarving</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">		return</span><span style="color:#81A1C1"> false</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// There may be a goroutine waiting for the mutex, but we are</span></span>
+<span class="line"><span style="color:#616E88">	// running now and can try to grab the mutex before that</span></span>
+<span class="line"><span style="color:#616E88">	// goroutine wakes up.</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#81A1C1"> !</span><span style="color:#D8DEE9">atomic</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">CompareAndSwapInt32</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">state</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> old</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> old</span><span style="color:#81A1C1">|</span><span style="color:#D8DEE9">mutexLocked</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">		return</span><span style="color:#81A1C1"> false</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> race</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">Enabled</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">		race</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Acquire</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Pointer</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">))</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#81A1C1">	return</span><span style="color:#81A1C1"> true</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<p>常见错误：</p>
+<ol>
+<li>Lock/UnLock 未成对出现</li>
+<li>复制了已经使用的Mutex： 方法参数带锁 没用指针 复制了传入的参数 就是一个有状态的锁</li>
+<li>重入： 拥有这把锁，可以递归调用</li>
+<li>死锁</li>
+</ol>
+<h3 id="012--rwmutex">0.1.2 · RWMutex</h3>
+<p>某一时刻只能由任意数量的reader持有或被单个的writer持有。</p>
+<p>Lock/UnLock 写操作调用；
+RLock/RUnlock 读操作调用；
+RLocker 返回一个Locker接口的对象，Lock/UnLock 进行读操作</p>
+<p>场景明确却分R/W g, 有大量的并发读，少量的并发写，考虑RWMutex。</p>
+<p>基于对写、读操作的优先级，设计与实现分为三类：</p>
+<ol>
+<li>读优先，可提供很高并发性，但是在竞争激烈情况下可能导致写饥饿(大量的读，只有在所有的读都释放锁后，写才可以获得锁)</li>
+<li>写优先，当有写在阻塞时，会阻止新来的读获取到锁，优先保障写，但是新来的写前有读获取到锁，那还是需要等待读释放锁</li>
+<li>不指定优先，1可能导致写饥饿，2可能导致读饥饿</li>
+</ol>
+<p>Go stdlib 中的设计是2，写优先，</p>
+<h3 id="013--waitgroup">0.1.3 · WaitGroup</h3>
+<p>解决<code>并发-等待</code>问题： gA阻塞在检查点，等待一组g完成任务。</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> WaitGroup </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">	// 高32位是计数器，低32位是等待计数</span></span>
+<span class="line"><span style="color:#616E88">	// 64位的原子操作要求64位对齐，但32位编译器只能保证64位字段是32位对齐。</span></span>
+<span class="line"><span style="color:#616E88">	// 在32位操作系统上，我们需要在state()中检查state1是否对齐，如果不对齐，则需要动态地交换字段顺序。</span></span>
+<span class="line"><span style="color:#616E88">	// 剩下的32位做信号量</span></span>
+<span class="line"><span style="color:#D8DEE9">	state1</span><span style="color:#81A1C1"> uint64</span></span>
+<span class="line"><span style="color:#D8DEE9">	state2</span><span style="color:#81A1C1"> uint32</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// 在创建goroutine或其他事件之前，必须先执行Add</span></span>
+<span class="line"><span style="color:#81A1C1">func</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">wg </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">WaitGroup</span><span style="color:#ECEFF4">)</span><span style="color:#88C0D0"> Add</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">delta</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">	statep</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> semap</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> wg</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">state</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#616E88">	// race，忽略</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> race</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">Enabled</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">		_</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9">statep</span><span style="color:#616E88"> // trigger nil deref early</span></span>
+<span class="line"><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> delta</span><span style="color:#81A1C1"> &#x3C;</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">			// Synchronize decrements with Wait.</span></span>
+<span class="line"><span style="color:#D8DEE9">			race</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">ReleaseMerge</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Pointer</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">wg</span><span style="color:#ECEFF4">))</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span></span>
+<span class="line"><span style="color:#D8DEE9">		race</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Disable</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#81A1C1">		defer</span><span style="color:#D8DEE9"> race</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Enable</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#616E88">	// 高32位添加delta</span></span>
+<span class="line"><span style="color:#D8DEE9">	state</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> atomic</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">AddUint64</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">statep</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> uint64</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">delta</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">&#x3C;&#x3C;</span><span style="color:#B48EAD">32</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// 高32位值</span></span>
+<span class="line"><span style="color:#D8DEE9">	v</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> int32</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">state</span><span style="color:#81A1C1"> >></span><span style="color:#B48EAD"> 32</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#616E88">	// 低32位值</span></span>
+<span class="line"><span style="color:#D8DEE9">	w</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> uint32</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">state</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// race，忽略</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> race</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">Enabled</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#D8DEE9"> delta</span><span style="color:#81A1C1"> ></span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#D8DEE9"> v</span><span style="color:#81A1C1"> ==</span><span style="color:#81A1C1"> int32</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">delta</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">		// The first increment must be synchronized with Wait.</span></span>
+<span class="line"><span style="color:#616E88">		// Need to model this as a read, because there can be</span></span>
+<span class="line"><span style="color:#616E88">		// several concurrent wg.counter transitions from 0.</span></span>
+<span class="line"><span style="color:#D8DEE9">		race</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Read</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Pointer</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">semap</span><span style="color:#ECEFF4">))</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> v</span><span style="color:#81A1C1"> &#x3C;</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">		panic</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">sync: negative WaitGroup counter</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#616E88">	// 高32位值等于当前添加的delta，且等待数量不为0</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> w</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#D8DEE9"> delta</span><span style="color:#81A1C1"> ></span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#D8DEE9"> v</span><span style="color:#81A1C1"> ==</span><span style="color:#81A1C1"> int32</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">delta</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">		panic</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">sync: WaitGroup misuse: Add called concurrently with Wait</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#616E88">	// 高32位值不为0且等待数量为0</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> v</span><span style="color:#81A1C1"> ></span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1"> ||</span><span style="color:#D8DEE9"> w</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">		return</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#616E88">	// This goroutine has set counter to 0 when waiters > 0.</span></span>
+<span class="line"><span style="color:#616E88">	// Now there can't be concurrent mutations of state:</span></span>
+<span class="line"><span style="color:#616E88">	// - Adds must not happen concurrently with Wait,</span></span>
+<span class="line"><span style="color:#616E88">	// - Wait does not increment waiters if it sees counter == 0.</span></span>
+<span class="line"><span style="color:#616E88">	// Still do a cheap sanity check to detect WaitGroup misuse.</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9">statep</span><span style="color:#81A1C1"> !=</span><span style="color:#D8DEE9"> state</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">		panic</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">sync: WaitGroup misuse: Add called concurrently with Wait</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#616E88">	// Reset waiters count to 0.</span></span>
+<span class="line"><span style="color:#81A1C1">	*</span><span style="color:#D8DEE9">statep</span><span style="color:#81A1C1"> =</span><span style="color:#B48EAD"> 0</span></span>
+<span class="line"><span style="color:#81A1C1">	for</span><span style="color:#81A1C1"> ;</span><span style="color:#D8DEE9"> w</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9"> w</span><span style="color:#81A1C1">--</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">		runtime_Semrelease</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">semap</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> false</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4">)</span><span style="color:#616E88"> // 唤醒</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// Wait blocks until the WaitGroup counter is zero.</span></span>
+<span class="line"><span style="color:#81A1C1">func</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">wg </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">WaitGroup</span><span style="color:#ECEFF4">)</span><span style="color:#88C0D0"> Wait</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">	statep</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> semap</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> wg</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">state</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#616E88">	// race，忽略</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> race</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">Enabled</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">		_</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9">statep</span><span style="color:#616E88"> // trigger nil deref early</span></span>
+<span class="line"><span style="color:#D8DEE9">		race</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Disable</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#81A1C1">	for</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">		state</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> atomic</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">LoadUint64</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">statep</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9">		v</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> int32</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">state</span><span style="color:#81A1C1"> >></span><span style="color:#B48EAD"> 32</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9">		w</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> uint32</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">state</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#616E88">		// 高32位值等于0</span></span>
+<span class="line"><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> v</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">			// Counter is 0, no need to wait.</span></span>
+<span class="line"><span style="color:#81A1C1">			if</span><span style="color:#D8DEE9"> race</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">Enabled</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">				race</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Enable</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#D8DEE9">				race</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Acquire</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Pointer</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">wg</span><span style="color:#ECEFF4">))</span></span>
+<span class="line"><span style="color:#ECEFF4">			}</span></span>
+<span class="line"><span style="color:#81A1C1">			return</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span></span>
+<span class="line"><span style="color:#616E88">		// Increment waiters count.</span></span>
+<span class="line"><span style="color:#616E88">		// 增加低32位值</span></span>
+<span class="line"><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> atomic</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">CompareAndSwapUint64</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">statep</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> state</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> state</span><span style="color:#81A1C1">+</span><span style="color:#B48EAD">1</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">			if</span><span style="color:#D8DEE9"> race</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">Enabled</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#D8DEE9"> w</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">				// Wait must be synchronized with the first Add.</span></span>
+<span class="line"><span style="color:#616E88">				// Need to model this is as a write to race with the read in Add.</span></span>
+<span class="line"><span style="color:#616E88">				// As a consequence, can do the write only for the first waiter,</span></span>
+<span class="line"><span style="color:#616E88">				// otherwise concurrent Waits will race with each other.</span></span>
+<span class="line"><span style="color:#D8DEE9">				race</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Write</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Pointer</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">semap</span><span style="color:#ECEFF4">))</span></span>
+<span class="line"><span style="color:#ECEFF4">			}</span></span>
+<span class="line"><span style="color:#88C0D0">			runtime_Semacquire</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">semap</span><span style="color:#ECEFF4">)</span><span style="color:#616E88"> // 阻塞</span></span>
+<span class="line"><span style="color:#81A1C1">			if</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9">statep</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">				panic</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">sync: WaitGroup is reused before previous Wait has returned</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">			}</span></span>
+<span class="line"><span style="color:#81A1C1">			if</span><span style="color:#D8DEE9"> race</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">Enabled</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">				race</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Enable</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#D8DEE9">				race</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Acquire</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Pointer</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">wg</span><span style="color:#ECEFF4">))</span></span>
+<span class="line"><span style="color:#ECEFF4">			}</span></span>
+<span class="line"><span style="color:#81A1C1">			return</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<h3 id="014--once">0.1.4 · Once</h3>
+<p>用来执行且仅仅执行一次动作，常常用于单例对象的初始化场景</p>
+<p>Once 常常用来初始化单例资源，或者并发访问只需初始化一次的共享资源，或者在测试的时候初始化一次测试资源。</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> Once </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">	// 信号量，标记已经执行过</span></span>
+<span class="line"><span style="color:#D8DEE9">	done</span><span style="color:#81A1C1"> uint32</span></span>
+<span class="line"><span style="color:#616E88">	// 锁，在执行函数前需要加锁</span></span>
+<span class="line"><span style="color:#D8DEE9">	m</span><span style="color:#D8DEE9FF">    Mutex</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<h3 id="015--pool">0.1.5 · Pool</h3>
+<p>采用对象池的方式，把不用的对象回收起来，避免被垃圾回收掉，这样使用的时候就不必在堆上重新创建。
+池化的对象可能会被垃圾回收掉。</p>
+<p>local victim</p>
+<p>local-free queue</p>
+<p><a href="https://zhuanlan.zhihu.com/p/91604275">https://zhuanlan.zhihu.com/p/91604275</a>
+<a href="https://zhuanlan.zhihu.com/p/99710992">https://zhuanlan.zhihu.com/p/99710992</a></p>
+<h3 id="016--cond">0.1.6 · Cond</h3>
+<p>条件变量</p>
+<p>等待 / 通知场景下的并发问题</p>
+<p>Wait()：阻塞当前的 goroutine，等待唤起。
+Signal()：唤起一个阻塞的 goroutine。
+Broadcast()：唤起所有阻塞的 goroutine。</p>
+<p><a href="https://zhuanlan.zhihu.com/p/401242064">https://zhuanlan.zhihu.com/p/401242064</a>
+<a href="https://studygolang.com/articles/28072?fr=sidebar">https://studygolang.com/articles/28072?fr=sidebar</a></p>
+<p>单播：阻塞的监听 channel 信号
+广播：context</p>
+<h3 id="017--map">0.1.7 · Map</h3>
+<h2 id="xsync"><a href="https://pkg.go.dev/golang.org/x/sync">x/sync</a></h2>
+<h3 id="021--errgroup">0.2.1 · errgroup</h3>
+<h3 id="022--semaphore">0.2.2 · semaphore</h3>
+<h3 id="023--singleflight">0.2.3 · singleflight</h3>
+<p><a href="https://mp.weixin.qq.com/s/JUkxGbx1Ufpup3Hx08tI2w">https://mp.weixin.qq.com/s/JUkxGbx1Ufpup3Hx08tI2w</a></p>
+<h3 id="024--syncmap">0.2.4 · syncmap</h3> <!-- Diagrams rendered at build time -->  </article> <nav class="mt-12 pt-8 border-t border-nord-4 dark:border-nord-1" data-astro-cid-v5yihett> <a href="/notes" class="btn-primary" data-astro-cid-v5yihett> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-v5yihett> <path d="M15 19l-7-7 7-7" data-astro-cid-v5yihett></path> </svg>
+Back to Notes
+</a> </nav>  </main> <footer class="border-t border-nord-5 dark:border-nord-1 mt-12"> <div class="max-w-4xl mx-auto px-4 py-6 text-sm text-nord-3 dark:text-nord-4 text-center"> <p>&copy; 2026. All rights reserved.</p> </div> </footer> <script type="module" src="/_astro/Base.astro_astro_type_script_index_0_lang.WDMQca9J.js"></script> <script>
+      (function() {
+        const root = document.getElementById('series-dropdown-root');
+        const trigger = document.getElementById('series-dropdown-trigger');
+        const panel = document.getElementById('series-dropdown-panel');
+        const listEl = document.getElementById('series-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let seriesList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (seriesList === null) {
+            fetch('/series-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                seriesList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无系列</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(name) {
+                     const slug = name.toLowerCase().replace(/\s+/g, '-');
+                     const url = '/notes/series/' + slug;
+                     return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(name) + '</a>';
+                   }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        // On click: allow default navigation to /notes/series
+        // On hover: show dropdown menu
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          // Don't preventDefault - allow link to navigate
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> <script>
+      (function() {
+        const root = document.getElementById('tags-dropdown-root');
+        const trigger = document.getElementById('tags-dropdown-trigger');
+        const panel = document.getElementById('tags-dropdown-panel');
+        const listEl = document.getElementById('tags-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let tagList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (tagList === null) {
+            fetch('/tag-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                tagList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无标签</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(tag) {
+                     const url = '/notes/tag/' + encodeURIComponent(tag);
+                     return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(tag) + '</a>';
+                   }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> </body> </html>  <script>
+  // Language aliases (matches server-side)
+  const langAliases = {
+    js: 'javascript',
+    ts: 'typescript',
+    yml: 'yaml',
+    yaml: 'yaml',
+    sh: 'bash',
+    shell: 'bash',
+    sql: 'postgresql',
+    java: 'openjdk',
+  };
+
+  // Add headers and copy buttons to code blocks
+  function initCodeBlocks() {
+    document.querySelectorAll('pre[data-language]').forEach((pre) => {
+      // Skip if already processed
+      if (pre.parentNode.classList.contains('code-block-wrapper')) return;
+      
+      const lang = pre.getAttribute('data-language') || 'code';
+      
+      // Create wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block-wrapper';
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+      
+      // Create header
+      const header = document.createElement('div');
+      header.className = 'code-header';
+      
+      const langSpan = document.createElement('span');
+      langSpan.className = 'code-header-lang';
+      langSpan.title = lang;
+      
+      // Normalize lang for devicon
+      const normalizedLang = lang.toLowerCase();
+      const iconLang = langAliases[normalizedLang] || normalizedLang;
+      
+      // Display language with devicon (format: devicon-{name}-{version} colored)
+      const iconEl = document.createElement('i');
+      iconEl.className = `devicon-${iconLang}-plain colored`;
+      iconEl.style.marginRight = '0.375rem';
+      iconEl.style.fontSize = '0.75rem';
+      langSpan.appendChild(iconEl);
+      langSpan.appendChild(document.createTextNode(lang));
+      
+      const button = document.createElement('button');
+      button.className = 'copy-code-btn';
+      button.title = 'Copy to clipboard';
+      button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      
+      let isCopying = false;
+      button.addEventListener('click', async () => {
+        if (isCopying) return;
+        isCopying = true;
+        
+        const code = pre.querySelector('code')?.textContent || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalHtml = button.innerHTML;
+          button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+          button.title = 'Copied!';
+          setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.title = 'Copy to clipboard';
+            isCopying = false;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+          isCopying = false;
+        }
+      });
+      
+      header.appendChild(langSpan);
+      header.appendChild(button);
+      wrapper.appendChild(header);
+    });
+  }
+
+  // Run ASAP, then on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCodeBlocks);
+  } else {
+    initCodeBlocks();
+  }
+
+  // Convert wikilinks to links on client side
+  // Matches [[ref]] or [[ref|display text]]
+  document.addEventListener('DOMContentLoaded', () => {
+    const wikiRegex = /\[\[([a-zA-Z0-9][a-zA-Z0-9_-]*?)(?:\|([^\]]+))?\]\]/g;
+    
+    // Process all text nodes in prose content
+    const walker = document.createTreeWalker(
+      document.querySelector('.prose') || document.body,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    const nodesToReplace = [];
+    let node;
+    
+    while (node = walker.nextNode()) {
+      if (node.nodeValue.includes('[[')) {
+        nodesToReplace.push(node);
+      }
+    }
+    
+    nodesToReplace.forEach((textNode) => {
+      const parent = textNode.parentNode;
+      let lastIndex = 0;
+      const matches = [...textNode.nodeValue.matchAll(wikiRegex)];
+      
+      if (matches.length === 0) return;
+      
+      const fragment = document.createDocumentFragment();
+      
+      matches.forEach((match) => {
+        const [fullMatch, ref, displayText] = match;
+        const startIndex = match.index;
+        
+        // Add text before match
+        if (startIndex > lastIndex) {
+          fragment.appendChild(
+            document.createTextNode(textNode.nodeValue.slice(lastIndex, startIndex))
+          );
+        }
+        
+        // Create link
+        const link = document.createElement('a');
+        link.href = `/notes/${ref.toLowerCase()}`;
+        link.textContent = (displayText || ref).trim();
+        link.className = 'text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors';
+        fragment.appendChild(link);
+        
+        lastIndex = startIndex + fullMatch.length;
+      });
+      
+      // Add remaining text
+      if (lastIndex < textNode.nodeValue.length) {
+        fragment.appendChild(
+          document.createTextNode(textNode.nodeValue.slice(lastIndex))
+        );
+      }
+      
+      parent.replaceChild(fragment, textNode);
+    });
+  });
+</script> 

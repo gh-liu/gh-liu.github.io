@@ -1,0 +1,1217 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>Go: compile 编译器</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css"><script>
+      // This script runs synchronously in the head to prevent FOUC (Flash of Unstyled Content)
+      (function() {
+        const THEME_KEY = 'nord-theme';
+        const DARK = 'dark';
+        
+        function getStoredTheme() {
+          try {
+            return localStorage.getItem(THEME_KEY);
+          } catch {
+            return null;
+          }
+        }
+        
+        function getSystemTheme() {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+        }
+        
+        function getTheme() {
+          return getStoredTheme() || getSystemTheme();
+        }
+        
+        function applyTheme(theme) {
+          const html = document.documentElement;
+          if (theme === DARK) {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+        }
+        
+        // Apply theme immediately before page renders
+        applyTheme(getTheme());
+      })();
+    </script><link rel="stylesheet" href="/_astro/_id_.6ed6JusR.css">
+<style>.knowledge-graph-container[data-astro-cid-zjb43jqo]{border:1px solid var(--nord-4);border-radius:8px;background:var(--nord-6);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen,.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo],.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--nord-4);border-radius:6px;background:var(--nord-6);color:var(--nord-2);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--nord-5);color:var(--nord-10)}.knowledge-graph-toolbar-btn:active{background:var(--nord-4)}.knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:#5e81ac;stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--nord-14);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--nord-10);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--nord-14);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--nord-15);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--nord-12);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--nord-4);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:#4c566a;stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--nord-11);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--nord-1);font-weight:500;text-shadow:0 0 3px var(--nord-6)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--nord-0);border:1px solid var(--nord-3);border-radius:4px;font-size:12px;color:var(--nord-6);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--nord-8);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--nord-2)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--nord-10)}.kg-legend--outlink{color:var(--nord-14)}.kg-legend--backlink{color:var(--nord-15)}.kg-legend--both{color:var(--nord-12)}.kg-legend--neighbor{color:var(--nord-4);opacity:.9}
+html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-word}
+</style></head> <body class="text-nord-3 dark:text-nord-5 transition-all bg-gradient-light"> <header class="border-b border-nord-5 dark:border-nord-1 bg-nord-6 dark:bg-nord-0"> <nav class="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between gap-4"> <div class="flex items-center gap-2 min-w-0"> <a href="/" title="Liu" class="shrink-0 p-1.5 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-nord-8/20 active:scale-95"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"> <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path> <circle cx="12" cy="7" r="4"></circle> </svg> </a> <h1 class="text-xl font-bold truncate"> <a href="/" class="text-nord-2 dark:text-nord-6 hover:text-nord-10 dark:hover:text-nord-8 transition-colors"> Liu </a> </h1> </div> <div class="flex items-center gap-2 shrink-0"> <a href="https://github.com/gh-liu" title="GitHub" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"> <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path> </svg> </a> <a href="https://x.com" title="X" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="X"> <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.207-6.807-5.975 6.807H2.306l7.644-8.74-8.179-10.76h6.467l4.713 6.231 5.429-6.231zM17.002 18.807h1.844L6.983 4.126H5.025l11.977 14.681z"></path> </svg> </a> <span class="w-px h-4 bg-nord-4 dark:bg-nord-2 shrink-0" aria-hidden="true"></span> <div class="relative series-dropdown" id="series-dropdown-root"> <a href="/notes/series" title="Series" aria-expanded="false" aria-haspopup="true" aria-controls="series-dropdown-panel" id="series-dropdown-trigger" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> </a> <div id="series-dropdown-panel" class="absolute right-0 top-full mt-1 py-2 min-w-[12rem] max-h-[70vh] overflow-y-auto rounded-lg border border-nord-4 dark:border-nord-2 bg-nord-6 dark:bg-nord-1 shadow-lg z-50 hidden" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">加载中…</span> </div> <div class="border-t border-nord-4 dark:border-nord-2 pt-1 mt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors">
+查看全部系列 →
+</a> </div> </div> </div> <div class="relative tags-dropdown" id="tags-dropdown-root"> <a href="/notes/tags" title="Tags" aria-expanded="false" aria-haspopup="true" aria-controls="tags-dropdown-panel" id="tags-dropdown-trigger" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> </a> <div id="tags-dropdown-panel" class="absolute right-0 top-full mt-1 py-2 min-w-[12rem] max-h-[70vh] overflow-y-auto rounded-lg border border-nord-4 dark:border-nord-2 bg-nord-6 dark:bg-nord-1 shadow-lg z-50 hidden" role="menu"> <div id="tags-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">加载中…</span> </div> <div class="border-t border-nord-4 dark:border-nord-2 pt-1 mt-1"> <a href="/notes/tags" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors">
+查看全部标签 →
+</a> </div> </div> </div> <div class="search-container" id="search-wrapper" data-astro-cid-t47yvtpn><button id="search-toggle" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-t47yvtpn><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-t47yvtpn><circle cx="11" cy="11" r="8" data-astro-cid-t47yvtpn></circle><path d="m21 21-4.35-4.35" data-astro-cid-t47yvtpn></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-t47yvtpn><div class="bg-nord-6 dark:bg-nord-0 rounded-2xl shadow-2xl w-full max-w-2xl border border-nord-5 dark:border-nord-1 max-h-[70vh] flex flex-col overflow-hidden animate-fade-in" data-astro-cid-t47yvtpn><div class="p-4 border-b border-nord-5 dark:border-nord-1" data-astro-cid-t47yvtpn><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full px-4 py-2 bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 placeholder-nord-3 dark:placeholder-nord-4 rounded focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-t47yvtpn></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-t47yvtpn><p class="text-nord-3 dark:text-nord-5 text-sm" data-astro-cid-t47yvtpn>Type to search...</p></div><div class="p-3 border-t border-nord-5 dark:border-nord-1 text-xs text-nord-3 dark:text-nord-4" data-astro-cid-t47yvtpn><p data-astro-cid-t47yvtpn>Press <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-t47yvtpn>Esc</kbd> to close | Use <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-t47yvtpn>#tag</kbd> to search by tag</p></div></div></div></div><script>(function(){const pagefindUrl = "/pagefind/pagefind.js";
+
+  if (!globalThis.pagefindLoaded) {
+    globalThis.pagefindLoaded = true;
+    
+    let pagefind;
+    let searchInput;
+    let searchModal;
+    let searchResults;
+    let isSearchOpen = false;
+
+    async function initSearch() {
+      if (typeof window === "undefined") return;
+
+      try {
+        pagefind = await import(pagefindUrl);
+        await pagefind.init();
+      } catch (error) {
+        console.log("Search not available.", error);
+        return;
+      }
+
+      searchInput = document.getElementById("search-input");
+      searchModal = document.getElementById("search-modal");
+      searchResults = document.getElementById("search-results");
+      const toggleBtn = document.getElementById("search-toggle");
+
+      if (!searchInput || !searchModal || !searchResults || !toggleBtn) return;
+
+      toggleBtn.addEventListener("click", () => {
+        openSearch();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeSearch();
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          e.preventDefault();
+          isSearchOpen ? closeSearch() : openSearch();
+        }
+      });
+
+      searchModal.addEventListener("click", (e) => {
+        if (e.target === searchModal) closeSearch();
+      });
+
+      searchInput.addEventListener("input", async (e) => {
+        const query = e.target.value.trim();
+        if (!query) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+          return;
+        }
+
+        // Check if query starts with #tag
+        const isTagSearch = query.startsWith('#');
+        let results;
+        
+        if (isTagSearch) {
+          // Tag search
+          const tag = query.slice(1).toUpperCase();
+          results = await pagefind.search(`tag:${tag}`);
+        } else {
+          // Regular text search
+          results = await pagefind.search(query);
+        }
+
+        if (results.results.length === 0) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">No results found.</p>';
+          return;
+        }
+
+        let html = '<ul class="space-y-2">';
+        for (const result of results.results) {
+          const data = await result.data();
+          // Extract title from h1 or use URL slug as fallback
+          const title = data.meta?.title || data.title || (data.url.split('/').pop() || 'untitled').replace(/-/g, ' ');
+          html += `<li><a href="${data.url}" class="block p-3 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-2 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-all hover:shadow-md duration-200 border border-transparent hover:border-nord-9 dark:hover:border-nord-8"><div class="font-medium">${title}</div><div class="text-xs text-nord-3 dark:text-nord-5 mt-1 line-clamp-2">${data.excerpt || ""}</div></a></li>`;
+        }
+        searchResults.innerHTML = html + "</ul>";
+      });
+    }
+
+    function openSearch() {
+      isSearchOpen = true;
+      searchModal.classList.remove("hidden");
+      searchInput.focus();
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSearch() {
+      isSearchOpen = false;
+      searchModal.classList.add("hidden");
+      searchInput.value = "";
+      searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+      document.body.style.overflow = "";
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initSearch);
+    } else {
+      initSearch();
+    }
+  }
+})();</script> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="group relative p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-4 transition-all duration-200 ease-out hover:scale-110 inline-flex"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="w-4 h-4 text-nord-13 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="w-4 h-4 text-nord-9 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script>
+  const THEME_KEY = 'nord-theme';
+  const DARK = 'dark';
+  
+  function getStoredTheme() {
+    return localStorage.getItem(THEME_KEY);
+  }
+  
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+  }
+  
+  function getTheme() {
+    return getStoredTheme() || getSystemTheme();
+  }
+  
+  function applyTheme(theme) {
+    const html = document.documentElement;
+    if (theme === DARK) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }
+  
+  function toggleTheme() {
+    const currentTheme = getTheme();
+    const newTheme = currentTheme === DARK ? 'light' : DARK;
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  }
+  
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+</script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-vrmg3htk> <nav class="px-4 space-y-1" data-astro-cid-vrmg3htk> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-vrmg3htk> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-vrmg3htk> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-vrmg3htk></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-vrmg3htk>
+On this page
+</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-vrmg3htk> <li class="toc-item pl-0" data-astro-cid-vrmg3htk> <a href="#11--快速概览编译流程" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-vrmg3htk> 1.1 · 快速概览：编译流程 </a> </li><li class="toc-item pl-0" data-astro-cid-vrmg3htk> <a href="#12--编译工具与使用示例" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-vrmg3htk> 1.2 · 编译工具与使用示例 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#121--工具链概览" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 1.2.1 · 工具链概览 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#122--示例编译一个简单的-go-程序" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 1.2.2 · 示例：编译一个简单的 Go 程序 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#123--实际用途示例" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 1.2.3 · 实际用途示例 </a> </li><li class="toc-item pl-0" data-astro-cid-vrmg3htk> <a href="#13--编译细节深入" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-vrmg3htk> 1.3 · 编译细节深入 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#131--前端详解" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 1.3.1 · 前端详解 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#132--中端优化阶段" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 1.3.2 · 中端：优化阶段 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#133--walk-阶段" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 1.3.3 · Walk 阶段 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#134--包初始化" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 1.3.4 · 包初始化 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#135--优化阶段" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 1.3.5 · 优化阶段 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#136--后端详解" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 1.3.6 · 后端详解 </a> </li><li class="toc-item pl-0" data-astro-cid-vrmg3htk> <a href="#14--编译流程总结" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-vrmg3htk> 1.4 · 编译流程总结 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#141--完整编译链" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 1.4.1 · 完整编译链 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#142--优化发生的位置" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 1.4.2 · 优化发生的位置 </a> </li><li class="toc-item pl-0" data-astro-cid-vrmg3htk> <a href="#15--参考资源" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-vrmg3htk> 1.5 · 参考资源 </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-vrmg3htk> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-vrmg3htk> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-vrmg3htk></path> </svg> </button> <script>
+  const TOC_KEY = 'toc-open';
+  const sidebar = document.getElementById('toc-sidebar');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+
+  function getSidebarState() {
+    return localStorage.getItem(TOC_KEY) !== 'false';
+  }
+
+  function setSidebarState(open) {
+    localStorage.setItem(TOC_KEY, open ? 'true' : 'false');
+  }
+
+  function updateSidebar() {
+    const isOpen = getSidebarState();
+    if (sidebar) {
+      if (isOpen) {
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    }
+  }
+
+  function toggleSidebar() {
+    const isOpen = getSidebarState();
+    setSidebarState(!isOpen);
+    updateSidebar();
+  }
+
+  // Initialize
+  updateSidebar();
+
+  // Event listeners
+  if (toggle) {
+    toggle.addEventListener('click', toggleSidebar);
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', toggleSidebar);
+  }
+
+  // Keyboard shortcut: left/right arrow to toggle
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.ctrlKey) {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  });
+
+  // Highlight current section on scroll
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          document.querySelectorAll('.toc-item a').forEach((link) => {
+            link.classList.remove('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+            link.classList.add('text-nord-3', 'dark:text-nord-4');
+          });
+          const activeLink = document.querySelector(
+            `.toc-item a[href="#${entry.target.id}"]`
+          );
+          if (activeLink) {
+            activeLink.classList.remove('text-nord-3', 'dark:text-nord-4');
+            activeLink.classList.add('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+          }
+        }
+      });
+    },
+    { rootMargin: '-50% 0px -50% 0px' }
+  );
+
+  document.querySelectorAll('h2, h3').forEach((heading) => {
+    if (heading.id) {
+      observer.observe(heading);
+    }
+  });
+
+  // Close sidebar on link click
+  document.querySelectorAll('.toc-item a').forEach((link) => {
+    link.addEventListener('click', () => {
+      setSidebarState(false);
+      updateSidebar();
+    });
+  });
+</script>  <article class="prose prose-nord dark:prose-nord max-w-none
+      prose-headings:font-serif
+      prose-code:before:content-none prose-code:after:content-none" data-astro-cid-v5yihett> <header class="mb-8" data-astro-cid-v5yihett> <h1 class="mb-3" data-pagefind-meta="title" data-astro-cid-v5yihett>Go: compile 编译器</h1> <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4" data-astro-cid-v5yihett> <div class="text-sm text-nord-3 dark:text-nord-5" data-astro-cid-v5yihett> <div> <div class="flex flex-wrap gap-2 mb-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-7 dark:bg-nord-7 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>📅</span> <span>2026-02-05</span> </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-8 dark:bg-nord-8 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>✏️</span> <span>2026-02-05</span> </span> <a href="/notes/series/inside-go" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-green-light dark:tag-text-green-dark !no-underline hover:!no-underline" title="系列：Inside Go"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> <span>Inside Go</span>  </a> <div class="flex flex-wrap gap-2"> <a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a> </div> </div> </div> </div> <div class="text-sm" data-astro-cid-v5yihett> <div> <div class="flex items-center gap-4"> <!-- Back to notes link - removed, now in footer --> <!-- Show only links and backlinks stats --> <!-- Outlinks -->  <!-- Backlinks -->  <button class="open-backlinks-btn flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" aria-label="Open 1 backlinks" title="Linked from 1 note(s)"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path> </svg> <span class="font-medium">1 backlinks</span> </button>  <!-- No links message -->  </div> <!-- Modals --> <div id="outlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No outlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "outlinks-modal";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <div id="backlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770123038-CJXA" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: channel 通道</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770123038-CJXA </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "backlinks-modal";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <script>
+  // Outlinks button - calls window.openOutlinksModal()
+  document.querySelectorAll('.open-outlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openOutlinksModal) {
+        window.openOutlinksModal();
+      }
+    });
+  });
+
+  // Backlinks button - calls window.openBacklinksModal()
+  document.querySelectorAll('.open-backlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openBacklinksModal) {
+        window.openBacklinksModal();
+      }
+    });
+  });
+</script> </div> </div> </div> </header>    <h1 id="1--go-编译器">1 · Go 编译器</h1>
+<h2 id="11--快速概览编译流程">1.1 · 快速概览：编译流程</h2>
+<p>Go 编译器将源代码转换为可执行文件，共8个主要阶段（官方分为前端、中端、后端）：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>源代码 → 词法/语法分析 → 类型检查 → IR生成 → 中端优化 → Walk → SSA → 机器码 → 可执行文件</span></span>
+<span class="line"><span>         └────── 前端 ──────┘        └─── 中端 ───┘       └──────── 后端 ────────┘</span></span></code></pre>
+<p><strong>关键阶段</strong>：</p>
+<ol>
+<li><strong>词法分析</strong>：源代码 → Token 流</li>
+<li><strong>语法分析</strong>：Token → 抽象语法树（syntax.File）</li>
+<li><strong>类型检查</strong>：AST → 符号表、类型信息（使用 types2 包）</li>
+<li><strong>中间代码生成</strong>（Noding）：通过 Unified IR 将 types2 表示转换为编译器的 IR</li>
+<li><strong>中端优化</strong>：内联、逃逸分析、死代码消除等</li>
+<li><strong>Walk 阶段</strong>：反糖、拆解复杂语句、转换高级构造</li>
+<li><strong>SSA 生成与优化</strong>：IR → SSA → 机器无关优化</li>
+<li><strong>机器码生成</strong>：SSA 降级 → 机器相关优化 → 汇编 → 目标文件 → 链接 → 可执行文件</li>
+</ol>
+<hr>
+<h2 id="12--编译工具与使用示例">1.2 · 编译工具与使用示例</h2>
+<h3 id="121--工具链概览">1.2.1 · 工具链概览</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>工具</th><th>功能</th><th>阶段</th></tr></thead><tbody><tr><td><code>go tool compile</code></td><td>编译源文件为目标文件 (.o/.a)</td><td>前端+中端</td></tr><tr><td><code>go tool asm</code></td><td>汇编器，编译汇编代码</td><td>后端</td></tr><tr><td><code>go tool link</code></td><td>链接器，链接目标文件为可执行文件</td><td>后端</td></tr><tr><td><code>go tool objdump</code></td><td>反汇编工具，查看二进制内容</td><td>分析</td></tr><tr><td><code>go tool nm</code></td><td>符号列表工具</td><td>分析</td></tr><tr><td><code>go tool cgo</code></td><td>C 语言互操作</td><td>特殊</td></tr><tr><td><code>go build</code></td><td>高级构建工具（自动调度）</td><td>完整流程</td></tr></tbody></table>
+<h3 id="122--示例编译一个简单的-go-程序">1.2.2 · 示例：编译一个简单的 Go 程序</h3>
+<p>创建测试文件 <code>main.go</code>：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#81A1C1">package</span><span style="color:#D8DEE9FF"> main</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">import</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">fmt</span><span style="color:#ECEFF4">"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> add</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">a</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> b</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">	return</span><span style="color:#D8DEE9"> a</span><span style="color:#81A1C1"> +</span><span style="color:#D8DEE9"> b</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> main</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">	result</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> add</span><span style="color:#ECEFF4">(</span><span style="color:#B48EAD">2</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 3</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9">	fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Println</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">result</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<h4 id="1221--1-查看汇编代码">1.2.2.1 · 1. 查看汇编代码</h4>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#616E88"># 编译时打印汇编（使用 go build）</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -gcflags=-S</span><span style="color:#A3BE8C"> main.go</span><span style="color:#81A1C1"> 2>&#x26;1</span><span style="color:#81A1C1"> |</span><span style="color:#88C0D0"> head</span><span style="color:#A3BE8C"> -100</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 或者使用 go tool compile 直接查看</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> compile</span><span style="color:#A3BE8C"> -S</span><span style="color:#A3BE8C"> main.go</span><span style="color:#81A1C1"> 2>&#x26;1</span><span style="color:#81A1C1"> |</span><span style="color:#88C0D0"> grep</span><span style="color:#A3BE8C"> -A</span><span style="color:#B48EAD"> 20</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">func main</span><span style="color:#ECEFF4">"</span></span></code></pre>
+<h4 id="1222--2-查看-ssa-优化过程">1.2.2.2 · 2. 查看 SSA 优化过程</h4>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#616E88"># 生成包含所有 SSA 优化阶段的 HTML 文档</span></span>
+<span class="line"><span style="color:#D8DEE9">GOSSAFUNC</span><span style="color:#81A1C1">=</span><span style="color:#A3BE8C">main</span><span style="color:#88C0D0"> go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> compile</span><span style="color:#A3BE8C"> main.go</span></span>
+<span class="line"><span style="color:#616E88"># 会生成 ssa.html，用浏览器打开查看每个阶段的优化</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 只查看特定函数</span></span>
+<span class="line"><span style="color:#D8DEE9">GOSSAFUNC</span><span style="color:#81A1C1">=</span><span style="color:#A3BE8C">add</span><span style="color:#88C0D0"> go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> compile</span><span style="color:#A3BE8C"> main.go</span></span></code></pre>
+<h4 id="1223--3-查看编译命令不执行">1.2.2.3 · 3. 查看编译命令（不执行）</h4>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#616E88"># 打印编译命令但不执行</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -n</span><span style="color:#A3BE8C"> main.go</span></span>
+<span class="line"><span style="color:#616E88"># 输出会显示调用了哪些 compile 和 link 命令</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 打印命令并执行，看完整过程</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -x</span><span style="color:#A3BE8C"> main.go</span></span></code></pre>
+<h4 id="1224--4-编译细节控制">1.2.2.4 · 4. 编译细节控制</h4>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#616E88"># 禁用优化</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -gcflags=-N</span><span style="color:#A3BE8C"> main.go</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 禁用内联</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -gcflags=-l</span><span style="color:#A3BE8C"> main.go</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 打印优化决策</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -gcflags=-m</span><span style="color:#A3BE8C"> main.go</span></span>
+<span class="line"><span style="color:#616E88"># 输出会显示内联、逃逸分析等优化信息</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 打印更详细的优化信息</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -gcflags=</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">-m=2</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C"> main.go</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 打印类型检查过程</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -gcflags=-w</span><span style="color:#A3BE8C"> main.go</span></span></code></pre>
+<h4 id="1225--5-分析编译后的二进制">1.2.2.5 · 5. 分析编译后的二进制</h4>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#616E88"># 查看目标文件中的所有符号</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> nm</span><span style="color:#A3BE8C"> main</span><span style="color:#81A1C1"> ></span><span style="color:#A3BE8C"> symbols.txt</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 查看特定符号的大小</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> nm</span><span style="color:#A3BE8C"> main</span><span style="color:#81A1C1"> |</span><span style="color:#88C0D0"> grep</span><span style="color:#A3BE8C"> add</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 反汇编二进制，查看 main 函数的机器码</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> objdump</span><span style="color:#A3BE8C"> main</span><span style="color:#81A1C1"> |</span><span style="color:#88C0D0"> grep</span><span style="color:#A3BE8C"> -A</span><span style="color:#B48EAD"> 30</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">TEXT main.main</span><span style="color:#ECEFF4">"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 查看完整的反汇编</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> objdump</span><span style="color:#A3BE8C"> main</span><span style="color:#81A1C1"> ></span><span style="color:#A3BE8C">disasm.txt</span></span></code></pre>
+<h4 id="1226--6-低级编译手动调用编译器">1.2.2.6 · 6. 低级编译（手动调用编译器）</h4>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#616E88"># 第一步：编译为目标文件</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> compile</span><span style="color:#A3BE8C"> -o</span><span style="color:#A3BE8C"> main.o</span><span style="color:#A3BE8C"> main.go</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 第二步：链接为可执行文件</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> link</span><span style="color:#A3BE8C"> -o</span><span style="color:#A3BE8C"> main</span><span style="color:#A3BE8C"> main.o</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 或者一步完成，使用 -pack 生成 .a 文件</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> compile</span><span style="color:#A3BE8C"> -pack</span><span style="color:#A3BE8C"> -o</span><span style="color:#A3BE8C"> main.a</span><span style="color:#A3BE8C"> main.go</span></span></code></pre>
+<h4 id="1227--7-分析构建过程">1.2.2.7 · 7. 分析构建过程</h4>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#616E88"># 打印详细的编译过程</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -v</span><span style="color:#A3BE8C"> main.go</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 保存临时文件（通常会删除）</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -work</span><span style="color:#A3BE8C"> main.go</span></span>
+<span class="line"><span style="color:#616E88"># 会在最后打印临时目录路径</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 查看导入配置</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -x</span><span style="color:#A3BE8C"> main.go</span><span style="color:#81A1C1"> 2>&#x26;1</span><span style="color:#81A1C1"> |</span><span style="color:#88C0D0"> grep</span><span style="color:#A3BE8C"> importcfg</span></span></code></pre>
+<h3 id="123--实际用途示例">1.2.3 · 实际用途示例</h3>
+<p><strong>想要优化程序性能</strong>：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#616E88"># 1. 查看哪些函数被内联</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -gcflags=</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">-m=2</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C"> myapp.go</span><span style="color:#81A1C1"> 2>&#x26;1</span><span style="color:#81A1C1"> |</span><span style="color:#88C0D0"> grep</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">inlined</span><span style="color:#ECEFF4">"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 2. 查看逃逸分析结果</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -gcflags=</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">-m=2</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C"> myapp.go</span><span style="color:#81A1C1"> 2>&#x26;1</span><span style="color:#81A1C1"> |</span><span style="color:#88C0D0"> grep</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">escape</span><span style="color:#ECEFF4">"</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 3. 查看生成的汇编</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -gcflags=-S</span><span style="color:#A3BE8C"> myapp.go</span><span style="color:#81A1C1"> ></span><span style="color:#A3BE8C"> asm.txt</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 4. 关键函数的 SSA 优化过程</span></span>
+<span class="line"><span style="color:#D8DEE9">GOSSAFUNC</span><span style="color:#81A1C1">=</span><span style="color:#A3BE8C">criticalFunc</span><span style="color:#88C0D0"> go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> compile</span><span style="color:#A3BE8C"> myapp.go</span></span></code></pre>
+<p><strong>想要减小二进制大小</strong>：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#616E88"># 1. 移除 DWARF 调试信息</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -ldflags=</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">-w</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C"> main.go</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 2. 移除符号表</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -ldflags=</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">-s</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C"> main.go</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 3. 同时移除</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -ldflags=</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">-s -w</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C"> main.go</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 4. 查看符号占用空间</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> nm</span><span style="color:#A3BE8C"> -S</span><span style="color:#A3BE8C"> main</span><span style="color:#81A1C1"> |</span><span style="color:#88C0D0"> sort</span><span style="color:#A3BE8C"> -k2</span><span style="color:#A3BE8C"> -rn</span><span style="color:#81A1C1"> |</span><span style="color:#88C0D0"> head</span><span style="color:#A3BE8C"> -20</span></span></code></pre>
+<p><strong>调试编译问题</strong>：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#616E88"># 1. 打印完整的编译命令</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -x</span><span style="color:#A3BE8C"> main.go</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 2. 保存临时编译中间结果</span></span>
+<span class="line"><span style="color:#D8DEE9">TMPDIR</span><span style="color:#81A1C1">=</span><span style="color:#A3BE8C">/tmp/gobuild</span><span style="color:#88C0D0"> go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -work</span><span style="color:#A3BE8C"> main.go</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 3. 检查类型检查过程</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> compile</span><span style="color:#A3BE8C"> -d</span><span style="color:#A3BE8C"> help</span><span style="color:#616E88"> # 查看所有调试选项</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 4. 竞态检测编译</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> build</span><span style="color:#A3BE8C"> -race</span><span style="color:#A3BE8C"> main.go</span></span></code></pre>
+<hr>
+<h2 id="13--编译细节深入">1.3 · 编译细节深入</h2>
+<h3 id="131--前端详解">1.3.1 · 前端详解</h3>
+<h4 id="1311--1-词法与语法分析">1.3.1.1 · 1. 词法与语法分析</h4>
+<p><strong>词法分析（Lexical Analysis）</strong>：</p>
+<ul>
+<li>包：<code>cmd/compile/internal/syntax</code></li>
+<li>工具：<code>syntax.Token</code> 和 <code>syntax.Scanner</code></li>
+<li>过程：源代码 → Token 流</li>
+<li>位置信息：用于错误报告和调试</li>
+</ul>
+<p><strong>语法分析（Syntax Analysis）</strong>：</p>
+<ul>
+<li>工具：<code>syntax.Parser</code> 和 <code>syntax.File</code></li>
+<li>入口函数：<code>syntax.Parse()</code></li>
+<li>结构规则：
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>SourceFile = PackageClause ";" { ImportDecl ";" } { TopLevelDecl ";" }</span></span>
+<span class="line"><span>TopLevelDecl = Declaration | FunctionDecl | MethodDecl</span></span>
+<span class="line"><span>Declaration = ConstDecl | TypeDecl | VarDecl</span></span></code></pre>
+</li>
+<li>Parser 方法分类：
+<ol>
+<li>词法相关：读取和管理 Token</li>
+<li>结构解析：声明、表达式、语句</li>
+<li>错误处理</li>
+</ol>
+</li>
+</ul>
+<h4 id="1312--2-类型检查semantic-analysis">1.3.1.2 · 2. 类型检查（Semantic Analysis）</h4>
+<p><strong>入口</strong>：<code>types2/check.go</code> 中的 <code>Checker.checkFiles()</code> 方法，由 <code>noder/irgen.go</code> 中的 <code>checkFiles()</code> 函数调用</p>
+<p><strong>类型检查的三个核心任务</strong>：</p>
+<ol>
+<li>
+<p><strong>标识符解析</strong>（Identifier Resolution）：标识符 → Object</p>
+<ul>
+<li>将 AST 中的标识符映射到声明的对象</li>
+</ul>
+</li>
+<li>
+<p><strong>类型推导</strong>（Type Deduction）：表达式 → Type</p>
+<ul>
+<li>确定每个表达式的类型</li>
+</ul>
+</li>
+<li>
+<p><strong>常量求值</strong>（Constant Evaluation）：常量表达式 → Value</p>
+<ul>
+<li>在编译期计算常量的值</li>
+</ul>
+</li>
+</ol>
+<p>这三个任务相互依赖：</p>
+<ul>
+<li>常量值的确定可能依赖类型</li>
+<li>表达式的类型可能依赖常量的值</li>
+<li>标识符的解析可能依赖类型信息（如结构体字段）</li>
+</ul>
+<p><strong>关键数据结构</strong>：</p>
+<p><strong>Object（符号对象）</strong>：<code>types2/object.go</code></p>
+<ul>
+<li>代表所有命名实体（const、var、type、func 等）</li>
+<li>每个 AST 标识符映射到一个 Object</li>
+<li>接口定义：
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> Object </span><span style="color:#81A1C1">interface</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">	Name</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1"> string</span><span style="color:#616E88">   // 包级别名称</span></span>
+<span class="line"><span style="color:#88C0D0">	Exported</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1"> bool</span><span style="color:#616E88"> // 是否以大写字母开头</span></span>
+<span class="line"><span style="color:#88C0D0">	Type</span><span style="color:#ECEFF4">()</span><span style="color:#D8DEE9FF"> Type     </span><span style="color:#616E88">// 对象类型</span></span>
+<span class="line"><span style="color:#88C0D0">	Pos</span><span style="color:#ECEFF4">()</span><span style="color:#D8DEE9FF"> token</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pos </span><span style="color:#616E88">// 声明中标识符的位置</span></span>
+<span class="line"><span style="color:#88C0D0">	Parent</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">Scope </span><span style="color:#616E88">// 声明该对象的作用域</span></span>
+<span class="line"><span style="color:#88C0D0">	Pkg</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">Package  </span><span style="color:#616E88">// 所在包，nil 表示 Universe scope</span></span>
+<span class="line"><span style="color:#88C0D0">	Id</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1"> string</span><span style="color:#616E88">     // 对象 ID（用于唯一性）</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+</li>
+</ul>
+<p><strong>Scope（作用域）</strong>：<code>types2/scope.go</code></p>
+<ul>
+<li>静态作用域（词法作用域）</li>
+<li>分层：全局 → 包 → 文件 → 代码块</li>
+<li>存放 Object，支持名称查找</li>
+</ul>
+<p><strong>Type（类型）</strong>：<code>types2/type.go</code> 及相关文件</p>
+<ul>
+<li>基础类型、复合类型、结构体、接口、Named、Tuple 等</li>
+<li>类型等价性：<code>Identical()</code> 函数（结构一致则等价）</li>
+<li>类型比较：可比较（等/不等）、可排序（大小等）</li>
+</ul>
+<p><strong>Checker（检查器）</strong>：<code>types2/check.go</code></p>
+<ul>
+<li>核心方法：<code>checkFiles()</code></li>
+<li>维护类型检查的状态和信息</li>
+</ul>
+<p><strong>类型检查流程</strong>：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>checkFiles()</span></span>
+<span class="line"><span>  ├─ initFiles（验证同一包）</span></span>
+<span class="line"><span>  ├─ collectObjects（AST → Object + declInfo）</span></span>
+<span class="line"><span>  ├─ packageObjects（递归检查 check.objMap 中的对象）</span></span>
+<span class="line"><span>  │  └─ check.objDecl() 对每个对象进行检查</span></span>
+<span class="line"><span>  │     ├─ 类型表达式：Checker.typ()</span></span>
+<span class="line"><span>  │     ├─ 求值表达式：Checker.exprInternal()</span></span>
+<span class="line"><span>  │     └─ 类型兼容性：Checker.assignment()</span></span>
+<span class="line"><span>  ├─ processDelayed（处理延迟队列）</span></span>
+<span class="line"><span>  │  └─ 函数体检查、循环依赖、接口整理</span></span>
+<span class="line"><span>  └─ initOrder（确定全局初始化顺序）</span></span></code></pre>
+<p><strong>包加载与导出数据</strong>：</p>
+<ul>
+<li>通过 Importer 接口的 Import 方法导入其他包</li>
+<li>读取编译输出的对象文件（.a 或 .o）中的 export data</li>
+<li>静态链接：链接器根据重定位信息规划内存</li>
+</ul>
+<h4 id="1313--3-中间代码生成ir-tree">1.3.1.3 · 3. 中间代码生成（IR Tree）</h4>
+<p><strong>包</strong>：<code>src/cmd/compile/internal/ir</code></p>
+<p><strong>作用</strong>：</p>
+<ul>
+<li>AST 是源代码的直接表示，信息不完整</li>
+<li>IR Tree 是信息更丰富的数据结构，包含编译信息</li>
+<li>便于后续优化和代码生成</li>
+</ul>
+<p><strong>关键接口和结构</strong>：</p>
+<ul>
+<li>
+<p><strong>Node 接口</strong>：实现 Node 的各种类型</p>
+<ul>
+<li>expr.go：表达式节点</li>
+<li>stmt.go：语句节点</li>
+<li>func.go：函数节点</li>
+<li>name.go：名称节点</li>
+</ul>
+</li>
+<li>
+<p><strong>Name 结构</strong>：变量/常量名称及其信息</p>
+</li>
+<li>
+<p><strong>Func 结构</strong>：函数定义及其信息</p>
+</li>
+<li>
+<p><strong>Op 类型</strong>：操作类型（如加法、调用等）</p>
+</li>
+</ul>
+<p><strong>构建逻辑</strong>：由 <code>irgen.generate()</code> 驱动</p>
+<hr>
+<h3 id="132--中端优化阶段">1.3.2 · 中端：优化阶段</h3>
+<p>Go 编译器在多个阶段进行优化，包括：</p>
+<h4 id="1321--前期优化在-unified-ir-写入阶段">1.3.2.1 · 前期优化（在 Unified IR 写入阶段）</h4>
+<ul>
+<li><strong>早期死代码消除</strong>：在 unified IR 写入过程中集成</li>
+</ul>
+<h4 id="1322--中期优化ir-级别walk-前">1.3.2.2 · 中期优化（IR 级别，Walk 前）</h4>
+<ul>
+<li><strong>内联</strong>、<strong>逃逸分析</strong>、<strong>死代码消除</strong></li>
+<li><strong>去虚拟化</strong>：用实际类型替换接口调用</li>
+</ul>
+<hr>
+<h3 id="133--walk-阶段">1.3.3 · Walk 阶段</h3>
+<p><strong>包</strong>：<code>cmd/compile/internal/walk</code></p>
+<p><strong>目的</strong>：</p>
+<ol>
+<li><strong>拆解复杂语句</strong>：将复杂语句分解为更简单的语句，引入临时变量</li>
+<li><strong>反糖</strong>（Desugaring）：将高级构造转换为低级构造
+<ul>
+<li><code>switch</code> → 二分查找或跳转表</li>
+<li><code>for-range</code> → 简单 for 循环</li>
+<li><code>map</code>/<code>channel</code> 操作 → 运行时调用</li>
+</ul>
+</li>
+</ol>
+<p><strong>执行时间</strong>：在 SSA 生成前，是 IR 上的最后一个遍历</p>
+<hr>
+<h3 id="134--包初始化">1.3.4 · 包初始化</h3>
+<p><strong>包</strong>：</p>
+<ul>
+<li><code>src/cmd/compile/internal/pkginit</code>：初始化逻辑</li>
+<li><code>src/cmd/compile/internal/staticinit</code>：静态 vs 动态初始化判断</li>
+</ul>
+<p><strong>初始化顺序</strong>：</p>
+<ol>
+<li>依赖包的初始化</li>
+<li>全局变量初始化（编译时确定 vs 运行时）</li>
+<li>init 函数初始化</li>
+</ol>
+<p><strong>优化</strong>：尽可能在编译期完成变量初始化</p>
+<hr>
+<h3 id="135--优化阶段">1.3.5 · 优化阶段</h3>
+<h4 id="1351--1-dead-code-消除">1.3.5.1 · 1. Dead Code 消除</h4>
+<p><strong>包</strong>：<code>src/cmd/compile/internal/deadcode</code></p>
+<ul>
+<li>入口：<code>deadcode.Func()</code></li>
+<li>作用：
+<ul>
+<li>减小可执行文件大小</li>
+<li>提升缓存命中率（增加局部性）</li>
+</ul>
+</li>
+<li>例：移除 if 分支中永不执行的代码、布尔运算的冗余分支</li>
+</ul>
+<h4 id="1352--2-函数内联inline">1.3.5.2 · 2. 函数内联（Inline）</h4>
+<p><strong>包</strong>：<code>src/cmd/compile/internal/inline</code></p>
+<p><strong>原理</strong>：</p>
+<ul>
+<li>函数调用有固定开销（上下文切换）</li>
+<li>使用函数体替换函数调用以消除开销</li>
+</ul>
+<p><strong>优缺点</strong>：</p>
+<ul>
+<li>优点：缩短调用链，提升性能</li>
+<li>缺点：增大可执行文件体积，错误信息展示不友好</li>
+</ul>
+<p><strong>过程</strong>：</p>
+<ol>
+<li>遍历函数调用链（<code>ir/scc.go</code> 的 <code>VisitFuncsBottomUp</code>）</li>
+<li>计算函数复杂度（<code>hairyVisitor</code> 结构体）</li>
+<li>判断是否可以内联</li>
+<li>进行内联（<code>InlineCalls</code> 函数）</li>
+</ol>
+<p><strong>优化策略</strong>：</p>
+<ul>
+<li>一个函数被频繁调用但复杂度高，不会被内联</li>
+<li>解决方案：抽出复杂代码为单独函数，降低原函数复杂度，提高内联机会</li>
+</ul>
+<h4 id="1353--3-逃逸分析escape-analysis">1.3.5.3 · 3. 逃逸分析（Escape Analysis）</h4>
+<p><strong>包</strong>：<code>src/cmd/compile/internal/escape</code></p>
+<p><strong>目标</strong>：</p>
+<ul>
+<li>确定变量应该分配在栈还是堆上</li>
+<li>栈：快，生命周期与函数一致，自动释放</li>
+<li>堆：慢，需要 GC 管理</li>
+</ul>
+<p><strong>分析规则</strong>：</p>
+<ol>
+<li>指向栈上对象的指针不能在堆上</li>
+<li>指向栈上对象的指针的生命周期不能大于其指向的对象</li>
+<li>大对象分配到堆上</li>
+</ol>
+<p><strong>算法</strong>：基于 AST 的静态数据流分析</p>
+<hr>
+<h3 id="136--后端详解">1.3.6 · 后端详解</h3>
+<h4 id="1361--1-ssastatic-single-assignment生成">1.3.6.1 · 1. SSA（Static Single Assignment）生成</h4>
+<p><strong>包</strong>：<code>src/cmd/compile/internal/{ssagen,ssa}</code></p>
+<p><strong>入口</strong>：<code>ssagen.Compile()</code> 函数和 <code>ssa.Compile()</code> 函数</p>
+<p><strong>SSA 特点</strong>：</p>
+<ul>
+<li>每个变量只赋值一次</li>
+<li>低级中间表示，便于实现优化</li>
+<li>便于进行数据流分析</li>
+</ul>
+<p><strong>过程</strong>：</p>
+<ul>
+<li>IR → <code>buildssa()</code> 函数（ssagen/ssa.go）将 IR 转换为 SSA</li>
+<li>通过 insertPhis 函数处理 phi 节点</li>
+<li>调用 <code>ssa.Compile()</code> 进行 SSA 优化</li>
+<li>输出：SSA 值（Value）和块（Block）形成的 SSA 图</li>
+</ul>
+<h4 id="1362--2-ssa-优化">1.3.6.2 · 2. SSA 优化</h4>
+<p><strong>机器无关优化</strong>（Generic Passes）：</p>
+<ul>
+<li>死代码消除：移除未使用的计算</li>
+<li>空指针检查移除：消除冗余的 nil 检查</li>
+<li>未使用分支移除：删除未被取用的控制流分支</li>
+<li>表达式优化：
+<ul>
+<li>常量折叠：<code>1 + 2</code> → <code>3</code></li>
+<li>乘法优化：<code>x * 2</code> → <code>x &#x3C;&#x3C; 1</code></li>
+<li>浮点运算优化</li>
+</ul>
+</li>
+</ul>
+<p><strong>实现方式</strong>：</p>
+<ul>
+<li>直接在 Go 代码中实现的 passes</li>
+<li>通过 rewrite rules（<code>cmd/compile/internal/ssa/_gen/*.rules</code>）代码生成的优化规则</li>
+</ul>
+<p><strong>关键机制</strong>：</p>
+<ul>
+<li><strong>Lower Pass</strong>：将通用 SSA 转换为机器相关的变体（如 amd64 特定操作）</li>
+<li><strong>Rewrite Rules</strong>：使用 S-expression 形式的 DSL 描述，自动生成优化代码</li>
+<li><strong>完整优化流程</strong>：从高级 SSA 开始，经过多个 passes，最终得到机器相关的 SSA</li>
+</ul>
+<h4 id="1363--3-机器码生成">1.3.6.3 · 3. 机器码生成</h4>
+<p><strong>流程</strong>：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>SSA → Lower Pass（SSA → 机器相关变体）</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>最终优化（dead code、值移动、寄存器分配）</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>栈帧布局（分配栈偏移给局部变量）</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>obj.Prog 指令流</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>汇编器（cmd/internal/obj）</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>机器码 → 目标文件</span></span></code></pre>
+<p><strong>最终文件内容</strong>：</p>
+<ul>
+<li>机器码</li>
+<li>Reflect 数据（用于反射）</li>
+<li>Export 数据（用于导入）</li>
+<li>调试信息（DWARF）</li>
+</ul>
+<h4 id="1364--4-abi应用二进制接口">1.3.6.4 · 4. ABI（应用二进制接口）</h4>
+<ul>
+<li>基于寄存器的 ABI（替代栈传参）</li>
+<li>定义参数/返回值如何通过寄存器传递</li>
+<li>优化函数调用性能</li>
+</ul>
+<hr>
+<h2 id="14--编译流程总结">1.4 · 编译流程总结</h2>
+<h3 id="141--完整编译链">1.4.1 · 完整编译链</h3>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>go build main.go</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>Go 命令行调度编译</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>go tool compile main.go → main.o</span></span>
+<span class="line"><span>    ├─ 词法分析：source → tokens</span></span>
+<span class="line"><span>    ├─ 语法分析：tokens → AST (syntax.File)</span></span>
+<span class="line"><span>    ├─ 类型检查：AST → Object + Type (types2)</span></span>
+<span class="line"><span>    ├─ IR 生成（Noding）：types2 → Unified IR → compiler IR</span></span>
+<span class="line"><span>    ├─ 中端优化：内联、逃逸分析、死代码消除（IR 级）</span></span>
+<span class="line"><span>    ├─ Walk：反糖、拆解、高级构造转换</span></span>
+<span class="line"><span>    ├─ SSA 生成：IR → SSA</span></span>
+<span class="line"><span>    ├─ SSA 优化：机器无关优化 (Generic Passes)</span></span>
+<span class="line"><span>    ├─ SSA 降级：通用 SSA → 机器相关 SSA (Lower Pass)</span></span>
+<span class="line"><span>    ├─ 最终优化：死代码消除、寄存器分配、指令调度</span></span>
+<span class="line"><span>    └─ 机器码：SSA → obj.Prog → 目标文件 main.o</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>go tool link main.o → main</span></span>
+<span class="line"><span>    ├─ 读取所有 .o 文件和 export data</span></span>
+<span class="line"><span>    ├─ 符号解析和重定位</span></span>
+<span class="line"><span>    ├─ 内存布局</span></span>
+<span class="line"><span>    └─ 生成可执行文件</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>main（可执行文件）</span></span></code></pre>
+<h3 id="142--优化发生的位置">1.4.2 · 优化发生的位置</h3>
+<ul>
+<li><strong>Unified IR 写入阶段</strong>：早期死代码消除</li>
+<li><strong>IR 级</strong>（Walk 前）：内联、逃逸分析、死代码消除、去虚拟化</li>
+<li><strong>SSA 级（Generic Passes）</strong>：机器无关优化（常量折叠、分支消除、nil 检查移除等）</li>
+<li><strong>SSA 降级后</strong>：机器相关优化（如 amd64 特定的指令组合）</li>
+<li><strong>最终优化</strong>：寄存器分配、栈帧布局、指令调度、活跃指针分析</li>
+</ul>
+<hr>
+<h2 id="15--参考资源">1.5 · 参考资源</h2>
+<ul>
+<li><a href="https://github.com/golang/go/tree/master/src/cmd/compile">Go 编译器仓库</a></li>
+<li><a href="https://github.com/golang/example/blob/master/gotypes/README.md">types 包示例</a></li>
+<li><a href="https://go.dev/ref/spec#Declarations_and_scope">Go 规范 - 声明和作用域</a></li>
+<li><a href="https://github.com/golang/go/blob/master/src/cmd/compile/internal/ssa/README.md">SSA 文档</a></li>
+</ul> <div class="mt-8 pt-8 border-t border-nord-4 dark:border-nord-2"> <details class="group cursor-pointer"> <summary class="btn-primary list-none"> <svg class="w-5 h-5 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M9 5l7 7-7 7"></path> </svg> <span>Local Knowledge Graph</span> </summary> <div class="mt-4"> <div id="local-graph-1770123038-RTOD" style="height: 400px;" class="knowledge-graph-container" data-astro-cid-zjb43jqo> <div class="knowledge-graph-wrapper" data-astro-cid-zjb43jqo> <svg id="local-graph-1770123038-RTOD-svg" style="width: 100%; height: 100%;" data-astro-cid-zjb43jqo></svg> </div> </div>  <script>(function(){const containerId = "local-graph-1770123038-RTOD";
+const nodeRadius = 4;
+const showLabels = true;
+const enableZoom = true;
+const enableDrag = true;
+const dataJson = "{\"nodes\":[{\"id\":\"1770123038-RTOD\",\"urlId\":\"1770123038-RTOD\",\"label\":\"Go: compile 编译器\",\"title\":\"Go: compile 编译器\",\"group\":\"default\",\"nodeType\":\"current\"},{\"id\":\"1770123038-CJXA\",\"urlId\":\"1770123038-CJXA\",\"label\":\"Go: channel 通道\",\"title\":\"Go: channel 通道\",\"group\":\"default\",\"nodeType\":\"backlink\"},{\"id\":\"1770786730-PFOI\",\"urlId\":\"1770786730-PFOI\",\"label\":\"Go: goroutine 协程\",\"title\":\"Go: goroutine 协程\",\"group\":\"default\",\"nodeType\":\"neighbor\"}],\"links\":[{\"source\":\"1770123038-CJXA\",\"target\":\"1770786730-PFOI\"},{\"source\":\"1770123038-CJXA\",\"target\":\"1770123038-RTOD\"}]}";
+
+  (window.__KNOWLEDGE_GRAPH_QUEUE__ = window.__KNOWLEDGE_GRAPH_QUEUE__ || []).push({
+    containerId,
+    dataJson,
+    nodeRadius,
+    showLabels,
+    enableZoom,
+    enableDrag,
+  });
+})();</script> </div> </details> </div><!-- Diagrams rendered at build time -->  </article> <nav class="mt-12 pt-8 border-t border-nord-4 dark:border-nord-1" data-astro-cid-v5yihett> <a href="/notes" class="btn-primary" data-astro-cid-v5yihett> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-v5yihett> <path d="M15 19l-7-7 7-7" data-astro-cid-v5yihett></path> </svg>
+Back to Notes
+</a> </nav>  </main> <footer class="border-t border-nord-5 dark:border-nord-1 mt-12"> <div class="max-w-4xl mx-auto px-4 py-6 text-sm text-nord-3 dark:text-nord-4 text-center"> <p>&copy; 2026. All rights reserved.</p> </div> </footer> <script type="module" src="/_astro/Base.astro_astro_type_script_index_0_lang.WDMQca9J.js"></script> <script>
+      (function() {
+        const root = document.getElementById('series-dropdown-root');
+        const trigger = document.getElementById('series-dropdown-trigger');
+        const panel = document.getElementById('series-dropdown-panel');
+        const listEl = document.getElementById('series-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let seriesList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (seriesList === null) {
+            fetch('/series-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                seriesList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无系列</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(name) {
+                     const slug = name.toLowerCase().replace(/\s+/g, '-');
+                     const url = '/notes/series/' + slug;
+                     return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(name) + '</a>';
+                   }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        // On click: allow default navigation to /notes/series
+        // On hover: show dropdown menu
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          // Don't preventDefault - allow link to navigate
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> <script>
+      (function() {
+        const root = document.getElementById('tags-dropdown-root');
+        const trigger = document.getElementById('tags-dropdown-trigger');
+        const panel = document.getElementById('tags-dropdown-panel');
+        const listEl = document.getElementById('tags-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let tagList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (tagList === null) {
+            fetch('/tag-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                tagList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无标签</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(tag) {
+                     const url = '/notes/tag/' + encodeURIComponent(tag);
+                     return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(tag) + '</a>';
+                   }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> </body> </html>  <script>
+  // Language aliases (matches server-side)
+  const langAliases = {
+    js: 'javascript',
+    ts: 'typescript',
+    yml: 'yaml',
+    yaml: 'yaml',
+    sh: 'bash',
+    shell: 'bash',
+    sql: 'postgresql',
+    java: 'openjdk',
+  };
+
+  // Add headers and copy buttons to code blocks
+  function initCodeBlocks() {
+    document.querySelectorAll('pre[data-language]').forEach((pre) => {
+      // Skip if already processed
+      if (pre.parentNode.classList.contains('code-block-wrapper')) return;
+      
+      const lang = pre.getAttribute('data-language') || 'code';
+      
+      // Create wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block-wrapper';
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+      
+      // Create header
+      const header = document.createElement('div');
+      header.className = 'code-header';
+      
+      const langSpan = document.createElement('span');
+      langSpan.className = 'code-header-lang';
+      langSpan.title = lang;
+      
+      // Normalize lang for devicon
+      const normalizedLang = lang.toLowerCase();
+      const iconLang = langAliases[normalizedLang] || normalizedLang;
+      
+      // Display language with devicon (format: devicon-{name}-{version} colored)
+      const iconEl = document.createElement('i');
+      iconEl.className = `devicon-${iconLang}-plain colored`;
+      iconEl.style.marginRight = '0.375rem';
+      iconEl.style.fontSize = '0.75rem';
+      langSpan.appendChild(iconEl);
+      langSpan.appendChild(document.createTextNode(lang));
+      
+      const button = document.createElement('button');
+      button.className = 'copy-code-btn';
+      button.title = 'Copy to clipboard';
+      button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      
+      let isCopying = false;
+      button.addEventListener('click', async () => {
+        if (isCopying) return;
+        isCopying = true;
+        
+        const code = pre.querySelector('code')?.textContent || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalHtml = button.innerHTML;
+          button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+          button.title = 'Copied!';
+          setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.title = 'Copy to clipboard';
+            isCopying = false;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+          isCopying = false;
+        }
+      });
+      
+      header.appendChild(langSpan);
+      header.appendChild(button);
+      wrapper.appendChild(header);
+    });
+  }
+
+  // Run ASAP, then on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCodeBlocks);
+  } else {
+    initCodeBlocks();
+  }
+
+  // Convert wikilinks to links on client side
+  // Matches [[ref]] or [[ref|display text]]
+  document.addEventListener('DOMContentLoaded', () => {
+    const wikiRegex = /\[\[([a-zA-Z0-9][a-zA-Z0-9_-]*?)(?:\|([^\]]+))?\]\]/g;
+    
+    // Process all text nodes in prose content
+    const walker = document.createTreeWalker(
+      document.querySelector('.prose') || document.body,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    const nodesToReplace = [];
+    let node;
+    
+    while (node = walker.nextNode()) {
+      if (node.nodeValue.includes('[[')) {
+        nodesToReplace.push(node);
+      }
+    }
+    
+    nodesToReplace.forEach((textNode) => {
+      const parent = textNode.parentNode;
+      let lastIndex = 0;
+      const matches = [...textNode.nodeValue.matchAll(wikiRegex)];
+      
+      if (matches.length === 0) return;
+      
+      const fragment = document.createDocumentFragment();
+      
+      matches.forEach((match) => {
+        const [fullMatch, ref, displayText] = match;
+        const startIndex = match.index;
+        
+        // Add text before match
+        if (startIndex > lastIndex) {
+          fragment.appendChild(
+            document.createTextNode(textNode.nodeValue.slice(lastIndex, startIndex))
+          );
+        }
+        
+        // Create link
+        const link = document.createElement('a');
+        link.href = `/notes/${ref.toLowerCase()}`;
+        link.textContent = (displayText || ref).trim();
+        link.className = 'text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors';
+        fragment.appendChild(link);
+        
+        lastIndex = startIndex + fullMatch.length;
+      });
+      
+      // Add remaining text
+      if (lastIndex < textNode.nodeValue.length) {
+        fragment.appendChild(
+          document.createTextNode(textNode.nodeValue.slice(lastIndex))
+        );
+      }
+      
+      parent.replaceChild(fragment, textNode);
+    });
+  });
+</script> 

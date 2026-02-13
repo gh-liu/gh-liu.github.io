@@ -1,0 +1,1029 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>vim-internal</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css"><script>
+      // This script runs synchronously in the head to prevent FOUC (Flash of Unstyled Content)
+      (function() {
+        const THEME_KEY = 'nord-theme';
+        const DARK = 'dark';
+        
+        function getStoredTheme() {
+          try {
+            return localStorage.getItem(THEME_KEY);
+          } catch {
+            return null;
+          }
+        }
+        
+        function getSystemTheme() {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+        }
+        
+        function getTheme() {
+          return getStoredTheme() || getSystemTheme();
+        }
+        
+        function applyTheme(theme) {
+          const html = document.documentElement;
+          if (theme === DARK) {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+        }
+        
+        // Apply theme immediately before page renders
+        applyTheme(getTheme());
+      })();
+    </script><link rel="stylesheet" href="/_astro/_id_.6ed6JusR.css">
+<style>.knowledge-graph-container[data-astro-cid-zjb43jqo]{border:1px solid var(--nord-4);border-radius:8px;background:var(--nord-6);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen,.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo],.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--nord-4);border-radius:6px;background:var(--nord-6);color:var(--nord-2);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--nord-5);color:var(--nord-10)}.knowledge-graph-toolbar-btn:active{background:var(--nord-4)}.knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:#5e81ac;stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--nord-14);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--nord-10);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--nord-14);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--nord-15);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--nord-12);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--nord-4);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:#4c566a;stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--nord-11);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--nord-1);font-weight:500;text-shadow:0 0 3px var(--nord-6)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--nord-0);border:1px solid var(--nord-3);border-radius:4px;font-size:12px;color:var(--nord-6);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--nord-8);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--nord-2)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--nord-10)}.kg-legend--outlink{color:var(--nord-14)}.kg-legend--backlink{color:var(--nord-15)}.kg-legend--both{color:var(--nord-12)}.kg-legend--neighbor{color:var(--nord-4);opacity:.9}
+html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-word}
+</style></head> <body class="text-nord-3 dark:text-nord-5 transition-all bg-gradient-light"> <header class="border-b border-nord-5 dark:border-nord-1 bg-nord-6 dark:bg-nord-0"> <nav class="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between gap-4"> <div class="flex items-center gap-2 min-w-0"> <a href="/" title="Liu" class="shrink-0 p-1.5 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-nord-8/20 active:scale-95"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"> <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path> <circle cx="12" cy="7" r="4"></circle> </svg> </a> <h1 class="text-xl font-bold truncate"> <a href="/" class="text-nord-2 dark:text-nord-6 hover:text-nord-10 dark:hover:text-nord-8 transition-colors"> Liu </a> </h1> </div> <div class="flex items-center gap-2 shrink-0"> <a href="https://github.com/gh-liu" title="GitHub" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"> <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path> </svg> </a> <a href="https://x.com" title="X" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="X"> <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.207-6.807-5.975 6.807H2.306l7.644-8.74-8.179-10.76h6.467l4.713 6.231 5.429-6.231zM17.002 18.807h1.844L6.983 4.126H5.025l11.977 14.681z"></path> </svg> </a> <span class="w-px h-4 bg-nord-4 dark:bg-nord-2 shrink-0" aria-hidden="true"></span> <div class="relative series-dropdown" id="series-dropdown-root"> <a href="/notes/series" title="Series" aria-expanded="false" aria-haspopup="true" aria-controls="series-dropdown-panel" id="series-dropdown-trigger" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> </a> <div id="series-dropdown-panel" class="absolute right-0 top-full mt-1 py-2 min-w-[12rem] max-h-[70vh] overflow-y-auto rounded-lg border border-nord-4 dark:border-nord-2 bg-nord-6 dark:bg-nord-1 shadow-lg z-50 hidden" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">加载中…</span> </div> <div class="border-t border-nord-4 dark:border-nord-2 pt-1 mt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors">
+查看全部系列 →
+</a> </div> </div> </div> <div class="relative tags-dropdown" id="tags-dropdown-root"> <a href="/notes/tags" title="Tags" aria-expanded="false" aria-haspopup="true" aria-controls="tags-dropdown-panel" id="tags-dropdown-trigger" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> </a> <div id="tags-dropdown-panel" class="absolute right-0 top-full mt-1 py-2 min-w-[12rem] max-h-[70vh] overflow-y-auto rounded-lg border border-nord-4 dark:border-nord-2 bg-nord-6 dark:bg-nord-1 shadow-lg z-50 hidden" role="menu"> <div id="tags-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">加载中…</span> </div> <div class="border-t border-nord-4 dark:border-nord-2 pt-1 mt-1"> <a href="/notes/tags" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors">
+查看全部标签 →
+</a> </div> </div> </div> <div class="search-container" id="search-wrapper" data-astro-cid-t47yvtpn><button id="search-toggle" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-t47yvtpn><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-t47yvtpn><circle cx="11" cy="11" r="8" data-astro-cid-t47yvtpn></circle><path d="m21 21-4.35-4.35" data-astro-cid-t47yvtpn></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-t47yvtpn><div class="bg-nord-6 dark:bg-nord-0 rounded-2xl shadow-2xl w-full max-w-2xl border border-nord-5 dark:border-nord-1 max-h-[70vh] flex flex-col overflow-hidden animate-fade-in" data-astro-cid-t47yvtpn><div class="p-4 border-b border-nord-5 dark:border-nord-1" data-astro-cid-t47yvtpn><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full px-4 py-2 bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 placeholder-nord-3 dark:placeholder-nord-4 rounded focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-t47yvtpn></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-t47yvtpn><p class="text-nord-3 dark:text-nord-5 text-sm" data-astro-cid-t47yvtpn>Type to search...</p></div><div class="p-3 border-t border-nord-5 dark:border-nord-1 text-xs text-nord-3 dark:text-nord-4" data-astro-cid-t47yvtpn><p data-astro-cid-t47yvtpn>Press <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-t47yvtpn>Esc</kbd> to close | Use <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-t47yvtpn>#tag</kbd> to search by tag</p></div></div></div></div><script>(function(){const pagefindUrl = "/pagefind/pagefind.js";
+
+  if (!globalThis.pagefindLoaded) {
+    globalThis.pagefindLoaded = true;
+    
+    let pagefind;
+    let searchInput;
+    let searchModal;
+    let searchResults;
+    let isSearchOpen = false;
+
+    async function initSearch() {
+      if (typeof window === "undefined") return;
+
+      try {
+        pagefind = await import(pagefindUrl);
+        await pagefind.init();
+      } catch (error) {
+        console.log("Search not available.", error);
+        return;
+      }
+
+      searchInput = document.getElementById("search-input");
+      searchModal = document.getElementById("search-modal");
+      searchResults = document.getElementById("search-results");
+      const toggleBtn = document.getElementById("search-toggle");
+
+      if (!searchInput || !searchModal || !searchResults || !toggleBtn) return;
+
+      toggleBtn.addEventListener("click", () => {
+        openSearch();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeSearch();
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          e.preventDefault();
+          isSearchOpen ? closeSearch() : openSearch();
+        }
+      });
+
+      searchModal.addEventListener("click", (e) => {
+        if (e.target === searchModal) closeSearch();
+      });
+
+      searchInput.addEventListener("input", async (e) => {
+        const query = e.target.value.trim();
+        if (!query) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+          return;
+        }
+
+        // Check if query starts with #tag
+        const isTagSearch = query.startsWith('#');
+        let results;
+        
+        if (isTagSearch) {
+          // Tag search
+          const tag = query.slice(1).toUpperCase();
+          results = await pagefind.search(`tag:${tag}`);
+        } else {
+          // Regular text search
+          results = await pagefind.search(query);
+        }
+
+        if (results.results.length === 0) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">No results found.</p>';
+          return;
+        }
+
+        let html = '<ul class="space-y-2">';
+        for (const result of results.results) {
+          const data = await result.data();
+          // Extract title from h1 or use URL slug as fallback
+          const title = data.meta?.title || data.title || (data.url.split('/').pop() || 'untitled').replace(/-/g, ' ');
+          html += `<li><a href="${data.url}" class="block p-3 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-2 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-all hover:shadow-md duration-200 border border-transparent hover:border-nord-9 dark:hover:border-nord-8"><div class="font-medium">${title}</div><div class="text-xs text-nord-3 dark:text-nord-5 mt-1 line-clamp-2">${data.excerpt || ""}</div></a></li>`;
+        }
+        searchResults.innerHTML = html + "</ul>";
+      });
+    }
+
+    function openSearch() {
+      isSearchOpen = true;
+      searchModal.classList.remove("hidden");
+      searchInput.focus();
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSearch() {
+      isSearchOpen = false;
+      searchModal.classList.add("hidden");
+      searchInput.value = "";
+      searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+      document.body.style.overflow = "";
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initSearch);
+    } else {
+      initSearch();
+    }
+  }
+})();</script> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="group relative p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-4 transition-all duration-200 ease-out hover:scale-110 inline-flex"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="w-4 h-4 text-nord-13 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="w-4 h-4 text-nord-9 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script>
+  const THEME_KEY = 'nord-theme';
+  const DARK = 'dark';
+  
+  function getStoredTheme() {
+    return localStorage.getItem(THEME_KEY);
+  }
+  
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+  }
+  
+  function getTheme() {
+    return getStoredTheme() || getSystemTheme();
+  }
+  
+  function applyTheme(theme) {
+    const html = document.documentElement;
+    if (theme === DARK) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }
+  
+  function toggleTheme() {
+    const currentTheme = getTheme();
+    const newTheme = currentTheme === DARK ? 'light' : DARK;
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  }
+  
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+</script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-vrmg3htk> <nav class="px-4 space-y-1" data-astro-cid-vrmg3htk> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-vrmg3htk> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-vrmg3htk> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-vrmg3htk></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-vrmg3htk>
+On this page
+</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-vrmg3htk> <li class="toc-item pl-0" data-astro-cid-vrmg3htk> <a href="#11--f_foldlevel--搜索" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-vrmg3htk> 1.1 · f_foldlevel :: 搜索 </a> </li><li class="toc-item pl-0" data-astro-cid-vrmg3htk> <a href="#12--foldcreate--增加" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-vrmg3htk> 1.2 · foldCreate :: 增加 </a> </li><li class="toc-item pl-0" data-astro-cid-vrmg3htk> <a href="#21--查找-marktree_lookup" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-vrmg3htk> 2.1 · 查找： marktree_lookup </a> </li><li class="toc-item pl-0" data-astro-cid-vrmg3htk> <a href="#22--插入marktree_put" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-vrmg3htk> 2.2 · 插入：marktree_put </a> </li><li class="toc-item pl-0" data-astro-cid-vrmg3htk> <a href="#23--删除-marktree_del_itr" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-vrmg3htk> 2.3 · 删除: marktree_del_itr </a> </li><li class="toc-item pl-0" data-astro-cid-vrmg3htk> <a href="#31--f_undotree--返回当前buffer的undo树数据" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="2" data-astro-cid-vrmg3htk> 3.1 · f_undotree :: 返回当前buffer的undo树数据 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#311--来几个操作看一下" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 3.1.1 · 来几个操作看一下 </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-vrmg3htk> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-vrmg3htk> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-vrmg3htk></path> </svg> </button> <script>
+  const TOC_KEY = 'toc-open';
+  const sidebar = document.getElementById('toc-sidebar');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+
+  function getSidebarState() {
+    return localStorage.getItem(TOC_KEY) !== 'false';
+  }
+
+  function setSidebarState(open) {
+    localStorage.setItem(TOC_KEY, open ? 'true' : 'false');
+  }
+
+  function updateSidebar() {
+    const isOpen = getSidebarState();
+    if (sidebar) {
+      if (isOpen) {
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    }
+  }
+
+  function toggleSidebar() {
+    const isOpen = getSidebarState();
+    setSidebarState(!isOpen);
+    updateSidebar();
+  }
+
+  // Initialize
+  updateSidebar();
+
+  // Event listeners
+  if (toggle) {
+    toggle.addEventListener('click', toggleSidebar);
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', toggleSidebar);
+  }
+
+  // Keyboard shortcut: left/right arrow to toggle
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.ctrlKey) {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  });
+
+  // Highlight current section on scroll
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          document.querySelectorAll('.toc-item a').forEach((link) => {
+            link.classList.remove('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+            link.classList.add('text-nord-3', 'dark:text-nord-4');
+          });
+          const activeLink = document.querySelector(
+            `.toc-item a[href="#${entry.target.id}"]`
+          );
+          if (activeLink) {
+            activeLink.classList.remove('text-nord-3', 'dark:text-nord-4');
+            activeLink.classList.add('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+          }
+        }
+      });
+    },
+    { rootMargin: '-50% 0px -50% 0px' }
+  );
+
+  document.querySelectorAll('h2, h3').forEach((heading) => {
+    if (heading.id) {
+      observer.observe(heading);
+    }
+  });
+
+  // Close sidebar on link click
+  document.querySelectorAll('.toc-item a').forEach((link) => {
+    link.addEventListener('click', () => {
+      setSidebarState(false);
+      updateSidebar();
+    });
+  });
+</script>  <article class="prose prose-nord dark:prose-nord max-w-none
+      prose-headings:font-serif
+      prose-code:before:content-none prose-code:after:content-none" data-astro-cid-v5yihett> <header class="mb-8" data-astro-cid-v5yihett> <h1 class="mb-3" data-pagefind-meta="title" data-astro-cid-v5yihett>vim-internal</h1> <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4" data-astro-cid-v5yihett> <div class="text-sm text-nord-3 dark:text-nord-5" data-astro-cid-v5yihett> <div> <div class="flex flex-wrap gap-2 mb-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-7 dark:bg-nord-7 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>📅</span> <span>2026-02-05</span> </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-8 dark:bg-nord-8 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>✏️</span> <span>2026-02-05</span> </span>  <div class="flex flex-wrap gap-2"> <a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a> </div> </div> </div> </div> <div class="text-sm" data-astro-cid-v5yihett> <div> <div class="flex items-center gap-4"> <!-- Back to notes link - removed, now in footer --> <!-- Show only links and backlinks stats --> <!-- Outlinks -->  <!-- Backlinks -->  <!-- No links message --> <span class="text-nord-3 dark:text-nord-4 italic">No related notes</span> </div> <!-- Modals --> <div id="outlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No outlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "outlinks-modal";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <div id="backlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No backlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "backlinks-modal";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <script>
+  // Outlinks button - calls window.openOutlinksModal()
+  document.querySelectorAll('.open-outlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openOutlinksModal) {
+        window.openOutlinksModal();
+      }
+    });
+  });
+
+  // Backlinks button - calls window.openBacklinksModal()
+  document.querySelectorAll('.open-backlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openBacklinksModal) {
+        window.openBacklinksModal();
+      }
+    });
+  });
+</script> </div> </div> </div> </header>    <h1 id="1--neovim-fold-internal">1 · neovim fold internal</h1>
+<p>数据是如何保存的:
+层级的动态数组garray_T</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#81A1C1"> typedef</span><span style="color:#81A1C1"> struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9FF">   linenr_T fd_top</span><span style="color:#81A1C1">;</span><span style="color:#616E88">      // first line of fold</span></span>
+<span class="line"><span style="color:#D8DEE9FF">   linenr_T fd_len</span><span style="color:#81A1C1">;</span><span style="color:#616E88">      // number of lines in fold</span></span>
+<span class="line"><span style="color:#D8DEE9FF">   garray_T fd_nested</span><span style="color:#81A1C1">;</span><span style="color:#616E88">   // array of nested folds</span></span>
+<span class="line"><span style="color:#81A1C1">   char</span><span style="color:#D8DEE9FF"> fd_flags</span><span style="color:#81A1C1">;</span><span style="color:#616E88">        // FD_OPEN, FD_CLOSED, or FD_LEVEL</span></span>
+<span class="line"><span style="color:#D8DEE9FF">   TriState fd_small</span><span style="color:#81A1C1">;</span><span style="color:#616E88">    // kTrue/kFalse/kNone for 'foldminlines'</span></span>
+<span class="line"><span style="color:#ECEFF4"> }</span><span style="color:#D8DEE9FF"> fold_T</span><span style="color:#81A1C1">;</span></span></code></pre>
+<p>增删改查:</p>
+<h2 id="11--f_foldlevel--搜索">1.1 · f_foldlevel :: 搜索</h2>
+<blockquote>
+<p>可以看作在B树中的搜索</p>
+</blockquote>
+<p>先看 foldlevel 函数的实现，其获取指定行的fold的级别</p>
+<ol>
+<li>先判断是否超过行范围</li>
+<li>调用foldLevel函数</li>
+<li>调用foldLevelWin函数，传入全局变量curwin(表示当前活跃窗口)和lnum</li>
+</ol>
+<p>curwin 是 window_S 结构体，定义在 src/nvim/buffer_defs.h:1071</p>
+<p>folds 通过 w_folds 字段保存，其是一个 garray_T 结构题，定义在 src/nvim/garray_defs.h:14
+garray_T 的 ga_data 指向结构题fold_T，就是fold的数据，其fd_nested字段也是 garray_T 类型  定义在 src/nvim/fold.c:75</p>
+<p>通过递归去调用foldFind，查找哪个fold包含了lnum，定义src/nvim/fold.c:1056</p>
+<p>garray_T 是一个自增长的数组，有指向第一个元素的数据指针，有长度，有底层长度，有元素长度</p>
+<p>元素长度？这个就要看foldFind的实现了，其会获取fold，那肯定知道 garray_T 数据是如何布局的</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#81A1C1">const</span><span style="color:#D8DEE9FF"> garray_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">gap</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// 1. 先判断长度，为0则直接返回</span></span>
+<span class="line"><span style="color:#D8DEE9FF">gap</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9FF">ga_len </span><span style="color:#81A1C1">==</span><span style="color:#B48EAD"> 0</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// 2. 将数据指针，转换成 fold_T 类型</span></span>
+<span class="line"><span style="color:#616E88">// NOTE: fp 指向的是一个数组，有多个fold_T</span></span>
+<span class="line"><span style="color:#D8DEE9FF">fold_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">fp </span><span style="color:#81A1C1">=</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9FF">fold_T </span><span style="color:#81A1C1">*</span><span style="color:#ECEFF4">)</span><span style="color:#D8DEE9FF">gap</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9FF">ga_data</span><span style="color:#81A1C1">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// 3. 执行一个二分搜索</span></span>
+<span class="line"><span style="color:#D8DEE9FF">linenr_T low </span><span style="color:#81A1C1">=</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#D8DEE9FF">linenr_T high </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> gap</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9FF">ga_len </span><span style="color:#81A1C1">-</span><span style="color:#B48EAD"> 1</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#81A1C1">while</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9FF">low </span><span style="color:#81A1C1">&#x3C;=</span><span style="color:#D8DEE9FF"> high</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    linenr_T i </span><span style="color:#81A1C1">=</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9FF">low </span><span style="color:#81A1C1">+</span><span style="color:#D8DEE9FF"> high</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> /</span><span style="color:#B48EAD"> 2</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">    // ...</span></span>
+<span class="line"><span style="color:#616E88">    // 1. 如果fold开始行大于lnum，可能在前面的fold中</span></span>
+<span class="line"><span style="color:#616E88">    // 缩小到前一半</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    fp</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">i</span><span style="color:#ECEFF4">].</span><span style="color:#D8DEE9">fd_top</span><span style="color:#81A1C1"> ></span><span style="color:#D8DEE9FF"> lnum</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    high </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> i </span><span style="color:#81A1C1">-</span><span style="color:#B48EAD"> 1</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">    // ...</span></span>
+<span class="line"><span style="color:#616E88">    // 2. 如果fold开始行+fold的长度，小于或等于lnum，可能在后面的fold中</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    fp</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">i</span><span style="color:#ECEFF4">].</span><span style="color:#D8DEE9">fd_top</span><span style="color:#81A1C1"> +</span><span style="color:#D8DEE9FF"> fp</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">i</span><span style="color:#ECEFF4">].</span><span style="color:#D8DEE9">fd_len</span><span style="color:#81A1C1"> &#x3C;=</span><span style="color:#D8DEE9FF"> lnum</span></span>
+<span class="line"><span style="color:#616E88">    // 缩小到后一半</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    low </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> i </span><span style="color:#81A1C1">+</span><span style="color:#B48EAD"> 1</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">    // 3. 否则就在当前fold中，直接返回</span></span>
+<span class="line"><span style="color:#81A1C1">    *</span><span style="color:#D8DEE9FF">fpp </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> fp </span><span style="color:#81A1C1">+</span><span style="color:#D8DEE9FF"> i</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#81A1C1">    return</span><span style="color:#81A1C1"> true;</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"><span style="color:#616E88">// 4. 如果二分搜索结束后，还没有找到</span></span>
+<span class="line"><span style="color:#616E88">// 这时候 low 是大于 high 的，直接返回</span></span>
+<span class="line"><span style="color:#81A1C1">return</span><span style="color:#81A1C1"> false;</span></span></code></pre>
+<p>可知 foldFind 将包含当前 lnum 的fold 保存在了 fp 里
+我们需要遍历 fp 的子fold，看哪个子fold包含了lnum
+我们再看一下 foldLevelWin 函数</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#616E88">// NOTE: fd_nested 字段是garray_T类型，保存着子fold</span></span>
+<span class="line"><span style="color:#D8DEE9FF">fold_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">fp</span><span style="color:#81A1C1">;</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9FF">linenr_T lnum_rel </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> lnum</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">// NOTE: 每次找到包含的fold，就加1，然后遍历子fold，递归直到不满足条件了</span></span>
+<span class="line"><span style="color:#81A1C1">int</span><span style="color:#D8DEE9FF"> level </span><span style="color:#81A1C1">=</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9FF">garray_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">gap </span><span style="color:#81A1C1">=</span><span style="color:#81A1C1"> &#x26;</span><span style="color:#D8DEE9FF">wp</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9FF">w_folds</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#81A1C1">while</span><span style="color:#ECEFF4"> (</span><span style="color:#81A1C1">true</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">    // 找fold是否包含lnum</span></span>
+<span class="line"><span style="color:#81A1C1">    if</span><span style="color:#ECEFF4"> (</span><span style="color:#81A1C1">!</span><span style="color:#88C0D0">foldFind</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">gap</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> lnum_rel</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> &#x26;</span><span style="color:#D8DEE9FF">fp</span><span style="color:#ECEFF4">))</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">      break;</span></span>
+<span class="line"><span style="color:#ECEFF4">    }</span></span>
+<span class="line"><span style="color:#616E88">    // 找到了，那继续子fold吧</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    gap </span><span style="color:#81A1C1">=</span><span style="color:#81A1C1"> &#x26;</span><span style="color:#D8DEE9">fp</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">fd_nested</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">    // NOTE: 对于子fold，fd_top是相对父fold的偏移</span></span>
+<span class="line"><span style="color:#616E88">    // 所以减去偏移，才是fold真实的开始行</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    lnum_rel </span><span style="color:#81A1C1">-=</span><span style="color:#D8DEE9"> fp</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">fd_top</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">    // 既然找到了，那说名在更深的地方了，级别加1</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    level</span><span style="color:#81A1C1">++;</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"></span></code></pre>
+<h2 id="12--foldcreate--增加">1.2 · foldCreate :: 增加</h2>
+<blockquote>
+<p>:fold 命令创建fold</p>
+</blockquote>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#616E88">// 1. 获取范围</span></span>
+<span class="line"><span style="color:#D8DEE9FF">  pos_T start_rel </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> start</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#D8DEE9FF">  pos_T end_rel </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> end</span><span style="color:#81A1C1">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// 2. 如果是 marker 方式，则创建 marker</span></span>
+<span class="line"><span style="color:#616E88">// 忽略</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// 3. 找到插入的位置i，在gap数组中，也就是父fold</span></span>
+<span class="line"><span style="color:#D8DEE9FF">garray_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">gap </span><span style="color:#81A1C1">=</span><span style="color:#81A1C1"> &#x26;</span><span style="color:#D8DEE9FF">wp</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9FF">w_folds</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#81A1C1">int</span><span style="color:#D8DEE9FF"> i</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">// 3.1 空fold的情况</span></span>
+<span class="line"><span style="color:#616E88">// 3.2 查找包含开始行的fold</span></span>
+<span class="line"><span style="color:#88C0D0">foldFind</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">gap</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> start_rel.lnum</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> &#x26;</span><span style="color:#D8DEE9">fp</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#616E88">// 判断 fold 是包含目标范围的</span></span>
+<span class="line"><span style="color:#D8DEE9FF">fp</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9FF">fd_top </span><span style="color:#81A1C1">+</span><span style="color:#D8DEE9FF"> fp</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9FF">fd_len </span><span style="color:#81A1C1">></span><span style="color:#D8DEE9FF"> end_rel.lnum</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// 4. 新创建一个 fold 数组</span></span>
+<span class="line"><span style="color:#D8DEE9FF">garray_T fold_ga</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#88C0D0">ga_init</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">fold_ga</span><span style="color:#ECEFF4">,</span><span style="color:#ECEFF4"> (</span><span style="color:#81A1C1">int</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">sizeof</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">fold_T</span><span style="color:#ECEFF4">),</span><span style="color:#B48EAD"> 10</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">// TODO src/nvim/fold.c:608</span></span>
+<span class="line"></span>
+<span class="line"></span></code></pre>
+<h1 id="2--neovim-marktree-internal">2 · neovim marktree internal</h1>
+<blockquote>
+<p>src/nvim/marktree.c</p>
+</blockquote>
+<p>tree -> 树形数据结构；
+那mark是什么？任意数据？
+增删改查的操作都基于遍历算法：前序遍历、中序遍历、后序遍历</p>
+<p>树形结构：插入节点？删除节点？修改节点？查找节点？</p>
+<p>gravity: 方向性、优先级</p>
+<p>tree -> node -> n个key(pos)</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#81A1C1">typedef</span><span style="color:#81A1C1"> struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9FF">  MTNode </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">root</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">  // ...</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span><span style="color:#D8DEE9FF"> MarkTree</span><span style="color:#81A1C1">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">typedef</span><span style="color:#81A1C1"> struct</span><span style="color:#D8DEE9FF"> mtnode_s MTNode</span><span style="color:#81A1C1">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">struct</span><span style="color:#D8DEE9FF"> mtnode_s </span><span style="color:#ECEFF4">{</span></span>
+<span class="line"><span style="color:#D8DEE9FF">  MTNode </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">parent</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#81A1C1">  struct</span><span style="color:#D8DEE9FF"> mtnode_inner_s s</span><span style="color:#81A1C1">[];</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span><span style="color:#81A1C1">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">struct</span><span style="color:#D8DEE9FF"> mtnode_inner_s </span><span style="color:#ECEFF4">{</span></span>
+<span class="line"><span style="color:#D8DEE9FF">  MTNode </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">i_ptr</span><span style="color:#ECEFF4">[</span><span style="color:#B48EAD">2</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF"> MT_BRANCH_FACTOR</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<h2 id="21--查找-marktree_lookup">2.1 · 查找： marktree_lookup</h2>
+<p>读取/删除操作：通过iter
+marktree_itr_get: 将iter放在指定的位置
+marktree_itr_current: iter当前位置
+marktree_itr_next/prev: iter前后位置</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#616E88">// 位置</span></span>
+<span class="line"><span style="color:#81A1C1">typedef</span><span style="color:#81A1C1"> struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">  int32_t</span><span style="color:#D8DEE9FF"> row</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#81A1C1">  int32_t</span><span style="color:#D8DEE9FF"> col</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span><span style="color:#D8DEE9FF"> MTPos</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#5E81AC;font-weight:bold">#</span><span style="color:#81A1C1">define</span><span style="color:#88C0D0"> MTPos</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">r</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> c</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> ((</span><span style="color:#5E81AC">MTPos</span><span style="color:#ECEFF4">){</span><span style="color:#5E81AC"> .row </span><span style="color:#81A1C1">=</span><span style="color:#ECEFF4"> (</span><span style="color:#5E81AC">r</span><span style="color:#ECEFF4">),</span><span style="color:#5E81AC"> .col </span><span style="color:#81A1C1">=</span><span style="color:#ECEFF4"> (</span><span style="color:#5E81AC">c</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> })</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// marktree_itr_get -> marktree_itr_get_ext</span></span>
+<span class="line"><span style="color:#81A1C1">bool</span><span style="color:#88C0D0"> marktree_itr_get_ext</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">MarkTree </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">b</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> MTPos </span><span style="color:#D8DEE9">p</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> MarkTreeIter </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">itr</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> bool</span><span style="color:#D8DEE9"> last</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> bool</span><span style="color:#D8DEE9"> gravity</span><span style="color:#ECEFF4">,</span></span>
+<span class="line"><span style="color:#D8DEE9FF">                          MTPos </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">oldbase</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> MetaFilter </span><span style="color:#D8DEE9">meta_filter</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">{</span></span>
+<span class="line"><span style="color:#616E88">  // 设置迭代器，如果有旧位置，使用旧位置</span></span>
+<span class="line"><span style="color:#D8DEE9">  itr</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">pos</span><span style="color:#81A1C1"> =</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9FF">MTPos</span><span style="color:#ECEFF4">){</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> }</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#D8DEE9">  itr</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">x</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> b</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">root</span><span style="color:#81A1C1">;</span><span style="color:#616E88"> // 根节点</span></span>
+<span class="line"><span style="color:#D8DEE9">  itr</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">lvl</span><span style="color:#81A1C1"> =</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#81A1C1">  if</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9FF">oldbase</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    oldbase</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9">itr</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">lvl</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> itr</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">pos</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">  }</span></span>
+<span class="line"><span style="color:#616E88">  // 开始迭代: 深度优先</span></span>
+<span class="line"><span style="color:#81A1C1">  while</span><span style="color:#ECEFF4"> (</span><span style="color:#81A1C1">true</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">    // marktree_getp_aux: 当位置k存在与节点itr-x时，返回其索引；否则返回其应该插入的位置</span></span>
+<span class="line"><span style="color:#D8DEE9">    itr</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">i</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> marktree_getp_aux</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">itr</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">x</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> k</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> +</span><span style="color:#B48EAD"> 1</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">    // 当前节点level为0则跳出循环</span></span>
+<span class="line"><span style="color:#81A1C1">    if</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">itr</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">x</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">level</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">      break;</span></span>
+<span class="line"><span style="color:#ECEFF4">    }</span></span>
+<span class="line"><span style="color:#616E88">    // 修改当前迭代器节点</span></span>
+<span class="line"><span style="color:#D8DEE9">    itr</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">x</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> itr</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">x</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">ptr</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9">itr</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">i</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">  }</span></span>
+<span class="line"><span style="color:#616E88">  // ??</span></span>
+<span class="line"><span style="color:#81A1C1">  return</span><span style="color:#88C0D0"> marktree_itr_prev</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">b</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> itr</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"></span></code></pre>
+<p>marktree_lookup: 根据ID找</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#616E88">// itr 是可选的</span></span>
+<span class="line"><span style="color:#D8DEE9FF">MTKey </span><span style="color:#88C0D0">marktree_lookup</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">MarkTree </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">b</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> uint64_t</span><span style="color:#D8DEE9"> id</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> MarkTreeIter </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">itr</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">{</span></span>
+<span class="line"><span style="color:#616E88">  // 根据ID找到节点；节点包含多个MTKey，需要再查找</span></span>
+<span class="line"><span style="color:#D8DEE9FF">  MTNode </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">n </span><span style="color:#81A1C1">=</span><span style="color:#88C0D0"> id2node</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">b</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> id</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">  int</span><span style="color:#D8DEE9FF"> i </span><span style="color:#81A1C1">=</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">  // 遍历</span></span>
+<span class="line"><span style="color:#81A1C1">  for</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9FF">i </span><span style="color:#81A1C1">=</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9FF"> i </span><span style="color:#81A1C1">&#x3C;</span><span style="color:#D8DEE9"> n</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">n</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9FF"> i</span><span style="color:#81A1C1">++</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">    // 遍历节点含有的多个MTKey，找到符合的ID</span></span>
+<span class="line"><span style="color:#81A1C1">    if</span><span style="color:#ECEFF4"> (</span><span style="color:#88C0D0">mt_lookup_key</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">n</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">key</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">i</span><span style="color:#ECEFF4">])</span><span style="color:#81A1C1"> ==</span><span style="color:#D8DEE9FF"> id</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">      return</span><span style="color:#88C0D0"> marktree_itr_set_node</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">b</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> itr</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> n</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> i</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">    }</span></span>
+<span class="line"><span style="color:#ECEFF4">  }</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9FF">MTKey</span><span style="color:#81A1C1">??</span></span></code></pre>
+<h2 id="22--插入marktree_put">2.2 · 插入：marktree_put</h2>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#81A1C1">void</span><span style="color:#88C0D0"> marktree_put</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">MarkTree </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">b</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> MTKey </span><span style="color:#D8DEE9">key</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> int</span><span style="color:#D8DEE9"> end_row</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> int</span><span style="color:#D8DEE9"> end_col</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> bool</span><span style="color:#D8DEE9"> end_right</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">{</span></span>
+<span class="line"><span style="color:#616E88">  // 把key放入树b</span></span>
+<span class="line"><span style="color:#88C0D0">  marktree_put_key</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">b</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#616E88">// src/nvim/extmark.c</span></span>
+<span class="line"><span style="color:#616E88">// extmark_set -> marktree_put</span></span>
+<span class="line"><span style="color:#616E88">// nvim_buf_set_extmark -> extmark_set</span></span>
+<span class="line"><span style="color:#616E88">// buf_set_sign -> extmark_set</span></span>
+<span class="line"><span style="color:#616E88">// 主要看看 buf_set_sign??</span></span></code></pre>
+<h2 id="23--删除-marktree_del_itr">2.3 · 删除: marktree_del_itr</h2>
+<p>marktree_del_itr</p>
+<p>marktree_splice?</p>
+<p>marktree_del_itr: 删除迭代器的当前mark且隐式前移</p>
+<h1 id="3--neovim-undo-internal">3 · neovim undo internal</h1>
+<p>数据是树性结构？</p>
+<p>如何增删改查</p>
+<h2 id="31--f_undotree--返回当前buffer的undo树数据">3.1 · f_undotree :: 返回当前buffer的undo树数据</h2>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#616E88">// 1. 返回值是一个字典，所以先分配内存空间</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// 2. 参数是buf，空值时，使用当前buf</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// 3. NOTE: 往返回的字典里塞数据，数据关联在当前buf上，类型 file_buffer</span></span>
+<span class="line"><span style="color:#616E88">// 3.1 含一些undo树的状态信息：当前的节点</span></span>
+<span class="line"><span style="color:#616E88">// 3.2 还一个列表，保存undo树的其他节点</span></span>
+<span class="line"><span style="color:#616E88">// src/nvim/buffer_defs.h</span></span>
+<span class="line"><span style="color:#81A1C1">typedef</span><span style="color:#81A1C1"> struct</span><span style="color:#D8DEE9FF"> file_buffer buf_T</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#81A1C1">struct</span><span style="color:#D8DEE9FF"> file_buffer </span><span style="color:#ECEFF4">{</span></span>
+<span class="line"><span style="color:#616E88">  // NOTE: 主要关注这些字段</span></span>
+<span class="line"><span style="color:#D8DEE9FF">  u_header_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">b_u_oldhead</span><span style="color:#81A1C1">;</span><span style="color:#616E88">     // pointer to oldest header</span></span>
+<span class="line"><span style="color:#D8DEE9FF">  u_header_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">b_u_newhead</span><span style="color:#81A1C1">;</span><span style="color:#616E88">     // pointer to newest header; may not be valid</span></span>
+<span class="line"><span style="color:#616E88">                               // if b_u_curhead is not NULL</span></span>
+<span class="line"><span style="color:#D8DEE9FF">  u_header_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">b_u_curhead</span><span style="color:#81A1C1">;</span><span style="color:#616E88">     // pointer to current header</span></span>
+<span class="line"></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">  // undo数据库是一个列表，持续加入中</span></span>
+<span class="line"><span style="color:#616E88">  // 如果为true，表示已经加入到undo树了？</span></span>
+<span class="line"><span style="color:#81A1C1">  bool</span><span style="color:#D8DEE9FF"> b_u_synced</span><span style="color:#81A1C1">;</span><span style="color:#616E88">             // entry lists are synced</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span><span style="color:#81A1C1">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// 4. NOTE: 主要的数据结构:</span></span>
+<span class="line"><span style="color:#616E88">// src/nvim/undo_defs.h</span></span>
+<span class="line"><span style="color:#81A1C1">typedef</span><span style="color:#81A1C1"> struct</span><span style="color:#D8DEE9FF"> u_header u_header_T</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#81A1C1">struct</span><span style="color:#D8DEE9FF"> u_header </span><span style="color:#ECEFF4">{</span></span>
+<span class="line"><span style="color:#616E88">  // NOTE: 主要关注这些字段</span></span>
+<span class="line"><span style="color:#81A1C1">  union</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    u_header_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">ptr</span><span style="color:#81A1C1">;</span><span style="color:#616E88">              ///&#x3C; pointer to next undo header in list</span></span>
+<span class="line"><span style="color:#81A1C1">    int</span><span style="color:#D8DEE9FF"> seq</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">  }</span><span style="color:#D8DEE9FF"> uh_next</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#81A1C1">  union</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    u_header_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">ptr</span><span style="color:#81A1C1">;</span><span style="color:#616E88">              ///&#x3C; pointer to previous header in list</span></span>
+<span class="line"><span style="color:#81A1C1">    int</span><span style="color:#D8DEE9FF"> seq</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">  }</span><span style="color:#D8DEE9FF"> uh_prev</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#81A1C1">  union</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    u_header_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">ptr</span><span style="color:#81A1C1">;</span><span style="color:#616E88">              ///&#x3C; pointer to next header for alt. redo</span></span>
+<span class="line"><span style="color:#81A1C1">    int</span><span style="color:#D8DEE9FF"> seq</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">  }</span><span style="color:#D8DEE9FF"> uh_alt_next</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#81A1C1">  union</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    u_header_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">ptr</span><span style="color:#81A1C1">;</span><span style="color:#616E88">              ///&#x3C; pointer to previous header for alt. redo</span></span>
+<span class="line"><span style="color:#81A1C1">    int</span><span style="color:#D8DEE9FF"> seq</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">  }</span><span style="color:#D8DEE9FF"> uh_alt_prev</span><span style="color:#81A1C1">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">  // entry 表示undo数据块，先忽略</span></span>
+<span class="line"><span style="color:#D8DEE9FF">  u_entry_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">uh_entry</span><span style="color:#81A1C1">;</span><span style="color:#616E88">            ///&#x3C; pointer to first entry</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span><span style="color:#81A1C1">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// TODO: 具体 undo 数据块</span></span>
+<span class="line"><span style="color:#81A1C1">typedef</span><span style="color:#81A1C1"> struct</span><span style="color:#D8DEE9FF"> u_entry u_entry_T</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#81A1C1">struct</span><span style="color:#D8DEE9FF"> u_entry </span><span style="color:#ECEFF4">{}</span><span style="color:#81A1C1">;</span></span></code></pre>
+<ol>
+<li>
+<p>3个head指针：
+b_u_oldhead 指向树根节点
+b_u_newhead 指向最新的节点（最近修改）
+b_u_curhead 指向当前节点  (undo N 命令)</p>
+</li>
+<li>
+<p>u_header 类型：代表undo树上的节点
+uh_next, uh_prev 分别指向前后节点，双链表
+uh_alt_next, uh_alt_prev 表示分支：双链表上的节点，共用一份entry数据 ？</p>
+</li>
+</ol>
+<h3 id="311--来几个操作看一下">3.1.1 · 来几个操作看一下</h3>
+<ol>
+<li>插入节点</li>
+<li>回退节点</li>
+<li>插入节点：产生新分支</li>
+<li>跳到任意节点：</li>
+</ol>
+<p>跳到任意节点，应该是个遍历，先看一下如何遍历的：对应 :undo 命令</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#616E88">// src/nvim/ex_docmd.c</span></span>
+<span class="line"><span style="color:#81A1C1">static</span><span style="color:#81A1C1"> void</span><span style="color:#88C0D0"> ex_undo</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">exarg_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">eap</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">{</span></span>
+<span class="line"><span style="color:#88C0D0">      u_undo</span><span style="color:#ECEFF4">(</span><span style="color:#B48EAD">1</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">;</span><span style="color:#616E88">                    // :undo</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// src/nvim/undo.c</span></span>
+<span class="line"><span style="color:#81A1C1">void</span><span style="color:#88C0D0"> u_undo</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">int</span><span style="color:#D8DEE9"> count</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">{</span></span>
+<span class="line"><span style="color:#88C0D0">    u_doit</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">count</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> false</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> true</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"><span style="color:#81A1C1">static</span><span style="color:#81A1C1"> void</span><span style="color:#88C0D0"> u_doit</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">int</span><span style="color:#D8DEE9"> startcount</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> bool</span><span style="color:#D8DEE9"> quiet</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> bool</span><span style="color:#D8DEE9"> do_buf_event</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">{</span></span>
+<span class="line"><span style="color:#81A1C1">  int</span><span style="color:#D8DEE9FF"> count </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> startcount</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">  // NOTE: 逐步回退到某个点：可以理解为叶子节点，向上逐步回到某个祖宗节点</span></span>
+<span class="line"><span style="color:#81A1C1">  while</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9FF">count</span><span style="color:#81A1C1">--</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">    if</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9FF">undo_undoes</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {}</span><span style="color:#81A1C1"> else</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">      // 执行文本变更，先忽略</span></span>
+<span class="line"><span style="color:#88C0D0">      u_undoredo</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">false</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> do_buf_event</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">      // NOTE: uh_prev 前一个节点，重设当前节点</span></span>
+<span class="line"><span style="color:#D8DEE9">      curbuf</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">b_u_curhead</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> curbuf</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">b_u_curhead</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">uh_prev</span><span style="color:#D8DEE9FF">.</span><span style="color:#D8DEE9">ptr</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">    }</span></span>
+<span class="line"><span style="color:#ECEFF4">  }</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<p>回退节点就是跳到任意节点的一个变体：跳回最近一个节点</p>
+<p>ok，现在来看一下插入，可能有产生新分支的情况，通过当前节点的uh_next来判断，如果有说明需要产生新分支？</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="c"><code><span class="line"><span style="color:#616E88">// src/nvim/undo.c</span></span>
+<span class="line"><span style="color:#616E88">// 保存 top 到 bot 之间的修改</span></span>
+<span class="line"><span style="color:#81A1C1">int</span><span style="color:#88C0D0"> u_save</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">linenr_T </span><span style="color:#D8DEE9">top</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> linenr_T </span><span style="color:#D8DEE9">bot</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">{</span></span>
+<span class="line"><span style="color:#81A1C1">  return</span><span style="color:#88C0D0"> u_save_buf</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">curbuf</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> top</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> bot</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"><span style="color:#81A1C1">int</span><span style="color:#88C0D0"> u_save_buf</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">buf_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">buf</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> linenr_T </span><span style="color:#D8DEE9">top</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> linenr_T </span><span style="color:#D8DEE9">bot</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">{</span></span>
+<span class="line"><span style="color:#81A1C1">  return</span><span style="color:#88C0D0"> u_savecommon</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">buf</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> top</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> bot</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> false</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"><span style="color:#81A1C1">int</span><span style="color:#88C0D0"> u_savecommon</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">buf_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">buf</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> linenr_T </span><span style="color:#D8DEE9">top</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> linenr_T </span><span style="color:#D8DEE9">bot</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> linenr_T </span><span style="color:#D8DEE9">newbot</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> bool</span><span style="color:#D8DEE9"> reload</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">{</span></span>
+<span class="line"><span style="color:#81A1C1">  if</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">buf</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">b_u_synced</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">    // 创建一个新节点</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    u_header_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">uhp</span><span style="color:#81A1C1">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">    // 保存当前节点</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    u_header_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">old_curhead </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9"> buf</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">b_u_curhead</span><span style="color:#81A1C1">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">    // 原节点之前插入新节点: 产生新分支？</span></span>
+<span class="line"><span style="color:#616E88">    // 处理 uh_alt_next/uh_alt_prev</span></span>
+<span class="line"><span style="color:#D8DEE9">    uhp</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">uh_alt_next</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">ptr</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9FF"> old_curhead</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#D8DEE9">    uhp</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">uh_alt_prev</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">ptr</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> old_curhead</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">uh_alt_prev</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">ptr</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#D8DEE9">    uhp</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">uh_alt_prev</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">ptr</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">uh_alt_next</span><span style="color:#D8DEE9FF">.</span><span style="color:#D8DEE9">ptr</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9FF"> uhp</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#D8DEE9">    old_curhead</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">uh_alt_prev</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">ptr</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9FF"> uhp</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">    // uh_prev/uh_next</span></span>
+<span class="line"><span style="color:#616E88">    // 原节点之后插入新节点</span></span>
+<span class="line"><span style="color:#616E88">    // FIX: 插入操作似乎不完全？</span></span>
+<span class="line"><span style="color:#D8DEE9">    buf</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">b_u_newhead</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> old_curhead</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">uh_next</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">ptr</span><span style="color:#81A1C1">;</span><span style="color:#616E88"> // 暂存原节点下一节点</span></span>
+<span class="line"><span style="color:#D8DEE9">    uhp</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">uh_prev</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">ptr</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> NULL;</span></span>
+<span class="line"><span style="color:#D8DEE9">    uhp</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">uh_next</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">ptr</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> buf</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">b_u_newhead</span><span style="color:#81A1C1">;</span><span style="color:#616E88"> // 新节点下一节点指向原节点下一节点</span></span>
+<span class="line"><span style="color:#D8DEE9">    buf</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">b_u_newhead</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">uh_prev</span><span style="color:#D8DEE9FF">.</span><span style="color:#D8DEE9">ptr</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9FF"> uhp</span><span style="color:#81A1C1">;</span><span style="color:#616E88"> // 新节点下一节点的前节点，指向当前节点</span></span>
+<span class="line"><span style="color:#D8DEE9">    buf</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">b_u_newhead</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9FF"> uhp</span><span style="color:#81A1C1">;</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">    // 处理序列号加</span></span>
+<span class="line"><span style="color:#D8DEE9">    uhp</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">uh_seq</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> ++</span><span style="color:#D8DEE9">buf</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">b_u_seq_last</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9FF"> </span></span>
+<span class="line"><span style="color:#D8DEE9">    buf</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">b_u_seq_cur</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> uhp</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">uh_seq</span><span style="color:#81A1C1">;</span></span>
+<span class="line"><span style="color:#616E88">    // undo块数据，先忽略</span></span>
+<span class="line"><span style="color:#D8DEE9">    uhp</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">uh_entry</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> NULL;</span></span>
+<span class="line"><span style="color:#616E88">    // 设置为最新节点</span></span>
+<span class="line"><span style="color:#D8DEE9">    buf</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9">b_u_newhead</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9FF"> uhp</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9FF"> </span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#ECEFF4">  }</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"></span></code></pre> <!-- Diagrams rendered at build time -->  </article> <nav class="mt-12 pt-8 border-t border-nord-4 dark:border-nord-1" data-astro-cid-v5yihett> <a href="/notes" class="btn-primary" data-astro-cid-v5yihett> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-v5yihett> <path d="M15 19l-7-7 7-7" data-astro-cid-v5yihett></path> </svg>
+Back to Notes
+</a> </nav>  </main> <footer class="border-t border-nord-5 dark:border-nord-1 mt-12"> <div class="max-w-4xl mx-auto px-4 py-6 text-sm text-nord-3 dark:text-nord-4 text-center"> <p>&copy; 2026. All rights reserved.</p> </div> </footer> <script type="module" src="/_astro/Base.astro_astro_type_script_index_0_lang.WDMQca9J.js"></script> <script>
+      (function() {
+        const root = document.getElementById('series-dropdown-root');
+        const trigger = document.getElementById('series-dropdown-trigger');
+        const panel = document.getElementById('series-dropdown-panel');
+        const listEl = document.getElementById('series-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let seriesList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (seriesList === null) {
+            fetch('/series-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                seriesList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无系列</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(name) {
+                     const slug = name.toLowerCase().replace(/\s+/g, '-');
+                     const url = '/notes/series/' + slug;
+                     return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(name) + '</a>';
+                   }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        // On click: allow default navigation to /notes/series
+        // On hover: show dropdown menu
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          // Don't preventDefault - allow link to navigate
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> <script>
+      (function() {
+        const root = document.getElementById('tags-dropdown-root');
+        const trigger = document.getElementById('tags-dropdown-trigger');
+        const panel = document.getElementById('tags-dropdown-panel');
+        const listEl = document.getElementById('tags-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let tagList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (tagList === null) {
+            fetch('/tag-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                tagList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无标签</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(tag) {
+                     const url = '/notes/tag/' + encodeURIComponent(tag);
+                     return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(tag) + '</a>';
+                   }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> </body> </html>  <script>
+  // Language aliases (matches server-side)
+  const langAliases = {
+    js: 'javascript',
+    ts: 'typescript',
+    yml: 'yaml',
+    yaml: 'yaml',
+    sh: 'bash',
+    shell: 'bash',
+    sql: 'postgresql',
+    java: 'openjdk',
+  };
+
+  // Add headers and copy buttons to code blocks
+  function initCodeBlocks() {
+    document.querySelectorAll('pre[data-language]').forEach((pre) => {
+      // Skip if already processed
+      if (pre.parentNode.classList.contains('code-block-wrapper')) return;
+      
+      const lang = pre.getAttribute('data-language') || 'code';
+      
+      // Create wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block-wrapper';
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+      
+      // Create header
+      const header = document.createElement('div');
+      header.className = 'code-header';
+      
+      const langSpan = document.createElement('span');
+      langSpan.className = 'code-header-lang';
+      langSpan.title = lang;
+      
+      // Normalize lang for devicon
+      const normalizedLang = lang.toLowerCase();
+      const iconLang = langAliases[normalizedLang] || normalizedLang;
+      
+      // Display language with devicon (format: devicon-{name}-{version} colored)
+      const iconEl = document.createElement('i');
+      iconEl.className = `devicon-${iconLang}-plain colored`;
+      iconEl.style.marginRight = '0.375rem';
+      iconEl.style.fontSize = '0.75rem';
+      langSpan.appendChild(iconEl);
+      langSpan.appendChild(document.createTextNode(lang));
+      
+      const button = document.createElement('button');
+      button.className = 'copy-code-btn';
+      button.title = 'Copy to clipboard';
+      button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      
+      let isCopying = false;
+      button.addEventListener('click', async () => {
+        if (isCopying) return;
+        isCopying = true;
+        
+        const code = pre.querySelector('code')?.textContent || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalHtml = button.innerHTML;
+          button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+          button.title = 'Copied!';
+          setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.title = 'Copy to clipboard';
+            isCopying = false;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+          isCopying = false;
+        }
+      });
+      
+      header.appendChild(langSpan);
+      header.appendChild(button);
+      wrapper.appendChild(header);
+    });
+  }
+
+  // Run ASAP, then on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCodeBlocks);
+  } else {
+    initCodeBlocks();
+  }
+
+  // Convert wikilinks to links on client side
+  // Matches [[ref]] or [[ref|display text]]
+  document.addEventListener('DOMContentLoaded', () => {
+    const wikiRegex = /\[\[([a-zA-Z0-9][a-zA-Z0-9_-]*?)(?:\|([^\]]+))?\]\]/g;
+    
+    // Process all text nodes in prose content
+    const walker = document.createTreeWalker(
+      document.querySelector('.prose') || document.body,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    const nodesToReplace = [];
+    let node;
+    
+    while (node = walker.nextNode()) {
+      if (node.nodeValue.includes('[[')) {
+        nodesToReplace.push(node);
+      }
+    }
+    
+    nodesToReplace.forEach((textNode) => {
+      const parent = textNode.parentNode;
+      let lastIndex = 0;
+      const matches = [...textNode.nodeValue.matchAll(wikiRegex)];
+      
+      if (matches.length === 0) return;
+      
+      const fragment = document.createDocumentFragment();
+      
+      matches.forEach((match) => {
+        const [fullMatch, ref, displayText] = match;
+        const startIndex = match.index;
+        
+        // Add text before match
+        if (startIndex > lastIndex) {
+          fragment.appendChild(
+            document.createTextNode(textNode.nodeValue.slice(lastIndex, startIndex))
+          );
+        }
+        
+        // Create link
+        const link = document.createElement('a');
+        link.href = `/notes/${ref.toLowerCase()}`;
+        link.textContent = (displayText || ref).trim();
+        link.className = 'text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors';
+        fragment.appendChild(link);
+        
+        lastIndex = startIndex + fullMatch.length;
+      });
+      
+      // Add remaining text
+      if (lastIndex < textNode.nodeValue.length) {
+        fragment.appendChild(
+          document.createTextNode(textNode.nodeValue.slice(lastIndex))
+        );
+      }
+      
+      parent.replaceChild(fragment, textNode);
+    });
+  });
+</script> 

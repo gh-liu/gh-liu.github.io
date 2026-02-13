@@ -1,0 +1,1574 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>scheduler</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css"><script>
+      // This script runs synchronously in the head to prevent FOUC (Flash of Unstyled Content)
+      (function() {
+        const THEME_KEY = 'nord-theme';
+        const DARK = 'dark';
+        
+        function getStoredTheme() {
+          try {
+            return localStorage.getItem(THEME_KEY);
+          } catch {
+            return null;
+          }
+        }
+        
+        function getSystemTheme() {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+        }
+        
+        function getTheme() {
+          return getStoredTheme() || getSystemTheme();
+        }
+        
+        function applyTheme(theme) {
+          const html = document.documentElement;
+          if (theme === DARK) {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+        }
+        
+        // Apply theme immediately before page renders
+        applyTheme(getTheme());
+      })();
+    </script><link rel="stylesheet" href="/_astro/_id_.6ed6JusR.css">
+<style>.knowledge-graph-container[data-astro-cid-zjb43jqo]{border:1px solid var(--nord-4);border-radius:8px;background:var(--nord-6);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen,.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo],.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--nord-4);border-radius:6px;background:var(--nord-6);color:var(--nord-2);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--nord-5);color:var(--nord-10)}.knowledge-graph-toolbar-btn:active{background:var(--nord-4)}.knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:#5e81ac;stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--nord-14);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--nord-10);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--nord-14);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--nord-15);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--nord-12);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--nord-4);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:#4c566a;stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--nord-11);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--nord-1);font-weight:500;text-shadow:0 0 3px var(--nord-6)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--nord-0);border:1px solid var(--nord-3);border-radius:4px;font-size:12px;color:var(--nord-6);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--nord-8);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--nord-2)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--nord-10)}.kg-legend--outlink{color:var(--nord-14)}.kg-legend--backlink{color:var(--nord-15)}.kg-legend--both{color:var(--nord-12)}.kg-legend--neighbor{color:var(--nord-4);opacity:.9}
+html{scroll-behavior:smooth}article[data-astro-cid-v5yihett]{word-break:break-word}
+</style></head> <body class="text-nord-3 dark:text-nord-5 transition-all bg-gradient-light"> <header class="border-b border-nord-5 dark:border-nord-1 bg-nord-6 dark:bg-nord-0"> <nav class="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between gap-4"> <div class="flex items-center gap-2 min-w-0"> <a href="/" title="Liu" class="shrink-0 p-1.5 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-nord-8/20 active:scale-95"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"> <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path> <circle cx="12" cy="7" r="4"></circle> </svg> </a> <h1 class="text-xl font-bold truncate"> <a href="/" class="text-nord-2 dark:text-nord-6 hover:text-nord-10 dark:hover:text-nord-8 transition-colors"> Liu </a> </h1> </div> <div class="flex items-center gap-2 shrink-0"> <a href="https://github.com/gh-liu" title="GitHub" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"> <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path> </svg> </a> <a href="https://x.com" title="X" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="X"> <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.207-6.807-5.975 6.807H2.306l7.644-8.74-8.179-10.76h6.467l4.713 6.231 5.429-6.231zM17.002 18.807h1.844L6.983 4.126H5.025l11.977 14.681z"></path> </svg> </a> <span class="w-px h-4 bg-nord-4 dark:bg-nord-2 shrink-0" aria-hidden="true"></span> <div class="relative series-dropdown" id="series-dropdown-root"> <a href="/notes/series" title="Series" aria-expanded="false" aria-haspopup="true" aria-controls="series-dropdown-panel" id="series-dropdown-trigger" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> </a> <div id="series-dropdown-panel" class="absolute right-0 top-full mt-1 py-2 min-w-[12rem] max-h-[70vh] overflow-y-auto rounded-lg border border-nord-4 dark:border-nord-2 bg-nord-6 dark:bg-nord-1 shadow-lg z-50 hidden" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">加载中…</span> </div> <div class="border-t border-nord-4 dark:border-nord-2 pt-1 mt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors">
+查看全部系列 →
+</a> </div> </div> </div> <div class="relative tags-dropdown" id="tags-dropdown-root"> <a href="/notes/tags" title="Tags" aria-expanded="false" aria-haspopup="true" aria-controls="tags-dropdown-panel" id="tags-dropdown-trigger" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> </a> <div id="tags-dropdown-panel" class="absolute right-0 top-full mt-1 py-2 min-w-[12rem] max-h-[70vh] overflow-y-auto rounded-lg border border-nord-4 dark:border-nord-2 bg-nord-6 dark:bg-nord-1 shadow-lg z-50 hidden" role="menu"> <div id="tags-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">加载中…</span> </div> <div class="border-t border-nord-4 dark:border-nord-2 pt-1 mt-1"> <a href="/notes/tags" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors">
+查看全部标签 →
+</a> </div> </div> </div> <div class="search-container" id="search-wrapper" data-astro-cid-t47yvtpn><button id="search-toggle" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-t47yvtpn><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-t47yvtpn><circle cx="11" cy="11" r="8" data-astro-cid-t47yvtpn></circle><path d="m21 21-4.35-4.35" data-astro-cid-t47yvtpn></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-t47yvtpn><div class="bg-nord-6 dark:bg-nord-0 rounded-2xl shadow-2xl w-full max-w-2xl border border-nord-5 dark:border-nord-1 max-h-[70vh] flex flex-col overflow-hidden animate-fade-in" data-astro-cid-t47yvtpn><div class="p-4 border-b border-nord-5 dark:border-nord-1" data-astro-cid-t47yvtpn><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full px-4 py-2 bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 placeholder-nord-3 dark:placeholder-nord-4 rounded focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-t47yvtpn></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-t47yvtpn><p class="text-nord-3 dark:text-nord-5 text-sm" data-astro-cid-t47yvtpn>Type to search...</p></div><div class="p-3 border-t border-nord-5 dark:border-nord-1 text-xs text-nord-3 dark:text-nord-4" data-astro-cid-t47yvtpn><p data-astro-cid-t47yvtpn>Press <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-t47yvtpn>Esc</kbd> to close | Use <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-t47yvtpn>#tag</kbd> to search by tag</p></div></div></div></div><script>(function(){const pagefindUrl = "/pagefind/pagefind.js";
+
+  if (!globalThis.pagefindLoaded) {
+    globalThis.pagefindLoaded = true;
+    
+    let pagefind;
+    let searchInput;
+    let searchModal;
+    let searchResults;
+    let isSearchOpen = false;
+
+    async function initSearch() {
+      if (typeof window === "undefined") return;
+
+      try {
+        pagefind = await import(pagefindUrl);
+        await pagefind.init();
+      } catch (error) {
+        console.log("Search not available.", error);
+        return;
+      }
+
+      searchInput = document.getElementById("search-input");
+      searchModal = document.getElementById("search-modal");
+      searchResults = document.getElementById("search-results");
+      const toggleBtn = document.getElementById("search-toggle");
+
+      if (!searchInput || !searchModal || !searchResults || !toggleBtn) return;
+
+      toggleBtn.addEventListener("click", () => {
+        openSearch();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeSearch();
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          e.preventDefault();
+          isSearchOpen ? closeSearch() : openSearch();
+        }
+      });
+
+      searchModal.addEventListener("click", (e) => {
+        if (e.target === searchModal) closeSearch();
+      });
+
+      searchInput.addEventListener("input", async (e) => {
+        const query = e.target.value.trim();
+        if (!query) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+          return;
+        }
+
+        // Check if query starts with #tag
+        const isTagSearch = query.startsWith('#');
+        let results;
+        
+        if (isTagSearch) {
+          // Tag search
+          const tag = query.slice(1).toUpperCase();
+          results = await pagefind.search(`tag:${tag}`);
+        } else {
+          // Regular text search
+          results = await pagefind.search(query);
+        }
+
+        if (results.results.length === 0) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">No results found.</p>';
+          return;
+        }
+
+        let html = '<ul class="space-y-2">';
+        for (const result of results.results) {
+          const data = await result.data();
+          // Extract title from h1 or use URL slug as fallback
+          const title = data.meta?.title || data.title || (data.url.split('/').pop() || 'untitled').replace(/-/g, ' ');
+          html += `<li><a href="${data.url}" class="block p-3 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-2 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-all hover:shadow-md duration-200 border border-transparent hover:border-nord-9 dark:hover:border-nord-8"><div class="font-medium">${title}</div><div class="text-xs text-nord-3 dark:text-nord-5 mt-1 line-clamp-2">${data.excerpt || ""}</div></a></li>`;
+        }
+        searchResults.innerHTML = html + "</ul>";
+      });
+    }
+
+    function openSearch() {
+      isSearchOpen = true;
+      searchModal.classList.remove("hidden");
+      searchInput.focus();
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSearch() {
+      isSearchOpen = false;
+      searchModal.classList.add("hidden");
+      searchInput.value = "";
+      searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+      document.body.style.overflow = "";
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initSearch);
+    } else {
+      initSearch();
+    }
+  }
+})();</script> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="group relative p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-4 transition-all duration-200 ease-out hover:scale-110 inline-flex"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="w-4 h-4 text-nord-13 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="w-4 h-4 text-nord-9 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script>
+  const THEME_KEY = 'nord-theme';
+  const DARK = 'dark';
+  
+  function getStoredTheme() {
+    return localStorage.getItem(THEME_KEY);
+  }
+  
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+  }
+  
+  function getTheme() {
+    return getStoredTheme() || getSystemTheme();
+  }
+  
+  function applyTheme(theme) {
+    const html = document.documentElement;
+    if (theme === DARK) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }
+  
+  function toggleTheme() {
+    const currentTheme = getTheme();
+    const newTheme = currentTheme === DARK ? 'light' : DARK;
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  }
+  
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+</script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body> <aside id="toc-sidebar" class="fixed left-0 top-0 h-screen w-56 bg-nord-6 dark:bg-nord-0 border-r border-nord-5 dark:border-nord-1 overflow-y-auto overflow-x-hidden pt-4 pb-4 transition-transform duration-300 -translate-x-full z-50" data-astro-cid-vrmg3htk> <nav class="px-4 space-y-1" data-astro-cid-vrmg3htk> <!-- Close button --> <button id="toc-close" class="flex justify-end w-full mb-4 p-2 text-nord-2 dark:text-nord-6 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors" aria-label="Close navigation" data-astro-cid-vrmg3htk> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-vrmg3htk> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-vrmg3htk></path> </svg> </button> <h3 class="text-xs font-bold text-nord-2 dark:text-nord-6 uppercase tracking-widest px-2 py-3 border-b border-nord-5 dark:border-nord-1" data-astro-cid-vrmg3htk>
+On this page
+</h3> <ul class="space-y-0.5 text-sm mt-4" data-astro-cid-vrmg3htk> <li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#001--调度" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.0.1 · 调度 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#002--涉及的结构体函数" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.0.2 · 涉及的结构体、函数 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#003--p相关" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.0.3 · p相关 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#004--m相关" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.0.4 · m相关 </a> </li><li class="toc-item pl-4" data-astro-cid-vrmg3htk> <a href="#005--g-p-m-关系调度" class="block py-1.5 px-2 text-nord-3 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-1 rounded transition-colors truncate" data-depth="3" data-astro-cid-vrmg3htk> 0.0.5 · g p m 关系，调度 </a> </li> </ul> </nav> </aside> <!-- Toggle button - fixed at left edge --> <button id="toc-toggle" class="fixed left-0 top-4 p-3 rounded-r-lg bg-nord-9 dark:bg-nord-8 text-nord-6 dark:text-nord-0 hover:bg-nord-10 dark:hover:bg-nord-7 hover:text-nord-6 dark:hover:text-nord-0 transition-colors shadow-lg z-40" aria-label="Toggle sidebar" title="Toggle sidebar (← →)" data-astro-cid-vrmg3htk> <svg id="toggle-icon" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-vrmg3htk> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-vrmg3htk></path> </svg> </button> <script>
+  const TOC_KEY = 'toc-open';
+  const sidebar = document.getElementById('toc-sidebar');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+
+  function getSidebarState() {
+    return localStorage.getItem(TOC_KEY) !== 'false';
+  }
+
+  function setSidebarState(open) {
+    localStorage.setItem(TOC_KEY, open ? 'true' : 'false');
+  }
+
+  function updateSidebar() {
+    const isOpen = getSidebarState();
+    if (sidebar) {
+      if (isOpen) {
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    }
+  }
+
+  function toggleSidebar() {
+    const isOpen = getSidebarState();
+    setSidebarState(!isOpen);
+    updateSidebar();
+  }
+
+  // Initialize
+  updateSidebar();
+
+  // Event listeners
+  if (toggle) {
+    toggle.addEventListener('click', toggleSidebar);
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', toggleSidebar);
+  }
+
+  // Keyboard shortcut: left/right arrow to toggle
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'ArrowLeft' || e.key === 'ArrowRight') && e.ctrlKey) {
+      e.preventDefault();
+      toggleSidebar();
+    }
+  });
+
+  // Highlight current section on scroll
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          document.querySelectorAll('.toc-item a').forEach((link) => {
+            link.classList.remove('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+            link.classList.add('text-nord-3', 'dark:text-nord-4');
+          });
+          const activeLink = document.querySelector(
+            `.toc-item a[href="#${entry.target.id}"]`
+          );
+          if (activeLink) {
+            activeLink.classList.remove('text-nord-3', 'dark:text-nord-4');
+            activeLink.classList.add('text-nord-9', 'dark:text-nord-8', 'font-semibold', 'bg-nord-5', 'dark:bg-nord-1');
+          }
+        }
+      });
+    },
+    { rootMargin: '-50% 0px -50% 0px' }
+  );
+
+  document.querySelectorAll('h2, h3').forEach((heading) => {
+    if (heading.id) {
+      observer.observe(heading);
+    }
+  });
+
+  // Close sidebar on link click
+  document.querySelectorAll('.toc-item a').forEach((link) => {
+    link.addEventListener('click', () => {
+      setSidebarState(false);
+      updateSidebar();
+    });
+  });
+</script>  <article class="prose prose-nord dark:prose-nord max-w-none
+      prose-headings:font-serif
+      prose-code:before:content-none prose-code:after:content-none" data-astro-cid-v5yihett> <header class="mb-8" data-astro-cid-v5yihett> <h1 class="mb-3" data-pagefind-meta="title" data-astro-cid-v5yihett>scheduler</h1> <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4" data-astro-cid-v5yihett> <div class="text-sm text-nord-3 dark:text-nord-5" data-astro-cid-v5yihett> <div> <div class="flex flex-wrap gap-2 mb-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-7 dark:bg-nord-7 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>📅</span> <span>2026-02-05</span> </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs bg-nord-8 dark:bg-nord-8 text-nord-0 dark:text-nord-0 rounded font-medium"> <span>✏️</span> <span>2026-02-05</span> </span>  <div class="flex flex-wrap gap-2"> <a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a> </div> </div> </div> </div> <div class="text-sm" data-astro-cid-v5yihett> <div> <div class="flex items-center gap-4"> <!-- Back to notes link - removed, now in footer --> <!-- Show only links and backlinks stats --> <!-- Outlinks -->  <!-- Backlinks -->  <button class="open-backlinks-btn flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" aria-label="Open 1 backlinks" title="Linked from 1 note(s)"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path> </svg> <span class="font-medium">1 backlinks</span> </button>  <!-- No links message -->  </div> <!-- Modals --> <div id="outlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(0)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="text-nord-3 dark:text-nord-5 text-center py-8">
+No outlinks found
+</p> </div> </div> </div> <script>(function(){const modalId = "outlinks-modal";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <div id="backlinks-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770786730-PFOI" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: goroutine 协程</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770786730-PFOI </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "backlinks-modal";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script> <script>
+  // Outlinks button - calls window.openOutlinksModal()
+  document.querySelectorAll('.open-outlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openOutlinksModal) {
+        window.openOutlinksModal();
+      }
+    });
+  });
+
+  // Backlinks button - calls window.openBacklinksModal()
+  document.querySelectorAll('.open-backlinks-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      if (window.openBacklinksModal) {
+        window.openBacklinksModal();
+      }
+    });
+  });
+</script> </div> </div> </div> </header>    <!-- 
+https://github.com/cch123/golang-notes
+https://github.com/cch123/golang-notes/blob/master/scheduler.md
+
+https://www.ardanlabs.com/blog/2018/12/scheduling-in-go-part3.html
+
+https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-goroutine/
+https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-netpoller/
+网络轮询器不仅用于监控网络 I/O，还能用于监控文件的 I/O，它利用了操作系统提供的 I/O 多路复用模型来提升 I/O 设备的利用率以及程序的性能。
+https://draveness.me/golang/docs/part3-runtime/ch06-concurrency/golang-sysmon/
+
+
+https://miro.medium.com/max/1358/1*R9FM13HonViR2Fhtwb100Q.png
+states: Runnable Executing Waiting 
+
+-->
+<h3 id="001--调度">0.0.1 · 调度</h3>
+<p>调度器目的：不让cpu核心闲着</p>
+<p>os: 线程调度
+runtime: 协程调度</p>
+<p>runtime是go程序与OS的中间层。</p>
+<p><strong>why need goroutine?</strong>
+goroutine 和thread 区别
+内存消耗：创建一个g，栈内存消耗2kb，栈空间不够用，自动扩容；创建一个t1mb，被一个“a guard page”与其他t栈空间隔离；<br>
+创建与销毁：g在用户级，t在内核级；<br>
+切换：g切换只要三个寄存器（PC、SP、BP），t切换需要各种寄存器，g切换消耗时间小于t切换，g切换成本小于t；<br>
+goroutine，轻量化thread：创建销毁，切换，内存消耗；
+创建销毁：thread，巨大消耗，与OS打交道，内核级，线程池；goroutine GO Runtime管理，用户级。
+切换：thread 保存各种寄存器，切换时间1000-1500ns； goroutine三个寄存器： PC SP BP，切换时间200ns
+栈内存消耗：thread（1M）；goroutine（2KB，不够用自行进行扩容）</p>
+<h4 id="0011--os">0.0.1.1 · os</h4>
+<p>每个程序启动，创建一个初始进程，并启动一个线程，而第一个线程可以去创建更多的线程，线程可以独立进行，对线程进行调度。
+<strong>Todo：linux线程调度</strong>
+调度线程，线程会切换，三种状态：wating（等待io或阻塞），rannable（就绪），execting（执行中）
+线程工作类型：计算型，io型
+注意线程切换带来的消耗
+抢占调度
+线程池
+cache lines
+调度决策：上下文切换；等待完成；在新core上运行</p>
+<h3 id="002--涉及的结构体函数">0.0.2 · 涉及的结构体、函数</h3>
+<p><strong>GMP模型</strong>:
+g: goroutine, user task; Switch by sp, pc, bp etc<br>
+p: Must run under available p; Equal to cpu number.
+m: Thread, created by syscall.clone
+核心思想：</p>
+<ol>
+<li>复用t、限制同时运行的t为cpu核心数；</li>
+<li>t私有可运行的g队列，并且可以从其他t窃取；</li>
+<li>没有g的t，短暂自旋；</li>
+<li>当一个线程阻塞的时候，可以将g、与其绑定的上下文p一起转移到其他t，保持在调度中；</li>
+<li>go程序启动后，每一个cpu逻辑核心分配一个p；同时每一个p分配一个m，m由 os scheduler调度；</li>
+<li>同步：g依旧与m绑定在一起，p则空出来，新建一个m，执行p上面的本地g队列；</li>
+<li>异步：g出来，由netpoller处理，m和p处理p的本地g队列；当netpoller上的g处理完成，g回到p的本地g队列；<br>
+限制：先进先出队列；并不保证绝对公平与延迟；</li>
+</ol>
+<p><strong>g相关</strong>:
+stack: 执行栈 <strong>Todo: stack in go</strong>
+gobuf: 运行现场，被调度是保存/恢复
+sudog: 对等待中的g的包装，一个g可能在多个等待列表中</p>
+<p><strong>调度</strong>:
+schedt: 全局调度GMP</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#616E88">// stack 描述的是 goroutine 的执行栈，下界和上界分别为 [lo, hi)</span></span>
+<span class="line"><span style="color:#616E88">// https://github.com/golang/go/blob/1e5987635cc8bf99e8a20d240da80bd6f0f793f7/src/runtime/runtime2.go#L396</span></span>
+<span class="line"><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> stack </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">    lo</span><span style="color:#81A1C1"> uintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">    hi</span><span style="color:#81A1C1"> uintptr</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#616E88">// goroutine 的运行现场</span></span>
+<span class="line"><span style="color:#616E88">// https://github.com/golang/go/blob/1e5987635cc8bf99e8a20d240da80bd6f0f793f7/src/runtime/runtime2.go#L316</span></span>
+<span class="line"><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> gobuf </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">	sp</span><span style="color:#81A1C1">   uintptr</span><span style="color:#616E88"> // 寄存器</span></span>
+<span class="line"><span style="color:#D8DEE9">	pc</span><span style="color:#81A1C1">   uintptr</span><span style="color:#616E88"> // 寄存器</span></span>
+<span class="line"><span style="color:#D8DEE9">	g</span><span style="color:#D8DEE9FF">    guintptr </span><span style="color:#616E88">// g 指针</span></span>
+<span class="line"><span style="color:#D8DEE9">	ctxt</span><span style="color:#D8DEE9FF"> unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer </span><span style="color:#616E88">// GC相关</span></span>
+<span class="line"><span style="color:#D8DEE9">	ret</span><span style="color:#81A1C1">  uintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">	lr</span><span style="color:#81A1C1">   uintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">	bp</span><span style="color:#81A1C1">   uintptr</span><span style="color:#616E88"> // for framepointer-enabled architectures</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// g 也就是 goroutine</span></span>
+<span class="line"><span style="color:#616E88">// https://github.com/golang/go/blob/1e5987635cc8bf99e8a20d240da80bd6f0f793f7/src/runtime/runtime2.go#L407</span></span>
+<span class="line"><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> g </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">	// Stack parameters.</span></span>
+<span class="line"><span style="color:#616E88">	// stack describes the actual stack memory: [stack.lo, stack.hi).</span></span>
+<span class="line"><span style="color:#616E88">	// stackguard0 is the stack pointer compared in the Go stack growth prologue.</span></span>
+<span class="line"><span style="color:#616E88">	// It is stack.lo+StackGuard normally, but can be StackPreempt to trigger a preemption.</span></span>
+<span class="line"><span style="color:#616E88">	// stackguard1 is the stack pointer compared in the C stack growth prologue.</span></span>
+<span class="line"><span style="color:#616E88">	// It is stack.lo+StackGuard on g0 and gsignal stacks.</span></span>
+<span class="line"><span style="color:#616E88">	// It is ~0 on other goroutine stacks, to trigger a call to morestackc (and crash).</span></span>
+<span class="line"><span style="color:#D8DEE9">	stack</span><span style="color:#D8DEE9FF">       stack   </span><span style="color:#616E88">// offset known to runtime/cgo</span></span>
+<span class="line"><span style="color:#D8DEE9">	stackguard0</span><span style="color:#81A1C1"> uintptr</span><span style="color:#616E88"> // offset known to liblink</span></span>
+<span class="line"><span style="color:#D8DEE9">	stackguard1</span><span style="color:#81A1C1"> uintptr</span><span style="color:#616E88"> // offset known to liblink</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	_panic</span><span style="color:#81A1C1">    *</span><span style="color:#D8DEE9FF">_panic </span><span style="color:#616E88">// innermost panic - offset known to liblink</span></span>
+<span class="line"><span style="color:#D8DEE9">	_defer</span><span style="color:#81A1C1">    *</span><span style="color:#D8DEE9FF">_defer </span><span style="color:#616E88">// innermost defer</span></span>
+<span class="line"><span style="color:#D8DEE9">	m</span><span style="color:#81A1C1">         *</span><span style="color:#D8DEE9FF">m      </span><span style="color:#616E88">// current m; offset known to arm liblink</span></span>
+<span class="line"><span style="color:#D8DEE9">	sched</span><span style="color:#D8DEE9FF">     gobuf</span></span>
+<span class="line"><span style="color:#D8DEE9">	syscallsp</span><span style="color:#81A1C1"> uintptr</span><span style="color:#616E88"> // if status==Gsyscall, syscallsp = sched.sp to use during gc</span></span>
+<span class="line"><span style="color:#D8DEE9">	syscallpc</span><span style="color:#81A1C1"> uintptr</span><span style="color:#616E88"> // if status==Gsyscall, syscallpc = sched.pc to use during gc</span></span>
+<span class="line"><span style="color:#D8DEE9">	stktopsp</span><span style="color:#81A1C1">  uintptr</span><span style="color:#616E88"> // expected sp at top of stack, to check in traceback</span></span>
+<span class="line"><span style="color:#616E88">	// param is a generic pointer parameter field used to pass</span></span>
+<span class="line"><span style="color:#616E88">	// values in particular contexts where other storage for the</span></span>
+<span class="line"><span style="color:#616E88">	// parameter would be difficult to find. It is currently used</span></span>
+<span class="line"><span style="color:#616E88">	// in three ways:</span></span>
+<span class="line"><span style="color:#616E88">	// 1. When a channel operation wakes up a blocked goroutine, it sets param to</span></span>
+<span class="line"><span style="color:#616E88">	//    point to the sudog of the completed blocking operation.</span></span>
+<span class="line"><span style="color:#616E88">	// 2. By gcAssistAlloc1 to signal back to its caller that the goroutine completed</span></span>
+<span class="line"><span style="color:#616E88">	//    the GC cycle. It is unsafe to do so in any other way, because the goroutine's</span></span>
+<span class="line"><span style="color:#616E88">	//    stack may have moved in the meantime.</span></span>
+<span class="line"><span style="color:#616E88">	// 3. By debugCallWrap to pass parameters to a new goroutine because allocating a</span></span>
+<span class="line"><span style="color:#616E88">	//    closure in the runtime is forbidden.</span></span>
+<span class="line"><span style="color:#D8DEE9">	param</span><span style="color:#D8DEE9FF">        unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer</span></span>
+<span class="line"><span style="color:#D8DEE9">	atomicstatus</span><span style="color:#81A1C1"> uint32</span></span>
+<span class="line"><span style="color:#D8DEE9">	stackLock</span><span style="color:#81A1C1">    uint32</span><span style="color:#616E88"> // sigprof/scang lock; TODO: fold in to atomicstatus</span></span>
+<span class="line"><span style="color:#D8DEE9">	goid</span><span style="color:#81A1C1">         int64</span></span>
+<span class="line"><span style="color:#D8DEE9">	schedlink</span><span style="color:#D8DEE9FF">    guintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">	waitsince</span><span style="color:#81A1C1">    int64</span><span style="color:#616E88">      // approx time when the g become blocked</span></span>
+<span class="line"><span style="color:#D8DEE9">	waitreason</span><span style="color:#D8DEE9FF">   waitReason </span><span style="color:#616E88">// if status==Gwaiting</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	preempt</span><span style="color:#81A1C1">       bool</span><span style="color:#616E88"> // preemption signal, duplicates stackguard0 = stackpreempt</span></span>
+<span class="line"><span style="color:#D8DEE9">	preemptStop</span><span style="color:#81A1C1">   bool</span><span style="color:#616E88"> // transition to _Gpreempted on preemption; otherwise, just deschedule</span></span>
+<span class="line"><span style="color:#D8DEE9">	preemptShrink</span><span style="color:#81A1C1"> bool</span><span style="color:#616E88"> // shrink stack at synchronous safe point</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// asyncSafePoint is set if g is stopped at an asynchronous</span></span>
+<span class="line"><span style="color:#616E88">	// safe point. This means there are frames on the stack</span></span>
+<span class="line"><span style="color:#616E88">	// without precise pointer information.</span></span>
+<span class="line"><span style="color:#D8DEE9">	asyncSafePoint</span><span style="color:#81A1C1"> bool</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	paniconfault</span><span style="color:#81A1C1"> bool</span><span style="color:#616E88"> // panic (instead of crash) on unexpected fault address</span></span>
+<span class="line"><span style="color:#D8DEE9">	gcscandone</span><span style="color:#81A1C1">   bool</span><span style="color:#616E88"> // g has scanned stack; protected by _Gscan bit in status</span></span>
+<span class="line"><span style="color:#D8DEE9">	throwsplit</span><span style="color:#81A1C1">   bool</span><span style="color:#616E88"> // must not split stack</span></span>
+<span class="line"><span style="color:#616E88">	// activeStackChans indicates that there are unlocked channels</span></span>
+<span class="line"><span style="color:#616E88">	// pointing into this goroutine's stack. If true, stack</span></span>
+<span class="line"><span style="color:#616E88">	// copying needs to acquire channel locks to protect these</span></span>
+<span class="line"><span style="color:#616E88">	// areas of the stack.</span></span>
+<span class="line"><span style="color:#D8DEE9">	activeStackChans</span><span style="color:#81A1C1"> bool</span></span>
+<span class="line"><span style="color:#616E88">	// parkingOnChan indicates that the goroutine is about to</span></span>
+<span class="line"><span style="color:#616E88">	// park on a chansend or chanrecv. Used to signal an unsafe point</span></span>
+<span class="line"><span style="color:#616E88">	// for stack shrinking. It's a boolean value, but is updated atomically.</span></span>
+<span class="line"><span style="color:#D8DEE9">	parkingOnChan</span><span style="color:#81A1C1"> uint8</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	raceignore</span><span style="color:#81A1C1">     int8</span><span style="color:#616E88">     // ignore race detection events</span></span>
+<span class="line"><span style="color:#D8DEE9">	sysblocktraced</span><span style="color:#81A1C1"> bool</span><span style="color:#616E88">     // StartTrace has emitted EvGoInSyscall about this goroutine</span></span>
+<span class="line"><span style="color:#D8DEE9">	tracking</span><span style="color:#81A1C1">       bool</span><span style="color:#616E88">     // whether we're tracking this G for sched latency statistics</span></span>
+<span class="line"><span style="color:#D8DEE9">	trackingSeq</span><span style="color:#81A1C1">    uint8</span><span style="color:#616E88">    // used to decide whether to track this G</span></span>
+<span class="line"><span style="color:#D8DEE9">	runnableStamp</span><span style="color:#81A1C1">  int64</span><span style="color:#616E88">    // timestamp of when the G last became runnable, only used when tracking</span></span>
+<span class="line"><span style="color:#D8DEE9">	runnableTime</span><span style="color:#81A1C1">   int64</span><span style="color:#616E88">    // the amount of time spent runnable, cleared when running, only used when tracking</span></span>
+<span class="line"><span style="color:#D8DEE9">	sysexitticks</span><span style="color:#81A1C1">   int64</span><span style="color:#616E88">    // cputicks when syscall has returned (for tracing)</span></span>
+<span class="line"><span style="color:#D8DEE9">	traceseq</span><span style="color:#81A1C1">       uint64</span><span style="color:#616E88">   // trace event sequencer</span></span>
+<span class="line"><span style="color:#D8DEE9">	tracelastp</span><span style="color:#D8DEE9FF">     puintptr </span><span style="color:#616E88">// last P emitted an event for this goroutine</span></span>
+<span class="line"><span style="color:#D8DEE9">	lockedm</span><span style="color:#D8DEE9FF">        muintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">	sig</span><span style="color:#81A1C1">            uint32</span></span>
+<span class="line"><span style="color:#D8DEE9">	writebuf</span><span style="color:#ECEFF4">       []</span><span style="color:#81A1C1">byte</span></span>
+<span class="line"><span style="color:#D8DEE9">	sigcode0</span><span style="color:#81A1C1">       uintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">	sigcode1</span><span style="color:#81A1C1">       uintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">	sigpc</span><span style="color:#81A1C1">          uintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">	gopc</span><span style="color:#81A1C1">           uintptr</span><span style="color:#616E88">         // pc of go statement that created this goroutine</span></span>
+<span class="line"><span style="color:#D8DEE9">	ancestors</span><span style="color:#81A1C1">      *</span><span style="color:#ECEFF4">[]</span><span style="color:#D8DEE9FF">ancestorInfo </span><span style="color:#616E88">// ancestor information goroutine(s) that created this goroutine (only used if debug.tracebackancestors)</span></span>
+<span class="line"><span style="color:#D8DEE9">	startpc</span><span style="color:#81A1C1">        uintptr</span><span style="color:#616E88">         // pc of goroutine function</span></span>
+<span class="line"><span style="color:#D8DEE9">	racectx</span><span style="color:#81A1C1">        uintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">	waiting</span><span style="color:#81A1C1">        *</span><span style="color:#D8DEE9FF">sudog         </span><span style="color:#616E88">// sudog structures this g is waiting on (that have a valid elem ptr); in lock order</span></span>
+<span class="line"><span style="color:#D8DEE9">	cgoCtxt</span><span style="color:#ECEFF4">        []</span><span style="color:#81A1C1">uintptr</span><span style="color:#616E88">      // cgo traceback context</span></span>
+<span class="line"><span style="color:#D8DEE9">	labels</span><span style="color:#D8DEE9FF">         unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer </span><span style="color:#616E88">// profiler labels</span></span>
+<span class="line"><span style="color:#D8DEE9">	timer</span><span style="color:#81A1C1">          *</span><span style="color:#D8DEE9FF">timer         </span><span style="color:#616E88">// cached timer for time.Sleep</span></span>
+<span class="line"><span style="color:#D8DEE9">	selectDone</span><span style="color:#81A1C1">     uint32</span><span style="color:#616E88">         // are we participating in a select and did someone win the race?</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Per-G GC state</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// gcAssistBytes is this G's GC assist credit in terms of</span></span>
+<span class="line"><span style="color:#616E88">	// bytes allocated. If this is positive, then the G has credit</span></span>
+<span class="line"><span style="color:#616E88">	// to allocate gcAssistBytes bytes without assisting. If this</span></span>
+<span class="line"><span style="color:#616E88">	// is negative, then the G must correct this by performing</span></span>
+<span class="line"><span style="color:#616E88">	// scan work. We track this in bytes to make it fast to update</span></span>
+<span class="line"><span style="color:#616E88">	// and check for debt in the malloc hot path. The assist ratio</span></span>
+<span class="line"><span style="color:#616E88">	// determines how this corresponds to scan work debt.</span></span>
+<span class="line"><span style="color:#D8DEE9">	gcAssistBytes</span><span style="color:#81A1C1"> int64</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// sudog 代表在等待列表里的 g，比如向 channel 发送/接收内容时</span></span>
+<span class="line"><span style="color:#616E88">// 需要 sudog 的理由是: g 和同步对象之间的关系是多对多的</span></span>
+<span class="line"><span style="color:#616E88">// 一个 g 可能会在多个等待队列中，所以一个 g 有多个对应的 sudog</span></span>
+<span class="line"><span style="color:#616E88">// 多个 g 也可以等待在同一个同步对象上，所以一个同步对象也可能会有多个 sudog</span></span>
+<span class="line"><span style="color:#616E88">// sudog 是从一个特殊的pool中进行分配的。使用 acquireSudog 和 releaseSudog 来分配和释放 sudog</span></span>
+<span class="line"><span style="color:#616E88">// https://github.com/golang/go/blob/1e5987635cc8bf99e8a20d240da80bd6f0f793f7/src/runtime/runtime2.go#L348</span></span>
+<span class="line"><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> sudog </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">	// The following fields are protected by the hchan.lock of the</span></span>
+<span class="line"><span style="color:#616E88">	// channel this sudog is blocking on. shrinkstack depends on</span></span>
+<span class="line"><span style="color:#616E88">	// this for sudogs involved in channel ops.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	g</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">g</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	next</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">sudog</span></span>
+<span class="line"><span style="color:#D8DEE9">	prev</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">sudog</span></span>
+<span class="line"><span style="color:#D8DEE9">	elem</span><span style="color:#D8DEE9FF"> unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer </span><span style="color:#616E88">// data element (may point to stack)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// The following fields are never accessed concurrently.</span></span>
+<span class="line"><span style="color:#616E88">	// For channels, waitlink is only accessed by g.</span></span>
+<span class="line"><span style="color:#616E88">	// For semaphores, all fields (including the ones above)</span></span>
+<span class="line"><span style="color:#616E88">	// are only accessed when holding a semaRoot lock.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	acquiretime</span><span style="color:#81A1C1"> int64</span></span>
+<span class="line"><span style="color:#D8DEE9">	releasetime</span><span style="color:#81A1C1"> int64</span></span>
+<span class="line"><span style="color:#D8DEE9">	ticket</span><span style="color:#81A1C1">      uint32</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// isSelect indicates g is participating in a select, so</span></span>
+<span class="line"><span style="color:#616E88">	// g.selectDone must be CAS'd to win the wake-up race.</span></span>
+<span class="line"><span style="color:#D8DEE9">	isSelect</span><span style="color:#81A1C1"> bool</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// success indicates whether communication over channel c</span></span>
+<span class="line"><span style="color:#616E88">	// succeeded. It is true if the goroutine was awoken because a</span></span>
+<span class="line"><span style="color:#616E88">	// value was delivered over channel c, and false if awoken</span></span>
+<span class="line"><span style="color:#616E88">	// because c was closed.</span></span>
+<span class="line"><span style="color:#D8DEE9">	success</span><span style="color:#81A1C1"> bool</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	parent</span><span style="color:#81A1C1">   *</span><span style="color:#D8DEE9FF">sudog </span><span style="color:#616E88">// semaRoot binary tree</span></span>
+<span class="line"><span style="color:#D8DEE9">	waitlink</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">sudog </span><span style="color:#616E88">// g.waiting list or semaRoot</span></span>
+<span class="line"><span style="color:#D8DEE9">	waittail</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">sudog </span><span style="color:#616E88">// semaRoot</span></span>
+<span class="line"><span style="color:#D8DEE9">	c</span><span style="color:#81A1C1">        *</span><span style="color:#D8DEE9FF">hchan </span><span style="color:#616E88">// channel</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#616E88">// m 是OS线程在 go runtime 中的结构</span></span>
+<span class="line"><span style="color:#616E88">// 对应一个 pthread，pthread 也会对应唯一的内核线程(task_struct)</span></span>
+<span class="line"><span style="color:#616E88">// https://github.com/golang/go/blob/1e5987635cc8bf99e8a20d240da80bd6f0f793f7/src/runtime/runtime2.go#L515</span></span>
+<span class="line"><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> m </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">	g0</span><span style="color:#81A1C1">      *</span><span style="color:#D8DEE9FF">g     </span><span style="color:#616E88">// goroutine with scheduling stack</span></span>
+<span class="line"><span style="color:#D8DEE9">	morebuf</span><span style="color:#D8DEE9FF"> gobuf  </span><span style="color:#616E88">// gobuf arg to morestack</span></span>
+<span class="line"><span style="color:#D8DEE9">	divmod</span><span style="color:#81A1C1">  uint32</span><span style="color:#616E88"> // div/mod denominator for arm - known to liblink</span></span>
+<span class="line"><span style="color:#D8DEE9">	_</span><span style="color:#81A1C1">       uint32</span><span style="color:#616E88"> // align next field to 8 bytes</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Fields not known to debuggers.</span></span>
+<span class="line"><span style="color:#D8DEE9">	procid</span><span style="color:#81A1C1">        uint64</span><span style="color:#616E88">            // for debuggers, but offset not hard-coded</span></span>
+<span class="line"><span style="color:#D8DEE9">	gsignal</span><span style="color:#81A1C1">       *</span><span style="color:#D8DEE9FF">g                </span><span style="color:#616E88">// signal-handling g</span></span>
+<span class="line"><span style="color:#D8DEE9">	goSigStack</span><span style="color:#D8DEE9FF">    gsignalStack      </span><span style="color:#616E88">// Go-allocated signal handling stack</span></span>
+<span class="line"><span style="color:#D8DEE9">	sigmask</span><span style="color:#D8DEE9FF">       sigset            </span><span style="color:#616E88">// storage for saved signal mask</span></span>
+<span class="line"><span style="color:#D8DEE9">	tls</span><span style="color:#ECEFF4">           [</span><span style="color:#D8DEE9FF">tlsSlots</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1">uintptr</span><span style="color:#616E88"> // thread-local storage (for x86 extern register)</span></span>
+<span class="line"><span style="color:#D8DEE9">	mstartfn</span><span style="color:#81A1C1">      func</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#D8DEE9">	curg</span><span style="color:#81A1C1">          *</span><span style="color:#D8DEE9FF">g       </span><span style="color:#616E88">// current running goroutine</span></span>
+<span class="line"><span style="color:#D8DEE9">	caughtsig</span><span style="color:#D8DEE9FF">     guintptr </span><span style="color:#616E88">// goroutine running during fatal signal</span></span>
+<span class="line"><span style="color:#D8DEE9">	p</span><span style="color:#D8DEE9FF">             puintptr </span><span style="color:#616E88">// attached p for executing go code (nil if not executing go code)</span></span>
+<span class="line"><span style="color:#D8DEE9">	nextp</span><span style="color:#D8DEE9FF">         puintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">	oldp</span><span style="color:#D8DEE9FF">          puintptr </span><span style="color:#616E88">// the p that was attached before executing a syscall</span></span>
+<span class="line"><span style="color:#D8DEE9">	id</span><span style="color:#81A1C1">            int64</span></span>
+<span class="line"><span style="color:#D8DEE9">	mallocing</span><span style="color:#81A1C1">     int32</span></span>
+<span class="line"><span style="color:#D8DEE9">	throwing</span><span style="color:#81A1C1">      int32</span></span>
+<span class="line"><span style="color:#D8DEE9">	preemptoff</span><span style="color:#81A1C1">    string</span><span style="color:#616E88"> // if != "", keep curg running on this m</span></span>
+<span class="line"><span style="color:#D8DEE9">	locks</span><span style="color:#81A1C1">         int32</span></span>
+<span class="line"><span style="color:#D8DEE9">	dying</span><span style="color:#81A1C1">         int32</span></span>
+<span class="line"><span style="color:#D8DEE9">	profilehz</span><span style="color:#81A1C1">     int32</span></span>
+<span class="line"><span style="color:#D8DEE9">	spinning</span><span style="color:#81A1C1">      bool</span><span style="color:#616E88"> // m is out of work and is actively looking for work</span></span>
+<span class="line"><span style="color:#D8DEE9">	blocked</span><span style="color:#81A1C1">       bool</span><span style="color:#616E88"> // m is blocked on a note</span></span>
+<span class="line"><span style="color:#D8DEE9">	newSigstack</span><span style="color:#81A1C1">   bool</span><span style="color:#616E88"> // minit on C thread called sigaltstack</span></span>
+<span class="line"><span style="color:#D8DEE9">	printlock</span><span style="color:#81A1C1">     int8</span></span>
+<span class="line"><span style="color:#D8DEE9">	incgo</span><span style="color:#81A1C1">         bool</span><span style="color:#616E88">   // m is executing a cgo call</span></span>
+<span class="line"><span style="color:#D8DEE9">	freeWait</span><span style="color:#81A1C1">      uint32</span><span style="color:#616E88"> // if == 0, safe to free g0 and delete m (atomic)</span></span>
+<span class="line"><span style="color:#D8DEE9">	fastrand</span><span style="color:#81A1C1">      uint64</span></span>
+<span class="line"><span style="color:#D8DEE9">	needextram</span><span style="color:#81A1C1">    bool</span></span>
+<span class="line"><span style="color:#D8DEE9">	traceback</span><span style="color:#81A1C1">     uint8</span></span>
+<span class="line"><span style="color:#D8DEE9">	ncgocall</span><span style="color:#81A1C1">      uint64</span><span style="color:#616E88">      // number of cgo calls in total</span></span>
+<span class="line"><span style="color:#D8DEE9">	ncgo</span><span style="color:#81A1C1">          int32</span><span style="color:#616E88">       // number of cgo calls currently in progress</span></span>
+<span class="line"><span style="color:#D8DEE9">	cgoCallersUse</span><span style="color:#81A1C1"> uint32</span><span style="color:#616E88">      // if non-zero, cgoCallers in use temporarily</span></span>
+<span class="line"><span style="color:#D8DEE9">	cgoCallers</span><span style="color:#81A1C1">    *</span><span style="color:#D8DEE9FF">cgoCallers </span><span style="color:#616E88">// cgo traceback if crashing in cgo call</span></span>
+<span class="line"><span style="color:#D8DEE9">	park</span><span style="color:#D8DEE9FF">          note</span></span>
+<span class="line"><span style="color:#D8DEE9">	alllink</span><span style="color:#81A1C1">       *</span><span style="color:#D8DEE9FF">m </span><span style="color:#616E88">// on allm</span></span>
+<span class="line"><span style="color:#D8DEE9">	schedlink</span><span style="color:#D8DEE9FF">     muintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">	lockedg</span><span style="color:#D8DEE9FF">       guintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">	createstack</span><span style="color:#ECEFF4">   [</span><span style="color:#B48EAD">32</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1">uintptr</span><span style="color:#616E88"> // stack that created this thread.</span></span>
+<span class="line"><span style="color:#D8DEE9">	lockedExt</span><span style="color:#81A1C1">     uint32</span><span style="color:#616E88">      // tracking for external LockOSThread</span></span>
+<span class="line"><span style="color:#D8DEE9">	lockedInt</span><span style="color:#81A1C1">     uint32</span><span style="color:#616E88">      // tracking for internal lockOSThread</span></span>
+<span class="line"><span style="color:#D8DEE9">	nextwaitm</span><span style="color:#D8DEE9FF">     muintptr    </span><span style="color:#616E88">// next m waiting for lock</span></span>
+<span class="line"><span style="color:#D8DEE9">	waitunlockf</span><span style="color:#81A1C1">   func</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">g</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> bool</span></span>
+<span class="line"><span style="color:#D8DEE9">	waitlock</span><span style="color:#D8DEE9FF">      unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer</span></span>
+<span class="line"><span style="color:#D8DEE9">	waittraceev</span><span style="color:#81A1C1">   byte</span></span>
+<span class="line"><span style="color:#D8DEE9">	waittraceskip</span><span style="color:#81A1C1"> int</span></span>
+<span class="line"><span style="color:#D8DEE9">	startingtrace</span><span style="color:#81A1C1"> bool</span></span>
+<span class="line"><span style="color:#D8DEE9">	syscalltick</span><span style="color:#81A1C1">   uint32</span></span>
+<span class="line"><span style="color:#D8DEE9">	freelink</span><span style="color:#81A1C1">      *</span><span style="color:#D8DEE9FF">m </span><span style="color:#616E88">// on sched.freem</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// these are here because they are too large to be on the stack</span></span>
+<span class="line"><span style="color:#616E88">	// of low-level NOSPLIT functions.</span></span>
+<span class="line"><span style="color:#D8DEE9">	libcall</span><span style="color:#D8DEE9FF">   libcall</span></span>
+<span class="line"><span style="color:#D8DEE9">	libcallpc</span><span style="color:#81A1C1"> uintptr</span><span style="color:#616E88"> // for cpu profiler</span></span>
+<span class="line"><span style="color:#D8DEE9">	libcallsp</span><span style="color:#81A1C1"> uintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">	libcallg</span><span style="color:#D8DEE9FF">  guintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">	syscall</span><span style="color:#D8DEE9FF">   libcall </span><span style="color:#616E88">// stores syscall parameters on windows</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	vdsoSP</span><span style="color:#81A1C1"> uintptr</span><span style="color:#616E88"> // SP for traceback while in VDSO call (0 if not in call)</span></span>
+<span class="line"><span style="color:#D8DEE9">	vdsoPC</span><span style="color:#81A1C1"> uintptr</span><span style="color:#616E88"> // PC for traceback while in VDSO call</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// preemptGen counts the number of completed preemption</span></span>
+<span class="line"><span style="color:#616E88">	// signals. This is used to detect when a preemption is</span></span>
+<span class="line"><span style="color:#616E88">	// requested, but fails. Accessed atomically.</span></span>
+<span class="line"><span style="color:#D8DEE9">	preemptGen</span><span style="color:#81A1C1"> uint32</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Whether this is a pending preemption signal on this M.</span></span>
+<span class="line"><span style="color:#616E88">	// Accessed atomically.</span></span>
+<span class="line"><span style="color:#D8DEE9">	signalPending</span><span style="color:#81A1C1"> uint32</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9FF">	dlogPerM</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9FF">	mOS</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Up to 10 locks held by this m, maintained by the lock ranking code.</span></span>
+<span class="line"><span style="color:#D8DEE9">	locksHeldLen</span><span style="color:#81A1C1"> int</span></span>
+<span class="line"><span style="color:#D8DEE9">	locksHeld</span><span style="color:#ECEFF4">    [</span><span style="color:#B48EAD">10</span><span style="color:#ECEFF4">]</span><span style="color:#D8DEE9FF">heldLockInfo</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> p </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">	id</span><span style="color:#81A1C1">          int32</span></span>
+<span class="line"><span style="color:#D8DEE9">	status</span><span style="color:#81A1C1">      uint32</span><span style="color:#616E88"> // one of pidle/prunning/...</span></span>
+<span class="line"><span style="color:#D8DEE9">	link</span><span style="color:#D8DEE9FF">        puintptr</span></span>
+<span class="line"><span style="color:#D8DEE9">	schedtick</span><span style="color:#81A1C1">   uint32</span><span style="color:#616E88">     // incremented on every scheduler call</span></span>
+<span class="line"><span style="color:#D8DEE9">	syscalltick</span><span style="color:#81A1C1"> uint32</span><span style="color:#616E88">     // incremented on every system call</span></span>
+<span class="line"><span style="color:#D8DEE9">	sysmontick</span><span style="color:#D8DEE9FF">  sysmontick </span><span style="color:#616E88">// last tick observed by sysmon</span></span>
+<span class="line"><span style="color:#D8DEE9">	m</span><span style="color:#D8DEE9FF">           muintptr   </span><span style="color:#616E88">// back-link to associated m (nil if idle)</span></span>
+<span class="line"><span style="color:#D8DEE9">	mcache</span><span style="color:#81A1C1">      *</span><span style="color:#D8DEE9FF">mcache</span></span>
+<span class="line"><span style="color:#D8DEE9">	pcache</span><span style="color:#D8DEE9FF">      pageCache</span></span>
+<span class="line"><span style="color:#D8DEE9">	raceprocctx</span><span style="color:#81A1C1"> uintptr</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	deferpool</span><span style="color:#ECEFF4">    []</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">_defer </span><span style="color:#616E88">// pool of available defer structs (see panic.go)</span></span>
+<span class="line"><span style="color:#D8DEE9">	deferpoolbuf</span><span style="color:#ECEFF4"> [</span><span style="color:#B48EAD">32</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">_defer</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Cache of goroutine ids, amortizes accesses to runtime·sched.goidgen.</span></span>
+<span class="line"><span style="color:#D8DEE9">	goidcache</span><span style="color:#81A1C1">    uint64</span></span>
+<span class="line"><span style="color:#D8DEE9">	goidcacheend</span><span style="color:#81A1C1"> uint64</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Queue of runnable goroutines. Accessed without lock.</span></span>
+<span class="line"><span style="color:#D8DEE9">	runqhead</span><span style="color:#81A1C1"> uint32</span></span>
+<span class="line"><span style="color:#D8DEE9">	runqtail</span><span style="color:#81A1C1"> uint32</span></span>
+<span class="line"><span style="color:#D8DEE9">	runq</span><span style="color:#ECEFF4">     [</span><span style="color:#B48EAD">256</span><span style="color:#ECEFF4">]</span><span style="color:#D8DEE9FF">guintptr</span></span>
+<span class="line"><span style="color:#616E88">	// runnext, if non-nil, is a runnable G that was ready'd by</span></span>
+<span class="line"><span style="color:#616E88">	// the current G and should be run next instead of what's in</span></span>
+<span class="line"><span style="color:#616E88">	// runq if there's time remaining in the running G's time</span></span>
+<span class="line"><span style="color:#616E88">	// slice. It will inherit the time left in the current time</span></span>
+<span class="line"><span style="color:#616E88">	// slice. If a set of goroutines is locked in a</span></span>
+<span class="line"><span style="color:#616E88">	// communicate-and-wait pattern, this schedules that set as a</span></span>
+<span class="line"><span style="color:#616E88">	// unit and eliminates the (potentially large) scheduling</span></span>
+<span class="line"><span style="color:#616E88">	// latency that otherwise arises from adding the ready'd</span></span>
+<span class="line"><span style="color:#616E88">	// goroutines to the end of the run queue.</span></span>
+<span class="line"><span style="color:#616E88">	//</span></span>
+<span class="line"><span style="color:#616E88">	// Note that while other P's may atomically CAS this to zero,</span></span>
+<span class="line"><span style="color:#616E88">	// only the owner P can CAS it to a valid G.</span></span>
+<span class="line"><span style="color:#D8DEE9">	runnext</span><span style="color:#D8DEE9FF"> guintptr</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Available G's (status == Gdead)</span></span>
+<span class="line"><span style="color:#D8DEE9">	gFree</span><span style="color:#81A1C1"> struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9FF">		gList</span></span>
+<span class="line"><span style="color:#D8DEE9">		n</span><span style="color:#81A1C1"> int32</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	sudogcache</span><span style="color:#ECEFF4"> []</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">sudog</span></span>
+<span class="line"><span style="color:#D8DEE9">	sudogbuf</span><span style="color:#ECEFF4">   [</span><span style="color:#B48EAD">128</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">sudog</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Cache of mspan objects from the heap.</span></span>
+<span class="line"><span style="color:#D8DEE9">	mspancache</span><span style="color:#81A1C1"> struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">		// We need an explicit length here because this field is used</span></span>
+<span class="line"><span style="color:#616E88">		// in allocation codepaths where write barriers are not allowed,</span></span>
+<span class="line"><span style="color:#616E88">		// and eliminating the write barrier/keeping it eliminated from</span></span>
+<span class="line"><span style="color:#616E88">		// slice updates is tricky, moreso than just managing the length</span></span>
+<span class="line"><span style="color:#616E88">		// ourselves.</span></span>
+<span class="line"><span style="color:#D8DEE9">		len</span><span style="color:#81A1C1"> int</span></span>
+<span class="line"><span style="color:#D8DEE9">		buf</span><span style="color:#ECEFF4"> [</span><span style="color:#B48EAD">128</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">mspan</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	tracebuf</span><span style="color:#D8DEE9FF"> traceBufPtr</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// traceSweep indicates the sweep events should be traced.</span></span>
+<span class="line"><span style="color:#616E88">	// This is used to defer the sweep start event until a span</span></span>
+<span class="line"><span style="color:#616E88">	// has actually been swept.</span></span>
+<span class="line"><span style="color:#D8DEE9">	traceSweep</span><span style="color:#81A1C1"> bool</span></span>
+<span class="line"><span style="color:#616E88">	// traceSwept and traceReclaimed track the number of bytes</span></span>
+<span class="line"><span style="color:#616E88">	// swept and reclaimed by sweeping in the current sweep loop.</span></span>
+<span class="line"><span style="color:#D8DEE9">	traceSwept</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> traceReclaimed</span><span style="color:#81A1C1"> uintptr</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	palloc</span><span style="color:#D8DEE9FF"> persistentAlloc </span><span style="color:#616E88">// per-P to avoid mutex</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	_</span><span style="color:#81A1C1"> uint32</span><span style="color:#616E88"> // Alignment for atomic fields below</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// The when field of the first entry on the timer heap.</span></span>
+<span class="line"><span style="color:#616E88">	// This is updated using atomic functions.</span></span>
+<span class="line"><span style="color:#616E88">	// This is 0 if the timer heap is empty.</span></span>
+<span class="line"><span style="color:#D8DEE9">	timer0When</span><span style="color:#81A1C1"> uint64</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// The earliest known nextwhen field of a timer with</span></span>
+<span class="line"><span style="color:#616E88">	// timerModifiedEarlier status. Because the timer may have been</span></span>
+<span class="line"><span style="color:#616E88">	// modified again, there need not be any timer with this value.</span></span>
+<span class="line"><span style="color:#616E88">	// This is updated using atomic functions.</span></span>
+<span class="line"><span style="color:#616E88">	// This is 0 if there are no timerModifiedEarlier timers.</span></span>
+<span class="line"><span style="color:#D8DEE9">	timerModifiedEarliest</span><span style="color:#81A1C1"> uint64</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Per-P GC state</span></span>
+<span class="line"><span style="color:#D8DEE9">	gcAssistTime</span><span style="color:#81A1C1">         int64</span><span style="color:#616E88"> // Nanoseconds in assistAlloc</span></span>
+<span class="line"><span style="color:#D8DEE9">	gcFractionalMarkTime</span><span style="color:#81A1C1"> int64</span><span style="color:#616E88"> // Nanoseconds in fractional mark worker (atomic)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// gcMarkWorkerMode is the mode for the next mark worker to run in.</span></span>
+<span class="line"><span style="color:#616E88">	// That is, this is used to communicate with the worker goroutine</span></span>
+<span class="line"><span style="color:#616E88">	// selected for immediate execution by</span></span>
+<span class="line"><span style="color:#616E88">	// gcController.findRunnableGCWorker. When scheduling other goroutines,</span></span>
+<span class="line"><span style="color:#616E88">	// this field must be set to gcMarkWorkerNotWorker.</span></span>
+<span class="line"><span style="color:#D8DEE9">	gcMarkWorkerMode</span><span style="color:#D8DEE9FF"> gcMarkWorkerMode</span></span>
+<span class="line"><span style="color:#616E88">	// gcMarkWorkerStartTime is the nanotime() at which the most recent</span></span>
+<span class="line"><span style="color:#616E88">	// mark worker started.</span></span>
+<span class="line"><span style="color:#D8DEE9">	gcMarkWorkerStartTime</span><span style="color:#81A1C1"> int64</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// gcw is this P's GC work buffer cache. The work buffer is</span></span>
+<span class="line"><span style="color:#616E88">	// filled by write barriers, drained by mutator assists, and</span></span>
+<span class="line"><span style="color:#616E88">	// disposed on certain GC state transitions.</span></span>
+<span class="line"><span style="color:#D8DEE9">	gcw</span><span style="color:#D8DEE9FF"> gcWork</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// wbBuf is this P's GC write barrier buffer.</span></span>
+<span class="line"><span style="color:#616E88">	//</span></span>
+<span class="line"><span style="color:#616E88">	// TODO: Consider caching this in the running G.</span></span>
+<span class="line"><span style="color:#D8DEE9">	wbBuf</span><span style="color:#D8DEE9FF"> wbBuf</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	runSafePointFn</span><span style="color:#81A1C1"> uint32</span><span style="color:#616E88"> // if 1, run sched.safePointFn at next safe point</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// statsSeq is a counter indicating whether this P is currently</span></span>
+<span class="line"><span style="color:#616E88">	// writing any stats. Its value is even when not, odd when it is.</span></span>
+<span class="line"><span style="color:#D8DEE9">	statsSeq</span><span style="color:#81A1C1"> uint32</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Lock for timers. We normally access the timers while running</span></span>
+<span class="line"><span style="color:#616E88">	// on this P, but the scheduler can also do it from a different P.</span></span>
+<span class="line"><span style="color:#D8DEE9">	timersLock</span><span style="color:#D8DEE9FF"> mutex</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Actions to take at some time. This is used to implement the</span></span>
+<span class="line"><span style="color:#616E88">	// standard library's time package.</span></span>
+<span class="line"><span style="color:#616E88">	// Must hold timersLock to access.</span></span>
+<span class="line"><span style="color:#D8DEE9">	timers</span><span style="color:#ECEFF4"> []</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">timer</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Number of timers in P's heap.</span></span>
+<span class="line"><span style="color:#616E88">	// Modified using atomic instructions.</span></span>
+<span class="line"><span style="color:#D8DEE9">	numTimers</span><span style="color:#81A1C1"> uint32</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Number of timerDeleted timers in P's heap.</span></span>
+<span class="line"><span style="color:#616E88">	// Modified using atomic instructions.</span></span>
+<span class="line"><span style="color:#D8DEE9">	deletedTimers</span><span style="color:#81A1C1"> uint32</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Race context used while executing timer functions.</span></span>
+<span class="line"><span style="color:#D8DEE9">	timerRaceCtx</span><span style="color:#81A1C1"> uintptr</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// scannableStackSizeDelta accumulates the amount of stack space held by</span></span>
+<span class="line"><span style="color:#616E88">	// live goroutines (i.e. those eligible for stack scanning).</span></span>
+<span class="line"><span style="color:#616E88">	// Flushed to gcController.scannableStackSize once scannableStackSizeSlack</span></span>
+<span class="line"><span style="color:#616E88">	// or -scannableStackSizeSlack is reached.</span></span>
+<span class="line"><span style="color:#D8DEE9">	scannableStackSizeDelta</span><span style="color:#81A1C1"> int64</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// preempt is set to indicate that this P should be enter the</span></span>
+<span class="line"><span style="color:#616E88">	// scheduler ASAP (regardless of what G is running on it).</span></span>
+<span class="line"><span style="color:#D8DEE9">	preempt</span><span style="color:#81A1C1"> bool</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Padding is no longer needed. False sharing is now not a worry because p is large enough</span></span>
+<span class="line"><span style="color:#616E88">	// that its size class is an integer multiple of the cache line size (for any of our architectures).</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#616E88">// 调度器，全局只有一个 schedt 类型的实例，调度GMP:</span></span>
+<span class="line"><span style="color:#616E88">// https://github.com/golang/go/blob/1e5987635cc8bf99e8a20d240da80bd6f0f793f7/src/runtime/runtime2.go#L745</span></span>
+<span class="line"><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> schedt </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">	// accessed atomically. keep at top to ensure alignment on 32-bit systems.</span></span>
+<span class="line"><span style="color:#D8DEE9">	goidgen</span><span style="color:#81A1C1">   uint64</span></span>
+<span class="line"><span style="color:#D8DEE9">	lastpoll</span><span style="color:#81A1C1">  uint64</span><span style="color:#616E88"> // time of last network poll, 0 if currently polling</span></span>
+<span class="line"><span style="color:#D8DEE9">	pollUntil</span><span style="color:#81A1C1"> uint64</span><span style="color:#616E88"> // time to which current poll is sleeping</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	lock</span><span style="color:#D8DEE9FF"> mutex</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// When increasing nmidle, nmidlelocked, nmsys, or nmfreed, be</span></span>
+<span class="line"><span style="color:#616E88">	// sure to call checkdead().</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	midle</span><span style="color:#D8DEE9FF">        muintptr </span><span style="color:#616E88">// idle m's waiting for work</span></span>
+<span class="line"><span style="color:#D8DEE9">	nmidle</span><span style="color:#81A1C1">       int32</span><span style="color:#616E88">    // number of idle m's waiting for work</span></span>
+<span class="line"><span style="color:#D8DEE9">	nmidlelocked</span><span style="color:#81A1C1"> int32</span><span style="color:#616E88">    // number of locked m's waiting for work</span></span>
+<span class="line"><span style="color:#D8DEE9">	mnext</span><span style="color:#81A1C1">        int64</span><span style="color:#616E88">    // number of m's that have been created and next M ID</span></span>
+<span class="line"><span style="color:#D8DEE9">	maxmcount</span><span style="color:#81A1C1">    int32</span><span style="color:#616E88">    // maximum number of m's allowed (or die)</span></span>
+<span class="line"><span style="color:#D8DEE9">	nmsys</span><span style="color:#81A1C1">        int32</span><span style="color:#616E88">    // number of system m's not counted for deadlock</span></span>
+<span class="line"><span style="color:#D8DEE9">	nmfreed</span><span style="color:#81A1C1">      int64</span><span style="color:#616E88">    // cumulative number of freed m's</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	ngsys</span><span style="color:#81A1C1"> uint32</span><span style="color:#616E88"> // number of system goroutines; updated atomically</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	pidle</span><span style="color:#D8DEE9FF">      puintptr </span><span style="color:#616E88">// idle p's</span></span>
+<span class="line"><span style="color:#D8DEE9">	npidle</span><span style="color:#81A1C1">     uint32</span></span>
+<span class="line"><span style="color:#D8DEE9">	nmspinning</span><span style="color:#81A1C1"> uint32</span><span style="color:#616E88"> // See "Worker thread parking/unparking" comment in proc.go.</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Global runnable queue.</span></span>
+<span class="line"><span style="color:#D8DEE9">	runq</span><span style="color:#D8DEE9FF">     gQueue</span></span>
+<span class="line"><span style="color:#D8DEE9">	runqsize</span><span style="color:#81A1C1"> int32</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// disable controls selective disabling of the scheduler.</span></span>
+<span class="line"><span style="color:#616E88">	//</span></span>
+<span class="line"><span style="color:#616E88">	// Use schedEnableUser to control this.</span></span>
+<span class="line"><span style="color:#616E88">	//</span></span>
+<span class="line"><span style="color:#616E88">	// disable is protected by sched.lock.</span></span>
+<span class="line"><span style="color:#D8DEE9">	disable</span><span style="color:#81A1C1"> struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">		// user disables scheduling of user goroutines.</span></span>
+<span class="line"><span style="color:#D8DEE9">		user</span><span style="color:#81A1C1">     bool</span></span>
+<span class="line"><span style="color:#D8DEE9">		runnable</span><span style="color:#D8DEE9FF"> gQueue </span><span style="color:#616E88">// pending runnable Gs</span></span>
+<span class="line"><span style="color:#D8DEE9">		n</span><span style="color:#81A1C1">        int32</span><span style="color:#616E88">  // length of runnable</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Global cache of dead G's.</span></span>
+<span class="line"><span style="color:#D8DEE9">	gFree</span><span style="color:#81A1C1"> struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">		lock</span><span style="color:#D8DEE9FF">    mutex</span></span>
+<span class="line"><span style="color:#D8DEE9">		stack</span><span style="color:#D8DEE9FF">   gList </span><span style="color:#616E88">// Gs with stacks</span></span>
+<span class="line"><span style="color:#D8DEE9">		noStack</span><span style="color:#D8DEE9FF"> gList </span><span style="color:#616E88">// Gs without stacks</span></span>
+<span class="line"><span style="color:#D8DEE9">		n</span><span style="color:#81A1C1">       int32</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Central cache of sudog structs.</span></span>
+<span class="line"><span style="color:#D8DEE9">	sudoglock</span><span style="color:#D8DEE9FF">  mutex</span></span>
+<span class="line"><span style="color:#D8DEE9">	sudogcache</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">sudog</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// Central pool of available defer structs.</span></span>
+<span class="line"><span style="color:#D8DEE9">	deferlock</span><span style="color:#D8DEE9FF"> mutex</span></span>
+<span class="line"><span style="color:#D8DEE9">	deferpool</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">_defer</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// freem is the list of m's waiting to be freed when their</span></span>
+<span class="line"><span style="color:#616E88">	// m.exited is set. Linked through m.freelink.</span></span>
+<span class="line"><span style="color:#D8DEE9">	freem</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">m</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	gcwaiting</span><span style="color:#81A1C1">  uint32</span><span style="color:#616E88"> // gc is waiting to run</span></span>
+<span class="line"><span style="color:#D8DEE9">	stopwait</span><span style="color:#81A1C1">   int32</span></span>
+<span class="line"><span style="color:#D8DEE9">	stopnote</span><span style="color:#D8DEE9FF">   note</span></span>
+<span class="line"><span style="color:#D8DEE9">	sysmonwait</span><span style="color:#81A1C1"> uint32</span></span>
+<span class="line"><span style="color:#D8DEE9">	sysmonnote</span><span style="color:#D8DEE9FF"> note</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// safepointFn should be called on each P at the next GC</span></span>
+<span class="line"><span style="color:#616E88">	// safepoint if p.runSafePointFn is set.</span></span>
+<span class="line"><span style="color:#D8DEE9">	safePointFn</span><span style="color:#81A1C1">   func</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">p</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9">	safePointWait</span><span style="color:#81A1C1"> int32</span></span>
+<span class="line"><span style="color:#D8DEE9">	safePointNote</span><span style="color:#D8DEE9FF"> note</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	profilehz</span><span style="color:#81A1C1"> int32</span><span style="color:#616E88"> // cpu profiling rate</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	procresizetime</span><span style="color:#81A1C1"> int64</span><span style="color:#616E88"> // nanotime() of last change to gomaxprocs</span></span>
+<span class="line"><span style="color:#D8DEE9">	totaltime</span><span style="color:#81A1C1">      int64</span><span style="color:#616E88"> // ∫gomaxprocs dt up to procresizetime</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// sysmonlock protects sysmon's actions on the runtime.</span></span>
+<span class="line"><span style="color:#616E88">	//</span></span>
+<span class="line"><span style="color:#616E88">	// Acquire and hold this mutex to block sysmon from interacting</span></span>
+<span class="line"><span style="color:#616E88">	// with the rest of the runtime.</span></span>
+<span class="line"><span style="color:#D8DEE9">	sysmonlock</span><span style="color:#D8DEE9FF"> mutex</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">	// timeToRun is a distribution of scheduling latencies, defined</span></span>
+<span class="line"><span style="color:#616E88">	// as the sum of time a G spends in the _Grunnable state before</span></span>
+<span class="line"><span style="color:#616E88">	// it transitions to _Grunning.</span></span>
+<span class="line"><span style="color:#616E88">	//</span></span>
+<span class="line"><span style="color:#616E88">	// timeToRun is protected by sched.lock.</span></span>
+<span class="line"><span style="color:#D8DEE9">	timeToRun</span><span style="color:#D8DEE9FF"> timeHistogram</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<p>systemstack(): Switch to g0, after exec, go back<br>
+gogo(): Never return call user function</p>
+<!-- https://github.com/golang/go/blob/1e5987635cc8bf99e8a20d240da80bd6f0f793f7/src/runtime/proc.go#L5069 -->
+<p>sysmon(): Always running in background, sysmon线程，抢占长时间运行的g，netpoller就绪的g
+sysmon 内部是个死循环，主要负责以下几件事情:</p>
+<ol>
+<li>checkdead，检查是否所有 goroutine 都已经锁死，如果是的话，直接调用 runtime.throw，强制退出。这个操作只在启动的时候做一次</li>
+<li>将 netpoll 返回的结果注入到全局 sched 的任务队列</li>
+<li>收回因为 syscall 而长时间阻塞的 p，同时抢占那些执行时间过长的 g</li>
+<li>如果 span 内存闲置超过 5min，那么释放掉</li>
+</ol>
+<p>retake():Preempt goroutines</p>
+<p>netpoller:</p>
+<h4 id="0021--g相关">0.0.2.1 · g相关</h4>
+<p>新创建了一个 goroutine，设置好了 sched 成员的 sp 和 pc 字段，并且将其添加到了 p0 的本地可运行队列，坐等调度器的调度.</p>
+<p><strong>用户代码创建g</strong></p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#81A1C1">go</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">    // do the stuff</span></span>
+<span class="line"><span style="color:#ECEFF4">}()</span></span>
+<span class="line"><span style="color:#616E88">// 编译器翻译成调用 runtime.newproc </span></span></code></pre>
+<div class="mermaid-container mermaid-svg" data-format="svg">
+            <div class="mermaid-svg-dark" data-theme="dark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 405.65 176" width="405.65" height="176" style="--bg:#2e3440;--fg:#d8dee9;--line:#4c566a;--accent:#88c0d0;--muted:#616e88;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)"></polygon>
+  </marker>
+  <marker id="arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)"></polygon>
+  </marker>
+</defs>
+<polyline points="179.25,58 219.25,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)"></polyline>
+<rect x="40" y="40" width="139.25" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<rect x="219.25" y="40" width="146.4" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<rect x="75.75" y="100" width="67.75" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<text x="109.625" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">runtime.newproc</text>
+<text x="292.45" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">runtime.newproc1</text>
+<text x="109.625" y="118" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">click</text>
+</svg></div>
+            <div class="mermaid-svg-light" data-theme="light"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 405.65 176" width="405.65" height="176" style="--bg:#eceff4;--fg:#434c5e;--line:#4c566a;--accent:#5e81ac;--muted:#4c566a;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)"></polygon>
+  </marker>
+  <marker id="arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)"></polygon>
+  </marker>
+</defs>
+<polyline points="179.25,58 219.25,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)"></polyline>
+<rect x="40" y="40" width="139.25" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<rect x="219.25" y="40" width="146.4" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<rect x="75.75" y="100" width="67.75" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<text x="109.625" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">runtime.newproc</text>
+<text x="292.45" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">runtime.newproc1</text>
+<text x="109.625" y="118" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">click</text>
+</svg></div>
+          </div>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#616E88">// https://github.com/golang/go/blob/1e5987635cc8bf99e8a20d240da80bd6f0f793f7/src/runtime/proc.go#L4071</span></span>
+<span class="line"><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> newproc</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">fn</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">funcval</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">	gp</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> getg</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#D8DEE9">	pc</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> getcallerpc</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#88C0D0">	systemstack</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">		newg</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> newproc1</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">fn</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> gp</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> pc</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">		_p_</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> getg</span><span style="color:#ECEFF4">().</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">p</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">ptr</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#88C0D0">		runqput</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">_p_</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> newg</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> true</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> mainStarted</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">			wakep</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span></span>
+<span class="line"><span style="color:#ECEFF4">	})</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// https://github.com/golang/go/blob/1e5987635cc8bf99e8a20d240da80bd6f0f793f7/src/runtime/proc.go#L4089</span></span>
+<span class="line"><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> newproc1</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">fn</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">funcval</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> callergp</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">g</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> callerpc</span><span style="color:#81A1C1"> uintptr</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">g </span><span style="color:#ECEFF4">{</span></span>
+<span class="line"><span style="color:#D8DEE9">	_g_</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> getg</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> fn</span><span style="color:#81A1C1"> ==</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">		_g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">throwing</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> -</span><span style="color:#B48EAD">1</span><span style="color:#616E88"> // do not dump full stacks</span></span>
+<span class="line"><span style="color:#88C0D0">		throw</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">go of nil func value</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#88C0D0">	acquirem</span><span style="color:#ECEFF4">()</span><span style="color:#616E88"> // disable preemption because it can be holding p in a local var</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	_p_</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> _g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">p</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">ptr</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#D8DEE9">	newg</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> gfget</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">_p_</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> newg</span><span style="color:#81A1C1"> ==</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">		newg</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> malg</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">_StackMin</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#88C0D0">		casgstatus</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">newg</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> _Gidle</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> _Gdead</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#88C0D0">		allgadd</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">newg</span><span style="color:#ECEFF4">)</span><span style="color:#616E88"> // publishes with a g->status of Gdead so GC scanner doesn't look at uninitialized stack.</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">stack</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">hi</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">		throw</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">newproc1: newg missing stack</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#88C0D0"> readgstatus</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">newg</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> !=</span><span style="color:#D8DEE9"> _Gdead</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">		throw</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">newproc1: new g is not Gdead</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">	totalSize</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> uintptr</span><span style="color:#ECEFF4">(</span><span style="color:#B48EAD">4</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">goarch</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">PtrSize</span><span style="color:#81A1C1"> +</span><span style="color:#D8DEE9"> sys</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">MinFrameSize</span><span style="color:#ECEFF4">)</span><span style="color:#616E88"> // extra space in case of reads slightly beyond frame</span></span>
+<span class="line"><span style="color:#D8DEE9">	totalSize</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> alignUp</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">totalSize</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> sys</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">StackAlign</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9">	sp</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">stack</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">hi</span><span style="color:#81A1C1"> -</span><span style="color:#D8DEE9"> totalSize</span></span>
+<span class="line"><span style="color:#D8DEE9">	spArg</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> sp</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> usesLR</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">		// caller's LR</span></span>
+<span class="line"><span style="color:#81A1C1">		*</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">*uintptr</span><span style="color:#ECEFF4">)(</span><span style="color:#D8DEE9">unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Pointer</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">sp</span><span style="color:#ECEFF4">))</span><span style="color:#81A1C1"> =</span><span style="color:#B48EAD"> 0</span></span>
+<span class="line"><span style="color:#88C0D0">		prepGoExitFrame</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">sp</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9">		spArg</span><span style="color:#81A1C1"> +=</span><span style="color:#D8DEE9"> sys</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">MinFrameSize</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#88C0D0">	memclrNoHeapPointers</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Pointer</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">sched</span><span style="color:#ECEFF4">),</span><span style="color:#D8DEE9"> unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Sizeof</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">sched</span><span style="color:#ECEFF4">))</span></span>
+<span class="line"><span style="color:#D8DEE9">	newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">sp</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> sp</span></span>
+<span class="line"><span style="color:#D8DEE9">	newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">stktopsp</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> sp</span></span>
+<span class="line"><span style="color:#D8DEE9">	newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">pc</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> abi</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">FuncPCABI0</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">goexit</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> +</span><span style="color:#D8DEE9"> sys</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">PCQuantum</span><span style="color:#616E88"> // +PCQuantum so that previous instruction is in same function</span></span>
+<span class="line"><span style="color:#D8DEE9">	newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">g</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> guintptr</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Pointer</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">newg</span><span style="color:#ECEFF4">))</span></span>
+<span class="line"><span style="color:#88C0D0">	gostartcallfn</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">sched</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> fn</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9">	newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">gopc</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> callerpc</span></span>
+<span class="line"><span style="color:#D8DEE9">	newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">ancestors</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> saveAncestors</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">callergp</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9">	newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">startpc</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> fn</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">fn</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#88C0D0"> isSystemGoroutine</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">newg</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> false</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">		atomic</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Xadd</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">ngsys</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> +</span><span style="color:#B48EAD">1</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span><span style="color:#81A1C1"> else</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">		// Only user goroutines inherit pprof labels.</span></span>
+<span class="line"><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> _g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">curg</span><span style="color:#81A1C1"> !=</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">			newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">labels</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> _g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">curg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">labels</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#616E88">	// Track initial transition?</span></span>
+<span class="line"><span style="color:#D8DEE9">	newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">trackingSeq</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> uint8</span><span style="color:#ECEFF4">(</span><span style="color:#88C0D0">fastrand</span><span style="color:#ECEFF4">())</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">trackingSeq</span><span style="color:#81A1C1">%</span><span style="color:#D8DEE9">gTrackingPeriod</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">		newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">tracking</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> true</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#88C0D0">	casgstatus</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">newg</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> _Gdead</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> _Grunnable</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9">	gcController</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">addScannableStack</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">_p_</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> int64</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">stack</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">hi</span><span style="color:#81A1C1">-</span><span style="color:#D8DEE9">newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">stack</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">lo</span><span style="color:#ECEFF4">))</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> _p_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">goidcache</span><span style="color:#81A1C1"> ==</span><span style="color:#D8DEE9"> _p_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">goidcacheend</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">		// Sched.goidgen is the last allocated id,</span></span>
+<span class="line"><span style="color:#616E88">		// this batch must be [sched.goidgen+1, sched.goidgen+GoidCacheBatch].</span></span>
+<span class="line"><span style="color:#616E88">		// At startup sched.goidgen=0, so main goroutine receives goid=1.</span></span>
+<span class="line"><span style="color:#D8DEE9">		_p_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">goidcache</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> atomic</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Xadd64</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">goidgen</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> _GoidCacheBatch</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9">		_p_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">goidcache</span><span style="color:#81A1C1"> -=</span><span style="color:#D8DEE9"> _GoidCacheBatch</span><span style="color:#81A1C1"> -</span><span style="color:#B48EAD"> 1</span></span>
+<span class="line"><span style="color:#D8DEE9">		_p_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">goidcacheend</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> _p_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">goidcache</span><span style="color:#81A1C1"> +</span><span style="color:#D8DEE9"> _GoidCacheBatch</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#D8DEE9">	newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">goid</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> int64</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">_p_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">goidcache</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9">	_p_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">goidcache</span><span style="color:#81A1C1">++</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> raceenabled</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">		newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">racectx</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> racegostart</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">callerpc</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> trace</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">enabled</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">		traceGoCreate</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">newg</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> newg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">startpc</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#88C0D0">	releasem</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">_g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">	return</span><span style="color:#D8DEE9"> newg</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<h4 id="0022--g-的状态迁移">0.0.2.2 · g 的状态迁移</h4>
+<h3 id="003--p相关">0.0.3 · p相关</h3>
+<h4 id="0031--p-的状态迁移">0.0.3.1 · p 的状态迁移</h4>
+<h3 id="004--m相关">0.0.4 · m相关</h3>
+<p>主线程：m0, 运行 sysmon
+普通的用户线程：和 p 绑定，执行 g 中的任务。G/P/M 模型里的 M 了，M 对应的就是操作系统的线程。</p>
+<p>主线程中用来跑 runtime.main</p>
+<p>普通线程</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#616E88">// https://github.com/golang/go/blob/1e5987635cc8bf99e8a20d240da80bd6f0f793f7/src/runtime/proc.go#L2087</span></span></code></pre>
+<p>sync/async syscall：
+m sync：m阻塞，g还在m上，p与新的m结合，接着执行p的runqueues，m完成，g回到p的runqueues，m自旋，可能被其他p，可能消失。
+m async：m不被阻塞，g的异步请求被netpoller接手，g在netpoller上，m继续执行p上的qunqueues，netpoller上的g完成后，重新回到p的runqueues。异步情况下，将io任务变成cpu任务。</p>
+<h3 id="005--g-p-m-关系调度">0.0.5 · g p m 关系，调度</h3>
+<p>mcommoninit –> procresize –> newproc</p>
+<p>go程序启动顺序：</p>
+<ol>
+<li>call osinit。初始化系统核心数。</li>
+<li>call schedinit。初始化调度器。</li>
+<li>make and queue new G。创建新的 goroutine。</li>
+<li>call runtime·mstart。调用 mstart，启动调度。</li>
+<li>The new G calls runtime·main。在新的 goroutine 上运行 runtime.main 函数。</li>
+</ol>
+<p>scheduler初始化:</p>
+<ol>
+<li>调整sp</li>
+<li>初始化g0栈   上g0.stack.hi g0.stack.lo g0.stackguard1 g0.stackguard0下</li>
+<li>主线程绑定m0  tls线程本地存储</li>
+<li>初始化m0、m挂到全局变量allm   call osinit、schedinit</li>
+<li>初始化 allp、m0 和 allp[0]绑定</li>
+</ol>
+<h4 id="0051--schedule-loop">0.0.5.1 · schedule loop</h4>
+<div class="mermaid-container mermaid-svg" data-format="svg">
+            <div class="mermaid-svg-dark" data-theme="dark"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 635.95 138" width="635.95" height="138" style="--bg:#2e3440;--fg:#d8dee9;--line:#4c566a;--accent:#88c0d0;--muted:#616e88;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)"></polygon>
+  </marker>
+  <marker id="arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)"></polygon>
+  </marker>
+</defs>
+<polyline points="129.2,78 149.2,78 149.2,58 169.2,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)"></polyline>
+<polyline points="251.25,58 291.25,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)"></polyline>
+<polyline points="351.85,58 391.85,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)"></polyline>
+<polyline points="473.9,58 554.9250000000001,58 554.9250000000001,60" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)"></polyline>
+<polyline points="513.9000000000001,78 493.90000000000003,78 493.90000000000003,98 84.6,98 84.6,96" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)"></polyline>
+<rect x="39.99999999999999" y="60" width="89.2" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<rect x="169.2" y="40" width="82.05000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<rect x="291.25" y="40" width="60.6" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<rect x="391.85" y="40" width="82.05000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<rect x="513.9000000000001" y="60" width="82.05000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<text x="84.6" y="78" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">schedule</text>
+<text x="210.225" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">execute</text>
+<text x="321.55" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">gogo</text>
+<text x="432.875" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">goexit1</text>
+<text x="554.9250000000001" y="78" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">goexit0</text>
+</svg></div>
+            <div class="mermaid-svg-light" data-theme="light"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 635.95 138" width="635.95" height="138" style="--bg:#eceff4;--fg:#434c5e;--line:#4c566a;--accent:#5e81ac;--muted:#4c566a;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)"></polygon>
+  </marker>
+  <marker id="arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)"></polygon>
+  </marker>
+</defs>
+<polyline points="129.2,78 149.2,78 149.2,58 169.2,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)"></polyline>
+<polyline points="251.25,58 291.25,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)"></polyline>
+<polyline points="351.85,58 391.85,58" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)"></polyline>
+<polyline points="473.9,58 554.9250000000001,58 554.9250000000001,60" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)"></polyline>
+<polyline points="513.9000000000001,78 493.90000000000003,78 493.90000000000003,98 84.6,98 84.6,96" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)"></polyline>
+<rect x="39.99999999999999" y="60" width="89.2" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<rect x="169.2" y="40" width="82.05000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<rect x="291.25" y="40" width="60.6" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<rect x="391.85" y="40" width="82.05000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<rect x="513.9000000000001" y="60" width="82.05000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75"></rect>
+<text x="84.6" y="78" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">schedule</text>
+<text x="210.225" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">execute</text>
+<text x="321.55" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">gogo</text>
+<text x="432.875" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">goexit1</text>
+<text x="554.9250000000001" y="78" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">goexit0</text>
+</svg></div>
+          </div>
+<p>findrunnable()
+run queue：local/global run queue</p>
+<p>g preemption:</p>
+<ol>
+<li>cooperative preemption: function epilogue; Compare stack guard with SP, check calling newstack.</li>
+<li>signal based preemption: signalM : Preemption during GC ;Preemption during retake; SIGURG : .</li>
+</ol>
+<p>scheduler调度所有的goroutine
+底层原理：基础结构体 g m p ;调度器结构体 sched
+g：goroutine，一些goroutine栈的字段（部分thread寄存器??）
+m：thread
+p：processor处理器，goroutine运行的上下文（除goroutine哪些寄存器字段外的寄存器？?）
+sched：总览全局，调度g m p</p>
+<p>runtime起始时，会启动一些g，垃圾回收，调度，运行用户代码；且创建一个m用以运行g，随着时间，更多的g创建，更多的m也被创建。</p>
+<p>scheduler核心思想： reuse thread；限制同时运行（不含阻塞）的线程数为N（cpu核心数量）；线程私有g的runqueues，并且可以从其他线程steal g，线程阻塞后，可以把runqueues传递给其他线程。
+理解：重用thread，不存在空闲的thread；线程最大数量为cpu核心数，不能存有线程有任务而无法执行；私有化g的runqueues，减少对全局g获取而进行锁的竞争，steal和重用thread的思想类似。
+p存在理由：p当前绑定thread阻塞，可以把p传递出去，创建新的thrad进行运行p剩下的runqueues。
+理解：也就是说，p的数量等于cpu核心数，满足同时运行的thrad数为cpu数量，那么所有的p可以同时运行。</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#D8DEE9">runtime</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">schedule</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">    // only 1/61 of the time, check the global runnable queue for a G.</span></span>
+<span class="line"><span style="color:#616E88">    // if not found, check the local queue.</span></span>
+<span class="line"><span style="color:#616E88">    // if not found,</span></span>
+<span class="line"><span style="color:#616E88">    //     try to steal from other Ps.</span></span>
+<span class="line"><span style="color:#616E88">    //     if not, check the global runnable queue.</span></span>
+<span class="line"><span style="color:#616E88">    //     if not found, poll network.</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<p>scheduler调度时机，可能调度：go func() ； GC；syscall；内存同步访问（g阻塞了）</p>
+<h4 id="0052--m-和-p-解绑定">0.0.5.2 · m 和 p 解绑定</h4>
+ <div class="mt-8 pt-8 border-t border-nord-4 dark:border-nord-2"> <details class="group cursor-pointer"> <summary class="btn-primary list-none"> <svg class="w-5 h-5 transition-transform group-open:rotate-90" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M9 5l7 7-7 7"></path> </svg> <span>Local Knowledge Graph</span> </summary> <div class="mt-4"> <div id="local-graph-1770123039-URZR" style="height: 400px;" class="knowledge-graph-container" data-astro-cid-zjb43jqo> <div class="knowledge-graph-wrapper" data-astro-cid-zjb43jqo> <svg id="local-graph-1770123039-URZR-svg" style="width: 100%; height: 100%;" data-astro-cid-zjb43jqo></svg> </div> </div>  <script>(function(){const containerId = "local-graph-1770123039-URZR";
+const nodeRadius = 4;
+const showLabels = true;
+const enableZoom = true;
+const enableDrag = true;
+const dataJson = "{\"nodes\":[{\"id\":\"1770123039-URZR\",\"urlId\":\"1770123039-URZR\",\"label\":\"scheduler\",\"title\":\"scheduler\",\"group\":\"default\",\"nodeType\":\"current\"},{\"id\":\"1770786730-PFOI\",\"urlId\":\"1770786730-PFOI\",\"label\":\"Go: goroutine 协程\",\"title\":\"Go: goroutine 协程\",\"group\":\"default\",\"nodeType\":\"backlink\"},{\"id\":\"1770123038-CJXA\",\"urlId\":\"1770123038-CJXA\",\"label\":\"Go: channel 通道\",\"title\":\"Go: channel 通道\",\"group\":\"default\",\"nodeType\":\"neighbor\"}],\"links\":[{\"source\":\"1770786730-PFOI\",\"target\":\"1770123039-URZR\"},{\"source\":\"1770123038-CJXA\",\"target\":\"1770786730-PFOI\"}]}";
+
+  (window.__KNOWLEDGE_GRAPH_QUEUE__ = window.__KNOWLEDGE_GRAPH_QUEUE__ || []).push({
+    containerId,
+    dataJson,
+    nodeRadius,
+    showLabels,
+    enableZoom,
+    enableDrag,
+  });
+})();</script> </div> </details> </div><!-- Diagrams rendered at build time -->  </article> <nav class="mt-12 pt-8 border-t border-nord-4 dark:border-nord-1" data-astro-cid-v5yihett> <a href="/notes" class="btn-primary" data-astro-cid-v5yihett> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-v5yihett> <path d="M15 19l-7-7 7-7" data-astro-cid-v5yihett></path> </svg>
+Back to Notes
+</a> </nav>  </main> <footer class="border-t border-nord-5 dark:border-nord-1 mt-12"> <div class="max-w-4xl mx-auto px-4 py-6 text-sm text-nord-3 dark:text-nord-4 text-center"> <p>&copy; 2026. All rights reserved.</p> </div> </footer> <script type="module" src="/_astro/Base.astro_astro_type_script_index_0_lang.WDMQca9J.js"></script> <script>
+      (function() {
+        const root = document.getElementById('series-dropdown-root');
+        const trigger = document.getElementById('series-dropdown-trigger');
+        const panel = document.getElementById('series-dropdown-panel');
+        const listEl = document.getElementById('series-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let seriesList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (seriesList === null) {
+            fetch('/series-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                seriesList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无系列</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(name) {
+                     const slug = name.toLowerCase().replace(/\s+/g, '-');
+                     const url = '/notes/series/' + slug;
+                     return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(name) + '</a>';
+                   }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        // On click: allow default navigation to /notes/series
+        // On hover: show dropdown menu
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          // Don't preventDefault - allow link to navigate
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> <script>
+      (function() {
+        const root = document.getElementById('tags-dropdown-root');
+        const trigger = document.getElementById('tags-dropdown-trigger');
+        const panel = document.getElementById('tags-dropdown-panel');
+        const listEl = document.getElementById('tags-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let tagList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (tagList === null) {
+            fetch('/tag-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                tagList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无标签</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(tag) {
+                     const url = '/notes/tag/' + encodeURIComponent(tag);
+                     return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(tag) + '</a>';
+                   }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> </body> </html>  <script>
+  // Language aliases (matches server-side)
+  const langAliases = {
+    js: 'javascript',
+    ts: 'typescript',
+    yml: 'yaml',
+    yaml: 'yaml',
+    sh: 'bash',
+    shell: 'bash',
+    sql: 'postgresql',
+    java: 'openjdk',
+  };
+
+  // Add headers and copy buttons to code blocks
+  function initCodeBlocks() {
+    document.querySelectorAll('pre[data-language]').forEach((pre) => {
+      // Skip if already processed
+      if (pre.parentNode.classList.contains('code-block-wrapper')) return;
+      
+      const lang = pre.getAttribute('data-language') || 'code';
+      
+      // Create wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block-wrapper';
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+      
+      // Create header
+      const header = document.createElement('div');
+      header.className = 'code-header';
+      
+      const langSpan = document.createElement('span');
+      langSpan.className = 'code-header-lang';
+      langSpan.title = lang;
+      
+      // Normalize lang for devicon
+      const normalizedLang = lang.toLowerCase();
+      const iconLang = langAliases[normalizedLang] || normalizedLang;
+      
+      // Display language with devicon (format: devicon-{name}-{version} colored)
+      const iconEl = document.createElement('i');
+      iconEl.className = `devicon-${iconLang}-plain colored`;
+      iconEl.style.marginRight = '0.375rem';
+      iconEl.style.fontSize = '0.75rem';
+      langSpan.appendChild(iconEl);
+      langSpan.appendChild(document.createTextNode(lang));
+      
+      const button = document.createElement('button');
+      button.className = 'copy-code-btn';
+      button.title = 'Copy to clipboard';
+      button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      
+      let isCopying = false;
+      button.addEventListener('click', async () => {
+        if (isCopying) return;
+        isCopying = true;
+        
+        const code = pre.querySelector('code')?.textContent || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalHtml = button.innerHTML;
+          button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+          button.title = 'Copied!';
+          setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.title = 'Copy to clipboard';
+            isCopying = false;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+          isCopying = false;
+        }
+      });
+      
+      header.appendChild(langSpan);
+      header.appendChild(button);
+      wrapper.appendChild(header);
+    });
+  }
+
+  // Run ASAP, then on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCodeBlocks);
+  } else {
+    initCodeBlocks();
+  }
+
+  // Convert wikilinks to links on client side
+  // Matches [[ref]] or [[ref|display text]]
+  document.addEventListener('DOMContentLoaded', () => {
+    const wikiRegex = /\[\[([a-zA-Z0-9][a-zA-Z0-9_-]*?)(?:\|([^\]]+))?\]\]/g;
+    
+    // Process all text nodes in prose content
+    const walker = document.createTreeWalker(
+      document.querySelector('.prose') || document.body,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    const nodesToReplace = [];
+    let node;
+    
+    while (node = walker.nextNode()) {
+      if (node.nodeValue.includes('[[')) {
+        nodesToReplace.push(node);
+      }
+    }
+    
+    nodesToReplace.forEach((textNode) => {
+      const parent = textNode.parentNode;
+      let lastIndex = 0;
+      const matches = [...textNode.nodeValue.matchAll(wikiRegex)];
+      
+      if (matches.length === 0) return;
+      
+      const fragment = document.createDocumentFragment();
+      
+      matches.forEach((match) => {
+        const [fullMatch, ref, displayText] = match;
+        const startIndex = match.index;
+        
+        // Add text before match
+        if (startIndex > lastIndex) {
+          fragment.appendChild(
+            document.createTextNode(textNode.nodeValue.slice(lastIndex, startIndex))
+          );
+        }
+        
+        // Create link
+        const link = document.createElement('a');
+        link.href = `/notes/${ref.toLowerCase()}`;
+        link.textContent = (displayText || ref).trim();
+        link.className = 'text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors';
+        fragment.appendChild(link);
+        
+        lastIndex = startIndex + fullMatch.length;
+      });
+      
+      // Add remaining text
+      if (lastIndex < textNode.nodeValue.length) {
+        fragment.appendChild(
+          document.createTextNode(textNode.nodeValue.slice(lastIndex))
+        );
+      }
+      
+      parent.replaceChild(fragment, textNode);
+    });
+  });
+</script> 

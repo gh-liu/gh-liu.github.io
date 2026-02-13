@@ -1,0 +1,1248 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>Tags: CS</title><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css"><script>
+      // This script runs synchronously in the head to prevent FOUC (Flash of Unstyled Content)
+      (function() {
+        const THEME_KEY = 'nord-theme';
+        const DARK = 'dark';
+        
+        function getStoredTheme() {
+          try {
+            return localStorage.getItem(THEME_KEY);
+          } catch {
+            return null;
+          }
+        }
+        
+        function getSystemTheme() {
+          return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+        }
+        
+        function getTheme() {
+          return getStoredTheme() || getSystemTheme();
+        }
+        
+        function applyTheme(theme) {
+          const html = document.documentElement;
+          if (theme === DARK) {
+            html.classList.add('dark');
+          } else {
+            html.classList.remove('dark');
+          }
+        }
+        
+        // Apply theme immediately before page renders
+        applyTheme(getTheme());
+      })();
+    </script><link rel="stylesheet" href="/_astro/_id_.6ed6JusR.css"></head> <body class="text-nord-3 dark:text-nord-5 transition-all bg-gradient-light"> <header class="border-b border-nord-5 dark:border-nord-1 bg-nord-6 dark:bg-nord-0"> <nav class="max-w-4xl mx-auto px-4 py-5 flex items-center justify-between gap-4"> <div class="flex items-center gap-2 min-w-0"> <a href="/" title="Liu" class="shrink-0 p-1.5 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-lg dark:hover:shadow-nord-8/20 active:scale-95"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"> <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path> <circle cx="12" cy="7" r="4"></circle> </svg> </a> <h1 class="text-xl font-bold truncate"> <a href="/" class="text-nord-2 dark:text-nord-6 hover:text-nord-10 dark:hover:text-nord-8 transition-colors"> Liu </a> </h1> </div> <div class="flex items-center gap-2 shrink-0"> <a href="https://github.com/gh-liu" title="GitHub" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"> <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path> </svg> </a> <a href="https://x.com" title="X" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="X"> <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24h-6.657l-5.207-6.807-5.975 6.807H2.306l7.644-8.74-8.179-10.76h6.467l4.713 6.231 5.429-6.231zM17.002 18.807h1.844L6.983 4.126H5.025l11.977 14.681z"></path> </svg> </a> <span class="w-px h-4 bg-nord-4 dark:bg-nord-2 shrink-0" aria-hidden="true"></span> <div class="relative series-dropdown" id="series-dropdown-root"> <a href="/notes/series" title="Series" aria-expanded="false" aria-haspopup="true" aria-controls="series-dropdown-panel" id="series-dropdown-trigger" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> </a> <div id="series-dropdown-panel" class="absolute right-0 top-full mt-1 py-2 min-w-[12rem] max-h-[70vh] overflow-y-auto rounded-lg border border-nord-4 dark:border-nord-2 bg-nord-6 dark:bg-nord-1 shadow-lg z-50 hidden" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">加载中…</span> </div> <div class="border-t border-nord-4 dark:border-nord-2 pt-1 mt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors">
+查看全部系列 →
+</a> </div> </div> </div> <div class="relative tags-dropdown" id="tags-dropdown-root"> <a href="/notes/tags" title="Tags" aria-expanded="false" aria-haspopup="true" aria-controls="tags-dropdown-panel" id="tags-dropdown-trigger" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex active:scale-95"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> </a> <div id="tags-dropdown-panel" class="absolute right-0 top-full mt-1 py-2 min-w-[12rem] max-h-[70vh] overflow-y-auto rounded-lg border border-nord-4 dark:border-nord-2 bg-nord-6 dark:bg-nord-1 shadow-lg z-50 hidden" role="menu"> <div id="tags-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">加载中…</span> </div> <div class="border-t border-nord-4 dark:border-nord-2 pt-1 mt-1"> <a href="/notes/tags" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors">
+查看全部标签 →
+</a> </div> </div> </div> <div class="search-container" id="search-wrapper" data-astro-cid-t47yvtpn><button id="search-toggle" class="p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-2 dark:text-nord-5 hover:text-nord-9 dark:hover:text-nord-8 transition-all duration-300 ease-out hover:scale-110 hover:shadow-md dark:hover:shadow-md dark:hover:shadow-nord-8/15 inline-flex" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-t47yvtpn><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-t47yvtpn><circle cx="11" cy="11" r="8" data-astro-cid-t47yvtpn></circle><path d="m21 21-4.35-4.35" data-astro-cid-t47yvtpn></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-t47yvtpn><div class="bg-nord-6 dark:bg-nord-0 rounded-2xl shadow-2xl w-full max-w-2xl border border-nord-5 dark:border-nord-1 max-h-[70vh] flex flex-col overflow-hidden animate-fade-in" data-astro-cid-t47yvtpn><div class="p-4 border-b border-nord-5 dark:border-nord-1" data-astro-cid-t47yvtpn><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full px-4 py-2 bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 placeholder-nord-3 dark:placeholder-nord-4 rounded focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-t47yvtpn></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-t47yvtpn><p class="text-nord-3 dark:text-nord-5 text-sm" data-astro-cid-t47yvtpn>Type to search...</p></div><div class="p-3 border-t border-nord-5 dark:border-nord-1 text-xs text-nord-3 dark:text-nord-4" data-astro-cid-t47yvtpn><p data-astro-cid-t47yvtpn>Press <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-t47yvtpn>Esc</kbd> to close | Use <kbd class="px-1 py-0.5 bg-nord-4 dark:bg-nord-2 rounded" data-astro-cid-t47yvtpn>#tag</kbd> to search by tag</p></div></div></div></div><script>(function(){const pagefindUrl = "/pagefind/pagefind.js";
+
+  if (!globalThis.pagefindLoaded) {
+    globalThis.pagefindLoaded = true;
+    
+    let pagefind;
+    let searchInput;
+    let searchModal;
+    let searchResults;
+    let isSearchOpen = false;
+
+    async function initSearch() {
+      if (typeof window === "undefined") return;
+
+      try {
+        pagefind = await import(pagefindUrl);
+        await pagefind.init();
+      } catch (error) {
+        console.log("Search not available.", error);
+        return;
+      }
+
+      searchInput = document.getElementById("search-input");
+      searchModal = document.getElementById("search-modal");
+      searchResults = document.getElementById("search-results");
+      const toggleBtn = document.getElementById("search-toggle");
+
+      if (!searchInput || !searchModal || !searchResults || !toggleBtn) return;
+
+      toggleBtn.addEventListener("click", () => {
+        openSearch();
+      });
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+          closeSearch();
+        }
+        if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+          e.preventDefault();
+          isSearchOpen ? closeSearch() : openSearch();
+        }
+      });
+
+      searchModal.addEventListener("click", (e) => {
+        if (e.target === searchModal) closeSearch();
+      });
+
+      searchInput.addEventListener("input", async (e) => {
+        const query = e.target.value.trim();
+        if (!query) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+          return;
+        }
+
+        // Check if query starts with #tag
+        const isTagSearch = query.startsWith('#');
+        let results;
+        
+        if (isTagSearch) {
+          // Tag search
+          const tag = query.slice(1).toUpperCase();
+          results = await pagefind.search(`tag:${tag}`);
+        } else {
+          // Regular text search
+          results = await pagefind.search(query);
+        }
+
+        if (results.results.length === 0) {
+          searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">No results found.</p>';
+          return;
+        }
+
+        let html = '<ul class="space-y-2">';
+        for (const result of results.results) {
+          const data = await result.data();
+          // Extract title from h1 or use URL slug as fallback
+          const title = data.meta?.title || data.title || (data.url.split('/').pop() || 'untitled').replace(/-/g, ' ');
+          html += `<li><a href="${data.url}" class="block p-3 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-2 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-all hover:shadow-md duration-200 border border-transparent hover:border-nord-9 dark:hover:border-nord-8"><div class="font-medium">${title}</div><div class="text-xs text-nord-3 dark:text-nord-5 mt-1 line-clamp-2">${data.excerpt || ""}</div></a></li>`;
+        }
+        searchResults.innerHTML = html + "</ul>";
+      });
+    }
+
+    function openSearch() {
+      isSearchOpen = true;
+      searchModal.classList.remove("hidden");
+      searchInput.focus();
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeSearch() {
+      isSearchOpen = false;
+      searchModal.classList.add("hidden");
+      searchInput.value = "";
+      searchResults.innerHTML = '<p class="text-nord-3 dark:text-nord-5 text-sm">Type to search...</p>';
+      document.body.style.overflow = "";
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initSearch);
+    } else {
+      initSearch();
+    }
+  }
+})();</script> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="group relative p-2 rounded-lg hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-3 dark:text-nord-4 transition-all duration-200 ease-out hover:scale-110 inline-flex"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="w-4 h-4 text-nord-13 hidden dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="w-4 h-4 text-nord-9 block dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script>
+  const THEME_KEY = 'nord-theme';
+  const DARK = 'dark';
+  
+  function getStoredTheme() {
+    return localStorage.getItem(THEME_KEY);
+  }
+  
+  function getSystemTheme() {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? DARK : 'light';
+  }
+  
+  function getTheme() {
+    return getStoredTheme() || getSystemTheme();
+  }
+  
+  function applyTheme(theme) {
+    const html = document.documentElement;
+    if (theme === DARK) {
+      html.classList.add('dark');
+    } else {
+      html.classList.remove('dark');
+    }
+  }
+  
+  function toggleTheme() {
+    const currentTheme = getTheme();
+    const newTheme = currentTheme === DARK ? 'light' : DARK;
+    localStorage.setItem(THEME_KEY, newTheme);
+    applyTheme(newTheme);
+  }
+  
+  const themeToggle = document.getElementById('theme-toggle');
+  if (themeToggle) {
+    themeToggle.addEventListener('click', toggleTheme);
+  }
+</script> </div> </nav> </header> <main class="max-w-4xl mx-auto px-4 py-12" data-pagefind-body>  <div class="space-y-6"> <div> <div class="flex flex-wrap items-center gap-2"> <span class="text-3xl font-bold text-nord-2 dark:text-nord-6">Tags:</span> <div key="CS" class="inline-flex items-center gap-1"> <a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a> <a href="/notes" class="ml-1 text-nord-2 dark:text-nord-6 hover:opacity-70 transition-opacity font-bold cursor-pointer text-sm" title="Remove CS filter">
+×
+</a> </div> </div> <p class="text-nord-3 dark:text-nord-4 mt-3">48 notes</p> </div> <div class="space-y-3"> <div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-CJXA" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Go: channel 通道</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><a href="/notes/series/inside-go" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-green-light dark:tag-text-green-dark !no-underline hover:!no-underline" title="系列：Inside Go"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> <span>Inside Go</span>  </a><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div><div class="flex items-center gap-4 shrink-0 text-sm"><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" title="Links to 2 note(s)" data-modal-id="list-outlinks-1770123038-CJXA"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg><span class="font-medium">2 links</span></button></div></div></div><div id="list-outlinks-1770123038-CJXA" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(2)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770786730-PFOI" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: goroutine 协程</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770786730-PFOI </div> </a> </li><li> <a href="/notes/1770123038-RTOD" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: compile 编译器</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770123038-RTOD </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-outlinks-1770123038-CJXA";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770786730-PFOI" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Go: goroutine 协程</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-11</span><a href="/notes/series/inside-go" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-green-light dark:tag-text-green-dark !no-underline hover:!no-underline" title="系列：Inside Go"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> <span>Inside Go</span>  </a><div class="flex gap-1 flex-wrap"><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a></div></div></div><div class="flex items-center gap-4 shrink-0 text-sm"><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" title="Links to 1 note(s)" data-modal-id="list-outlinks-1770786730-PFOI"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg><span class="font-medium">1 links</span></button><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" title="Linked from 1 note(s)" data-modal-id="list-backlinks-1770786730-PFOI"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg><span class="font-medium">1 backlinks</span></button></div></div></div><div id="list-outlinks-1770786730-PFOI" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770123039-URZR" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">scheduler</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770123039-URZR </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-outlinks-1770786730-PFOI";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div id="list-backlinks-1770786730-PFOI" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770123038-CJXA" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: channel 通道</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770123038-CJXA </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-backlinks-1770786730-PFOI";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-YYVW" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">stack</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770877353-DKNI" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">cmd-list</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-12</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-CORU" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">test</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770865411-WOKA" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">http</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-12</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/NET" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: NET"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>NET</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770861174-UPBL" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">modules</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-12</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div><div class="flex items-center gap-4 shrink-0 text-sm"><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" title="Links to 2 note(s)" data-modal-id="list-outlinks-1770861174-UPBL"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg><span class="font-medium">2 links</span></button><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" title="Linked from 1 note(s)" data-modal-id="list-backlinks-1770861174-UPBL"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg><span class="font-medium">1 backlinks</span></button></div></div></div><div id="list-outlinks-1770861174-UPBL" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(2)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770859985-MIIW" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">GO: packages 包</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770859985-MIIW </div> </a> </li><li> <a href="/notes/1770863336-AGFW" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">semantic version 语义化版本号</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770863336-AGFW </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-outlinks-1770861174-UPBL";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div id="list-backlinks-1770861174-UPBL" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770859985-MIIW" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">GO: packages 包</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770859985-MIIW </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-backlinks-1770861174-UPBL";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770859985-MIIW" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">GO: packages 包</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-12</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div><div class="flex items-center gap-4 shrink-0 text-sm"><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" title="Links to 1 note(s)" data-modal-id="list-outlinks-1770859985-MIIW"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg><span class="font-medium">1 links</span></button><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" title="Linked from 1 note(s)" data-modal-id="list-backlinks-1770859985-MIIW"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg><span class="font-medium">1 backlinks</span></button></div></div></div><div id="list-outlinks-1770859985-MIIW" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770861174-UPBL" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">modules</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770861174-UPBL </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-outlinks-1770859985-MIIW";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div id="list-backlinks-1770859985-MIIW" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770861174-UPBL" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">modules</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770861174-UPBL </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-backlinks-1770859985-MIIW";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770735254-ELYE" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Go: Memory Allocation 内存分配</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-10</span><a href="/notes/series/inside-go" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-green-light dark:tag-text-green-dark !no-underline hover:!no-underline" title="系列：Inside Go"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> <span>Inside Go</span>  </a><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770735258-AQIZ" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Go: Garbage Collection 垃圾回收</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-10</span><a href="/notes/series/inside-go" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-green-light dark:tag-text-green-dark !no-underline hover:!no-underline" title="系列：Inside Go"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> <span>Inside Go</span>  </a><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770358578-USPT" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Go: map 映射</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-06</span><a href="/notes/series/inside-go" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-green-light dark:tag-text-green-dark !no-underline hover:!no-underline" title="系列：Inside Go"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> <span>Inside Go</span>  </a><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div><div class="flex items-center gap-4 shrink-0 text-sm"><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" title="Links to 1 note(s)" data-modal-id="list-outlinks-1770358578-USPT"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg><span class="font-medium">1 links</span></button><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" title="Linked from 1 note(s)" data-modal-id="list-backlinks-1770358578-USPT"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg><span class="font-medium">1 backlinks</span></button></div></div></div><div id="list-outlinks-1770358578-USPT" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770297348-USPT" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: iter 迭代器</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770297348-USPT </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-outlinks-1770358578-USPT";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div id="list-backlinks-1770358578-USPT" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770297348-USPT" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: iter 迭代器</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770297348-USPT </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-backlinks-1770358578-USPT";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770212579-GOHL" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Go: slice 切片</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><a href="/notes/series/inside-go" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-green-light dark:tag-text-green-dark !no-underline hover:!no-underline" title="系列：Inside Go"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> <span>Inside Go</span>  </a><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div><div class="flex items-center gap-4 shrink-0 text-sm"><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" title="Links to 2 note(s)" data-modal-id="list-outlinks-1770212579-GOHL"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg><span class="font-medium">2 links</span></button><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" title="Linked from 1 note(s)" data-modal-id="list-backlinks-1770212579-GOHL"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg><span class="font-medium">1 backlinks</span></button></div></div></div><div id="list-outlinks-1770212579-GOHL" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(2)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770297348-USPT" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: iter 迭代器</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770297348-USPT </div> </a> </li><li> <a href="/notes/1770294643-MGKF" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: 逃逸分析</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770294643-MGKF </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-outlinks-1770212579-GOHL";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div id="list-backlinks-1770212579-GOHL" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770297348-USPT" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: iter 迭代器</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770297348-USPT </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-backlinks-1770212579-GOHL";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770297348-USPT" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Go: iter 迭代器</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><a href="/notes/series/inside-go" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-green-light dark:tag-text-green-dark !no-underline hover:!no-underline" title="系列：Inside Go"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> <span>Inside Go</span>  </a><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div><div class="flex items-center gap-4 shrink-0 text-sm"><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors" title="Links to 2 note(s)" data-modal-id="list-outlinks-1770297348-USPT"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg><span class="font-medium">2 links</span></button><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" title="Linked from 2 note(s)" data-modal-id="list-backlinks-1770297348-USPT"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg><span class="font-medium">2 backlinks</span></button></div></div></div><div id="list-outlinks-1770297348-USPT" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Outlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(2)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770212579-GOHL" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: slice 切片</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770212579-GOHL </div> </a> </li><li> <a href="/notes/1770358578-USPT" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: map 映射</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770358578-USPT </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-outlinks-1770297348-USPT";
+const type = "outlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div id="list-backlinks-1770297348-USPT" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(2)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770358578-USPT" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: map 映射</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770358578-USPT </div> </a> </li><li> <a href="/notes/1770212579-GOHL" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: slice 切片</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770212579-GOHL </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-backlinks-1770297348-USPT";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-CRIT" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">async</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-LOCB" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">lsp</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-USPT" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">algo</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-ZSEZ" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">raft</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-HJMR" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Learn Tree Sitter</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-OULE" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">type-system</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-RFPD" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">vim-internal</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-VPAV" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">abi</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-BVQV" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Go Asm</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-EGXI" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Go: Build Constraints</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-RTOD" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Go: compile 编译器</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><a href="/notes/series/inside-go" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-green-light dark:tag-text-green-dark !no-underline hover:!no-underline" title="系列：Inside Go"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> <span>Inside Go</span>  </a><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div><div class="flex items-center gap-4 shrink-0 text-sm"><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" title="Linked from 1 note(s)" data-modal-id="list-backlinks-1770123038-RTOD"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg><span class="font-medium">1 backlinks</span></button></div></div></div><div id="list-backlinks-1770123038-RTOD" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770123038-CJXA" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: channel 通道</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770123038-CJXA </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-backlinks-1770123038-RTOD";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-NWDH" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">execution-tracer</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-WTSQ" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">generic</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770294643-MGKF" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Go: 逃逸分析</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div><div class="flex items-center gap-4 shrink-0 text-sm"><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" title="Linked from 1 note(s)" data-modal-id="list-backlinks-1770294643-MGKF"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg><span class="font-medium">1 backlinks</span></button></div></div></div><div id="list-backlinks-1770294643-MGKF" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770212579-GOHL" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: slice 切片</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770212579-GOHL </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-backlinks-1770294643-MGKF";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123038-DAMR" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">contiguous-stacks</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-KYZK" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Interface and Reflect in Golang</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-QYTC" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Go: Options Pattern</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-EBFD" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Go: Package Context</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-LPHV" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">Go: Pacakge Database</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-HHXY" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">memory</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-HFDT" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">practical</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-YVKU" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">profile</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-BURD" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">preempt</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-BRNU" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">program-initialization-and-execution</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-BNSO" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">race-detector</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-URZR" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">scheduler</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div><div class="flex items-center gap-4 shrink-0 text-sm"><button type="button" class="open-list-modal flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" title="Linked from 1 note(s)" data-modal-id="list-backlinks-1770123039-URZR"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path></svg><span class="font-medium">1 backlinks</span></button></div></div></div><div id="list-backlinks-1770123039-URZR" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="bg-nord-6 dark:bg-nord-0 rounded-lg shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto border border-nord-5 dark:border-nord-1"> <!-- Header --> <div class="sticky top-0 bg-nord-6 dark:bg-nord-0 border-b border-nord-5 dark:border-nord-1 px-6 py-4 flex items-center justify-between"> <h2 class="text-lg font-semibold text-nord-2 dark:text-nord-6"> Backlinks <span class="text-sm font-normal text-nord-3 dark:text-nord-5 ml-2">
+(1)
+</span> </h2> <button class="close-modal p-1 text-nord-3 dark:text-nord-4 hover:bg-nord-5 dark:hover:bg-nord-1 hover:text-nord-2 dark:hover:text-nord-5 rounded transition-colors" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770786730-PFOI" class="block p-3 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors"> <div class="font-medium">Go: goroutine 协程</div> <div class="text-xs text-nord-3 dark:text-nord-5 mt-1 break-all"> /notes/1770786730-PFOI </div> </a> </li> </ul> </div> </div> </div> <script>(function(){const modalId = "list-backlinks-1770123039-URZR";
+const type = "backlinks";
+
+  const modal = document.getElementById(modalId);
+  const closeButtons = modal ? modal.querySelectorAll('.close-modal') : [];
+
+  // Create camelCase function name: "backlinks" -> "openBacklinksModal"
+  const functionName = `open${type.charAt(0).toUpperCase() + type.slice(1)}Modal`;
+
+  // Open modal
+  window[functionName] = function() {
+    if (modal) {
+      modal.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+  };
+
+  // Close modal
+  function closeModal() {
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Close button listeners
+  closeButtons.forEach((btn) => {
+    btn.addEventListener('click', closeModal);
+  });
+
+  // Close on background click
+  if (modal) {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        closeModal();
+      }
+    });
+  }
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+    }
+  });
+})();</script><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-CQBF" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">runtime</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-RROX" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">style-guide</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-KBJA" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">sync</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-ZIFH" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">timer</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-KTOV" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">type-system-in-go</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-NAHH" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">linux-perf</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/OS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: OS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>OS</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-FBYV" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">memory</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/OS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: OS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>OS</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770123039-UDHH" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">OS</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-05</span><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/OS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: OS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>OS</span>  </a></div></div></div></div></div><div class="group border border-nord-4 border-opacity-15 dark:border-nord-3 dark:border-opacity-20 rounded-lg sm:rounded-xl px-3 sm:px-5 py-3 sm:py-4 mb-4 last:mb-0 bg-gradient-to-br from-white to-nord-6/30 dark:from-nord-2 dark:to-nord-1 shadow-card dark:shadow-card-dark hover:border-nord-4 dark:hover:border-nord-3 hover:shadow-card-hover dark:hover:shadow-card-hover-dark transition-all duration-300 ease-out hover:translate-y-[-6px] hover:scale-[1.01]"><div class="flex flex-col sm:flex-row items-start justify-between gap-2 sm:gap-4"><div class="flex-1 min-w-0"><a href="/notes/1770085101-USPT" class="text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors !no-underline hover:!no-underline font-semibold text-base group-hover:text-nord-10 dark:group-hover:text-nord-8 transition-colors">fold</a><div class="flex items-center gap-2 flex-wrap mt-2"><span class="text-xs text-nord-3 dark:text-nord-5">2026-02-03</span><a href="/notes/series/within-vim" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-green-light dark:tag-text-green-dark !no-underline hover:!no-underline" title="系列：Within Vim"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> <span>Within Vim</span>  </a><div class="flex gap-1 flex-wrap"><a href="/notes/tag/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tag/VIM" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: VIM"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>VIM</span>  </a></div></div></div></div></div> </div> <div class="mt-8 pt-6 border-t border-nord-5 dark:border-nord-1"> <p class="text-sm text-nord-3 dark:text-nord-4 mb-2">Add more tags:</p> <div class="flex flex-wrap gap-2"> <a key="1770085816-USPT" href="/notes/tag/1770085816-USPT-CS" class="inline-block px-2 py-1 text-xs bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 rounded hover:bg-nord-4 dark:hover:bg-nord-2 transition-colors">
++ 1770085816-USPT </a><a key="1770085837-LOCB" href="/notes/tag/1770085837-LOCB-CS" class="inline-block px-2 py-1 text-xs bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 rounded hover:bg-nord-4 dark:hover:bg-nord-2 transition-colors">
++ 1770085837-LOCB </a><a key="1770085882-USPT" href="/notes/tag/1770085882-USPT-CS" class="inline-block px-2 py-1 text-xs bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 rounded hover:bg-nord-4 dark:hover:bg-nord-2 transition-colors">
++ 1770085882-USPT </a><a key="BN" href="/notes/tag/BN-CS" class="inline-block px-2 py-1 text-xs bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 rounded hover:bg-nord-4 dark:hover:bg-nord-2 transition-colors">
++ BN </a><a key="EF" href="/notes/tag/CS-EF" class="inline-block px-2 py-1 text-xs bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 rounded hover:bg-nord-4 dark:hover:bg-nord-2 transition-colors">
++ EF </a><a key="EN" href="/notes/tag/CS-EN" class="inline-block px-2 py-1 text-xs bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 rounded hover:bg-nord-4 dark:hover:bg-nord-2 transition-colors">
++ EN </a><a key="GO" href="/notes/tag/CS-GO" class="inline-block px-2 py-1 text-xs bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 rounded hover:bg-nord-4 dark:hover:bg-nord-2 transition-colors">
++ GO </a><a key="HUA" href="/notes/tag/CS-HUA" class="inline-block px-2 py-1 text-xs bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 rounded hover:bg-nord-4 dark:hover:bg-nord-2 transition-colors">
++ HUA </a><a key="JP" href="/notes/tag/CS-JP" class="inline-block px-2 py-1 text-xs bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 rounded hover:bg-nord-4 dark:hover:bg-nord-2 transition-colors">
++ JP </a><a key="LANG" href="/notes/tag/CS-LANG" class="inline-block px-2 py-1 text-xs bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 rounded hover:bg-nord-4 dark:hover:bg-nord-2 transition-colors">
++ LANG </a><a key="NET" href="/notes/tag/CS-NET" class="inline-block px-2 py-1 text-xs bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 rounded hover:bg-nord-4 dark:hover:bg-nord-2 transition-colors">
++ NET </a><a key="OS" href="/notes/tag/CS-OS" class="inline-block px-2 py-1 text-xs bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 rounded hover:bg-nord-4 dark:hover:bg-nord-2 transition-colors">
++ OS </a><a key="VIM" href="/notes/tag/CS-VIM" class="inline-block px-2 py-1 text-xs bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 rounded hover:bg-nord-4 dark:hover:bg-nord-2 transition-colors">
++ VIM </a><a key="reading" href="/notes/tag/CS-reading" class="inline-block px-2 py-1 text-xs bg-nord-5 dark:bg-nord-1 text-nord-2 dark:text-nord-6 rounded hover:bg-nord-4 dark:hover:bg-nord-2 transition-colors">
++ reading </a> </div> </div> <div class="mt-8 pt-8 border-t border-nord-5 dark:border-nord-1"> <a href="/notes" class="btn-primary"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M15 19l-7-7 7-7"></path> </svg>
+Back to Notes
+</a> </div> </div> <script>
+  document.querySelectorAll('.open-list-modal').forEach((btn) => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const modalId = btn.getAttribute('data-modal-id');
+      const modal = document.getElementById(modalId);
+      if (modal) {
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+  });
+</script>  </main> <footer class="border-t border-nord-5 dark:border-nord-1 mt-12"> <div class="max-w-4xl mx-auto px-4 py-6 text-sm text-nord-3 dark:text-nord-4 text-center"> <p>&copy; 2026. All rights reserved.</p> </div> </footer> <script type="module" src="/_astro/Base.astro_astro_type_script_index_0_lang.WDMQca9J.js"></script> <script>
+      (function() {
+        const root = document.getElementById('series-dropdown-root');
+        const trigger = document.getElementById('series-dropdown-trigger');
+        const panel = document.getElementById('series-dropdown-panel');
+        const listEl = document.getElementById('series-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let seriesList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (seriesList === null) {
+            fetch('/series-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                seriesList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无系列</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(name) {
+                     const slug = name.toLowerCase().replace(/\s+/g, '-');
+                     const url = '/notes/series/' + slug;
+                     return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(name) + '</a>';
+                   }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        // On click: allow default navigation to /notes/series
+        // On hover: show dropdown menu
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+          // Don't preventDefault - allow link to navigate
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> <script>
+      (function() {
+        const root = document.getElementById('tags-dropdown-root');
+        const trigger = document.getElementById('tags-dropdown-trigger');
+        const panel = document.getElementById('tags-dropdown-panel');
+        const listEl = document.getElementById('tags-dropdown-list');
+        if (!root || !trigger || !panel || !listEl) return;
+
+        let tagList = null;
+        let hoverTimeout = null;
+
+        function open() {
+          panel.classList.remove('hidden');
+          trigger.setAttribute('aria-expanded', 'true');
+          if (tagList === null) {
+            fetch('/tag-list.json')
+              .then((r) => r.json())
+              .then((list) => {
+                tagList = list;
+                if (list.length === 0) {
+                  listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-4 dark:text-nord-3">暂无标签</span>';
+                } else {
+                  listEl.innerHTML = list.map(function(tag) {
+                     const url = '/notes/tag/' + encodeURIComponent(tag);
+                     return '<a href="' + url + '" class="block px-3 py-2 text-sm text-nord-9 dark:text-nord-8 hover:bg-nord-5 dark:hover:bg-nord-2 transition-colors" role="menuitem">' + escapeHtml(tag) + '</a>';
+                   }).join('');
+                }
+              })
+              .catch(function() {
+                listEl.innerHTML = '<span class="block px-3 py-2 text-xs text-nord-11">加载失败</span>';
+              });
+          }
+        }
+
+        function close() {
+          panel.classList.add('hidden');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+
+        function escapeHtml(s) {
+          const div = document.createElement('div');
+          div.textContent = s;
+          return div.innerHTML;
+        }
+
+        trigger.addEventListener('click', function(e) {
+          e.stopPropagation();
+        });
+
+        trigger.addEventListener('mouseenter', function() {
+          if (hoverTimeout) clearTimeout(hoverTimeout);
+          hoverTimeout = setTimeout(open, 200);
+        });
+
+        root.addEventListener('mouseleave', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+          hoverTimeout = setTimeout(close, 150);
+        });
+
+        panel.addEventListener('mouseenter', function() {
+          if (hoverTimeout) { clearTimeout(hoverTimeout); hoverTimeout = null; }
+        });
+
+        document.addEventListener('click', function(e) {
+          if (!root.contains(e.target)) close();
+        });
+      })();
+    </script> </body> </html>  <script>
+  // Language aliases (matches server-side)
+  const langAliases = {
+    js: 'javascript',
+    ts: 'typescript',
+    yml: 'yaml',
+    yaml: 'yaml',
+    sh: 'bash',
+    shell: 'bash',
+    sql: 'postgresql',
+    java: 'openjdk',
+  };
+
+  // Add headers and copy buttons to code blocks
+  function initCodeBlocks() {
+    document.querySelectorAll('pre[data-language]').forEach((pre) => {
+      // Skip if already processed
+      if (pre.parentNode.classList.contains('code-block-wrapper')) return;
+      
+      const lang = pre.getAttribute('data-language') || 'code';
+      
+      // Create wrapper
+      const wrapper = document.createElement('div');
+      wrapper.className = 'code-block-wrapper';
+      pre.parentNode.insertBefore(wrapper, pre);
+      wrapper.appendChild(pre);
+      
+      // Create header
+      const header = document.createElement('div');
+      header.className = 'code-header';
+      
+      const langSpan = document.createElement('span');
+      langSpan.className = 'code-header-lang';
+      langSpan.title = lang;
+      
+      // Normalize lang for devicon
+      const normalizedLang = lang.toLowerCase();
+      const iconLang = langAliases[normalizedLang] || normalizedLang;
+      
+      // Display language with devicon (format: devicon-{name}-{version} colored)
+      const iconEl = document.createElement('i');
+      iconEl.className = `devicon-${iconLang}-plain colored`;
+      iconEl.style.marginRight = '0.375rem';
+      iconEl.style.fontSize = '0.75rem';
+      langSpan.appendChild(iconEl);
+      langSpan.appendChild(document.createTextNode(lang));
+      
+      const button = document.createElement('button');
+      button.className = 'copy-code-btn';
+      button.title = 'Copy to clipboard';
+      button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+      
+      let isCopying = false;
+      button.addEventListener('click', async () => {
+        if (isCopying) return;
+        isCopying = true;
+        
+        const code = pre.querySelector('code')?.textContent || '';
+        try {
+          await navigator.clipboard.writeText(code);
+          const originalHtml = button.innerHTML;
+          button.innerHTML = '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>';
+          button.title = 'Copied!';
+          setTimeout(() => {
+            button.innerHTML = originalHtml;
+            button.title = 'Copy to clipboard';
+            isCopying = false;
+          }, 2000);
+        } catch (err) {
+          console.error('Failed to copy:', err);
+          isCopying = false;
+        }
+      });
+      
+      header.appendChild(langSpan);
+      header.appendChild(button);
+      wrapper.appendChild(header);
+    });
+  }
+
+  // Run ASAP, then on DOMContentLoaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCodeBlocks);
+  } else {
+    initCodeBlocks();
+  }
+
+  // Convert wikilinks to links on client side
+  // Matches [[ref]] or [[ref|display text]]
+  document.addEventListener('DOMContentLoaded', () => {
+    const wikiRegex = /\[\[([a-zA-Z0-9][a-zA-Z0-9_-]*?)(?:\|([^\]]+))?\]\]/g;
+    
+    // Process all text nodes in prose content
+    const walker = document.createTreeWalker(
+      document.querySelector('.prose') || document.body,
+      NodeFilter.SHOW_TEXT,
+      null,
+      false
+    );
+    
+    const nodesToReplace = [];
+    let node;
+    
+    while (node = walker.nextNode()) {
+      if (node.nodeValue.includes('[[')) {
+        nodesToReplace.push(node);
+      }
+    }
+    
+    nodesToReplace.forEach((textNode) => {
+      const parent = textNode.parentNode;
+      let lastIndex = 0;
+      const matches = [...textNode.nodeValue.matchAll(wikiRegex)];
+      
+      if (matches.length === 0) return;
+      
+      const fragment = document.createDocumentFragment();
+      
+      matches.forEach((match) => {
+        const [fullMatch, ref, displayText] = match;
+        const startIndex = match.index;
+        
+        // Add text before match
+        if (startIndex > lastIndex) {
+          fragment.appendChild(
+            document.createTextNode(textNode.nodeValue.slice(lastIndex, startIndex))
+          );
+        }
+        
+        // Create link
+        const link = document.createElement('a');
+        link.href = `/notes/${ref.toLowerCase()}`;
+        link.textContent = (displayText || ref).trim();
+        link.className = 'text-nord-9 dark:text-nord-8 hover:text-nord-10 dark:hover:text-nord-7 transition-colors';
+        fragment.appendChild(link);
+        
+        lastIndex = startIndex + fullMatch.length;
+      });
+      
+      // Add remaining text
+      if (lastIndex < textNode.nodeValue.length) {
+        fragment.appendChild(
+          document.createTextNode(textNode.nodeValue.slice(lastIndex))
+        );
+      }
+      
+      parent.replaceChild(fragment, textNode);
+    });
+  });
+</script>
