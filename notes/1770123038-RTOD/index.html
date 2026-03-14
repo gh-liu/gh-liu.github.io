@@ -1,0 +1,667 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>Go: compile 编译器</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css"><script>
+      // 内联阻塞脚本：在首帧渲染前同步应用主题，避免 View Transitions 页面切换时的白屏闪烁。
+      // 必须无 import、同步执行；若用 theme.ts 模块，会在新文档替换后延迟执行导致闪白。
+      (function() {
+        var theme = localStorage.getItem('nord-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+      })();
+    </script><script type="module" src="/_astro/BaseLayout.astro_astro_type_script_index_0_lang.D_jVB8Nw.js"></script><link rel="stylesheet" href="/_astro/_chapterSlug_.iVLCkX78.css">
+<style>.toc-scroll[data-astro-cid-ujbpqdc7]{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--theme-border-default) 55%,transparent) transparent}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar{width:6px}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-track{background:transparent}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-thumb{border-radius:999px;background:color-mix(in srgb,var(--theme-border-default) 52%,transparent)}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--theme-border-default) 72%,transparent)}.toc-link__label[data-astro-cid-ujbpqdc7]{display:-webkit-box;overflow:hidden;line-height:1.45;text-wrap:pretty;word-break:break-word;-webkit-box-orient:vertical;-webkit-line-clamp:2}.toc-link[data-astro-cid-ujbpqdc7]:hover .toc-link__label[data-astro-cid-ujbpqdc7],.toc-link[data-astro-cid-ujbpqdc7]:focus-visible .toc-link__label[data-astro-cid-ujbpqdc7],.toc-link[data-astro-cid-ujbpqdc7][aria-current=true] .toc-link__label[data-astro-cid-ujbpqdc7]{-webkit-line-clamp:unset}@media(max-width:1279px){.toc-link__label[data-astro-cid-ujbpqdc7]{-webkit-line-clamp:unset}}
+.knowledge-graph-container[data-astro-cid-zjb43jqo]{border:1px solid var(--theme-border-default);border-radius:8px;background:var(--theme-bg-elevated);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen,.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo],.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--theme-border-default);border-radius:6px;background:var(--theme-bg-panel);color:var(--theme-text-primary);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--theme-bg-panel-hover);color:var(--theme-accent-hover)}.knowledge-graph-toolbar-btn:active{background:var(--theme-bg-panel-hover)}.knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:var(--theme-accent);stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--theme-success);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--theme-accent-hover);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--theme-success);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--theme-secondary-accent);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--theme-warning);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--theme-node-neutral);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:var(--theme-text-faint);stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--theme-accent);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--theme-text-primary);font-weight:500;text-shadow:0 0 3px var(--theme-bg-elevated)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--theme-tooltip-bg);border:1px solid var(--theme-border-default);border-radius:4px;font-size:12px;color:var(--theme-tooltip-text);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--theme-info);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--theme-text-primary)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--theme-accent-hover)}.kg-legend--outlink{color:var(--theme-success)}.kg-legend--backlink{color:var(--theme-secondary-accent)}.kg-legend--both{color:var(--theme-warning)}.kg-legend--neighbor{color:var(--theme-node-neutral);opacity:.9}
+article[data-astro-cid-o5gmpz7g]{word-break:break-word}.note-content[data-astro-cid-o5gmpz7g] h1:first-child{display:none}
+</style></head> <body class="site-shell"> <a href="#main-content" class="skip-to-content">Skip to main content</a> <header class="sticky top-0 z-30 border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-page)] backdrop-blur-2xl"> <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8"> <div class="flex min-w-0 items-center gap-3"> <a href="/" title="Liu" class="shrink-0 rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] p-2 text-[color:var(--theme-text-primary)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] active:scale-95"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5.5 9.5V21h13V9.5"></path><path d="M9.5 21v-6h5v6"></path></svg> </a> <div class="min-w-0"> <h1 class="truncate text-lg font-bold leading-tight text-[color:var(--theme-text-primary)] sm:text-[1.1rem]"> <a href="/" class="text-inherit transition-colors hover:text-[color:var(--theme-accent-hover)]"> Liu </a> </h1> </div> </div> <div class="hidden min-w-0 flex-1 lg:block"></div> <div class="hidden items-center gap-2 lg:flex"> <a href="/books" title="Books" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22z"></path><path d="M5 4.5V22"></path><path d="M8.5 7.5h7"></path><path d="M8.5 11h7"></path></svg> </a><a href="/notes" title="Notes" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7"></path><path d="M8.5 12h7"></path><path d="M8.5 16h5"></path></svg> </a><a href="/notes/graph" title="Graph" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg> </a> <div class="relative" id="series-dropdown-root"> <a href="/notes/series" title="Series" id="series-dropdown-trigger" data-dropdown-trigger class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg> </a> <div id="series-dropdown-panel" data-dropdown-url="/series-list.json" data-empty-text="暂无系列" data-error-text="加载失败" class="absolute right-0 top-full z-50 mt-1 hidden max-h-[70vh] min-w-[12rem] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] py-2 shadow-lg" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-[color:var(--theme-text-faint)]">加载中…</span> </div> <div class="mt-1 border-t border-[color:var(--theme-border-subtle)] pt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> 查看全部系列 →
+</a> </div> </div> </div> <script type="module">document.addEventListener("click",t=>{const e=t.target;!(e instanceof HTMLElement)||!e.closest("[data-dropdown-trigger]")||t.preventDefault()});</script><div class="relative" id="tags-dropdown-root"> <a href="/notes/tags" title="Tags" id="tags-dropdown-trigger" data-dropdown-trigger class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14v17L12 17l-7 3V3z"></path></svg> </a> <div id="tags-dropdown-panel" data-dropdown-url="/tag-list.json" data-empty-text="暂无标签" data-error-text="加载失败" class="absolute right-0 top-full z-50 mt-1 hidden max-h-[70vh] min-w-[12rem] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] py-2 shadow-lg" role="menu"> <div id="tags-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-[color:var(--theme-text-faint)]">加载中…</span> </div> <div class="mt-1 border-t border-[color:var(--theme-border-subtle)] pt-1"> <a href="/notes/tags" class="block px-3 py-2 text-sm text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> 查看全部标签 →
+</a> </div> </div> </div>  <a href="https://github.com/gh-liu" title="GitHub" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg> </a> <div class="search-container" id="search-wrapper" data-pagefind-url="/pagefind/pagefind.js" data-astro-cid-35jtkoll><button id="search-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-35jtkoll><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-35jtkoll><circle cx="11" cy="11" r="8" data-astro-cid-35jtkoll></circle><path d="m21 21-4.35-4.35" data-astro-cid-35jtkoll></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-35jtkoll><div class="w-full max-w-2xl animate-fade-in overflow-hidden rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl max-h-[70vh] flex flex-col" data-astro-cid-35jtkoll><div class="border-b border-[color:var(--theme-border-subtle)] p-4" data-astro-cid-35jtkoll><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full rounded bg-[color:var(--theme-bg-panel-hover)] px-4 py-2 text-[color:var(--theme-text-primary)] placeholder-[color:var(--theme-text-faint)] focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-35jtkoll></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-35jtkoll><p class="text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll>Type to search...</p></div><div class="border-t border-[color:var(--theme-border-subtle)] p-3 text-xs text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll><p data-astro-cid-35jtkoll>Press <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>Esc</kbd> to close | Use <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>#tag</kbd> to search by tag</p></div></div></div></div> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] group relative"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="hidden h-4 w-4 text-nord-13 dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="block h-4 w-4 text-nord-9 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script type="module" src="/_astro/ThemeToggle.astro_astro_type_script_index_0_lang.oLaqEd7_.js"></script> </div> <div class="flex items-center gap-1.5 shrink-0 lg:hidden"> <a href="https://github.com/gh-liu" title="GitHub" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg> </a> <div class="search-container" id="search-wrapper" data-pagefind-url="/pagefind/pagefind.js" data-astro-cid-35jtkoll><button id="search-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-35jtkoll><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-35jtkoll><circle cx="11" cy="11" r="8" data-astro-cid-35jtkoll></circle><path d="m21 21-4.35-4.35" data-astro-cid-35jtkoll></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-35jtkoll><div class="w-full max-w-2xl animate-fade-in overflow-hidden rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl max-h-[70vh] flex flex-col" data-astro-cid-35jtkoll><div class="border-b border-[color:var(--theme-border-subtle)] p-4" data-astro-cid-35jtkoll><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full rounded bg-[color:var(--theme-bg-panel-hover)] px-4 py-2 text-[color:var(--theme-text-primary)] placeholder-[color:var(--theme-text-faint)] focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-35jtkoll></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-35jtkoll><p class="text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll>Type to search...</p></div><div class="border-t border-[color:var(--theme-border-subtle)] p-3 text-xs text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll><p data-astro-cid-35jtkoll>Press <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>Esc</kbd> to close | Use <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>#tag</kbd> to search by tag</p></div></div></div></div> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] group relative"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="hidden h-4 w-4 text-nord-13 dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="block h-4 w-4 text-nord-9 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button>  </div> </nav> <div class="border-t border-[color:var(--theme-border-subtle)]/90 px-4 py-2.5 sm:px-6 lg:hidden"> <div class="mx-auto flex max-w-6xl gap-2 overflow-x-auto pb-1"> <a href="/books" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22z"></path><path d="M5 4.5V22"></path><path d="M8.5 7.5h7"></path><path d="M8.5 11h7"></path></svg> Books </a><a href="/notes" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7"></path><path d="M8.5 12h7"></path><path d="M8.5 16h5"></path></svg> Notes </a><a href="/notes/graph" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg> Graph </a> <a href="/notes/series" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg> Series </a><a href="/notes/tags" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14v17L12 17l-7 3V3z"></path></svg> Tags </a> </div> </div> </header> <main class="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8" data-pagefind-body="true" id="main-content">  <div class="contents" data-astro-cid-ujbpqdc7> <aside class="hidden xl:block" data-astro-cid-ujbpqdc7> <div class="fixed right-6 top-28 w-56 2xl:right-10 2xl:w-64" data-astro-cid-ujbpqdc7> <div class="toc-scroll max-h-[min(60vh,calc(100vh-10rem))] overflow-y-auto rounded-[1.5rem] border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel-strong)] px-2 py-2 shadow-[var(--shadow-soft)] backdrop-blur-xl" data-astro-cid-ujbpqdc7> <div class="mb-2 px-1" data-astro-cid-ujbpqdc7> <p class="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--theme-text-muted)]" data-astro-cid-ujbpqdc7>On this page</p> </div> <nav aria-label="Table of contents" data-astro-cid-ujbpqdc7> <ul class="space-y-0.5 text-[0.8rem] leading-4" data-astro-cid-ujbpqdc7> <li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#go" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] font-medium text-[color:var(--theme-text-primary)]" title="1 · Go 编译器#" data-toc-link data-depth="1" data-target="go" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1 · Go 编译器#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#dlv-complier" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.1 · 如何使用 dlv 调试 complier#" data-toc-link data-depth="2" data-target="dlv-complier" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.1 · 如何使用 dlv 调试 complier#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#gopls-setup" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.2 · gopls setup#" data-toc-link data-depth="2" data-target="gopls-setup" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.2 · gopls setup#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#13--快速概览编译流程" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.3 · 快速概览：编译流程" data-toc-link data-depth="2" data-target="13--快速概览编译流程" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.3 · 快速概览：编译流程</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#go-tool-compile" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.4 · go tool compile#" data-toc-link data-depth="2" data-target="go-tool-compile" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.4 · go tool compile#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#15--不同阶段的函数入口" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.5 · 不同阶段的函数入口" data-toc-link data-depth="2" data-target="15--不同阶段的函数入口" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.5 · 不同阶段的函数入口</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#16--编译细节" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6 · 编译细节" data-toc-link data-depth="2" data-target="16--编译细节" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6 · 编译细节</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#1" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.1 · 1. 词法与语法分析#" data-toc-link data-depth="3" data-target="1" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.1 · 1. 词法与语法分析#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#2-semantic-analysis" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.2 · 2. 类型检查（Semantic Analysis）#" data-toc-link data-depth="3" data-target="2-semantic-analysis" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.2 · 2. 类型检查（Semantic Analysis）#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#3-ir-tree" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.3 · 3. 中间代码生成（IR Tree）#" data-toc-link data-depth="3" data-target="3-ir-tree" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.3 · 3. 中间代码生成（IR Tree）#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#164--中端优化阶段" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.4 · 中端：优化阶段" data-toc-link data-depth="3" data-target="164--中端优化阶段" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.4 · 中端：优化阶段</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#walk" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.5 · Walk 阶段#" data-toc-link data-depth="3" data-target="walk" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.5 · Walk 阶段#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#166--包初始化" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.6 · 包初始化" data-toc-link data-depth="3" data-target="166--包初始化" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.6 · 包初始化</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#167--优化阶段" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.7 · 优化阶段" data-toc-link data-depth="3" data-target="167--优化阶段" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.7 · 优化阶段</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#168--后端详解" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.8 · 后端详解" data-toc-link data-depth="3" data-target="168--后端详解" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.8 · 后端详解</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#17--编译流程总结" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.7 · 编译流程总结" data-toc-link data-depth="2" data-target="17--编译流程总结" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.7 · 编译流程总结</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#171--完整编译链" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.7.1 · 完整编译链" data-toc-link data-depth="3" data-target="171--完整编译链" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.7.1 · 完整编译链</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#172--优化发生的位置" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.7.2 · 优化发生的位置" data-toc-link data-depth="3" data-target="172--优化发生的位置" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.7.2 · 优化发生的位置</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#18--参考资源" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.8 · 参考资源" data-toc-link data-depth="2" data-target="18--参考资源" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.8 · 参考资源</span> </a> </li> </ul> </nav> </div> </div> </aside>  <button id="toc-toggle" class="fixed bottom-6 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-[color:var(--theme-accent)] px-4 py-2 text-sm font-medium text-white shadow-lg transition-colors hover:bg-[color:var(--theme-accent-hover)] xl:hidden" aria-label="Open table of contents" aria-controls="toc-drawer" aria-expanded="false" data-astro-cid-ujbpqdc7> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-ujbpqdc7> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-ujbpqdc7></path> </svg> <span data-astro-cid-ujbpqdc7>On this page</span> </button> <div id="toc-overlay" class="fixed inset-0 z-40 hidden bg-black/50 backdrop-blur-sm xl:hidden" data-astro-cid-ujbpqdc7></div> <aside id="toc-drawer" class="fixed inset-y-0 right-0 z-50 hidden w-[min(22rem,88vw)] flex-col border-l border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] px-4 py-5 shadow-2xl xl:hidden" data-astro-cid-ujbpqdc7> <div class="mb-4 flex items-center justify-between rounded-2xl border border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-panel)] px-3 py-3" data-astro-cid-ujbpqdc7> <div data-astro-cid-ujbpqdc7> <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--theme-accent)]" data-astro-cid-ujbpqdc7>Table of contents</p> <p class="mt-1 text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-ujbpqdc7>Jump through the current note.</p> </div> <button id="toc-close" class="rounded-lg p-2 text-[color:var(--theme-text-primary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)]" aria-label="Close table of contents" data-astro-cid-ujbpqdc7> <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-ujbpqdc7> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-ujbpqdc7></path> </svg> </button> </div> <nav class="toc-scroll flex-1 min-h-0 max-h-[min(70vh,calc(100vh-14rem))] overflow-y-auto rounded-[1.5rem] border border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-panel)] p-1.5" aria-label="Table of contents mobile" data-astro-cid-ujbpqdc7> <ul class="space-y-0.5 text-sm leading-snug" data-astro-cid-ujbpqdc7> <li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#go" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1 · Go 编译器#" data-toc-link data-depth="1" data-target="go" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1 · Go 编译器#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#dlv-complier" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.1 · 如何使用 dlv 调试 complier#" data-toc-link data-depth="2" data-target="dlv-complier" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.1 · 如何使用 dlv 调试 complier#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#gopls-setup" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.2 · gopls setup#" data-toc-link data-depth="2" data-target="gopls-setup" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.2 · gopls setup#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#13--快速概览编译流程" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.3 · 快速概览：编译流程" data-toc-link data-depth="2" data-target="13--快速概览编译流程" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.3 · 快速概览：编译流程</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#go-tool-compile" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.4 · go tool compile#" data-toc-link data-depth="2" data-target="go-tool-compile" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.4 · go tool compile#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#15--不同阶段的函数入口" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.5 · 不同阶段的函数入口" data-toc-link data-depth="2" data-target="15--不同阶段的函数入口" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.5 · 不同阶段的函数入口</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#16--编译细节" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6 · 编译细节" data-toc-link data-depth="2" data-target="16--编译细节" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6 · 编译细节</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#1" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.1 · 1. 词法与语法分析#" data-toc-link data-depth="3" data-target="1" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.1 · 1. 词法与语法分析#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#2-semantic-analysis" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.2 · 2. 类型检查（Semantic Analysis）#" data-toc-link data-depth="3" data-target="2-semantic-analysis" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.2 · 2. 类型检查（Semantic Analysis）#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#3-ir-tree" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.3 · 3. 中间代码生成（IR Tree）#" data-toc-link data-depth="3" data-target="3-ir-tree" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.3 · 3. 中间代码生成（IR Tree）#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#164--中端优化阶段" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.4 · 中端：优化阶段" data-toc-link data-depth="3" data-target="164--中端优化阶段" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.4 · 中端：优化阶段</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#walk" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.5 · Walk 阶段#" data-toc-link data-depth="3" data-target="walk" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.5 · Walk 阶段#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#166--包初始化" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.6 · 包初始化" data-toc-link data-depth="3" data-target="166--包初始化" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.6 · 包初始化</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#167--优化阶段" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.7 · 优化阶段" data-toc-link data-depth="3" data-target="167--优化阶段" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.7 · 优化阶段</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#168--后端详解" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.8 · 后端详解" data-toc-link data-depth="3" data-target="168--后端详解" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.8 · 后端详解</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#17--编译流程总结" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.7 · 编译流程总结" data-toc-link data-depth="2" data-target="17--编译流程总结" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.7 · 编译流程总结</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#171--完整编译链" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.7.1 · 完整编译链" data-toc-link data-depth="3" data-target="171--完整编译链" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.7.1 · 完整编译链</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#172--优化发生的位置" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.7.2 · 优化发生的位置" data-toc-link data-depth="3" data-target="172--优化发生的位置" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.7.2 · 优化发生的位置</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#18--参考资源" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.8 · 参考资源" data-toc-link data-depth="2" data-target="18--参考资源" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.8 · 参考资源</span> </a> </li> </ul> </nav> </aside>  </div> <script>
+  const drawer = document.getElementById('toc-drawer');
+  const overlay = document.getElementById('toc-overlay');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+  const tocLinks = Array.from(document.querySelectorAll('[data-toc-link]'));
+  const observedHeadings = Array.from(document.querySelectorAll('h1[id], h2[id], h3[id]'));
+
+  function setDrawerOpen(open) {
+    if (!drawer || !overlay || !toggle) return;
+    drawer.classList.toggle('hidden', !open);
+    drawer.classList.toggle('flex', open);
+    overlay.classList.toggle('hidden', !open);
+    document.body.classList.toggle('overflow-hidden', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+  }
+
+  if (toggle) {
+    toggle.addEventListener('click', () => setDrawerOpen(!(toggle.getAttribute('aria-expanded') === 'true')));
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeDrawer);
+  }
+
+  if (overlay) {
+    overlay.addEventListener('click', closeDrawer);
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeDrawer();
+  });
+
+  function setActiveHeading(id) {
+      tocLinks.forEach((link) => {
+      const isActive = link.getAttribute('data-target') === id;
+      const marker = link.querySelector('[data-toc-marker]');
+      link.classList.toggle('text-[color:var(--theme-accent-hover)]', isActive);
+      link.classList.toggle('font-semibold', isActive);
+      link.classList.toggle('bg-[color:var(--theme-accent-soft)]', isActive);
+      link.classList.toggle('translate-x-0.5', isActive);
+      if (marker) marker.classList.toggle('hidden', !isActive);
+      link.setAttribute('aria-current', isActive ? 'true' : 'false');
+    });
+  }
+
+  if (observedHeadings.length > 0) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+      let topmost = null;
+      let topmostOffset = Infinity;
+
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const rect = entry.target.getBoundingClientRect();
+          if (rect.top >= 0 && rect.top < topmostOffset) {
+            topmostOffset = rect.top;
+            topmost = entry.target;
+          }
+        }
+      });
+
+      if (topmost && topmost.id) {
+        setActiveHeading(topmost.id);
+      }
+      },
+      { rootMargin: '-12% 0px -68% 0px' }
+    );
+
+    observedHeadings.forEach((heading) => observer.observe(heading));
+    setActiveHeading(observedHeadings[0].id);
+  }
+
+  tocLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth < 1280) closeDrawer();
+    });
+  });
+</script>  <div class="mx-auto min-w-0 max-w-3xl" data-astro-cid-o5gmpz7g> <article class="prose prose-nord dark:prose-nord max-w-none prose-headings:font-serif prose-code:before:content-none prose-code:after:content-none" data-astro-cid-o5gmpz7g> <header class="mb-8 rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel-strong)] px-5 py-5 shadow-card sm:px-6 dark:shadow-[0_16px_36px_rgba(15,23,42,0.18)]" data-astro-cid-o5gmpz7g> <h1 class="mb-4 text-[color:var(--theme-text-primary)]" data-pagefind-meta="title" data-astro-cid-o5gmpz7g>Go: compile 编译器</h1> <div class="flex flex-col gap-3" data-astro-cid-o5gmpz7g> <div class="min-w-0 text-[color:var(--theme-text-muted)]" data-astro-cid-o5gmpz7g> <div class="flex flex-wrap items-center gap-x-2 gap-y-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded font-medium bg-[color:var(--theme-badge-created-bg)] text-[color:var(--theme-badge-created-text)]">  <span>📅</span> <span>2026-02-05</span>  </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded font-medium bg-[color:var(--theme-badge-updated-bg)] text-[color:var(--theme-badge-updated-text)]">  <span>✏️</span> <span>2026-03-10</span>  </span> <a href="/notes/series/inside-go" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-green-light dark:tag-text-green-dark !no-underline hover:!no-underline" title="系列：Inside Go"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> <span>Inside Go</span>  </a> <a href="/notes/tags/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tags/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a> </div> </div> <div class="header-actions-row flex flex-wrap items-center justify-end gap-2 pt-1" data-astro-cid-o5gmpz7g> <div class="flex flex-wrap items-center justify-end gap-2" data-astro-cid-o5gmpz7g> <div class="flex items-center gap-1"> <button type="button" data-modal-id="backlinks-modal" class="open-backlinks-btn flex items-center gap-2 px-3 py-1 rounded hover:bg-nord-5 dark:hover:bg-nord-1 text-nord-14 hover:opacity-90 transition-colors" aria-label="Open 1 backlinks" title="Linked from 1 note(s)"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M11 17l-5-5m0 0l5-5m-5 5h12"></path> </svg> <span class="font-medium">1 backlinks</span> </button> <!-- Outlinks --><!-- Backlinks --><!-- No links message --><!-- Modals --><div id="outlinks-modal" data-modal-root class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-xl"> <!-- Header --> <div class="sticky top-0 flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-elevated)] px-6 py-4"> <h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]"> Outlinks <span class="ml-2 text-sm font-normal text-[color:var(--theme-text-muted)]">
+(0)
+</span> </h2> <button data-modal-close class="close-modal rounded p-1 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="py-8 text-center text-[color:var(--theme-text-muted)]">
+No outlinks found
+</p> </div> </div> </div><div id="backlinks-modal" data-modal-root class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-xl"> <!-- Header --> <div class="sticky top-0 flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-elevated)] px-6 py-4"> <h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]"> Backlinks <span class="ml-2 text-sm font-normal text-[color:var(--theme-text-muted)]">
+(1)
+</span> </h2> <button data-modal-close class="close-modal rounded p-1 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770123038-CJXA" class="block rounded p-3 text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <div class="font-medium">Go: channel 通道</div> <div class="mt-1 break-all text-xs text-[color:var(--theme-text-muted)]"> /notes/1770123038-CJXA </div> </a> </li> </ul> </div> </div> </div> </div> <button id="kg-trigger-1770123038-RTOD" type="button" title="View knowledge graph" class="inline-flex rounded-lg p-2 text-[color:var(--theme-text-primary)] transition-all duration-300 ease-out hover:scale-110 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent)] hover:shadow-md active:scale-95" aria-label="Open knowledge graph"><svg class="w-4 h-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg></button><div id="kg-backdrop-1770123038-RTOD" class="fixed inset-0 bg-black/40 hidden z-40 backdrop-blur-sm" aria-hidden="true"></div><div id="kg-modal-1770123038-RTOD" class="fixed inset-0 flex items-center justify-center hidden z-50 p-4"><div class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl"><div class="flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] px-6 py-4"><h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]">Local Knowledge Graph</h2><button data-local-graph-close type="button" class="rounded-lg p-1.5 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close knowledge graph"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div class="flex-1 overflow-hidden"><div id="local-graph-1770123038-RTOD" style="height: 100%;" class="knowledge-graph-container" data-astro-cid-zjb43jqo> <div class="knowledge-graph-wrapper" data-astro-cid-zjb43jqo> <svg id="local-graph-1770123038-RTOD-svg" style="width: 100%; height: 100%;" data-astro-cid-zjb43jqo></svg> </div> </div>  <script>(function(){const containerId = "local-graph-1770123038-RTOD";
+const nodeRadius = 4;
+const showLabels = true;
+const enableZoom = true;
+const enableDrag = true;
+const dataJson = "{\"nodes\":[{\"id\":\"1770123038-RTOD\",\"urlId\":\"1770123038-RTOD\",\"label\":\"Go: compile 编译器\",\"title\":\"Go: compile 编译器\",\"group\":\"default\",\"nodeType\":\"current\"},{\"id\":\"1770123038-CJXA\",\"urlId\":\"1770123038-CJXA\",\"label\":\"Go: channel 通道\",\"title\":\"Go: channel 通道\",\"group\":\"default\",\"nodeType\":\"backlink\"},{\"id\":\"1770786730-PFOI\",\"urlId\":\"1770786730-PFOI\",\"label\":\"Go: goroutine 协程\",\"title\":\"Go: goroutine 协程\",\"group\":\"default\",\"nodeType\":\"neighbor\"}],\"links\":[{\"source\":\"1770123038-CJXA\",\"target\":\"1770786730-PFOI\"},{\"source\":\"1770123038-CJXA\",\"target\":\"1770123038-RTOD\"}]}";
+
+  (window.__KNOWLEDGE_GRAPH_QUEUE__ = window.__KNOWLEDGE_GRAPH_QUEUE__ || []).push({
+    containerId,
+    dataJson,
+    nodeRadius,
+    showLabels,
+    enableZoom,
+    enableDrag,
+  });
+})();</script></div></div></div><script>
+        (() => {
+          const scriptEl = document.currentScript;
+          const modal = scriptEl?.previousElementSibling;
+          const backdrop = modal?.previousElementSibling;
+          const triggerBtn = backdrop?.previousElementSibling;
+          const closeBtn = modal?.querySelector('[data-local-graph-close]');
+
+          if (!triggerBtn || !modal || !backdrop || !closeBtn) return;
+
+          function openModal() {
+            modal.classList.remove('hidden');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+          }
+
+          function closeModal() {
+            modal.classList.add('hidden');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+          }
+
+          triggerBtn.addEventListener('click', openModal);
+          closeBtn.addEventListener('click', closeModal);
+          backdrop.addEventListener('click', closeModal);
+
+          document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+              closeModal();
+            }
+          });
+        })();
+      </script> </div> </div> </div> </header> <div class="note-content" data-astro-cid-o5gmpz7g>     <div id="backlinks-modal" data-modal-root class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-xl"> <!-- Header --> <div class="sticky top-0 flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-elevated)] px-6 py-4"> <h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]"> Backlinks <span class="ml-2 text-sm font-normal text-[color:var(--theme-text-muted)]">
+(1)
+</span> </h2> <button data-modal-close class="close-modal rounded p-1 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1770123038-CJXA" class="block rounded p-3 text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <div class="font-medium">Go: channel 通道</div> <div class="mt-1 break-all text-xs text-[color:var(--theme-text-muted)]"> /notes/1770123038-CJXA </div> </a> </li> </ul> </div> </div> </div><h1 id="go">1 · Go 编译器<a href="#go" class="heading-anchor" data-heading-link="" aria-label="Link to section go">#</a></h1>
+<h2 id="dlv-complier">1.1 · 如何使用 dlv 调试 complier<a href="#dlv-complier" class="heading-anchor" data-heading-link="" aria-label="Link to section dlv-complier">#</a></h2>
+<blockquote>
+<p>为什么需要构建本地go和设置GOROOT环境变量？</p>
+<p>让「用来编译的 go 命令」和「被编译的 cmd/compile」共用同一套内部包，避免混用不同版本的包导致编译失败或行为异常</p>
+</blockquote>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#616E88"># 1. 下载go源码，进入src目录，构建工具链后回到上层目录</span></span>
+<span class="line"><span style="color:#88C0D0">./make.bash</span><span style="color:#ECEFF4"> &#x26;&#x26;</span><span style="color:#88C0D0"> cd</span><span style="color:#A3BE8C"> ..</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 2. 设置GOROOT，指向本地源码根目录</span></span>
+<span class="line"><span style="color:#81A1C1">export</span><span style="color:#D8DEE9"> GOROOT</span><span style="color:#81A1C1">=</span><span style="color:#ECEFF4">$(</span><span style="color:#88C0D0">pwd</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#88C0D0">cd</span><span style="color:#D8DEE9"> $GOROOT</span><span style="color:#A3BE8C">/src</span></span>
+<span class="line"><span style="color:#616E88"># 3. 编译(禁止优化)</span></span>
+<span class="line"><span style="color:#D8DEE9">$GOROOT</span><span style="color:#D8DEE9FF">/bin/go build -a </span><span style="color:#D8DEE9">-gcflags</span><span style="color:#81A1C1">=</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">all=-N -l</span><span style="color:#ECEFF4">"</span><span style="color:#88C0D0"> -o</span><span style="color:#A3BE8C"> /tmp/compile</span><span style="color:#A3BE8C"> cmd/compile</span></span>
+<span class="line"><span style="color:#88C0D0">dlv</span><span style="color:#A3BE8C"> exec</span><span style="color:#A3BE8C"> /tmp/compile</span><span style="color:#A3BE8C"> --</span><span style="color:#A3BE8C"> test.go</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 4. 使用dlv操作</span></span>
+<span class="line"><span style="color:#616E88"># b gc.Main</span></span></code></pre>
+<h2 id="gopls-setup">1.2 · gopls setup<a href="#gopls-setup" class="heading-anchor" data-heading-link="" aria-label="Link to section gopls-setup">#</a></h2>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#616E88"># https://github.com/golang/tools/blob/master/gopls/doc/advanced.md#working-on-the-go-source-distribution</span></span>
+<span class="line"><span style="color:#616E88">#</span></span>
+<span class="line"><span style="color:#616E88"># 1. 先执行 ./src/make.bash 生成 bin/go</span></span>
+<span class="line"><span style="color:#88C0D0">./make.bash</span><span style="color:#ECEFF4"> &#x26;&#x26;</span><span style="color:#88C0D0"> cd</span><span style="color:#A3BE8C"> ..</span></span>
+<span class="line"><span style="color:#616E88"># 2. 把自己构建的 go 放在 PATH 最前面，优先使用本地构建的 go</span></span>
+<span class="line"><span style="color:#81A1C1">export</span><span style="color:#D8DEE9"> PATH</span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF">/</span><span style="color:#D8DEE9">home</span><span style="color:#D8DEE9FF">/</span><span style="color:#D8DEE9">liu</span><span style="color:#D8DEE9FF">/</span><span style="color:#D8DEE9">dev</span><span style="color:#D8DEE9FF">/</span><span style="color:#D8DEE9">go_src</span><span style="color:#D8DEE9FF">/</span><span style="color:#D8DEE9">bin</span><span style="color:#D8DEE9FF">:</span><span style="color:#D8DEE9">$PATH</span></span>
+<span class="line"><span style="color:#616E88"># 3. 设置GOROOT，指向本地源码根目录</span></span>
+<span class="line"><span style="color:#81A1C1">export</span><span style="color:#D8DEE9"> GOROOT</span><span style="color:#81A1C1">=</span><span style="color:#ECEFF4">$(</span><span style="color:#88C0D0">pwd</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#616E88"># 4. 在 GOROOT/src 下创建 go.work: 把 std 和 cmd 都加入工作区</span></span>
+<span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> work</span><span style="color:#A3BE8C"> init</span><span style="color:#A3BE8C"> .</span><span style="color:#A3BE8C"> cmd</span></span>
+<span class="line"><span style="color:#616E88"># 5. GOROOT/src 作为工作区</span></span></code></pre>
+<h2 id="13--快速概览编译流程">1.3 · 快速概览：编译流程</h2>
+<blockquote>
+<p><a href="https://github.com/golang/go/blob/master/src/cmd/compile/README.md">https://github.com/golang/go/blob/master/src/cmd/compile/README.md</a></p>
+</blockquote>
+<p>Go 编译器将源代码转换为可执行文件，共8个主要阶段（官方分为前端、中端、后端）：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>源代码 → 词法/语法分析 → 类型检查 → IR生成 → 中端优化 → Walk → SSA → 机器码 → 可执行文件</span></span>
+<span class="line"><span>         └────── 前端 ──────┘        └─── 中端 ───────────┘     └──────── 后端 ─────┘</span></span></code></pre>
+<p><strong>关键阶段</strong>：</p>
+<ol>
+<li><strong>词法/语法分析</strong>：源代码 → Token 流；Token → 抽象语法树AST（syntax.File）</li>
+<li><strong>类型检查</strong>：AST → 符号表、类型信息（使用 types2 包）</li>
+<li><strong>中间代码生成</strong>（Noding + typecheck）：通过 Unified IR 将 语法树（syntax）和类型信息（types2） 转换为编译器的 IR（完成类型传播和隐式转换）</li>
+<li><strong>中端优化</strong>：内联、逃逸分析、死代码消除、去虚化等</li>
+<li><strong>Walk 阶段</strong>：保证求值顺序、反糖、拆解复杂语句、转换高级构造</li>
+<li><strong>SSA 生成与优化</strong>：IR → SSA → 机器无关优化</li>
+<li><strong>机器码生成</strong>：SSA 降级 → 机器相关优化 → 汇编 → 目标文件（→ 链接 → 可执行文件 这两步属于 link 阶段）</li>
+<li><strong>Export</strong>：生成 export data，供下游包编译使用</li>
+</ol>
+<p>IR vs. AST: IR也是树形结构，IR根据AST+type信息生成</p>
+<p>IR vs. SSA: IR的优化是语言层面，SSA的优化是指令/值层面</p>
+<p>NOTE: 类型检查分散在两处：</p>
+<ul>
+<li>
+<ol>
+<li>types2：语义类型检查、接口实现、符号解析等</li>
+</ol>
+</li>
+<li>
+<ol start="2">
+<li>typecheck：类型传播、插入隐式转换（如 CONVIFACE）等</li>
+</ol>
+</li>
+</ul>
+<h2 id="go-tool-compile">1.4 · go tool compile<a href="#go-tool-compile" class="heading-anchor" data-heading-link="" aria-label="Link to section go-tool-compile">#</a></h2>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="bash"><code><span class="line"><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> compile</span><span style="color:#A3BE8C"> --help</span></span>
+<span class="line"><span style="color:#616E88"># -N -l 禁用优化，禁用内联</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 不同参数，打印不同阶段的信息</span></span>
+<span class="line"><span style="color:#616E88"># 1/2 阶段无</span></span>
+<span class="line"><span style="color:#616E88">#</span></span>
+<span class="line"><span style="color:#616E88"># walk 前后ir tree的区别 W是函数级/w是expr级</span></span>
+<span class="line"><span style="color:#616E88"># -W    debug parse tree after type checking</span></span>
+<span class="line"><span style="color:#616E88"># -w    debug type checking</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 中端优化</span></span>
+<span class="line"><span style="color:#616E88"># -m    print optimization decisions</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 大多数中端的操作，也有部分SSA/指令平台相关的操作</span></span>
+<span class="line"><span style="color:#616E88"># -d value</span></span>
+<span class="line"><span style="color:#616E88"># enable debugging settings; try -d help</span></span>
+<span class="line"><span style="color:#616E88"># SSA相关操作</span></span>
+<span class="line"><span style="color:#616E88"># -d=ssa/help</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88"># 汇编</span></span>
+<span class="line"><span style="color:#616E88"># -S</span></span></code></pre>
+<h2 id="15--不同阶段的函数入口">1.5 · 不同阶段的函数入口</h2>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>b cmd/compile/internal/syntax.Parse</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>b types2.Config.Check</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>b noder.unified</span></span>
+<span class="line"><span># ir树按函数划分；后续优化也是以函数为基本单位</span></span>
+<span class="line"><span>b noder.readBodies</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span># ir 类型检查，以节点为单位</span></span>
+<span class="line"><span># typecheck.Stmt / typecheck.Expr</span></span>
+<span class="line"><span>b typecheck.typecheck</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>b DevirtualizeAndInlinePackage</span></span>
+<span class="line"><span>b escape.Funcs</span></span>
+<span class="line"><span>b deadlocals.Funcs</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>b walk.Walk</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>b ssagen.Compile</span></span>
+<span class="line"><span>b ssa.Compile</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>b obj.Flushplist</span></span></code></pre>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>gc.Main()                                                // gc/main.go:61</span></span>
+<span class="line"><span>  ──── 1. 解析 ────</span></span>
+<span class="line"><span>  noder.LoadPackage(filenames)                           // gc/main.go:208</span></span>
+<span class="line"><span>    ├── syntax.Parse(...)                                // noder/noder.go:59</span></span>
+<span class="line"><span>    │     词法分析 + 语法分析 → syntax.File</span></span>
+<span class="line"><span>    │</span></span>
+<span class="line"><span>    ──── 2. types2 类型检查 + 3. IR 构建 ────</span></span>
+<span class="line"><span>    └── unified(m, noders)                               // noder/noder.go:77</span></span>
+<span class="line"><span>          ├── writePkgStub(m, noders)                    // noder/unified.go:195 → 318</span></span>
+<span class="line"><span>          │     └── checkFiles(m, noders)                // noder/unified.go:319 → irgen.go:26</span></span>
+<span class="line"><span>          │           └── conf.Check(...)                // irgen.go:95   types2 类型检查</span></span>
+<span class="line"><span>          ├── readPackage(...)                           // noder/unified.go:200 !先写后读，使得本地/导入包共用一个读</span></span>
+<span class="line"><span>          ├── r.pkgInit(...)                             // noder/unified.go:203</span></span>
+<span class="line"><span>          │     └── r.pkgDecls(target)                   // noder/reader.go:3326</span></span>
+<span class="line"><span>          │           └── target.Funcs = append(...)     // noder/reader.go:3339  加入函数列表</span></span>
+<span class="line"><span>          └── readBodies(target, false)                  // noder/unified.go:205</span></span>
+<span class="line"><span>                └── pri.funcBody(fn)                     // noder/reader.go:1294</span></span>
+<span class="line"><span>                      ├── r.declareParams()              // noder/reader.go:1309</span></span>
+<span class="line"><span>                      └── r.stmts()                      // noder/reader.go:1654</span></span>
+<span class="line"><span>                            └── typecheck.Stmt(n)        // noder/reader.go:1667  IR 类型检查</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>  ──── 4. 中端优化 ────</span></span>
+<span class="line"><span>  interleaved.DevirtualizeAndInlinePackage(...)          // gc/main.go:240  去虚化 + 内联（交替运行：去虚化后可内联，内联暴露更多去虚化机会）</span></span>
+<span class="line"><span>  noder.MakeWrappers(...)                                // gc/main.go:242</span></span>
+<span class="line"><span>  loopvar.ForCapture(fn)                                 // gc/main.go:247  循环变量捕获修正</span></span>
+<span class="line"><span>  pkginit.MakeTask()                                     // gc/main.go:252  生成包初始化任务</span></span>
+<span class="line"><span>  symABIs.GenABIWrappers()                               // gc/main.go:256  生成 ABI 包装函数 ABI0&#x3C;->ABIInternal</span></span>
+<span class="line"><span>  deadlocals.Funcs(...)                                  // gc/main.go:258  死局部变量消除</span></span>
+<span class="line"><span>  escape.Funcs(...)                                      // gc/main.go:269  逃逸分析</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>  ──── 5-8. 后端（per function）────</span></span>
+<span class="line"><span>  for ... {                                              // gc/main.go:290</span></span>
+<span class="line"><span>    enqueueFunc(fn)                                      // gc/main.go:307</span></span>
+<span class="line"><span>      └── prepareFunc(fn)                                // gc/compile.go:90</span></span>
+<span class="line"><span>            └── walk.Walk(fn)                            // gc/compile.go:115  Walk</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>    compileFunctions(profile)                            // gc/main.go:316</span></span>
+<span class="line"><span>      └── ssagen.Compile(fn, worker, profile)            // ssagen/pgen.go:303</span></span>
+<span class="line"><span>            ├── buildssa(fn, ...)                        // ssagen/pgen.go:304  IR → SSA</span></span>
+<span class="line"><span>            │     └── ssa.Compile(f)                     //                     SSA 优化</span></span>
+<span class="line"><span>            ├── genssa(f, pp)                            // ssagen/pgen.go:314  SSA → 机器码</span></span>
+<span class="line"><span>            │     └── liveness.Compute(...)              // ssagen/ssa.go:6341  GC stack map</span></span>
+<span class="line"><span>            └── pp.Flush()                               // ssagen/pgen.go:329  汇编、写目标文件</span></span>
+<span class="line"><span>  }</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>  ──── 9. 写目标文件 ────</span></span>
+<span class="line"><span>  dumpdata()                                             // gc/main.go:352 收集元数据</span></span>
+<span class="line"><span>  dumpobj()                                              // gc/main.go:354 写出 .o 文件</span></span></code></pre>
+<h2 id="16--编译细节">1.6 · 编译细节</h2>
+<h3 id="1">1.6.1 · 1. 词法与语法分析<a href="#1" class="heading-anchor" data-heading-link="" aria-label="Link to section 1">#</a></h3>
+<ul>
+<li>包：<code>cmd/compile/internal/syntax</code></li>
+</ul>
+<p><strong>词法分析（Lexical Analysis）</strong>：</p>
+<ul>
+<li>工具：<code>syntax.Token</code> 和 <code>syntax.Scanner</code></li>
+<li>过程：源代码 → Token 流</li>
+<li>位置信息：用于错误报告和调试</li>
+</ul>
+<p><strong>语法分析（Syntax Analysis）</strong>：</p>
+<ul>
+<li>
+<p>工具：<code>syntax.Parser</code> 和 <code>syntax.File</code></p>
+</li>
+<li>
+<p>入口函数：<code>syntax.Parse()</code></p>
+</li>
+<li>
+<p><a href="https://go.dev/ref/spec#Source_file_organization">源码文件结构组织</a>：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>SourceFile = PackageClause ";" { ImportDecl ";" } { TopLevelDecl ";" } .</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>TopLevelDecl = Declaration | FunctionDecl | MethodDecl .</span></span>
+<span class="line"><span>Declaration  = ConstDecl | TypeDecl | VarDecl .</span></span></code></pre>
+</li>
+</ul>
+<p>最终得到：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#616E88">// compile/internal/syntax/nodes.go</span></span>
+<span class="line"><span style="color:#616E88">//</span></span>
+<span class="line"><span style="color:#616E88">// package PkgName; DeclList[0], DeclList[1], ...</span></span>
+<span class="line"><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> File </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">	Pragma</span><span style="color:#D8DEE9FF">    Pragma </span><span style="color:#616E88">// 存储文件开头的 //go: 指令信息</span></span>
+<span class="line"><span style="color:#D8DEE9">	PkgName</span><span style="color:#81A1C1">   *</span><span style="color:#D8DEE9FF">Name  </span><span style="color:#616E88">// 包名，对应 `package xxx` 声</span></span>
+<span class="line"><span style="color:#D8DEE9">	DeclList</span><span style="color:#ECEFF4">  []</span><span style="color:#D8DEE9FF">Decl </span><span style="color:#616E88">// 所有顶层声明的列表：导入、常量、变量、类型、函数（方法）</span></span>
+<span class="line"><span style="color:#D8DEE9">	GoVersion</span><span style="color:#81A1C1"> string</span><span style="color:#616E88"> // 文件要求的最低 Go 版本</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<h3 id="2-semantic-analysis">1.6.2 · 2. 类型检查（Semantic Analysis）<a href="#2-semantic-analysis" class="heading-anchor" data-heading-link="" aria-label="Link to section 2-semantic-analysis">#</a></h3>
+<p><strong>入口</strong>：<code>types2/check.go</code> 中的 <code>Checker.checkFiles()</code> 方法，由 <code>noder/irgen.go</code> 中的 <code>checkFiles()</code> 函数调用</p>
+<p><strong>类型检查的三个核心任务</strong>：</p>
+<ol>
+<li>
+<p><strong>标识符解析</strong>（Identifier Resolution）：标识符 → Object</p>
+<ul>
+<li>将 AST 中的标识符映射到声明的对象</li>
+</ul>
+</li>
+<li>
+<p><strong>类型推导</strong>（Type Deduction）：表达式 → Type</p>
+<ul>
+<li>确定每个表达式的类型</li>
+</ul>
+</li>
+<li>
+<p><strong>常量求值</strong>（Constant Evaluation）：常量表达式 → Value</p>
+<ul>
+<li>在编译期计算常量的值</li>
+</ul>
+</li>
+</ol>
+<p>这三个任务相互依赖：</p>
+<ul>
+<li>常量值的确定可能依赖类型</li>
+<li>表达式的类型可能依赖常量的值</li>
+<li>标识符的解析可能依赖类型信息（如结构体字段）</li>
+</ul>
+<p><strong>关键数据结构</strong>：</p>
+<p><strong>Object（符号对象）</strong>：<code>types2/object.go</code></p>
+<ul>
+<li>代表所有命名实体（const、var、type、func 等）</li>
+<li>每个 AST 标识符映射到一个 Object</li>
+<li>接口定义：
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> Object </span><span style="color:#81A1C1">interface</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#88C0D0">	Name</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1"> string</span><span style="color:#616E88">   // 包级别名称</span></span>
+<span class="line"><span style="color:#88C0D0">	Exported</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1"> bool</span><span style="color:#616E88"> // 是否以大写字母开头</span></span>
+<span class="line"><span style="color:#88C0D0">	Type</span><span style="color:#ECEFF4">()</span><span style="color:#D8DEE9FF"> Type     </span><span style="color:#616E88">// 对象类型</span></span>
+<span class="line"><span style="color:#88C0D0">	Pos</span><span style="color:#ECEFF4">()</span><span style="color:#D8DEE9FF"> token</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pos </span><span style="color:#616E88">// 声明中标识符的位置</span></span>
+<span class="line"><span style="color:#88C0D0">	Parent</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">Scope </span><span style="color:#616E88">// 声明该对象的作用域</span></span>
+<span class="line"><span style="color:#88C0D0">	Pkg</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">Package  </span><span style="color:#616E88">// 所在包，nil 表示 Universe scope</span></span>
+<span class="line"><span style="color:#88C0D0">	Id</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1"> string</span><span style="color:#616E88">     // 对象 ID（用于唯一性）</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+</li>
+</ul>
+<p><strong>Scope（作用域）</strong>：<code>types2/scope.go</code></p>
+<ul>
+<li>静态作用域（词法作用域）</li>
+<li>分层：全局 → 包 → 文件 → 代码块</li>
+<li>存放 Object，支持名称查找</li>
+</ul>
+<p><strong>Type（类型）</strong>：<code>types2/type.go</code> 及相关文件</p>
+<ul>
+<li>基础类型、复合类型、结构体、接口、Named、Tuple 等</li>
+<li>类型等价性：<code>Identical()</code> 函数（结构一致则等价）</li>
+<li>类型比较：可比较（等/不等）、可排序（大小等）</li>
+</ul>
+<p><strong>Checker（检查器）</strong>：<code>types2/check.go</code></p>
+<ul>
+<li>核心方法：<code>checkFiles()</code></li>
+<li>维护类型检查的状态和信息</li>
+</ul>
+<p><strong>类型检查流程</strong>：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>checkFiles()</span></span>
+<span class="line"><span>  ├─ initFiles（验证同一包）</span></span>
+<span class="line"><span>  ├─ collectObjects（AST → Object + declInfo）</span></span>
+<span class="line"><span>  ├─ packageObjects（递归检查 check.objMap 中的对象）</span></span>
+<span class="line"><span>  │  └─ check.objDecl() 对每个对象进行检查</span></span>
+<span class="line"><span>  │     ├─ 类型表达式：Checker.typ()</span></span>
+<span class="line"><span>  │     ├─ 求值表达式：Checker.exprInternal()</span></span>
+<span class="line"><span>  │     └─ 类型兼容性：Checker.assignment()</span></span>
+<span class="line"><span>  ├─ processDelayed（处理延迟队列）</span></span>
+<span class="line"><span>  │  └─ 函数体检查、循环依赖、接口整理</span></span>
+<span class="line"><span>  └─ initOrder（确定全局初始化顺序）</span></span></code></pre>
+<p><strong>包加载与导出数据</strong>：</p>
+<ul>
+<li>通过 Importer 接口的 Import 方法导入其他包</li>
+<li>读取编译输出的对象文件（.a 或 .o）中的 export data</li>
+<li>静态链接：链接器根据重定位信息规划内存</li>
+</ul>
+<h3 id="3-ir-tree">1.6.3 · 3. 中间代码生成（IR Tree）<a href="#3-ir-tree" class="heading-anchor" data-heading-link="" aria-label="Link to section 3-ir-tree">#</a></h3>
+<p><strong>包</strong>：<code>src/cmd/compile/internal/ir</code></p>
+<p><strong>作用</strong>：</p>
+<ul>
+<li>AST 是源代码的直接表示，信息不完整</li>
+<li>IR Tree 是信息更丰富的数据结构，包含编译信息</li>
+<li>便于后续优化和代码生成</li>
+</ul>
+<p><strong>关键接口和结构</strong>：</p>
+<ul>
+<li>
+<p><strong>Node 接口</strong>：实现 Node 的各种类型</p>
+<ul>
+<li>expr.go：表达式节点</li>
+<li>stmt.go：语句节点</li>
+<li>func.go：函数节点</li>
+<li>name.go：名称节点</li>
+</ul>
+</li>
+<li>
+<p><strong>Name 结构</strong>：变量/常量名称及其信息</p>
+</li>
+<li>
+<p><strong>Func 结构</strong>：函数定义及其信息</p>
+</li>
+<li>
+<p><strong>Op 类型</strong>：操作类型（如加法、调用等）</p>
+</li>
+</ul>
+<p><strong>构建逻辑</strong>：由 <code>irgen.generate()</code> 驱动</p>
+<hr>
+<h3 id="164--中端优化阶段">1.6.4 · 中端：优化阶段</h3>
+<p>Go 编译器在多个阶段进行优化，包括：</p>
+<h4 id="unified-ir">1.6.4.1 · 前期优化（在 Unified IR 写入阶段）<a href="#unified-ir" class="heading-anchor" data-heading-link="" aria-label="Link to section unified-ir">#</a></h4>
+<ul>
+<li><strong>早期死代码消除</strong>：在 unified IR 写入过程中集成</li>
+</ul>
+<h4 id="ir-walk">1.6.4.2 · 中期优化（IR 级别，Walk 前）<a href="#ir-walk" class="heading-anchor" data-heading-link="" aria-label="Link to section ir-walk">#</a></h4>
+<ul>
+<li><strong>内联</strong>、<strong>逃逸分析</strong>、<strong>死代码消除</strong></li>
+<li><strong>去虚拟化</strong>：用实际类型替换接口调用</li>
+</ul>
+<hr>
+<h3 id="walk">1.6.5 · Walk 阶段<a href="#walk" class="heading-anchor" data-heading-link="" aria-label="Link to section walk">#</a></h3>
+<p><strong>包</strong>：<code>cmd/compile/internal/walk</code></p>
+<p><strong>目的</strong>：</p>
+<ol>
+<li><strong>拆解复杂语句</strong>：将复杂语句分解为更简单的语句，引入临时变量</li>
+<li><strong>反糖</strong>（Desugaring）：将高级构造转换为低级构造
+<ul>
+<li><code>switch</code> → 二分查找或跳转表</li>
+<li><code>for-range</code> → 简单 for 循环</li>
+<li><code>map</code>/<code>channel</code> 操作 → 运行时调用</li>
+</ul>
+</li>
+</ol>
+<p><strong>执行时间</strong>：在 SSA 生成前，是 IR 上的最后一个遍历</p>
+<hr>
+<h3 id="166--包初始化">1.6.6 · 包初始化</h3>
+<p><strong>包</strong>：</p>
+<ul>
+<li><code>src/cmd/compile/internal/pkginit</code>：初始化逻辑</li>
+<li><code>src/cmd/compile/internal/staticinit</code>：静态 vs 动态初始化判断</li>
+</ul>
+<p><strong>初始化顺序</strong>：</p>
+<ol>
+<li>依赖包的初始化</li>
+<li>全局变量初始化（编译时确定 vs 运行时）</li>
+<li>init 函数初始化</li>
+</ol>
+<p><strong>优化</strong>：尽可能在编译期完成变量初始化</p>
+<hr>
+<h3 id="167--优化阶段">1.6.7 · 优化阶段</h3>
+<h4 id="1-dead-code">1.6.7.1 · 1. Dead Code 消除<a href="#1-dead-code" class="heading-anchor" data-heading-link="" aria-label="Link to section 1-dead-code">#</a></h4>
+<p><strong>包</strong>：<code>src/cmd/compile/internal/deadcode</code></p>
+<ul>
+<li>入口：<code>deadcode.Func()</code></li>
+<li>作用：
+<ul>
+<li>减小可执行文件大小</li>
+<li>提升缓存命中率（增加局部性）</li>
+</ul>
+</li>
+<li>例：移除 if 分支中永不执行的代码、布尔运算的冗余分支</li>
+</ul>
+<h4 id="2-inline">1.6.7.2 · 2. 函数内联（Inline）<a href="#2-inline" class="heading-anchor" data-heading-link="" aria-label="Link to section 2-inline">#</a></h4>
+<p><strong>包</strong>：<code>src/cmd/compile/internal/inline</code></p>
+<p><strong>原理</strong>：</p>
+<ul>
+<li>函数调用有固定开销（上下文切换）</li>
+<li>使用函数体替换函数调用以消除开销</li>
+</ul>
+<p><strong>优缺点</strong>：</p>
+<ul>
+<li>优点：缩短调用链，提升性能</li>
+<li>缺点：增大可执行文件体积，错误信息展示不友好</li>
+</ul>
+<p><strong>过程</strong>：</p>
+<ol>
+<li>遍历函数调用链（<code>ir/scc.go</code> 的 <code>VisitFuncsBottomUp</code>）</li>
+<li>计算函数复杂度（<code>hairyVisitor</code> 结构体）</li>
+<li>判断是否可以内联</li>
+<li>进行内联（<code>InlineCalls</code> 函数）</li>
+</ol>
+<p><strong>优化策略</strong>：</p>
+<ul>
+<li>一个函数被频繁调用但复杂度高，不会被内联</li>
+<li>解决方案：抽出复杂代码为单独函数，降低原函数复杂度，提高内联机会</li>
+</ul>
+<h4 id="3-escape-analysis">1.6.7.3 · 3. 逃逸分析（Escape Analysis）<a href="#3-escape-analysis" class="heading-anchor" data-heading-link="" aria-label="Link to section 3-escape-analysis">#</a></h4>
+<p><strong>包</strong>：<code>src/cmd/compile/internal/escape</code></p>
+<p><strong>目标</strong>：</p>
+<ul>
+<li>确定变量应该分配在栈还是堆上</li>
+<li>栈：快，生命周期与函数一致，自动释放</li>
+<li>堆：慢，需要 GC 管理</li>
+</ul>
+<p><strong>分析规则</strong>：</p>
+<ol>
+<li>指向栈上对象的指针不能在堆上</li>
+<li>指向栈上对象的指针的生命周期不能大于其指向的对象</li>
+<li>大对象分配到堆上</li>
+</ol>
+<p><strong>算法</strong>：基于 AST 的静态数据流分析</p>
+<hr>
+<h3 id="168--后端详解">1.6.8 · 后端详解</h3>
+<h4 id="1-ssastatic-single-assignment">1.6.8.1 · 1. SSA（Static Single Assignment）生成<a href="#1-ssastatic-single-assignment" class="heading-anchor" data-heading-link="" aria-label="Link to section 1-ssastatic-single-assignment">#</a></h4>
+<p><strong>包</strong>：<code>src/cmd/compile/internal/{ssagen,ssa}</code></p>
+<p><strong>入口</strong>：<code>ssagen.Compile()</code> 函数和 <code>ssa.Compile()</code> 函数</p>
+<p><strong>SSA 特点</strong>：</p>
+<ul>
+<li>每个变量只赋值一次</li>
+<li>低级中间表示，便于实现优化</li>
+<li>便于进行数据流分析</li>
+</ul>
+<p><strong>过程</strong>：</p>
+<ul>
+<li>IR → <code>buildssa()</code> 函数（ssagen/ssa.go）将 IR 转换为 SSA</li>
+<li>通过 insertPhis 函数处理 phi 节点</li>
+<li>调用 <code>ssa.Compile()</code> 进行 SSA 优化</li>
+<li>输出：SSA 值（Value）和块（Block）形成的 SSA 图</li>
+</ul>
+<h4 id="2-ssa">1.6.8.2 · 2. SSA 优化<a href="#2-ssa" class="heading-anchor" data-heading-link="" aria-label="Link to section 2-ssa">#</a></h4>
+<p><strong>机器无关优化</strong>（Generic Passes）：</p>
+<ul>
+<li>死代码消除：移除未使用的计算</li>
+<li>空指针检查移除：消除冗余的 nil 检查</li>
+<li>未使用分支移除：删除未被取用的控制流分支</li>
+<li>表达式优化：
+<ul>
+<li>常量折叠：<code>1 + 2</code> → <code>3</code></li>
+<li>乘法优化：<code>x * 2</code> → <code>x &#x3C;&#x3C; 1</code></li>
+<li>浮点运算优化</li>
+</ul>
+</li>
+</ul>
+<p><strong>实现方式</strong>：</p>
+<ul>
+<li>直接在 Go 代码中实现的 passes</li>
+<li>通过 rewrite rules（<code>cmd/compile/internal/ssa/_gen/*.rules</code>）代码生成的优化规则</li>
+</ul>
+<p><strong>关键机制</strong>：</p>
+<ul>
+<li><strong>Lower Pass</strong>：将通用 SSA 转换为机器相关的变体（如 amd64 特定操作）</li>
+<li><strong>Rewrite Rules</strong>：使用 S-expression 形式的 DSL 描述，自动生成优化代码</li>
+<li><strong>完整优化流程</strong>：从高级 SSA 开始，经过多个 passes，最终得到机器相关的 SSA</li>
+</ul>
+<h4 id="3">1.6.8.3 · 3. 机器码生成<a href="#3" class="heading-anchor" data-heading-link="" aria-label="Link to section 3">#</a></h4>
+<p><strong>流程</strong>：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>SSA → Lower Pass（SSA → 机器相关变体）</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>最终优化（dead code、值移动、寄存器分配）</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>栈帧布局（分配栈偏移给局部变量）</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>obj.Prog 指令流</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>汇编器（cmd/internal/obj）</span></span>
+<span class="line"><span>  ↓</span></span>
+<span class="line"><span>机器码 → 目标文件</span></span></code></pre>
+<p><strong>最终文件内容</strong>：</p>
+<ul>
+<li>机器码</li>
+<li>Reflect 数据（用于反射）</li>
+<li>Export 数据（用于导入）</li>
+<li>调试信息（DWARF）</li>
+</ul>
+<h4 id="4-abi">1.6.8.4 · 4. ABI（应用二进制接口）<a href="#4-abi" class="heading-anchor" data-heading-link="" aria-label="Link to section 4-abi">#</a></h4>
+<ul>
+<li>基于寄存器的 ABI（替代栈传参）</li>
+<li>定义参数/返回值如何通过寄存器传递</li>
+<li>优化函数调用性能</li>
+</ul>
+<hr>
+<h2 id="17--编译流程总结">1.7 · 编译流程总结</h2>
+<h3 id="171--完整编译链">1.7.1 · 完整编译链</h3>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>go build main.go</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>Go 命令行调度编译</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>go tool compile main.go → main.o</span></span>
+<span class="line"><span>    ├─ 词法分析：source → tokens</span></span>
+<span class="line"><span>    ├─ 语法分析：tokens → AST (syntax.File)</span></span>
+<span class="line"><span>    ├─ 类型检查：AST → Object + Type (types2)</span></span>
+<span class="line"><span>    ├─ IR 生成（Noding）：types2 → Unified IR → compiler IR</span></span>
+<span class="line"><span>    ├─ 中端优化：内联、逃逸分析、死代码消除（IR 级）</span></span>
+<span class="line"><span>    ├─ Walk：反糖、拆解、高级构造转换</span></span>
+<span class="line"><span>    ├─ SSA 生成：IR → SSA</span></span>
+<span class="line"><span>    ├─ SSA 优化：机器无关优化 (Generic Passes)</span></span>
+<span class="line"><span>    ├─ SSA 降级：通用 SSA → 机器相关 SSA (Lower Pass)</span></span>
+<span class="line"><span>    ├─ 最终优化：死代码消除、寄存器分配、指令调度</span></span>
+<span class="line"><span>    └─ 机器码：SSA → obj.Prog → 目标文件 main.o</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>go tool link main.o → main</span></span>
+<span class="line"><span>    ├─ 读取所有 .o 文件和 export data</span></span>
+<span class="line"><span>    ├─ 符号解析和重定位</span></span>
+<span class="line"><span>    ├─ 内存布局</span></span>
+<span class="line"><span>    └─ 生成可执行文件</span></span>
+<span class="line"><span>    ↓</span></span>
+<span class="line"><span>main（可执行文件）</span></span></code></pre>
+<h3 id="172--优化发生的位置">1.7.2 · 优化发生的位置</h3>
+<ul>
+<li><strong>Unified IR 写入阶段</strong>：早期死代码消除</li>
+<li><strong>IR 级</strong>（Walk 前）：内联、逃逸分析、死代码消除、去虚拟化</li>
+<li><strong>SSA 级（Generic Passes）</strong>：机器无关优化（常量折叠、分支消除、nil 检查移除等）</li>
+<li><strong>SSA 降级后</strong>：机器相关优化（如 amd64 特定的指令组合）</li>
+<li><strong>最终优化</strong>：寄存器分配、栈帧布局、指令调度、活跃指针分析</li>
+</ul>
+<hr>
+<h2 id="18--参考资源">1.8 · 参考资源</h2>
+<ul>
+<li><a href="https://github.com/golang/go/tree/master/src/cmd/compile">Go 编译器仓库</a></li>
+<li><a href="https://github.com/golang/example/blob/master/gotypes/README.md">types 包示例</a></li>
+<li><a href="https://go.dev/ref/spec#Declarations_and_scope">Go 规范 - 声明和作用域</a></li>
+<li><a href="https://github.com/golang/go/blob/master/src/cmd/compile/internal/ssa/README.md">SSA 文档</a></li>
+</ul>
+<p><a href="https://internals-for-interns.com/tags/compiler">https://internals-for-interns.com/tags/compiler</a></p> <!-- Diagrams rendered at build time -->  </div> </article> <nav class="mt-12 border-t border-[color:var(--theme-border-subtle)] pt-8" data-astro-cid-o5gmpz7g> <a href="/notes" class="btn-primary"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>Back to Notes</a> </nav> </div>  </main> <footer class="mt-20 border-t border-[color:var(--theme-border-subtle)]"> <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-sm text-[color:var(--theme-text-muted)] sm:flex-row sm:items-end sm:justify-between sm:px-6 lg:px-8"> <div> <p class="mb-1 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--theme-text-faint)]">
+Built for connected notes
+</p> <p class="max-w-2xl text-[0.85rem] leading-6 tracking-normal text-[color:var(--theme-text-secondary)]"> Evergreen notes turn ideas into objects that you can manipulate, combine, combine. </p> </div> <div class="text-left sm:text-right"> <p class="text-[0.8125rem] font-medium tracking-normal text-[color:var(--theme-text-muted)]">
+&copy; 2026 All rights reserved.
+</p> </div> </div> </footer>  <script type="module">const r="nord-theme",m="light",t="dark";function a(){try{return localStorage.getItem(r)}catch{return null}}function s(){return window.matchMedia("(prefers-color-scheme: dark)").matches?t:"light"}function n(){return a()||s()}function o(c){const e=document.documentElement;c===t?e.classList.add("dark"):e.classList.remove("dark")}function h(){const e=n()===t?m:t;localStorage.setItem(r,e),o(e),window.dispatchEvent(new CustomEvent("theme-change",{detail:{theme:e}}))}o(n());document.addEventListener("astro:after-swap",()=>o(n()));window.toggleTheme=h;window.getTheme=n;</script> </body> </html> 
