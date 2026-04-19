@@ -1,0 +1,602 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>b-tree</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css"><script>
+      // 内联阻塞脚本：在首帧渲染前同步应用主题，避免 View Transitions 页面切换时的白屏闪烁。
+      // 必须无 import、同步执行；若用 theme.ts 模块，会在新文档替换后延迟执行导致闪白。
+      (function() {
+        var theme = localStorage.getItem('nord-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+      })();
+    </script><script type="module" src="/_astro/BaseLayout.astro_astro_type_script_index_0_lang.D_jVB8Nw.js"></script><link rel="stylesheet" href="/_astro/_chapterSlug_.C1mDGA1Y.css">
+<style>.toc-scroll[data-astro-cid-ujbpqdc7]{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--theme-border-default) 55%,transparent) transparent}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar{width:6px}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-track{background:transparent}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-thumb{border-radius:999px;background:color-mix(in srgb,var(--theme-border-default) 52%,transparent)}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--theme-border-default) 72%,transparent)}.toc-link__label[data-astro-cid-ujbpqdc7]{display:-webkit-box;overflow:hidden;line-height:1.45;text-wrap:pretty;word-break:break-word;-webkit-box-orient:vertical;-webkit-line-clamp:2}.toc-link[data-astro-cid-ujbpqdc7]:hover .toc-link__label[data-astro-cid-ujbpqdc7],.toc-link[data-astro-cid-ujbpqdc7]:focus-visible .toc-link__label[data-astro-cid-ujbpqdc7],.toc-link[data-astro-cid-ujbpqdc7][aria-current=true] .toc-link__label[data-astro-cid-ujbpqdc7]{-webkit-line-clamp:unset}@media(max-width:1279px){.toc-link__label[data-astro-cid-ujbpqdc7]{-webkit-line-clamp:unset}}
+.knowledge-graph-container[data-astro-cid-zjb43jqo]{border:1px solid var(--theme-border-default);border-radius:8px;background:var(--theme-bg-elevated);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen,.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo],.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--theme-border-default);border-radius:6px;background:var(--theme-bg-panel);color:var(--theme-text-primary);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--theme-bg-panel-hover);color:var(--theme-accent-hover)}.knowledge-graph-toolbar-btn:active{background:var(--theme-bg-panel-hover)}.knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:var(--theme-accent);stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--theme-success);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--theme-accent-hover);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--theme-success);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--theme-secondary-accent);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--theme-warning);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--theme-node-neutral);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:var(--theme-text-faint);stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--theme-accent);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--theme-text-primary);font-weight:500;text-shadow:0 0 3px var(--theme-bg-elevated)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--theme-tooltip-bg);border:1px solid var(--theme-border-default);border-radius:4px;font-size:12px;color:var(--theme-tooltip-text);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--theme-info);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--theme-text-primary)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--theme-accent-hover)}.kg-legend--outlink{color:var(--theme-success)}.kg-legend--backlink{color:var(--theme-secondary-accent)}.kg-legend--both{color:var(--theme-warning)}.kg-legend--neighbor{color:var(--theme-node-neutral);opacity:.9}
+article[data-astro-cid-o5gmpz7g]{word-break:break-word}.note-content[data-astro-cid-o5gmpz7g] h1:first-child{display:none}
+</style></head> <body class="site-shell"> <a href="#main-content" class="skip-to-content">Skip to main content</a> <header class="sticky top-0 z-30 border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-page)] backdrop-blur-2xl"> <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8"> <div class="flex min-w-0 items-center gap-3"> <a href="/" title="Liu" class="shrink-0 rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] p-2 text-[color:var(--theme-text-primary)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] active:scale-95"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5.5 9.5V21h13V9.5"></path><path d="M9.5 21v-6h5v6"></path></svg> </a> <div class="min-w-0"> <h1 class="truncate text-lg font-bold leading-tight text-[color:var(--theme-text-primary)] sm:text-[1.1rem]"> <a href="/" class="text-inherit transition-colors hover:text-[color:var(--theme-accent-hover)]"> Liu </a> </h1> </div> </div> <div class="hidden min-w-0 flex-1 lg:block"></div> <div class="hidden items-center gap-2 lg:flex"> <a href="/books" title="Books" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22z"></path><path d="M5 4.5V22"></path><path d="M8.5 7.5h7"></path><path d="M8.5 11h7"></path></svg> </a><a href="/notes" title="Notes" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7"></path><path d="M8.5 12h7"></path><path d="M8.5 16h5"></path></svg> </a><a href="/notes/graph" title="Graph" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg> </a> <div class="relative" id="series-dropdown-root"> <a href="/notes/series" title="Series" id="series-dropdown-trigger" data-dropdown-trigger class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg> </a> <div id="series-dropdown-panel" data-dropdown-url="/series-list.json" data-empty-text="暂无系列" data-error-text="加载失败" class="absolute right-0 top-full z-50 mt-1 hidden max-h-[70vh] min-w-[12rem] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] py-2 shadow-lg" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-[color:var(--theme-text-faint)]">加载中…</span> </div> <div class="mt-1 border-t border-[color:var(--theme-border-subtle)] pt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> 查看全部系列 →
+</a> </div> </div> </div> <script type="module">document.addEventListener("click",t=>{const e=t.target;!(e instanceof HTMLElement)||!e.closest("[data-dropdown-trigger]")||t.preventDefault()});</script><div class="relative" id="tags-dropdown-root"> <a href="/notes/tags" title="Tags" id="tags-dropdown-trigger" data-dropdown-trigger class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14v17L12 17l-7 3V3z"></path></svg> </a> <div id="tags-dropdown-panel" data-dropdown-url="/tag-list.json" data-empty-text="暂无标签" data-error-text="加载失败" class="absolute right-0 top-full z-50 mt-1 hidden max-h-[70vh] min-w-[12rem] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] py-2 shadow-lg" role="menu"> <div id="tags-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-[color:var(--theme-text-faint)]">加载中…</span> </div> <div class="mt-1 border-t border-[color:var(--theme-border-subtle)] pt-1"> <a href="/notes/tags" class="block px-3 py-2 text-sm text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> 查看全部标签 →
+</a> </div> </div> </div>  <a href="https://github.com/gh-liu" title="GitHub" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg> </a> <div class="search-container" id="search-wrapper" data-pagefind-url="/pagefind/pagefind.js" data-astro-cid-35jtkoll><button id="search-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-35jtkoll><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-35jtkoll><circle cx="11" cy="11" r="8" data-astro-cid-35jtkoll></circle><path d="m21 21-4.35-4.35" data-astro-cid-35jtkoll></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-35jtkoll><div class="w-full max-w-2xl animate-fade-in overflow-hidden rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl max-h-[70vh] flex flex-col" data-astro-cid-35jtkoll><div class="border-b border-[color:var(--theme-border-subtle)] p-4" data-astro-cid-35jtkoll><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full rounded bg-[color:var(--theme-bg-panel-hover)] px-4 py-2 text-[color:var(--theme-text-primary)] placeholder-[color:var(--theme-text-faint)] focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-35jtkoll></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-35jtkoll><p class="text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll>Type to search...</p></div><div class="border-t border-[color:var(--theme-border-subtle)] p-3 text-xs text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll><p data-astro-cid-35jtkoll>Press <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>Esc</kbd> to close | Use <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>#tag</kbd> to search by tag</p></div></div></div></div> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] group relative"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="hidden h-4 w-4 text-nord-13 dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="block h-4 w-4 text-nord-9 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script type="module" src="/_astro/ThemeToggle.astro_astro_type_script_index_0_lang.oLaqEd7_.js"></script> </div> <div class="flex items-center gap-1.5 shrink-0 lg:hidden"> <a href="https://github.com/gh-liu" title="GitHub" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg> </a> <div class="search-container" id="search-wrapper" data-pagefind-url="/pagefind/pagefind.js" data-astro-cid-35jtkoll><button id="search-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-35jtkoll><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-35jtkoll><circle cx="11" cy="11" r="8" data-astro-cid-35jtkoll></circle><path d="m21 21-4.35-4.35" data-astro-cid-35jtkoll></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-35jtkoll><div class="w-full max-w-2xl animate-fade-in overflow-hidden rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl max-h-[70vh] flex flex-col" data-astro-cid-35jtkoll><div class="border-b border-[color:var(--theme-border-subtle)] p-4" data-astro-cid-35jtkoll><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full rounded bg-[color:var(--theme-bg-panel-hover)] px-4 py-2 text-[color:var(--theme-text-primary)] placeholder-[color:var(--theme-text-faint)] focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-35jtkoll></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-35jtkoll><p class="text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll>Type to search...</p></div><div class="border-t border-[color:var(--theme-border-subtle)] p-3 text-xs text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll><p data-astro-cid-35jtkoll>Press <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>Esc</kbd> to close | Use <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>#tag</kbd> to search by tag</p></div></div></div></div> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] group relative"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="hidden h-4 w-4 text-nord-13 dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="block h-4 w-4 text-nord-9 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button>  </div> </nav> <div class="border-t border-[color:var(--theme-border-subtle)]/90 px-4 py-2.5 sm:px-6 lg:hidden"> <div class="mx-auto flex max-w-6xl gap-2 overflow-x-auto pb-1"> <a href="/books" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22z"></path><path d="M5 4.5V22"></path><path d="M8.5 7.5h7"></path><path d="M8.5 11h7"></path></svg> Books </a><a href="/notes" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7"></path><path d="M8.5 12h7"></path><path d="M8.5 16h5"></path></svg> Notes </a><a href="/notes/graph" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg> Graph </a> <a href="/notes/series" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg> Series </a><a href="/notes/tags" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14v17L12 17l-7 3V3z"></path></svg> Tags </a> </div> </div> </header> <main class="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8" data-pagefind-body="true" id="main-content">  <div class="contents" data-astro-cid-ujbpqdc7> <aside class="hidden xl:block" data-astro-cid-ujbpqdc7> <div class="fixed right-6 top-28 w-56 2xl:right-10 2xl:w-64" data-astro-cid-ujbpqdc7> <div class="toc-scroll max-h-[min(60vh,calc(100vh-10rem))] overflow-y-auto rounded-[1.5rem] border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel-strong)] px-2 py-2 shadow-[var(--shadow-soft)] backdrop-blur-xl" data-astro-cid-ujbpqdc7> <div class="mb-2 px-1" data-astro-cid-ujbpqdc7> <p class="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--theme-text-muted)]" data-astro-cid-ujbpqdc7>On this page</p> </div> <nav aria-label="Table of contents" data-astro-cid-ujbpqdc7> <ul class="space-y-0.5 text-[0.8rem] leading-4" data-astro-cid-ujbpqdc7> <li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#b-tree" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] font-medium text-[color:var(--theme-text-primary)]" title="1 · B-tree#" data-toc-link data-depth="1" data-target="b-tree" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1 · B-tree#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#s" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.1 · S - 场景#" data-toc-link data-depth="2" data-target="s" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.1 · S - 场景#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#c" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.2 · C - 核心权衡#" data-toc-link data-depth="2" data-target="c" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.2 · C - 核心权衡#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#q" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.3 · Q - 核心问题与解决#" data-toc-link data-depth="2" data-target="q" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.3 · Q - 核心问题与解决#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#q1" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.3.1 · Q1. 数据随机分散问题#" data-toc-link data-depth="3" data-target="q1" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.3.1 · Q1. 数据随机分散问题#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#q2" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.3.2 · Q2. 更新不能原地改写的问题#" data-toc-link data-depth="3" data-target="q2" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.3.2 · Q2. 更新不能原地改写的问题#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#q3" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.3.3 · Q3. 插入删除后的树结构失衡问题#" data-toc-link data-depth="3" data-target="q3" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.3.3 · Q3. 插入删除后的树结构失衡问题#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#a---b-tree" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.4 · A - B-tree 架构#" data-toc-link data-depth="2" data-target="a---b-tree" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.4 · A - B-tree 架构#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#141--核心特性" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.4.1 · 核心特性" data-toc-link data-depth="3" data-target="141--核心特性" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.4.1 · 核心特性</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#b-tree" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.4.2 · B-tree 的结构图#" data-toc-link data-depth="3" data-target="b-tree" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.4.2 · B-tree 的结构图#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#btree" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.4.3 · B+tree 的改进（更常用于数据库）#" data-toc-link data-depth="3" data-target="btree" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.4.3 · B+tree 的改进（更常用于数据库）#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#15--关键操作" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.5 · 关键操作" data-toc-link data-depth="2" data-target="15--关键操作" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.5 · 关键操作</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#1-search" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.5.1 · 1. 搜索（Search）#" data-toc-link data-depth="3" data-target="1-search" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.5.1 · 1. 搜索（Search）#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#2-insert" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.5.2 · 2. 插入（Insert）#" data-toc-link data-depth="3" data-target="2-insert" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.5.2 · 2. 插入（Insert）#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#3-delete" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.5.3 · 3. 删除（Delete）#" data-toc-link data-depth="3" data-target="3-delete" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.5.3 · 3. 删除（Delete）#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#16--性能分析" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6 · 性能分析" data-toc-link data-depth="2" data-target="16--性能分析" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6 · 性能分析</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#161--时间复杂度对比" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.1 · 时间复杂度对比" data-toc-link data-depth="3" data-target="161--时间复杂度对比" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.1 · 时间复杂度对比</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#io" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.2 · 空间和 I/O 特性#" data-toc-link data-depth="3" data-target="io" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.2 · 空间和 I/O 特性#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#b-tree" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.3 · 为什么选择 B-tree？#" data-toc-link data-depth="3" data-target="b-tree" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.3 · 为什么选择 B-tree？#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#17--工业实现" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.7 · 工业实现" data-toc-link data-depth="2" data-target="17--工业实现" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.7 · 工业实现</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#mysql-innodb-btree" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.7.1 · MySQL InnoDB B+tree 索引#" data-toc-link data-depth="3" data-target="mysql-innodb-btree" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.7.1 · MySQL InnoDB B+tree 索引#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#sqlite-b-tree" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.7.2 · SQLite B-tree 实现#" data-toc-link data-depth="3" data-target="sqlite-b-tree" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.7.2 · SQLite B-tree 实现#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#b-tree-vs-lsm-tree" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.8 · B-tree vs LSM-tree#" data-toc-link data-depth="2" data-target="b-tree-vs-lsm-tree" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.8 · B-tree vs LSM-tree#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#181--权衡决策表" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.8.1 · 权衡决策表" data-toc-link data-depth="3" data-target="181--权衡决策表" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.8.1 · 权衡决策表</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#182--选择建议" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.8.2 · 选择建议" data-toc-link data-depth="3" data-target="182--选择建议" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.8.2 · 选择建议</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#19--实现要点伪代码" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.9 · 实现要点（伪代码）" data-toc-link data-depth="2" data-target="19--实现要点伪代码" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.9 · 实现要点（伪代码）</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#110--总结" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.10 · 总结" data-toc-link data-depth="2" data-target="110--总结" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.10 · 总结</span> </a> </li> </ul> </nav> </div> </div> </aside>  <button id="toc-toggle" class="fixed bottom-6 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-[color:var(--theme-accent)] px-4 py-2 text-sm font-medium text-white shadow-lg transition-colors hover:bg-[color:var(--theme-accent-hover)] xl:hidden" aria-label="Open table of contents" aria-controls="toc-drawer" aria-expanded="false" data-astro-cid-ujbpqdc7> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-ujbpqdc7> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-ujbpqdc7></path> </svg> <span data-astro-cid-ujbpqdc7>On this page</span> </button> <div id="toc-overlay" class="fixed inset-0 z-40 hidden bg-black/50 backdrop-blur-sm xl:hidden" data-astro-cid-ujbpqdc7></div> <aside id="toc-drawer" class="fixed inset-y-0 right-0 z-50 hidden w-[min(22rem,88vw)] flex-col border-l border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] px-4 py-5 shadow-2xl xl:hidden" data-astro-cid-ujbpqdc7> <div class="mb-4 flex items-center justify-between rounded-2xl border border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-panel)] px-3 py-3" data-astro-cid-ujbpqdc7> <div data-astro-cid-ujbpqdc7> <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--theme-accent)]" data-astro-cid-ujbpqdc7>Table of contents</p> <p class="mt-1 text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-ujbpqdc7>Jump through the current note.</p> </div> <button id="toc-close" class="rounded-lg p-2 text-[color:var(--theme-text-primary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)]" aria-label="Close table of contents" data-astro-cid-ujbpqdc7> <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-ujbpqdc7> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-ujbpqdc7></path> </svg> </button> </div> <nav class="toc-scroll flex-1 min-h-0 max-h-[min(70vh,calc(100vh-14rem))] overflow-y-auto rounded-[1.5rem] border border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-panel)] p-1.5" aria-label="Table of contents mobile" data-astro-cid-ujbpqdc7> <ul class="space-y-0.5 text-sm leading-snug" data-astro-cid-ujbpqdc7> <li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#b-tree" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1 · B-tree#" data-toc-link data-depth="1" data-target="b-tree" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1 · B-tree#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#s" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.1 · S - 场景#" data-toc-link data-depth="2" data-target="s" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.1 · S - 场景#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#c" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.2 · C - 核心权衡#" data-toc-link data-depth="2" data-target="c" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.2 · C - 核心权衡#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#q" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.3 · Q - 核心问题与解决#" data-toc-link data-depth="2" data-target="q" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.3 · Q - 核心问题与解决#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#q1" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.3.1 · Q1. 数据随机分散问题#" data-toc-link data-depth="3" data-target="q1" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.3.1 · Q1. 数据随机分散问题#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#q2" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.3.2 · Q2. 更新不能原地改写的问题#" data-toc-link data-depth="3" data-target="q2" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.3.2 · Q2. 更新不能原地改写的问题#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#q3" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.3.3 · Q3. 插入删除后的树结构失衡问题#" data-toc-link data-depth="3" data-target="q3" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.3.3 · Q3. 插入删除后的树结构失衡问题#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#a---b-tree" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.4 · A - B-tree 架构#" data-toc-link data-depth="2" data-target="a---b-tree" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.4 · A - B-tree 架构#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#141--核心特性" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.4.1 · 核心特性" data-toc-link data-depth="3" data-target="141--核心特性" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.4.1 · 核心特性</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#b-tree" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.4.2 · B-tree 的结构图#" data-toc-link data-depth="3" data-target="b-tree" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.4.2 · B-tree 的结构图#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#btree" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.4.3 · B+tree 的改进（更常用于数据库）#" data-toc-link data-depth="3" data-target="btree" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.4.3 · B+tree 的改进（更常用于数据库）#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#15--关键操作" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.5 · 关键操作" data-toc-link data-depth="2" data-target="15--关键操作" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.5 · 关键操作</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#1-search" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.5.1 · 1. 搜索（Search）#" data-toc-link data-depth="3" data-target="1-search" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.5.1 · 1. 搜索（Search）#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#2-insert" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.5.2 · 2. 插入（Insert）#" data-toc-link data-depth="3" data-target="2-insert" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.5.2 · 2. 插入（Insert）#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#3-delete" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.5.3 · 3. 删除（Delete）#" data-toc-link data-depth="3" data-target="3-delete" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.5.3 · 3. 删除（Delete）#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#16--性能分析" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6 · 性能分析" data-toc-link data-depth="2" data-target="16--性能分析" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6 · 性能分析</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#161--时间复杂度对比" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.1 · 时间复杂度对比" data-toc-link data-depth="3" data-target="161--时间复杂度对比" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.1 · 时间复杂度对比</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#io" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.2 · 空间和 I/O 特性#" data-toc-link data-depth="3" data-target="io" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.2 · 空间和 I/O 特性#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#b-tree" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.3 · 为什么选择 B-tree？#" data-toc-link data-depth="3" data-target="b-tree" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.3 · 为什么选择 B-tree？#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#17--工业实现" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.7 · 工业实现" data-toc-link data-depth="2" data-target="17--工业实现" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.7 · 工业实现</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#mysql-innodb-btree" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.7.1 · MySQL InnoDB B+tree 索引#" data-toc-link data-depth="3" data-target="mysql-innodb-btree" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.7.1 · MySQL InnoDB B+tree 索引#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#sqlite-b-tree" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.7.2 · SQLite B-tree 实现#" data-toc-link data-depth="3" data-target="sqlite-b-tree" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.7.2 · SQLite B-tree 实现#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#b-tree-vs-lsm-tree" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.8 · B-tree vs LSM-tree#" data-toc-link data-depth="2" data-target="b-tree-vs-lsm-tree" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.8 · B-tree vs LSM-tree#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#181--权衡决策表" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.8.1 · 权衡决策表" data-toc-link data-depth="3" data-target="181--权衡决策表" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.8.1 · 权衡决策表</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#182--选择建议" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.8.2 · 选择建议" data-toc-link data-depth="3" data-target="182--选择建议" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.8.2 · 选择建议</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#19--实现要点伪代码" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.9 · 实现要点（伪代码）" data-toc-link data-depth="2" data-target="19--实现要点伪代码" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.9 · 实现要点（伪代码）</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#110--总结" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.10 · 总结" data-toc-link data-depth="2" data-target="110--总结" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.10 · 总结</span> </a> </li> </ul> </nav> </aside>  </div> <script>
+  const drawer = document.getElementById('toc-drawer');
+  const overlay = document.getElementById('toc-overlay');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+  const tocLinks = Array.from(document.querySelectorAll('[data-toc-link]'));
+  const observedHeadings = Array.from(document.querySelectorAll('h1[id], h2[id], h3[id]'));
+
+  function setDrawerOpen(open) {
+    if (!drawer || !overlay || !toggle) return;
+    drawer.classList.toggle('hidden', !open);
+    drawer.classList.toggle('flex', open);
+    overlay.classList.toggle('hidden', !open);
+    document.body.classList.toggle('overflow-hidden', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+  }
+
+  if (toggle) {
+    toggle.addEventListener('click', () => setDrawerOpen(!(toggle.getAttribute('aria-expanded') === 'true')));
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeDrawer);
+  }
+
+  if (overlay) {
+    overlay.addEventListener('click', closeDrawer);
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeDrawer();
+  });
+
+  function setActiveHeading(id) {
+      tocLinks.forEach((link) => {
+      const isActive = link.getAttribute('data-target') === id;
+      const marker = link.querySelector('[data-toc-marker]');
+      link.classList.toggle('text-[color:var(--theme-accent-hover)]', isActive);
+      link.classList.toggle('font-semibold', isActive);
+      link.classList.toggle('bg-[color:var(--theme-accent-soft)]', isActive);
+      link.classList.toggle('translate-x-0.5', isActive);
+      if (marker) marker.classList.toggle('hidden', !isActive);
+      link.setAttribute('aria-current', isActive ? 'true' : 'false');
+    });
+  }
+
+  if (observedHeadings.length > 0) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+      let topmost = null;
+      let topmostOffset = Infinity;
+
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const rect = entry.target.getBoundingClientRect();
+          if (rect.top >= 0 && rect.top < topmostOffset) {
+            topmostOffset = rect.top;
+            topmost = entry.target;
+          }
+        }
+      });
+
+      if (topmost && topmost.id) {
+        setActiveHeading(topmost.id);
+      }
+      },
+      { rootMargin: '-12% 0px -68% 0px' }
+    );
+
+    observedHeadings.forEach((heading) => observer.observe(heading));
+    setActiveHeading(observedHeadings[0].id);
+  }
+
+  tocLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth < 1280) closeDrawer();
+    });
+  });
+</script>  <div class="mx-auto min-w-0 max-w-3xl" data-astro-cid-o5gmpz7g> <article class="prose prose-nord dark:prose-nord max-w-none prose-headings:font-serif prose-code:before:content-none prose-code:after:content-none" data-astro-cid-o5gmpz7g> <header class="mb-8 rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel-strong)] px-5 py-5 shadow-card sm:px-6 dark:shadow-[0_16px_36px_rgba(15,23,42,0.18)]" data-astro-cid-o5gmpz7g> <h1 class="mb-4 text-[color:var(--theme-text-primary)]" data-pagefind-meta="title" data-astro-cid-o5gmpz7g>b-tree</h1> <div class="flex flex-col gap-3" data-astro-cid-o5gmpz7g> <div class="min-w-0 text-[color:var(--theme-text-muted)]" data-astro-cid-o5gmpz7g> <div class="flex flex-wrap items-center gap-x-2 gap-y-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded font-medium bg-[color:var(--theme-badge-created-bg)] text-[color:var(--theme-badge-created-text)]">  <span>📅</span> <span>2026-04-10</span>  </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded font-medium bg-[color:var(--theme-badge-updated-bg)] text-[color:var(--theme-badge-updated-text)]">  <span>✏️</span> <span>2026-04-10</span>  </span>  <a href="/notes/tags/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a> </div> </div> <div class="header-actions-row flex flex-wrap items-center justify-end gap-2 pt-1" data-astro-cid-o5gmpz7g> <div class="flex flex-wrap items-center justify-end gap-2" data-astro-cid-o5gmpz7g> <div class="flex items-center gap-1">  <!-- Outlinks --><!-- Backlinks --><!-- No links message --><span class="italic text-[color:var(--theme-text-muted)]">No related notes</span><!-- Modals --><div id="outlinks-modal" data-modal-root class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-xl"> <!-- Header --> <div class="sticky top-0 flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-elevated)] px-6 py-4"> <h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]"> Outlinks <span class="ml-2 text-sm font-normal text-[color:var(--theme-text-muted)]">
+(0)
+</span> </h2> <button data-modal-close class="close-modal rounded p-1 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="py-8 text-center text-[color:var(--theme-text-muted)]">
+No outlinks found
+</p> </div> </div> </div><div id="backlinks-modal" data-modal-root class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-xl"> <!-- Header --> <div class="sticky top-0 flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-elevated)] px-6 py-4"> <h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]"> Backlinks <span class="ml-2 text-sm font-normal text-[color:var(--theme-text-muted)]">
+(0)
+</span> </h2> <button data-modal-close class="close-modal rounded p-1 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="py-8 text-center text-[color:var(--theme-text-muted)]">
+No backlinks found
+</p> </div> </div> </div> </div> <button id="kg-trigger-1775789811-MNLO" type="button" title="View knowledge graph" class="inline-flex rounded-lg p-2 text-[color:var(--theme-text-primary)] transition-all duration-300 ease-out hover:scale-110 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent)] hover:shadow-md active:scale-95" aria-label="Open knowledge graph"><svg class="w-4 h-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg></button><div id="kg-backdrop-1775789811-MNLO" class="fixed inset-0 bg-black/40 hidden z-40 backdrop-blur-sm" aria-hidden="true"></div><div id="kg-modal-1775789811-MNLO" class="fixed inset-0 flex items-center justify-center hidden z-50 p-4"><div class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl"><div class="flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] px-6 py-4"><h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]">Local Knowledge Graph</h2><button data-local-graph-close type="button" class="rounded-lg p-1.5 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close knowledge graph"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div class="flex-1 overflow-hidden"><div id="local-graph-1775789811-MNLO" style="height: 100%;" class="knowledge-graph-container" data-astro-cid-zjb43jqo> <div class="knowledge-graph-wrapper" data-astro-cid-zjb43jqo> <svg id="local-graph-1775789811-MNLO-svg" style="width: 100%; height: 100%;" data-astro-cid-zjb43jqo></svg> </div> </div>  <script>(function(){const containerId = "local-graph-1775789811-MNLO";
+const nodeRadius = 4;
+const showLabels = true;
+const enableZoom = true;
+const enableDrag = true;
+const dataJson = "{\"nodes\":[{\"id\":\"1775789811-MNLO\",\"urlId\":\"1775789811-MNLO\",\"label\":\"b-tree\",\"title\":\"b-tree\",\"group\":\"default\",\"nodeType\":\"current\"}],\"links\":[]}";
+
+  (window.__KNOWLEDGE_GRAPH_QUEUE__ = window.__KNOWLEDGE_GRAPH_QUEUE__ || []).push({
+    containerId,
+    dataJson,
+    nodeRadius,
+    showLabels,
+    enableZoom,
+    enableDrag,
+  });
+})();</script></div></div></div><script>
+        (() => {
+          const scriptEl = document.currentScript;
+          const modal = scriptEl?.previousElementSibling;
+          const backdrop = modal?.previousElementSibling;
+          const triggerBtn = backdrop?.previousElementSibling;
+          const closeBtn = modal?.querySelector('[data-local-graph-close]');
+
+          if (!triggerBtn || !modal || !backdrop || !closeBtn) return;
+
+          function openModal() {
+            modal.classList.remove('hidden');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+          }
+
+          function closeModal() {
+            modal.classList.add('hidden');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+          }
+
+          triggerBtn.addEventListener('click', openModal);
+          closeBtn.addEventListener('click', closeModal);
+          backdrop.addEventListener('click', closeModal);
+
+          document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+              closeModal();
+            }
+          });
+        })();
+      </script> </div> </div> </div> </header> <div class="note-content" data-astro-cid-o5gmpz7g>     <h1 id="b-tree">1 · B-tree<a href="#b-tree" class="heading-anchor" data-heading-link="" aria-label="Link to section b-tree">#</a></h1>
+<h2 id="s">1.1 · S - 场景<a href="#s" class="heading-anchor" data-heading-link="" aria-label="Link to section s">#</a></h2>
+<p><strong>需要频繁随机读取且支持范围查询</strong>的场景：</p>
+<ul>
+<li>传统数据库（MySQL InnoDB、PostgreSQL）</li>
+<li>文件系统（NTFS、ext4、HFS+）</li>
+<li>内存数据库（Redis Sorted Sets 基础）</li>
+<li>分布式系统的索引（Elasticsearch）</li>
+</ul>
+<h2 id="c">1.2 · C - 核心权衡<a href="#c" class="heading-anchor" data-heading-link="" aria-label="Link to section c">#</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>维度</th><th>LSM-tree</th><th>B-tree</th></tr></thead><tbody><tr><td>写入</td><td>顺序追加（快）</td><td>原地更新（慢）</td></tr><tr><td>读取</td><td>多层查询（多I/O）</td><td>直接定位（少I/O）</td></tr><tr><td>空间</td><td>多版本冗余</td><td>紧凑高效</td></tr><tr><td>范围查询</td><td>需要多个SSTable</td><td>直接叶子链表</td></tr><tr><td>CPU</td><td>Compaction 高负载</td><td>读写均衡</td></tr></tbody></table>
+<h2 id="q">1.3 · Q - 核心问题与解决<a href="#q" class="heading-anchor" data-heading-link="" aria-label="Link to section q">#</a></h2>
+<h3 id="q1">1.3.1 · Q1. 数据随机分散问题<a href="#q1" class="heading-anchor" data-heading-link="" aria-label="Link to section q1">#</a></h3>
+<p><strong>问题</strong>：如果直接把 key-value 放在文件中，随机读需要全表扫描。</p>
+<p><strong>解决方案</strong>：树形索引结构</p>
+<ul>
+<li>数据按 key 有序排列</li>
+<li>通过多层索引指针快速定位</li>
+<li>树高通常只有 3-4 层（百万级数据）</li>
+</ul>
+<h3 id="q2">1.3.2 · Q2. 更新不能原地改写的问题<a href="#q2" class="heading-anchor" data-heading-link="" aria-label="Link to section q2">#</a></h3>
+<p><strong>问题</strong>：如果数据长度变化（如字符串扩展），原地更新会导致后续数据移位。</p>
+<p><strong>解决方案</strong>：</p>
+<ul>
+<li>将数据组织成固定大小的页（page/block）</li>
+<li>更新时只改写涉及的页，不影响其他页</li>
+<li>利用 CPU 缓存和磁盘分页的天然匹配</li>
+</ul>
+<h3 id="q3">1.3.3 · Q3. 插入删除后的树结构失衡问题<a href="#q3" class="heading-anchor" data-heading-link="" aria-label="Link to section q3">#</a></h3>
+<p><strong>问题</strong>：频繁插入删除后，树可能变得不平衡，导致查询性能下降。</p>
+<p><strong>解决方案</strong>：自平衡机制</p>
+<ul>
+<li>分裂（Split）：节点过满时分成两个节点</li>
+<li>合并（Merge）：节点过空时和相邻节点合并</li>
+<li>旋转（Rotation）：调整树的形状保持平衡</li>
+</ul>
+<h2 id="a---b-tree">1.4 · A - B-tree 架构<a href="#a---b-tree" class="heading-anchor" data-heading-link="" aria-label="Link to section a---b-tree">#</a></h2>
+<h3 id="141--核心特性">1.4.1 · 核心特性</h3>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Properties of B-tree (order m):</span></span>
+<span class="line"><span>  1. 每个节点最多有 m 个孩子（m-1 个 key）</span></span>
+<span class="line"><span>  2. 除根节点外，每个节点至少有 ⌈m/2⌉ 个孩子</span></span>
+<span class="line"><span>  3. 根节点至少有 2 个孩子（除非树只有根）</span></span>
+<span class="line"><span>  4. 所有叶子节点在同一层</span></span>
+<span class="line"><span>  5. 节点内 key 有序，key 分隔子树的范围</span></span></code></pre>
+<h3 id="b-tree">1.4.2 · B-tree 的结构图<a href="#b-tree" class="heading-anchor" data-heading-link="" aria-label="Link to section b-tree">#</a></h3>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>                     ┌─────────┐</span></span>
+<span class="line"><span>                     │  30 60  │  (根节点)</span></span>
+<span class="line"><span>                     └────┬────┴─────┬────┘</span></span>
+<span class="line"><span>                         /          \</span></span>
+<span class="line"><span>                   ┌─────────┐  ┌─────────┐</span></span>
+<span class="line"><span>                   │ 10 20   │  │ 40 50   │  (内部节点)</span></span>
+<span class="line"><span>                   └──┬──┬───┴──┬──┬───┘</span></span>
+<span class="line"><span>                   /  |  \    /  |  \</span></span>
+<span class="line"><span>              ┌──┐ ┌─┐ ┌──┐┌──┐ ┌──┐┌────┐</span></span>
+<span class="line"><span>              │10│ │15│ │20│ │40│ │50│ │70 80│  (叶子节点)</span></span>
+<span class="line"><span>              └──┘ └─┘ └──┘└──┘ └──┘└────┘</span></span>
+<span class="line"><span>             (实际存储 data pointers)</span></span></code></pre>
+<p><strong>特点</strong>：</p>
+<ul>
+<li>根到叶子的路径长度相同</li>
+<li>内部节点和叶子节点都存储 key</li>
+<li>key 用于指导查询路由（路由 key 和数据 key 相同）</li>
+</ul>
+<h3 id="btree">1.4.3 · B+tree 的改进（更常用于数据库）<a href="#btree" class="heading-anchor" data-heading-link="" aria-label="Link to section btree">#</a></h3>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>B+tree 在 B-tree 基础上的改进：</span></span>
+<span class="line"><span>  1. 只有叶子存储数据，内部节点只存 key</span></span>
+<span class="line"><span>  2. 叶子节点用链表连接，支持高效范围查询</span></span>
+<span class="line"><span>  3. 内部节点 key 可以重复出现在叶子</span></span></code></pre>
+<p><strong>B+tree 结构</strong>：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>                     ┌─────────┐</span></span>
+<span class="line"><span>                     │  30 60  │  (索引层：只有 key，无数据)</span></span>
+<span class="line"><span>                     └────┬────┴─────┬────┘</span></span>
+<span class="line"><span>                        /            \</span></span>
+<span class="line"><span>                   ┌─────────┐   ┌─────────┐</span></span>
+<span class="line"><span>                   │ 10 20   │   │ 40 50   │</span></span>
+<span class="line"><span>                   └──┬──┬───┴───┬──┬───┘</span></span>
+<span class="line"><span>                     /  |  \    /  |  \</span></span>
+<span class="line"><span>           ┌──────┬────┬──────┬──────┬──────┐</span></span>
+<span class="line"><span>           │  10  │ 20 │ 30   │ 50   │ 70   │  (数据层：存储实际数据)</span></span>
+<span class="line"><span>           └──────┴────┴──────┴──────┴──────┘</span></span>
+<span class="line"><span>              ↓         ↓       ↓       ↓    (叶子链表，支持范围查询)</span></span>
+<span class="line"><span>           [data1] [data2] [data3] [data4]</span></span></code></pre>
+<h2 id="15--关键操作">1.5 · 关键操作</h2>
+<h3 id="1-search">1.5.1 · 1. 搜索（Search）<a href="#1-search" class="heading-anchor" data-heading-link="" aria-label="Link to section 1-search">#</a></h3>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>search(key, node):</span></span>
+<span class="line"><span>  # 在节点中找到 >= key 的第一个 key</span></span>
+<span class="line"><span>  i = binary_search(node.keys, key)</span></span>
+<span class="line"><span>  </span></span>
+<span class="line"><span>  if key 在 node.keys 中:</span></span>
+<span class="line"><span>    return node.data[i]  # 找到</span></span>
+<span class="line"><span>  </span></span>
+<span class="line"><span>  if node 是叶子:</span></span>
+<span class="line"><span>    return NOT_FOUND     # 不存在</span></span>
+<span class="line"><span>  </span></span>
+<span class="line"><span>  return search(key, node.children[i])  # 递归搜索</span></span></code></pre>
+<p><strong>时间复杂度</strong>：O(log n)</p>
+<ul>
+<li>树高度：h = log_m(n)，m 通常为 100-1000</li>
+<li>每层二分查找：O(log m)</li>
+<li>总复杂度：O(log_m(n) × log m)</li>
+</ul>
+<h3 id="2-insert">1.5.2 · 2. 插入（Insert）<a href="#2-insert" class="heading-anchor" data-heading-link="" aria-label="Link to section 2-insert">#</a></h3>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>insert(key, value):</span></span>
+<span class="line"><span>  # 1. 找到叶子节点</span></span>
+<span class="line"><span>  leaf = find_leaf(key)</span></span>
+<span class="line"><span>  </span></span>
+<span class="line"><span>  # 2. 在叶子插入 key-value</span></span>
+<span class="line"><span>  leaf.insert(key, value)</span></span>
+<span class="line"><span>  </span></span>
+<span class="line"><span>  # 3. 如果叶子过满（超过 m-1 个 key）</span></span>
+<span class="line"><span>  if leaf.is_full():</span></span>
+<span class="line"><span>    # 3a. 分裂：取中间 key 上升</span></span>
+<span class="line"><span>    mid_key = leaf.keys[m/2]</span></span>
+<span class="line"><span>    left, right = leaf.split()</span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>    # 3b. 递归处理父节点</span></span>
+<span class="line"><span>    parent.insert(mid_key)</span></span>
+<span class="line"><span>    if parent.is_full():</span></span>
+<span class="line"><span>      parent.split()  # 可能导致级联分裂</span></span></code></pre>
+<p><strong>分裂过程（order=3）</strong>：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Before (过满):       [10, 20, 30]</span></span>
+<span class="line"><span>                        │</span></span>
+<span class="line"><span>                        ↓ split</span></span>
+<span class="line"><span>                        </span></span>
+<span class="line"><span>After:              [20]           (上升到父节点)</span></span>
+<span class="line"><span>                   /  \</span></span>
+<span class="line"><span>            [10]  [30]  (分成两个节点)</span></span></code></pre>
+<p><strong>时间复杂度</strong>：O(log n)</p>
+<ul>
+<li>查找叶子：O(log n)</li>
+<li>分裂（最坏级联到根）：O(log n)</li>
+</ul>
+<h3 id="3-delete">1.5.3 · 3. 删除（Delete）<a href="#3-delete" class="heading-anchor" data-heading-link="" aria-label="Link to section 3-delete">#</a></h3>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>delete(key):</span></span>
+<span class="line"><span>  # 1. 找到包含 key 的节点</span></span>
+<span class="line"><span>  node = search_node(key)</span></span>
+<span class="line"><span>  </span></span>
+<span class="line"><span>  if node 是叶子:</span></span>
+<span class="line"><span>    node.remove(key)</span></span>
+<span class="line"><span>  else:</span></span>
+<span class="line"><span>    # 用前驱或后继替换，然后删除</span></span>
+<span class="line"><span>    predecessor = get_predecessor(key)</span></span>
+<span class="line"><span>    node.replace(key, predecessor)</span></span>
+<span class="line"><span>    delete(predecessor)</span></span>
+<span class="line"><span>  </span></span>
+<span class="line"><span>  # 2. 如果节点过空（&#x3C; ⌈m/2⌉ 个 key）</span></span>
+<span class="line"><span>  if node.underflow():</span></span>
+<span class="line"><span>    # 尝试从兄弟节点借</span></span>
+<span class="line"><span>    if sibling.has_extra():</span></span>
+<span class="line"><span>      borrow_from_sibling(node, sibling)</span></span>
+<span class="line"><span>    else:</span></span>
+<span class="line"><span>      # 否则与兄弟合并</span></span>
+<span class="line"><span>      merge(node, sibling)</span></span></code></pre>
+<p><strong>合并过程</strong>：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Before (过空):     [20]              [40]</span></span>
+<span class="line"><span>                  /  \              /  \</span></span>
+<span class="line"><span>            [10]  []  [30]    [35]  [50]</span></span>
+<span class="line"><span>                │</span></span>
+<span class="line"><span>                └─ 与兄弟合并，从父节点借 key</span></span>
+<span class="line"><span>                </span></span>
+<span class="line"><span>After:            [20, 40]</span></span>
+<span class="line"><span>                 /   |   \</span></span>
+<span class="line"><span>            [10] [30,35] [50]</span></span></code></pre>
+<p><strong>时间复杂度</strong>：O(log n)</p>
+<ul>
+<li>查找 + 删除 + 合并/借位：O(log n)</li>
+</ul>
+<h2 id="16--性能分析">1.6 · 性能分析</h2>
+<h3 id="161--时间复杂度对比">1.6.1 · 时间复杂度对比</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>操作</th><th>平衡二叉树</th><th>B-tree (m=100)</th></tr></thead><tbody><tr><td>Search</td><td>O(log n)</td><td>O(log n) 但常数小</td></tr><tr><td>Insert</td><td>O(log n)</td><td>O(log n)</td></tr><tr><td>Delete</td><td>O(log n)</td><td>O(log n)</td></tr><tr><td>Range</td><td>O(k + log n)</td><td>O(k + log n)</td></tr></tbody></table>
+<h3 id="io">1.6.2 · 空间和 I/O 特性<a href="#io" class="heading-anchor" data-heading-link="" aria-label="Link to section io">#</a></h3>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>数据量 N = 1 千万（10^7）</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>二叉搜索树：</span></span>
+<span class="line"><span>  树高：h ≈ log₂(10^7) ≈ 24 层</span></span>
+<span class="line"><span>  最坏情况需要 24 次磁盘 I/O</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>B-tree (m=100, 内部节点存 99 个 key)：</span></span>
+<span class="line"><span>  树高：h ≈ log₁₀₀(10^7) ≈ 3-4 层</span></span>
+<span class="line"><span>  最坏情况只需 3-4 次磁盘 I/O</span></span>
+<span class="line"><span>  </span></span>
+<span class="line"><span>性能差异：</span></span>
+<span class="line"><span>  ├─ 二叉树：24 次 I/O × 10ms/IO = 240ms</span></span>
+<span class="line"><span>  └─ B-tree：3 次 I/O × 10ms/IO = 30ms</span></span>
+<span class="line"><span>  └─ 快 8 倍！</span></span></code></pre>
+<h3 id="b-tree">1.6.3 · 为什么选择 B-tree？<a href="#b-tree" class="heading-anchor" data-heading-link="" aria-label="Link to section b-tree">#</a></h3>
+<ol>
+<li>
+<p><strong>树高低</strong>：3-4 层可处理百万级数据</p>
+<ul>
+<li>每层一次磁盘 I/O</li>
+<li>减少 I/O 次数是关键</li>
+</ul>
+</li>
+<li>
+<p><strong>按页对齐</strong>：</p>
+<ul>
+<li>操作系统和磁盘都是按页（4KB-16KB）处理</li>
+<li>B-tree 节点大小恰好匹配页大小</li>
+<li>无需额外转换或分页</li>
+</ul>
+</li>
+<li>
+<p><strong>支持范围查询</strong>：</p>
+<ul>
+<li>叶子有序连接（B+tree）</li>
+<li>可高效扫描范围 [a, b]</li>
+<li>LSM 需要查多个 SSTable</li>
+</ul>
+</li>
+<li>
+<p><strong>更新高效</strong>：</p>
+<ul>
+<li>原地改写，无多版本开销</li>
+<li>无需后台 compaction</li>
+</ul>
+</li>
+</ol>
+<h2 id="17--工业实现">1.7 · 工业实现</h2>
+<h3 id="mysql-innodb-btree">1.7.1 · MySQL InnoDB B+tree 索引<a href="#mysql-innodb-btree" class="heading-anchor" data-heading-link="" aria-label="Link to section mysql-innodb-btree">#</a></h3>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>结构：</span></span>
+<span class="line"><span>  聚集索引：主键 + 完整行数据</span></span>
+<span class="line"><span>  辅助索引：索引键 + 主键引用</span></span>
+<span class="line"><span>  </span></span>
+<span class="line"><span>  Clustered Index (按主键):</span></span>
+<span class="line"><span>    内部节点：[key1] [key2] [key3]</span></span>
+<span class="line"><span>    叶子节点：[pk1, data1] [pk2, data2] ...</span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>  Secondary Index (非主键索引):</span></span>
+<span class="line"><span>    内部节点：[key1] [key2]</span></span>
+<span class="line"><span>    叶子节点：[key1, pk1] [key2, pk2] ...</span></span>
+<span class="line"><span>    </span></span>
+<span class="line"><span>查询流程：</span></span>
+<span class="line"><span>  SELECT * FROM users WHERE name = 'Alice'</span></span>
+<span class="line"><span>    ├─ 在 name 索引上二分查找</span></span>
+<span class="line"><span>    ├─ 获得主键 pk = 123</span></span>
+<span class="line"><span>    ├─ 在聚集索引上查询 pk = 123</span></span>
+<span class="line"><span>    └─ 获得完整行数据</span></span></code></pre>
+<h3 id="sqlite-b-tree">1.7.2 · SQLite B-tree 实现<a href="#sqlite-b-tree" class="heading-anchor" data-heading-link="" aria-label="Link to section sqlite-b-tree">#</a></h3>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>特点：</span></span>
+<span class="line"><span>  1. 使用变长 B-tree</span></span>
+<span class="line"><span>  2. 页大小可配置（默认 4KB）</span></span>
+<span class="line"><span>  3. 支持 VACUUM 重组</span></span>
+<span class="line"><span>  4. 数据紧凑存储在叶子</span></span></code></pre>
+<h2 id="b-tree-vs-lsm-tree">1.8 · B-tree vs LSM-tree<a href="#b-tree-vs-lsm-tree" class="heading-anchor" data-heading-link="" aria-label="Link to section b-tree-vs-lsm-tree">#</a></h2>
+<h3 id="181--权衡决策表">1.8.1 · 权衡决策表</h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>特性</th><th>B-tree</th><th>LSM-tree</th></tr></thead><tbody><tr><td><strong>写吞吐</strong></td><td>中等（随机I/O）</td><td>高（顺序I/O）</td></tr><tr><td><strong>读延迟</strong></td><td>低（直接定位）</td><td>中等（多层查）</td></tr><tr><td><strong>空间占用</strong></td><td>紧凑</td><td>冗余（多版本）</td></tr><tr><td><strong>范围查询</strong></td><td>高效（叶子链表）</td><td>需多SSTable</td></tr><tr><td><strong>CPU开销</strong></td><td>低</td><td>高（compaction）</td></tr><tr><td><strong>适用场景</strong></td><td>通用OLTP</td><td>写密集(日志、TS)</td></tr></tbody></table>
+<h3 id="182--选择建议">1.8.2 · 选择建议</h3>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>选 B-tree 如果：</span></span>
+<span class="line"><span>  ✓ 读写比例均衡</span></span>
+<span class="line"><span>  ✓ 需要高效范围查询</span></span>
+<span class="line"><span>  ✓ 磁盘空间有限</span></span>
+<span class="line"><span>  ✓ CPU 资源受限</span></span>
+<span class="line"><span>  例：传统数据库、文件系统</span></span>
+<span class="line"><span></span></span>
+<span class="line"><span>选 LSM-tree 如果：</span></span>
+<span class="line"><span>  ✓ 写操作远多于读</span></span>
+<span class="line"><span>  ✓ 可接受读放大</span></span>
+<span class="line"><span>  ✓ 有充足 CPU 做 compaction</span></span>
+<span class="line"><span>  ✓ 可接受高空间占用</span></span>
+<span class="line"><span>  例：日志、时序数据库、NoSQL</span></span></code></pre>
+<h2 id="19--实现要点伪代码">1.9 · 实现要点（伪代码）</h2>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="python"><code><span class="line"><span style="color:#81A1C1">class</span><span style="color:#8FBCBB"> BTree</span><span style="color:#ECEFF4">:</span></span>
+<span class="line"><span style="color:#81A1C1">    def</span><span style="color:#88C0D0"> __init__</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> order</span><span style="color:#81A1C1">=</span><span style="color:#B48EAD">3</span><span style="color:#ECEFF4">):</span></span>
+<span class="line"><span style="color:#81A1C1">        self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">order </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> order  </span><span style="color:#616E88"># m</span></span>
+<span class="line"><span style="color:#81A1C1">        self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root </span><span style="color:#81A1C1">=</span><span style="color:#88C0D0"> BNode</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">order</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    </span></span>
+<span class="line"><span style="color:#81A1C1">    def</span><span style="color:#88C0D0"> search</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> key</span><span style="color:#ECEFF4">):</span></span>
+<span class="line"><span style="color:#81A1C1">        return</span><span style="color:#81A1C1"> self</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">_search_node</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    </span></span>
+<span class="line"><span style="color:#81A1C1">    def</span><span style="color:#88C0D0"> _search_node</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> node</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> key</span><span style="color:#ECEFF4">):</span></span>
+<span class="line"><span style="color:#616E88">        # 二分查找找到 >= key 的位置</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        idx </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> bisect</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">bisect_left</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        </span></span>
+<span class="line"><span style="color:#81A1C1">        if</span><span style="color:#D8DEE9FF"> idx </span><span style="color:#81A1C1">&#x3C;</span><span style="color:#88C0D0"> len</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> and</span><span style="color:#D8DEE9FF"> node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">idx</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1"> ==</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">:</span></span>
+<span class="line"><span style="color:#81A1C1">            return</span><span style="color:#D8DEE9FF"> node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">idx</span><span style="color:#ECEFF4">]</span><span style="color:#616E88">  # 找到</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        </span></span>
+<span class="line"><span style="color:#81A1C1">        if</span><span style="color:#D8DEE9FF"> node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">is_leaf</span><span style="color:#ECEFF4">:</span></span>
+<span class="line"><span style="color:#81A1C1">            return</span><span style="color:#81A1C1"> None</span><span style="color:#616E88">  # 叶子中未找到</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        </span></span>
+<span class="line"><span style="color:#81A1C1">        return</span><span style="color:#81A1C1"> self</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">_search_node</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">idx</span><span style="color:#ECEFF4">],</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    </span></span>
+<span class="line"><span style="color:#81A1C1">    def</span><span style="color:#88C0D0"> insert</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> key</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> value</span><span style="color:#ECEFF4">):</span></span>
+<span class="line"><span style="color:#81A1C1">        if</span><span style="color:#81A1C1"> self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">is_full</span><span style="color:#ECEFF4">():</span></span>
+<span class="line"><span style="color:#616E88">            # 根满了，需要创建新根</span></span>
+<span class="line"><span style="color:#D8DEE9FF">            old_root </span><span style="color:#81A1C1">=</span><span style="color:#81A1C1"> self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root</span></span>
+<span class="line"><span style="color:#81A1C1">            self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root </span><span style="color:#81A1C1">=</span><span style="color:#88C0D0"> BNode</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">order</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#81A1C1">            self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">append</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">old_root</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#81A1C1">            self</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">_split_child</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        </span></span>
+<span class="line"><span style="color:#81A1C1">        self</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">_insert_non_full</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> value</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    </span></span>
+<span class="line"><span style="color:#81A1C1">    def</span><span style="color:#88C0D0"> _insert_non_full</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> node</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> key</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> value</span><span style="color:#ECEFF4">):</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        idx </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> bisect</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">bisect_left</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        </span></span>
+<span class="line"><span style="color:#81A1C1">        if</span><span style="color:#D8DEE9FF"> node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">is_leaf</span><span style="color:#ECEFF4">:</span></span>
+<span class="line"><span style="color:#616E88">            # 直接插入</span></span>
+<span class="line"><span style="color:#D8DEE9FF">            node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">insert</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">idx</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9FF">            node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">insert</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">idx</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> value</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#81A1C1">        else</span><span style="color:#ECEFF4">:</span></span>
+<span class="line"><span style="color:#616E88">            # 找到子节点</span></span>
+<span class="line"><span style="color:#D8DEE9FF">            child </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">idx</span><span style="color:#ECEFF4">]</span></span>
+<span class="line"><span style="color:#81A1C1">            if</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">is_full</span><span style="color:#ECEFF4">():</span></span>
+<span class="line"><span style="color:#81A1C1">                self</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">_split_child</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">node</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> idx</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#616E88">                # 分裂后重新确定方向</span></span>
+<span class="line"><span style="color:#81A1C1">                if</span><span style="color:#D8DEE9FF"> key </span><span style="color:#81A1C1">></span><span style="color:#D8DEE9FF"> node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">idx</span><span style="color:#ECEFF4">]:</span></span>
+<span class="line"><span style="color:#D8DEE9FF">                    idx </span><span style="color:#81A1C1">+=</span><span style="color:#B48EAD"> 1</span></span>
+<span class="line"><span style="color:#D8DEE9FF">                child </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">idx</span><span style="color:#ECEFF4">]</span></span>
+<span class="line"><span style="color:#D8DEE9FF">            </span></span>
+<span class="line"><span style="color:#81A1C1">            self</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">_insert_non_full</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">child</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> value</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9FF">    </span></span>
+<span class="line"><span style="color:#81A1C1">    def</span><span style="color:#88C0D0"> _split_child</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> parent</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> child_idx</span><span style="color:#ECEFF4">):</span></span>
+<span class="line"><span style="color:#616E88">        # 分裂第 child_idx 个子节点</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        child </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> parent</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">child_idx</span><span style="color:#ECEFF4">]</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        mid_idx </span><span style="color:#81A1C1">=</span><span style="color:#ECEFF4"> (</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">order </span><span style="color:#81A1C1">-</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> //</span><span style="color:#B48EAD"> 2</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        </span></span>
+<span class="line"><span style="color:#616E88">        # 创建新节点</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        new_child </span><span style="color:#81A1C1">=</span><span style="color:#88C0D0"> BNode</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">order</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        new_child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">mid_idx </span><span style="color:#81A1C1">+</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4">:]</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        new_child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">mid_idx </span><span style="color:#81A1C1">+</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4">:]</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        </span></span>
+<span class="line"><span style="color:#81A1C1">        if</span><span style="color:#81A1C1"> not</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">is_leaf</span><span style="color:#ECEFF4">:</span></span>
+<span class="line"><span style="color:#D8DEE9FF">            new_child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">mid_idx </span><span style="color:#81A1C1">+</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4">:]</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        </span></span>
+<span class="line"><span style="color:#616E88">        # 更新原节点</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">[:</span><span style="color:#D8DEE9FF">mid_idx</span><span style="color:#ECEFF4">]</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data</span><span style="color:#ECEFF4">[:</span><span style="color:#D8DEE9FF">mid_idx</span><span style="color:#ECEFF4">]</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        </span></span>
+<span class="line"><span style="color:#616E88">        # 中间 key 上升到父节点</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        parent</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">insert</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">child_idx</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">mid_idx</span><span style="color:#ECEFF4">])</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        parent</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">insert</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">child_idx</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">mid_idx</span><span style="color:#ECEFF4">])</span></span>
+<span class="line"><span style="color:#D8DEE9FF">        parent</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">insert</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">child_idx </span><span style="color:#81A1C1">+</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> new_child</span><span style="color:#ECEFF4">)</span></span></code></pre>
+<h2 id="110--总结">1.10 · 总结</h2>
+<p>B-tree 是生产数据库的标准选择，原因是：</p>
+<ol>
+<li><strong>低树高</strong>：3-4 层处理亿级数据，减少磁盘 I/O</li>
+<li><strong>高效性</strong>：查询、插入、删除都是 O(log n)</li>
+<li><strong>范围查询</strong>：叶子链表支持高效扫描</li>
+<li><strong>硬件友好</strong>：节点大小匹配磁盘页，CPU 缓存友好</li>
+<li><strong>空间高效</strong>：无多版本开销，紧凑存储</li>
+</ol>
+<p>而 LSM-tree 则专注于<strong>写优化</strong>，通过顺序 I/O 换取读放大和空间放大。</p> <!-- Diagrams rendered at build time -->  </div> </article> <nav class="mt-12 border-t border-[color:var(--theme-border-subtle)] pt-8" data-astro-cid-o5gmpz7g> <a href="/notes" class="btn-primary"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>Back to Notes</a> </nav> </div>  </main> <footer class="mt-20 border-t border-[color:var(--theme-border-subtle)]"> <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-sm text-[color:var(--theme-text-muted)] sm:flex-row sm:items-end sm:justify-between sm:px-6 lg:px-8"> <div> <p class="mb-1 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--theme-text-faint)]">
+Built for connected notes
+</p> <p class="max-w-2xl text-[0.85rem] leading-6 tracking-normal text-[color:var(--theme-text-secondary)]"> Evergreen notes turn ideas into objects that you can manipulate, combine, combine. </p> </div> <div class="text-left sm:text-right"> <p class="text-[0.8125rem] font-medium tracking-normal text-[color:var(--theme-text-muted)]">
+&copy; 2026 All rights reserved.
+</p> </div> </div> </footer>  <script type="module">const r="nord-theme",m="light",t="dark";function a(){try{return localStorage.getItem(r)}catch{return null}}function s(){return window.matchMedia("(prefers-color-scheme: dark)").matches?t:"light"}function n(){return a()||s()}function o(c){const e=document.documentElement;c===t?e.classList.add("dark"):e.classList.remove("dark")}function h(){const e=n()===t?m:t;localStorage.setItem(r,e),o(e),window.dispatchEvent(new CustomEvent("theme-change",{detail:{theme:e}}))}o(n());document.addEventListener("astro:after-swap",()=>o(n()));window.toggleTheme=h;window.getTheme=n;</script> </body> </html> 

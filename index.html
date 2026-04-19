@@ -1,0 +1,180 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Knowledge notes, graph exploration, tags, and series collected in one intentional reading space."><title>Home</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css"><script>
+      // 内联阻塞脚本：在首帧渲染前同步应用主题，避免 View Transitions 页面切换时的白屏闪烁。
+      // 必须无 import、同步执行；若用 theme.ts 模块，会在新文档替换后延迟执行导致闪白。
+      (function() {
+        var theme = localStorage.getItem('nord-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+      })();
+    </script><script type="module" src="/_astro/BaseLayout.astro_astro_type_script_index_0_lang.D_jVB8Nw.js"></script><link rel="stylesheet" href="/_astro/_chapterSlug_.C1mDGA1Y.css"></head> <body class="site-shell"> <a href="#main-content" class="skip-to-content">Skip to main content</a> <header class="sticky top-0 z-30 border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-page)] backdrop-blur-2xl"> <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8"> <div class="flex min-w-0 items-center gap-3"> <a href="/" title="Liu" class="shrink-0 rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] p-2 text-[color:var(--theme-text-primary)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] active:scale-95"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5.5 9.5V21h13V9.5"></path><path d="M9.5 21v-6h5v6"></path></svg> </a> <div class="min-w-0"> <h1 class="truncate text-lg font-bold leading-tight text-[color:var(--theme-text-primary)] sm:text-[1.1rem]"> <a href="/" class="text-inherit transition-colors hover:text-[color:var(--theme-accent-hover)]"> Liu </a> </h1> </div> </div> <div class="hidden min-w-0 flex-1 lg:block"></div> <div class="hidden items-center gap-2 lg:flex"> <a href="/books" title="Books" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22z"></path><path d="M5 4.5V22"></path><path d="M8.5 7.5h7"></path><path d="M8.5 11h7"></path></svg> </a><a href="/notes" title="Notes" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7"></path><path d="M8.5 12h7"></path><path d="M8.5 16h5"></path></svg> </a><a href="/notes/graph" title="Graph" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg> </a> <div class="relative" id="series-dropdown-root"> <a href="/notes/series" title="Series" id="series-dropdown-trigger" data-dropdown-trigger class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg> </a> <div id="series-dropdown-panel" data-dropdown-url="/series-list.json" data-empty-text="暂无系列" data-error-text="加载失败" class="absolute right-0 top-full z-50 mt-1 hidden max-h-[70vh] min-w-[12rem] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] py-2 shadow-lg" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-[color:var(--theme-text-faint)]">加载中…</span> </div> <div class="mt-1 border-t border-[color:var(--theme-border-subtle)] pt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> 查看全部系列 →
+</a> </div> </div> </div> <script type="module">document.addEventListener("click",t=>{const e=t.target;!(e instanceof HTMLElement)||!e.closest("[data-dropdown-trigger]")||t.preventDefault()});</script><div class="relative" id="tags-dropdown-root"> <a href="/notes/tags" title="Tags" id="tags-dropdown-trigger" data-dropdown-trigger class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14v17L12 17l-7 3V3z"></path></svg> </a> <div id="tags-dropdown-panel" data-dropdown-url="/tag-list.json" data-empty-text="暂无标签" data-error-text="加载失败" class="absolute right-0 top-full z-50 mt-1 hidden max-h-[70vh] min-w-[12rem] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] py-2 shadow-lg" role="menu"> <div id="tags-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-[color:var(--theme-text-faint)]">加载中…</span> </div> <div class="mt-1 border-t border-[color:var(--theme-border-subtle)] pt-1"> <a href="/notes/tags" class="block px-3 py-2 text-sm text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> 查看全部标签 →
+</a> </div> </div> </div>  <a href="https://github.com/gh-liu" title="GitHub" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg> </a> <div class="search-container" id="search-wrapper" data-pagefind-url="/pagefind/pagefind.js" data-astro-cid-35jtkoll><button id="search-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-35jtkoll><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-35jtkoll><circle cx="11" cy="11" r="8" data-astro-cid-35jtkoll></circle><path d="m21 21-4.35-4.35" data-astro-cid-35jtkoll></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-35jtkoll><div class="w-full max-w-2xl animate-fade-in overflow-hidden rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl max-h-[70vh] flex flex-col" data-astro-cid-35jtkoll><div class="border-b border-[color:var(--theme-border-subtle)] p-4" data-astro-cid-35jtkoll><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full rounded bg-[color:var(--theme-bg-panel-hover)] px-4 py-2 text-[color:var(--theme-text-primary)] placeholder-[color:var(--theme-text-faint)] focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-35jtkoll></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-35jtkoll><p class="text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll>Type to search...</p></div><div class="border-t border-[color:var(--theme-border-subtle)] p-3 text-xs text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll><p data-astro-cid-35jtkoll>Press <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>Esc</kbd> to close | Use <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>#tag</kbd> to search by tag</p></div></div></div></div> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] group relative"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="hidden h-4 w-4 text-nord-13 dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="block h-4 w-4 text-nord-9 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script type="module" src="/_astro/ThemeToggle.astro_astro_type_script_index_0_lang.oLaqEd7_.js"></script> </div> <div class="flex items-center gap-1.5 shrink-0 lg:hidden"> <a href="https://github.com/gh-liu" title="GitHub" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg> </a> <div class="search-container" id="search-wrapper" data-pagefind-url="/pagefind/pagefind.js" data-astro-cid-35jtkoll><button id="search-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-35jtkoll><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-35jtkoll><circle cx="11" cy="11" r="8" data-astro-cid-35jtkoll></circle><path d="m21 21-4.35-4.35" data-astro-cid-35jtkoll></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-35jtkoll><div class="w-full max-w-2xl animate-fade-in overflow-hidden rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl max-h-[70vh] flex flex-col" data-astro-cid-35jtkoll><div class="border-b border-[color:var(--theme-border-subtle)] p-4" data-astro-cid-35jtkoll><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full rounded bg-[color:var(--theme-bg-panel-hover)] px-4 py-2 text-[color:var(--theme-text-primary)] placeholder-[color:var(--theme-text-faint)] focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-35jtkoll></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-35jtkoll><p class="text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll>Type to search...</p></div><div class="border-t border-[color:var(--theme-border-subtle)] p-3 text-xs text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll><p data-astro-cid-35jtkoll>Press <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>Esc</kbd> to close | Use <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>#tag</kbd> to search by tag</p></div></div></div></div> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] group relative"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="hidden h-4 w-4 text-nord-13 dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="block h-4 w-4 text-nord-9 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button>  </div> </nav> <div class="border-t border-[color:var(--theme-border-subtle)]/90 px-4 py-2.5 sm:px-6 lg:hidden"> <div class="mx-auto flex max-w-6xl gap-2 overflow-x-auto pb-1"> <a href="/books" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22z"></path><path d="M5 4.5V22"></path><path d="M8.5 7.5h7"></path><path d="M8.5 11h7"></path></svg> Books </a><a href="/notes" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7"></path><path d="M8.5 12h7"></path><path d="M8.5 16h5"></path></svg> Notes </a><a href="/notes/graph" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg> Graph </a> <a href="/notes/series" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg> Series </a><a href="/notes/tags" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14v17L12 17l-7 3V3z"></path></svg> Tags </a> </div> </div> </header> <main class="mx-auto w-full max-w-4xl px-4 py-10 sm:px-6 sm:py-12" data-pagefind-body="true" id="main-content"> <article class="prose prose-nord dark:prose-nord max-w-none prose-headings:font-serif prose-code:before:content-none prose-code:after:content-none"> <h1 id="loop">1 · 认知 Loop<a href="#loop" class="heading-anchor" data-heading-link="" aria-label="Link to section loop">#</a></h1>
+<blockquote>
+<p>积累 -> 消化思考 -> 表达观点 -> 讨论检验 -> 修补漏洞 -> 下一轮</p>
+</blockquote>
+<p>这套笔记系统的目标，不是囤积信息，而是把对内的思考转化为对外的观点。</p>
+<p>也就是说，要把模糊的感受、零散的见闻、未经整理的想法，逐步变成可表达、可验证、可反驳的内容。笔记不是资料仓库，而是思考的载体；更进一步说，笔记即你的观点。</p>
+<p>高质量的讨论可以视为一次压力测试。它会暴露思考中的盲区、论证中的漏洞，以及表达上的含混。盲区出现后，再进入下一轮思考、表达与检验，认知 Loop 也就继续向前。</p>
+<p>在写作层面：</p>
+<ul>
+<li>用 <a href="/notes/1773281032-NSSY">SCQA 框架</a> 写序言，说明背景、冲突与核心问题</li>
+<li>用 <a href="/notes/1773281059-FNSZ">MECE 分析法</a> 做分析论证，尽量让结构完整且不重叠</li>
+</ul>
+<h2 id="11--核心原则">1.1 · 核心原则</h2>
+<ul>
+<li>笔记服务于思考，不服务于收藏</li>
+<li>每条笔记尽量表达一个清晰的观点或概念</li>
+<li>链接不是装饰，而是知识网络的结构</li>
+<li>输出不是终点，讨论和修补也属于笔记系统的一部分</li>
+</ul>
+<h2 id="workflow">1.2 · Workflow<a href="#workflow" class="heading-anchor" data-heading-link="" aria-label="Link to section workflow">#</a></h2>
+<blockquote>
+<p>From smaller composable ideas to complex ideas.</p>
+<p>目的：知识可累积、可组合、可产出</p>
+<p>捕捉想法（随时）-> 浅加工（每天）-> 深加工（每周）-> 输出（博客）</p>
+</blockquote>
+<h3 id="1">1.2.1 · 1. 捕捉想法<a href="#1" class="heading-anchor" data-heading-link="" aria-label="Link to section 1">#</a></h3>
+<p>原则是快速记录、低摩擦、不急着判断和分类。</p>
+<p>当前入口：</p>
+<ul>
+<li>Telegram bot</li>
+</ul>
+<h3 id="2">1.2.2 · 2. 浅加工<a href="#2" class="heading-anchor" data-heading-link="" aria-label="Link to section 2">#</a></h3>
+<p>把原始素材放进每日笔记中，先做轻量整理，不要求一次成型。</p>
+<p>常见方式：</p>
+<ul>
+<li>写入 <code>daily/YYYY-MM-DD.md</code></li>
+<li>或直接进入长青笔记，但标记 <code>draft=true</code></li>
+<li>必要时可借助 AI 做初步摘要、提炼问题或整理条目</li>
+</ul>
+<h3 id="3">1.2.3 · 3. 深加工<a href="#3" class="heading-anchor" data-heading-link="" aria-label="Link to section 3">#</a></h3>
+<p>定期把 daily notes 中反复出现、值得保留的内容提炼成 <a href="/notes/1769498924-CRIT">长青笔记</a>。</p>
+<p>深加工时重点做三件事：</p>
+<ul>
+<li>提炼概念，而不是重复素材</li>
+<li>建立链接，让笔记进入知识网络</li>
+<li>补足论证，让内容从“记录”变成“观点”</li>
+</ul>
+<h3 id="4">1.2.4 · 4. 输出<a href="#4" class="heading-anchor" data-heading-link="" aria-label="Link to section 4">#</a></h3>
+<p>当一组相关的 evergreen notes 已经足够成熟，就可以把它们组合成博客文章或其他公开表达。</p>
+<p>输出的价值不只是发布，更重要的是：</p>
+<ul>
+<li>借公开表达倒逼结构化思考</li>
+<li>借讨论反馈发现盲区</li>
+<li>借源链接保留可追溯链路</li>
+</ul>
+<h2 id="13--三层内容的关系">1.3 · 三层内容的关系</h2>
+<ul>
+<li>临时笔记（daily notes）是原始素材</li>
+<li>长青笔记（evergreen notes）是提炼加工后的成果</li>
+<li>博客是 evergreen notes 的公开版本</li>
+</ul>
+<p>这三者不是彼此替代，而是同一条生产链上的不同阶段。</p>
+<h2 id="14--相关概念">1.4 · 相关概念</h2>
+<ul>
+<li><a href="/notes/1769498924-CRIT">长青笔记</a>：概念导向、原子化、密集链接、持续演化的知识单位，定义“笔记应该是什么”</li>
+<li><a href="/notes/1769498717-USPT">卡片系统</a>：通过唯一 ID 和内部链接构建知识网络，让结构自下而上涌现，定义“笔记之间如何连接”</li>
+<li><a href="/notes/1769499013-TBZN">记忆媒介</a>：笔记既是思考的载体，也是记忆的训练场，定义“为什么要反复回访与重用”</li>
+</ul>
+<h2 id="pipeline">1.5 · Pipeline<a href="#pipeline" class="heading-anchor" data-heading-link="" aria-label="Link to section pipeline">#</a></h2>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>┌────────────────────────────────────────┐</span></span>
+<span class="line"><span>│ Layer 1: 捕获（Capture）               │</span></span>
+<span class="line"><span>│ 入口：快速记录工具 -> 临时 inbox       │</span></span>
+<span class="line"><span>│ 原则：零摩擦，不判断、不分类           │</span></span>
+<span class="line"><span>└────────────────────────────────────────┘</span></span>
+<span class="line"><span>                  ↓ 自动定期同步</span></span>
+<span class="line"><span>┌────────────────────────────────────────┐</span></span>
+<span class="line"><span>│ Layer 2: 浅加工（Daily Processing）    │</span></span>
+<span class="line"><span>│ 位置：每日笔记                         │</span></span>
+<span class="line"><span>│ 内容：自动同步 + 手动补充              │</span></span>
+<span class="line"><span>│ 策略：定期归档                         │</span></span>
+<span class="line"><span>└────────────────────────────────────────┘</span></span>
+<span class="line"><span>                  ↓ 定期手动深加工</span></span>
+<span class="line"><span>┌────────────────────────────────────────┐</span></span>
+<span class="line"><span>│ Layer 3: 深加工（Curation）            │</span></span>
+<span class="line"><span>│ 操作：提炼为 evergreen notes           │</span></span>
+<span class="line"><span>│ 原则：概念导向、原子化、至少 2 个出链  │</span></span>
+<span class="line"><span>└────────────────────────────────────────┘</span></span>
+<span class="line"><span>                  ↓ 按需输出</span></span>
+<span class="line"><span>┌────────────────────────────────────────┐</span></span>
+<span class="line"><span>│ Layer 4: 输出（Publishing）            │</span></span>
+<span class="line"><span>│ 操作：组合笔记 -> 发布文章             │</span></span>
+<span class="line"><span>│ 闭环：标注源链接，形成追溯链路         │</span></span>
+<span class="line"><span>└────────────────────────────────────────┘</span></span></code></pre>
+<h2 id="16--目录结构">1.6 · 目录结构</h2>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="text"><code><span class="line"><span>notes/</span></span>
+<span class="line"><span>├── daily/          # 每日笔记：临时素材，定期归档</span></span>
+<span class="line"><span>├── evergreen*.md   # 长青笔记：永久积累，放在 notes/ 根目录</span></span>
+<span class="line"><span>└── references/     # 参考资料索引</span></span></code></pre>
+<h2 id="17--使用规则">1.7 · 使用规则</h2>
+<ol>
+<li>首次提到某个概念时就加上内部链接，即使目标笔记还不存在。</li>
+<li>每个被引用的对象（文章、电影、播客、人物等）尽量在 <code>references/</code> 中有对应笔记，记录其基本信息、评分和自己的想法。</li>
+<li>临时笔记使用类似 <code>YYYY-MM-DD_HHmm_TITLE</code> 的命名方式，方便排序和回顾。</li>
+<li>daily notes 需要定期回看，做提炼、归档和迁移，而不是长期堆积。</li>
+<li>尽可能从模版创建笔记，让元数据、关联字段和常用结构保持一致。</li>
+<li>evergreen notes 尽量满足“概念明确、论点单一、至少 2 个出链”。</li>
+<li>自动化链路保持简单明确：<code>tgbot -> issues -> daily</code>。</li>
+</ol>
+<h2 id="18--建议节奏">1.8 · 建议节奏</h2>
+<ul>
+<li>随时捕获想法</li>
+<li>每天整理 daily notes</li>
+<li>每周做一次深加工</li>
+<li>每月做一次主题汇总或输出</li>
+<li>每隔几个月随机回访旧笔记，检查是否可复用、更新或重写</li>
+</ul>
+<h2 id="19--衡量指标">1.9 · 衡量指标</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>维度</th><th>指标</th><th>目标</th></tr></thead><tbody><tr><td>捕获</td><td>每周捕获数量</td><td>持续稳定</td></tr><tr><td>加工</td><td>每周新建 evergreen notes</td><td>有节奏</td></tr><tr><td>链接</td><td>每篇笔记的平均出链数</td><td>>= 2</td></tr><tr><td>产出</td><td>每月输出文章数</td><td>有节奏</td></tr><tr><td>复用</td><td>旧笔记被引用次数</td><td>持续增长</td></tr></tbody></table>
+<h2 id="110--其他想法">1.10 · 其他想法</h2>
+<blockquote>
+<p>“Evergreen notes turn ideas into objects that you can manipulate, combine, recombine.” — Steph Ango</p>
+<p>“Creativity is defined by the uniqueness and appeal of the combination of elements.” — Steph Ango</p>
+<p>“Better note-taking misses the point; what matters is better thinking.” — Andy Matuschak</p>
+</blockquote>
+<p>可以补充一个 NOW 页面，用来展示：</p>
+<ul>
+<li>目前在做什么</li>
+<li>最近对什么感兴趣</li>
+<li>当下正在形成的思考</li>
+</ul>
+<p>它不是日记，而是一个时间跨度更宽的个人状态页。</p> <!-- Diagrams rendered at build time --> </article> </main> <footer class="mt-20 border-t border-[color:var(--theme-border-subtle)]"> <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-sm text-[color:var(--theme-text-muted)] sm:flex-row sm:items-end sm:justify-between sm:px-6 lg:px-8"> <div> <p class="mb-1 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--theme-text-faint)]">
+Built for connected notes
+</p> <p class="max-w-2xl text-[0.85rem] leading-6 tracking-normal text-[color:var(--theme-text-secondary)]"> Evergreen notes turn ideas into objects that you can manipulate, combine, combine. </p> </div> <div class="text-left sm:text-right"> <p class="text-[0.8125rem] font-medium tracking-normal text-[color:var(--theme-text-muted)]">
+&copy; 2026 All rights reserved.
+</p> </div> </div> </footer>  <script type="module">const r="nord-theme",m="light",t="dark";function a(){try{return localStorage.getItem(r)}catch{return null}}function s(){return window.matchMedia("(prefers-color-scheme: dark)").matches?t:"light"}function n(){return a()||s()}function o(c){const e=document.documentElement;c===t?e.classList.add("dark"):e.classList.remove("dark")}function h(){const e=n()===t?m:t;localStorage.setItem(r,e),o(e),window.dispatchEvent(new CustomEvent("theme-change",{detail:{theme:e}}))}o(n());document.addEventListener("astro:after-swap",()=>o(n()));window.toggleTheme=h;window.getTheme=n;</script> </body> </html>

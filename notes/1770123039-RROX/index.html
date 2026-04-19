@@ -1,0 +1,365 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>style-guide</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css"><script>
+      // 内联阻塞脚本：在首帧渲染前同步应用主题，避免 View Transitions 页面切换时的白屏闪烁。
+      // 必须无 import、同步执行；若用 theme.ts 模块，会在新文档替换后延迟执行导致闪白。
+      (function() {
+        var theme = localStorage.getItem('nord-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+      })();
+    </script><script type="module" src="/_astro/BaseLayout.astro_astro_type_script_index_0_lang.D_jVB8Nw.js"></script><link rel="stylesheet" href="/_astro/_chapterSlug_.C1mDGA1Y.css">
+<style>.toc-scroll[data-astro-cid-ujbpqdc7]{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--theme-border-default) 55%,transparent) transparent}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar{width:6px}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-track{background:transparent}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-thumb{border-radius:999px;background:color-mix(in srgb,var(--theme-border-default) 52%,transparent)}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--theme-border-default) 72%,transparent)}.toc-link__label[data-astro-cid-ujbpqdc7]{display:-webkit-box;overflow:hidden;line-height:1.45;text-wrap:pretty;word-break:break-word;-webkit-box-orient:vertical;-webkit-line-clamp:2}.toc-link[data-astro-cid-ujbpqdc7]:hover .toc-link__label[data-astro-cid-ujbpqdc7],.toc-link[data-astro-cid-ujbpqdc7]:focus-visible .toc-link__label[data-astro-cid-ujbpqdc7],.toc-link[data-astro-cid-ujbpqdc7][aria-current=true] .toc-link__label[data-astro-cid-ujbpqdc7]{-webkit-line-clamp:unset}@media(max-width:1279px){.toc-link__label[data-astro-cid-ujbpqdc7]{-webkit-line-clamp:unset}}
+.knowledge-graph-container[data-astro-cid-zjb43jqo]{border:1px solid var(--theme-border-default);border-radius:8px;background:var(--theme-bg-elevated);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen,.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo],.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--theme-border-default);border-radius:6px;background:var(--theme-bg-panel);color:var(--theme-text-primary);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--theme-bg-panel-hover);color:var(--theme-accent-hover)}.knowledge-graph-toolbar-btn:active{background:var(--theme-bg-panel-hover)}.knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:var(--theme-accent);stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--theme-success);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--theme-accent-hover);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--theme-success);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--theme-secondary-accent);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--theme-warning);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--theme-node-neutral);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:var(--theme-text-faint);stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--theme-accent);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--theme-text-primary);font-weight:500;text-shadow:0 0 3px var(--theme-bg-elevated)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--theme-tooltip-bg);border:1px solid var(--theme-border-default);border-radius:4px;font-size:12px;color:var(--theme-tooltip-text);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--theme-info);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--theme-text-primary)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--theme-accent-hover)}.kg-legend--outlink{color:var(--theme-success)}.kg-legend--backlink{color:var(--theme-secondary-accent)}.kg-legend--both{color:var(--theme-warning)}.kg-legend--neighbor{color:var(--theme-node-neutral);opacity:.9}
+article[data-astro-cid-o5gmpz7g]{word-break:break-word}.note-content[data-astro-cid-o5gmpz7g] h1:first-child{display:none}
+</style></head> <body class="site-shell"> <a href="#main-content" class="skip-to-content">Skip to main content</a> <header class="sticky top-0 z-30 border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-page)] backdrop-blur-2xl"> <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8"> <div class="flex min-w-0 items-center gap-3"> <a href="/" title="Liu" class="shrink-0 rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] p-2 text-[color:var(--theme-text-primary)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] active:scale-95"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5.5 9.5V21h13V9.5"></path><path d="M9.5 21v-6h5v6"></path></svg> </a> <div class="min-w-0"> <h1 class="truncate text-lg font-bold leading-tight text-[color:var(--theme-text-primary)] sm:text-[1.1rem]"> <a href="/" class="text-inherit transition-colors hover:text-[color:var(--theme-accent-hover)]"> Liu </a> </h1> </div> </div> <div class="hidden min-w-0 flex-1 lg:block"></div> <div class="hidden items-center gap-2 lg:flex"> <a href="/books" title="Books" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22z"></path><path d="M5 4.5V22"></path><path d="M8.5 7.5h7"></path><path d="M8.5 11h7"></path></svg> </a><a href="/notes" title="Notes" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7"></path><path d="M8.5 12h7"></path><path d="M8.5 16h5"></path></svg> </a><a href="/notes/graph" title="Graph" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg> </a> <div class="relative" id="series-dropdown-root"> <a href="/notes/series" title="Series" id="series-dropdown-trigger" data-dropdown-trigger class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg> </a> <div id="series-dropdown-panel" data-dropdown-url="/series-list.json" data-empty-text="暂无系列" data-error-text="加载失败" class="absolute right-0 top-full z-50 mt-1 hidden max-h-[70vh] min-w-[12rem] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] py-2 shadow-lg" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-[color:var(--theme-text-faint)]">加载中…</span> </div> <div class="mt-1 border-t border-[color:var(--theme-border-subtle)] pt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> 查看全部系列 →
+</a> </div> </div> </div> <script type="module">document.addEventListener("click",t=>{const e=t.target;!(e instanceof HTMLElement)||!e.closest("[data-dropdown-trigger]")||t.preventDefault()});</script><div class="relative" id="tags-dropdown-root"> <a href="/notes/tags" title="Tags" id="tags-dropdown-trigger" data-dropdown-trigger class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14v17L12 17l-7 3V3z"></path></svg> </a> <div id="tags-dropdown-panel" data-dropdown-url="/tag-list.json" data-empty-text="暂无标签" data-error-text="加载失败" class="absolute right-0 top-full z-50 mt-1 hidden max-h-[70vh] min-w-[12rem] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] py-2 shadow-lg" role="menu"> <div id="tags-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-[color:var(--theme-text-faint)]">加载中…</span> </div> <div class="mt-1 border-t border-[color:var(--theme-border-subtle)] pt-1"> <a href="/notes/tags" class="block px-3 py-2 text-sm text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> 查看全部标签 →
+</a> </div> </div> </div>  <a href="https://github.com/gh-liu" title="GitHub" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg> </a> <div class="search-container" id="search-wrapper" data-pagefind-url="/pagefind/pagefind.js" data-astro-cid-35jtkoll><button id="search-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-35jtkoll><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-35jtkoll><circle cx="11" cy="11" r="8" data-astro-cid-35jtkoll></circle><path d="m21 21-4.35-4.35" data-astro-cid-35jtkoll></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-35jtkoll><div class="w-full max-w-2xl animate-fade-in overflow-hidden rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl max-h-[70vh] flex flex-col" data-astro-cid-35jtkoll><div class="border-b border-[color:var(--theme-border-subtle)] p-4" data-astro-cid-35jtkoll><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full rounded bg-[color:var(--theme-bg-panel-hover)] px-4 py-2 text-[color:var(--theme-text-primary)] placeholder-[color:var(--theme-text-faint)] focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-35jtkoll></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-35jtkoll><p class="text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll>Type to search...</p></div><div class="border-t border-[color:var(--theme-border-subtle)] p-3 text-xs text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll><p data-astro-cid-35jtkoll>Press <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>Esc</kbd> to close | Use <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>#tag</kbd> to search by tag</p></div></div></div></div> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] group relative"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="hidden h-4 w-4 text-nord-13 dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="block h-4 w-4 text-nord-9 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script type="module" src="/_astro/ThemeToggle.astro_astro_type_script_index_0_lang.oLaqEd7_.js"></script> </div> <div class="flex items-center gap-1.5 shrink-0 lg:hidden"> <a href="https://github.com/gh-liu" title="GitHub" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg> </a> <div class="search-container" id="search-wrapper" data-pagefind-url="/pagefind/pagefind.js" data-astro-cid-35jtkoll><button id="search-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-35jtkoll><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-35jtkoll><circle cx="11" cy="11" r="8" data-astro-cid-35jtkoll></circle><path d="m21 21-4.35-4.35" data-astro-cid-35jtkoll></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-35jtkoll><div class="w-full max-w-2xl animate-fade-in overflow-hidden rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl max-h-[70vh] flex flex-col" data-astro-cid-35jtkoll><div class="border-b border-[color:var(--theme-border-subtle)] p-4" data-astro-cid-35jtkoll><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full rounded bg-[color:var(--theme-bg-panel-hover)] px-4 py-2 text-[color:var(--theme-text-primary)] placeholder-[color:var(--theme-text-faint)] focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-35jtkoll></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-35jtkoll><p class="text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll>Type to search...</p></div><div class="border-t border-[color:var(--theme-border-subtle)] p-3 text-xs text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll><p data-astro-cid-35jtkoll>Press <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>Esc</kbd> to close | Use <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>#tag</kbd> to search by tag</p></div></div></div></div> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] group relative"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="hidden h-4 w-4 text-nord-13 dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="block h-4 w-4 text-nord-9 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button>  </div> </nav> <div class="border-t border-[color:var(--theme-border-subtle)]/90 px-4 py-2.5 sm:px-6 lg:hidden"> <div class="mx-auto flex max-w-6xl gap-2 overflow-x-auto pb-1"> <a href="/books" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22z"></path><path d="M5 4.5V22"></path><path d="M8.5 7.5h7"></path><path d="M8.5 11h7"></path></svg> Books </a><a href="/notes" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7"></path><path d="M8.5 12h7"></path><path d="M8.5 16h5"></path></svg> Notes </a><a href="/notes/graph" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg> Graph </a> <a href="/notes/series" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg> Series </a><a href="/notes/tags" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14v17L12 17l-7 3V3z"></path></svg> Tags </a> </div> </div> </header> <main class="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8" data-pagefind-body="true" id="main-content">  <div class="contents" data-astro-cid-ujbpqdc7> <aside class="hidden xl:block" data-astro-cid-ujbpqdc7> <div class="fixed right-6 top-28 w-56 2xl:right-10 2xl:w-64" data-astro-cid-ujbpqdc7> <div class="toc-scroll max-h-[min(60vh,calc(100vh-10rem))] overflow-y-auto rounded-[1.5rem] border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel-strong)] px-2 py-2 shadow-[var(--shadow-soft)] backdrop-blur-xl" data-astro-cid-ujbpqdc7> <div class="mb-2 px-1" data-astro-cid-ujbpqdc7> <p class="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--theme-text-muted)]" data-astro-cid-ujbpqdc7>On this page</p> </div> <nav aria-label="Table of contents" data-astro-cid-ujbpqdc7> <ul class="space-y-0.5 text-[0.8rem] leading-4" data-astro-cid-ujbpqdc7> <li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#golang" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.0.1 · golang#" data-toc-link data-depth="3" data-target="golang" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.0.1 · golang#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#benbjohnson" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.0.2 · benbjohnson#" data-toc-link data-depth="3" data-target="benbjohnson" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.0.2 · benbjohnson#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#uber" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.0.3 · uber#" data-toc-link data-depth="3" data-target="uber" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.0.3 · uber#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#01--指导篇" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.1 · 指导篇" data-toc-link data-depth="2" data-target="01--指导篇" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.1 · 指导篇</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#02--性能篇" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.2 · 性能篇" data-toc-link data-depth="2" data-target="02--性能篇" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.2 · 性能篇</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#03--风格篇" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.3 · 风格篇" data-toc-link data-depth="2" data-target="03--风格篇" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.3 · 风格篇</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#04--模式篇" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.4 · 模式篇" data-toc-link data-depth="2" data-target="04--模式篇" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.4 · 模式篇</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#linting" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5 · linting#" data-toc-link data-depth="2" data-target="linting" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5 · linting#</span> </a> </li> </ul> </nav> </div> </div> </aside>  <button id="toc-toggle" class="fixed bottom-6 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-[color:var(--theme-accent)] px-4 py-2 text-sm font-medium text-white shadow-lg transition-colors hover:bg-[color:var(--theme-accent-hover)] xl:hidden" aria-label="Open table of contents" aria-controls="toc-drawer" aria-expanded="false" data-astro-cid-ujbpqdc7> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-ujbpqdc7> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-ujbpqdc7></path> </svg> <span data-astro-cid-ujbpqdc7>On this page</span> </button> <div id="toc-overlay" class="fixed inset-0 z-40 hidden bg-black/50 backdrop-blur-sm xl:hidden" data-astro-cid-ujbpqdc7></div> <aside id="toc-drawer" class="fixed inset-y-0 right-0 z-50 hidden w-[min(22rem,88vw)] flex-col border-l border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] px-4 py-5 shadow-2xl xl:hidden" data-astro-cid-ujbpqdc7> <div class="mb-4 flex items-center justify-between rounded-2xl border border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-panel)] px-3 py-3" data-astro-cid-ujbpqdc7> <div data-astro-cid-ujbpqdc7> <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--theme-accent)]" data-astro-cid-ujbpqdc7>Table of contents</p> <p class="mt-1 text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-ujbpqdc7>Jump through the current note.</p> </div> <button id="toc-close" class="rounded-lg p-2 text-[color:var(--theme-text-primary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)]" aria-label="Close table of contents" data-astro-cid-ujbpqdc7> <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-ujbpqdc7> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-ujbpqdc7></path> </svg> </button> </div> <nav class="toc-scroll flex-1 min-h-0 max-h-[min(70vh,calc(100vh-14rem))] overflow-y-auto rounded-[1.5rem] border border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-panel)] p-1.5" aria-label="Table of contents mobile" data-astro-cid-ujbpqdc7> <ul class="space-y-0.5 text-sm leading-snug" data-astro-cid-ujbpqdc7> <li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#golang" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.0.1 · golang#" data-toc-link data-depth="3" data-target="golang" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.0.1 · golang#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#benbjohnson" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.0.2 · benbjohnson#" data-toc-link data-depth="3" data-target="benbjohnson" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.0.2 · benbjohnson#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#uber" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.0.3 · uber#" data-toc-link data-depth="3" data-target="uber" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.0.3 · uber#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#01--指导篇" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.1 · 指导篇" data-toc-link data-depth="2" data-target="01--指导篇" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.1 · 指导篇</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#02--性能篇" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.2 · 性能篇" data-toc-link data-depth="2" data-target="02--性能篇" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.2 · 性能篇</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#03--风格篇" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.3 · 风格篇" data-toc-link data-depth="2" data-target="03--风格篇" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.3 · 风格篇</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#04--模式篇" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.4 · 模式篇" data-toc-link data-depth="2" data-target="04--模式篇" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.4 · 模式篇</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#linting" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5 · linting#" data-toc-link data-depth="2" data-target="linting" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5 · linting#</span> </a> </li> </ul> </nav> </aside>  </div> <script>
+  const drawer = document.getElementById('toc-drawer');
+  const overlay = document.getElementById('toc-overlay');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+  const tocLinks = Array.from(document.querySelectorAll('[data-toc-link]'));
+  const observedHeadings = Array.from(document.querySelectorAll('h1[id], h2[id], h3[id]'));
+
+  function setDrawerOpen(open) {
+    if (!drawer || !overlay || !toggle) return;
+    drawer.classList.toggle('hidden', !open);
+    drawer.classList.toggle('flex', open);
+    overlay.classList.toggle('hidden', !open);
+    document.body.classList.toggle('overflow-hidden', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+  }
+
+  if (toggle) {
+    toggle.addEventListener('click', () => setDrawerOpen(!(toggle.getAttribute('aria-expanded') === 'true')));
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeDrawer);
+  }
+
+  if (overlay) {
+    overlay.addEventListener('click', closeDrawer);
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeDrawer();
+  });
+
+  function setActiveHeading(id) {
+      tocLinks.forEach((link) => {
+      const isActive = link.getAttribute('data-target') === id;
+      const marker = link.querySelector('[data-toc-marker]');
+      link.classList.toggle('text-[color:var(--theme-accent-hover)]', isActive);
+      link.classList.toggle('font-semibold', isActive);
+      link.classList.toggle('bg-[color:var(--theme-accent-soft)]', isActive);
+      link.classList.toggle('translate-x-0.5', isActive);
+      if (marker) marker.classList.toggle('hidden', !isActive);
+      link.setAttribute('aria-current', isActive ? 'true' : 'false');
+    });
+  }
+
+  if (observedHeadings.length > 0) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+      let topmost = null;
+      let topmostOffset = Infinity;
+
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const rect = entry.target.getBoundingClientRect();
+          if (rect.top >= 0 && rect.top < topmostOffset) {
+            topmostOffset = rect.top;
+            topmost = entry.target;
+          }
+        }
+      });
+
+      if (topmost && topmost.id) {
+        setActiveHeading(topmost.id);
+      }
+      },
+      { rootMargin: '-12% 0px -68% 0px' }
+    );
+
+    observedHeadings.forEach((heading) => observer.observe(heading));
+    setActiveHeading(observedHeadings[0].id);
+  }
+
+  tocLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth < 1280) closeDrawer();
+    });
+  });
+</script>  <div class="mx-auto min-w-0 max-w-3xl" data-astro-cid-o5gmpz7g> <article class="prose prose-nord dark:prose-nord max-w-none prose-headings:font-serif prose-code:before:content-none prose-code:after:content-none" data-astro-cid-o5gmpz7g> <header class="mb-8 rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel-strong)] px-5 py-5 shadow-card sm:px-6 dark:shadow-[0_16px_36px_rgba(15,23,42,0.18)]" data-astro-cid-o5gmpz7g> <h1 class="mb-4 text-[color:var(--theme-text-primary)]" data-pagefind-meta="title" data-astro-cid-o5gmpz7g>style-guide</h1> <div class="flex flex-col gap-3" data-astro-cid-o5gmpz7g> <div class="min-w-0 text-[color:var(--theme-text-muted)]" data-astro-cid-o5gmpz7g> <div class="flex flex-wrap items-center gap-x-2 gap-y-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded font-medium bg-[color:var(--theme-badge-created-bg)] text-[color:var(--theme-badge-created-text)]">  <span>📅</span> <span>2026-02-05</span>  </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded font-medium bg-[color:var(--theme-badge-updated-bg)] text-[color:var(--theme-badge-updated-text)]">  <span>✏️</span> <span>2026-03-06</span>  </span>  <a href="/notes/tags/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tags/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a> </div> </div> <div class="header-actions-row flex flex-wrap items-center justify-end gap-2 pt-1" data-astro-cid-o5gmpz7g> <div class="flex flex-wrap items-center justify-end gap-2" data-astro-cid-o5gmpz7g> <div class="flex items-center gap-1">  <!-- Outlinks --><!-- Backlinks --><!-- No links message --><span class="italic text-[color:var(--theme-text-muted)]">No related notes</span><!-- Modals --><div id="outlinks-modal" data-modal-root class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-xl"> <!-- Header --> <div class="sticky top-0 flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-elevated)] px-6 py-4"> <h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]"> Outlinks <span class="ml-2 text-sm font-normal text-[color:var(--theme-text-muted)]">
+(0)
+</span> </h2> <button data-modal-close class="close-modal rounded p-1 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="py-8 text-center text-[color:var(--theme-text-muted)]">
+No outlinks found
+</p> </div> </div> </div><div id="backlinks-modal" data-modal-root class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-xl"> <!-- Header --> <div class="sticky top-0 flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-elevated)] px-6 py-4"> <h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]"> Backlinks <span class="ml-2 text-sm font-normal text-[color:var(--theme-text-muted)]">
+(0)
+</span> </h2> <button data-modal-close class="close-modal rounded p-1 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="py-8 text-center text-[color:var(--theme-text-muted)]">
+No backlinks found
+</p> </div> </div> </div> </div> <button id="kg-trigger-1770123039-RROX" type="button" title="View knowledge graph" class="inline-flex rounded-lg p-2 text-[color:var(--theme-text-primary)] transition-all duration-300 ease-out hover:scale-110 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent)] hover:shadow-md active:scale-95" aria-label="Open knowledge graph"><svg class="w-4 h-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg></button><div id="kg-backdrop-1770123039-RROX" class="fixed inset-0 bg-black/40 hidden z-40 backdrop-blur-sm" aria-hidden="true"></div><div id="kg-modal-1770123039-RROX" class="fixed inset-0 flex items-center justify-center hidden z-50 p-4"><div class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl"><div class="flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] px-6 py-4"><h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]">Local Knowledge Graph</h2><button data-local-graph-close type="button" class="rounded-lg p-1.5 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close knowledge graph"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div class="flex-1 overflow-hidden"><div id="local-graph-1770123039-RROX" style="height: 100%;" class="knowledge-graph-container" data-astro-cid-zjb43jqo> <div class="knowledge-graph-wrapper" data-astro-cid-zjb43jqo> <svg id="local-graph-1770123039-RROX-svg" style="width: 100%; height: 100%;" data-astro-cid-zjb43jqo></svg> </div> </div>  <script>(function(){const containerId = "local-graph-1770123039-RROX";
+const nodeRadius = 4;
+const showLabels = true;
+const enableZoom = true;
+const enableDrag = true;
+const dataJson = "{\"nodes\":[{\"id\":\"1770123039-RROX\",\"urlId\":\"1770123039-RROX\",\"label\":\"style-guide\",\"title\":\"style-guide\",\"group\":\"default\",\"nodeType\":\"current\"}],\"links\":[]}";
+
+  (window.__KNOWLEDGE_GRAPH_QUEUE__ = window.__KNOWLEDGE_GRAPH_QUEUE__ || []).push({
+    containerId,
+    dataJson,
+    nodeRadius,
+    showLabels,
+    enableZoom,
+    enableDrag,
+  });
+})();</script></div></div></div><script>
+        (() => {
+          const scriptEl = document.currentScript;
+          const modal = scriptEl?.previousElementSibling;
+          const backdrop = modal?.previousElementSibling;
+          const triggerBtn = backdrop?.previousElementSibling;
+          const closeBtn = modal?.querySelector('[data-local-graph-close]');
+
+          if (!triggerBtn || !modal || !backdrop || !closeBtn) return;
+
+          function openModal() {
+            modal.classList.remove('hidden');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+          }
+
+          function closeModal() {
+            modal.classList.add('hidden');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+          }
+
+          triggerBtn.addEventListener('click', openModal);
+          closeBtn.addEventListener('click', closeModal);
+          backdrop.addEventListener('click', closeModal);
+
+          document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+              closeModal();
+            }
+          });
+        })();
+      </script> </div> </div> </div> </header> <div class="note-content" data-astro-cid-o5gmpz7g>     <h3 id="golang">0.0.1 · golang<a href="#golang" class="heading-anchor" data-heading-link="" aria-label="Link to section golang">#</a></h3>
+<p><a href="https://github.com/golang/go/wiki/CodeReviewComments#go-code-review-comments">https://github.com/golang/go/wiki/CodeReviewComments#go-code-review-comments</a>
+<a href="https://github.com/golang/go/wiki/CommonMistakes">https://github.com/golang/go/wiki/CommonMistakes</a>
+<a href="https://go.dev/doc/effective_go#errors">https://go.dev/doc/effective_go#errors</a></p>
+<h3 id="benbjohnson">0.0.2 · benbjohnson<a href="#benbjohnson" class="heading-anchor" data-heading-link="" aria-label="Link to section benbjohnson">#</a></h3>
+<p><a href="https://medium.com/@benbjohnson/structuring-applications-in-go-3b04be4ff091">https://medium.com/@benbjohnson/structuring-applications-in-go-3b04be4ff091</a></p>
+<h3 id="uber">0.0.3 · uber<a href="#uber" class="heading-anchor" data-heading-link="" aria-label="Link to section uber">#</a></h3>
+<p><a href="https://github.com/uber-go/guide/blob/master/style.md">https://github.com/uber-go/guide/blob/master/style.md</a></p>
+<h4 id="0031--指南">0.0.3.1 · 指南</h4>
+<p>指向接口的指针：一般直接传值；实现接口方法时，使用指针可以修改底层数据</p>
+<p>验证接口的合理性：接口体指针实现了接口方法 — var _ 接口 = (*接口体)nil 或者 结构体内嵌接口 — var _ 接口 = 接口体{}
+接收者与接口：指针接收者与值接收者
+mutex的0值是有效的：可以直接 var mu sync.Mutex ; mu.Lock() ,可以结构体内嵌mutex直接使用（不可导出的结构体），或者申明为结构体的一个字段（可导出结构体，将mutex申明为私有）
+在边界处复制slice和map：slice和map有指向底层数据的指针，复制、返回时，需要新建一个slice或者map，重新复制其中的数据。
+defer和清理：使用defer清理资源，例如锁、文件等
+channel的大小设置为1(buffered)或者不设置(unbuffered)：
+枚举从1开始： iota+1 ，当0被视作默认行为的时候，可以从0开始
+使用time包处理时间：time.Time表示时间实例，time.Duration表示一个时间段；time包没有考虑到闰秒（leap second）
+错误类型：申明错误的不同选择1. errors.New 简单错误，无额外信息 2. fmt.Errorf 3. 自定义类型实行error接口的Error()方法  客户端发现且处理错误 4. “pkg/errors”.Wrap 传播由下游函数返回的错误  ； 注意直接暴露自定义的错误类型结构体，应该使用一系列方法，去设置错误、判断错误
+包装错误：如果调用函数失败，主要有三种传播错误的选择：1. 在不需要添加特定上下文信息且保证原错误的情况下，返回原错误 2. 使用”pkg/errors”.Wrap 包装上下文，因此可以提供更多信息，且使用 “pkg/errors”.Cause可以拿到原错误 3.  如果调用者不需要发现与处理错误，使用fmt.Errorf   ；推荐尽可能的添加上下文而不是使用不详细的错误，在添加上下文的时候，保证言简意赅
+处理<code>类型断言</code>失败：使用common-ok方式接收断言的返回值；而不是使用返回值，因为在这种情况下，不准确的类型会导致panic
+不要panic：运行在生产环境下的代码应该避免panic，panic是级联故障的一个主要原因；如果一个错误发生了，应该返回这个错误给调用者，让其决定如何处理这个错误；panic/recover不是一个处理错误的策略：一个程序只有在发生不可恢复的错误下才必须panic，比如一个对nil解引用；程序初始化是一个意外，在程序启动的时候，不好的东西可能会打断程序从而可能造成panic；甚至在test中，使用t.Fatal 或者t.FailNow 替代panic确保test被标记为failed；
+使用 go.uber.org/atomic：sync/stomic包使用原生类型进行操作，这很容易忘记使用atomic操作读取或者修改一个变量，uber的atomic包隐藏了底层类型，封装了一些安全的类型；
+避免可变的全局变量：避免可变的全局变量，而是选择依赖注入
+避免在可导出的类型中内嵌类型：内嵌的类型缺失了实现的细节，阻碍类型的演变，并且模糊了文档；go允许内嵌作为组合和继承的折中方法，外层类型隐式复制了内嵌类型的方法，这些复制的方法，默认委托给了内嵌类型的实例的方法；外层的这个结构体同时获得和内嵌类型名称相同的字段，如果内嵌类型是可导出的，那么这个字段也是可导出的；为了保持向后兼容性，外层类型的未来版本必须保持这个内嵌的类型；内嵌类型很少是必须的；很方便帮助我们避免啰嗦的委托方法；内嵌一个可兼容的接口提供给开发者更多的灵活性，但是依旧缺失了 具体类型使用抽象实现的细节；内嵌结构体或者接口都限制了外层类型的演变：*添加方法到内嵌接口是一个重大改变 *从一个内嵌结构体移除方法是一个重大改变 *移除内嵌类型是一个重大改变 *替换内嵌的类型，即使使用满足接口的可替代类型，是一个重大改变；
+尽管写这些委托的方法是很啰嗦的，这个额外努力隐藏了实现的细节，也提供了可以改变的机会，并且消除了为了发现完全列表的间接性；
+避免使用build-in 的名字：
+避免init():可能的话，避免init();当不可避免或者必需的时候，代码应该是：*完全确定的，与程序的环境与调用无关 *避免依赖有序或者其他init()函数的副作用 *避免操作全局的 或者环境变量 *避免I/O，包括文件系统、网络、系统调用 ; init()更好或者必须的场景：*复制的表达式，不能使用单赋值语句表示 *可拔插的hooks *确定的提前计算</p>
+<h4 id="0032--性能">0.0.3.2 · 性能</h4>
+<p>使用strcov 而不是fmt：
+避免在循环内，对一个固定的字符串进行转字节数组操作：
+更倾向于指定容器容量：</p>
+<h4 id="0033--规范">0.0.3.3 · 规范</h4>
+<p>一致性：
+相似申明分组：
+import分组顺序：
+包命名：
+函数命名:
+import别名：
+函数分组与排序：
+减少嵌套：优先处理特殊情况和处理错误，尽早的返回或跳出循环
+不必要的else：
+顶部变量申明：顶部变量使用var ，不指定类型，除非和右边表达式返回的类型不一致；
+将不可导出的全局变量加上前缀_ ：不可导出的，顶部的var 或者const 添加下划线_前缀；特例，不可导出的错误值，使用err作前缀；原理，因为顶部的全局变量有包的范围，使用普通的名字可能造成在其他文件有意外的错误使用；
+内嵌在结构体中：内嵌的类型应该放在类型内部前面部分的字段中，而且与其他的普通字段有一个分割行；内嵌不应该： *纯粹为了好看或方便 *使得外层类型构造或使用起来更难 *影响外层类型的零值 *使得外层类型暴露出不相干的函数或字段 *暴露出不可导出的类型 *影响外层类型的复制语义 *改变外层类型的的API或者类型语义 *嵌入内部类型的非规范形式 *暴露出外层类型的实现细节 *允许用户观察和控制类型内部 *通过某种包装来改变内部功能的一般行为，使用户感到惊讶
+使用字段名称初始化结构体：
+局部变量申明： 使用短变量申明：=  ，某些特殊情况下，默认值更清晰时，可以使用 var，比如声明空切片
+nil是有效的切片：长度为0的切片，可以返回nil ，判断切片的长度是否为0，使用len()，而不用nil，切片的零值（使用var申明）可以不在make()后直接使用  注意：nil切片与长度为0的切片是不等价的，某些情况被不同对待的（比如序列化）
+缩小变量的范围： 优先级在减少嵌套的后面
+避免裸露的参数：多个参数的意思不明确的时候，在函数调用参数后面使用/**/注释；但是，为了可读性与类型安全，可以使用自定义的类型，可以使用int的别名，定义几个枚举
+使用原生string字面量，从而避免转移： <code>hello"nihao"</code>
+初始化结构体引用： 使用&#x26;{T}而不是new(T)
+初始化map: 倾向于使用make()初始化空map,然后程序化的填充map；如果map知道了固定数量的元素，那么使用字面量初始化
+格式化字符串：format使用的字符串，如果在函数外面，应该使用const固定，便于go vet静态分析到；
+打印格式函数的命名：便于go vet发现并检测格式化所用的字符串，默认使用Printf-格式，或者以f结尾命名，但是需要在govet的时候指定函数名称</p>
+<h4 id="0034--模式">0.0.3.4 · 模式</h4>
+<p>表格驱动测试：
+Functional Options：</p>
+<h4 id="linting-style-of-go">0.0.3.5 · Linting# style of go<a href="#linting-style-of-go" class="heading-anchor" data-heading-link="" aria-label="Link to section linting-style-of-go">#</a></h4>
+<p><a href="https://github.com/uber-go/guide/blob/master/style.md">style</a></p>
+<h2 id="01--指导篇">0.1 · 指导篇</h2>
+<p>不需要指向接口的指针：接口底层数据是个指针；
+指针类型实现接口的方法，可以修改类型数据；</p>
+<p>适当的，在编译期，验证类型是否实现接口；</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#616E88">// 零值赋值给指针：</span></span>
+<span class="line"><span style="color:#616E88">// 1.指针类型</span></span>
+<span class="line"><span style="color:#81A1C1">var</span><span style="color:#D8DEE9"> _</span><span style="color:#D8DEE9FF"> YourInterface </span><span style="color:#81A1C1">=</span><span style="color:#ECEFF4"> (</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">YourType</span><span style="color:#ECEFF4">)(</span><span style="color:#81A1C1">nil</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#616E88">// 2.非指针类型</span></span>
+<span class="line"><span style="color:#81A1C1">var</span><span style="color:#D8DEE9"> _</span><span style="color:#D8DEE9FF"> YourInterface </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> YourType</span><span style="color:#ECEFF4">{}</span></span></code></pre>
+<p>避免对接口的修改，影响用户（可能使用了对应类型）；</p>
+<p>方法的接收者：<code>指针</code>可以调用<code>值</code>作为接收者的方法，反之不行；
+实现接口：<code>指针</code>、<code>值</code>作为接收者实现接口，则指针实现接口，而值未实现接口</p>
+<p>零值<code>mutex</code>是有效的；
+不要内嵌<code>mutex</code>，暴露不需要的方法；</p>
+<p>复制<code>slice</code>和<code>map</code>注意：两者都是底层数据含指针，指向真实数据；</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#88C0D0">copy</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">dstSlice</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> srcSlice</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">newMap</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> make</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">map</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">oldMapKeyType</span><span style="color:#ECEFF4">]</span><span style="color:#D8DEE9FF">oldMapValueType</span><span style="color:#ECEFF4">,</span><span style="color:#88C0D0"> len</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">oldMap</span><span style="color:#ECEFF4">))</span></span>
+<span class="line"><span style="color:#81A1C1">for</span><span style="color:#D8DEE9"> k</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> v</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> range</span><span style="color:#D8DEE9"> oldMap</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">    newMap</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9">k</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> v</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<p>使用<code>defer</code>进行清理工作；</p>
+<p><code>channel</code>的大小应该是0或1：认真考虑决定<code>channel</code>大小的原因</p>
+<p>枚举值应该从1开始，避免0值问题；</p>
+<p>使用<code>time</code>包处理时间：
+<code>time.Time</code>表示时间点；
+<code>time.Duration</code>表示时间段；
+当使用数字表示时间时，字段名需要加上单位；</p>
+<p>错误变量、错误类型：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#D8DEE9">errors</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Is</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"><span style="color:#D8DEE9">errors</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">As</span><span style="color:#ECEFF4">()</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#D8DEE9">errors</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">New</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">err str</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9">fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Errorf</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#EBCB8B">%w</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9">err</span><span style="color:#ECEFF4">)</span></span></code></pre>
+<p>包装错误：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#616E88">// 添加错误上下文</span></span>
+<span class="line"><span style="color:#D8DEE9">fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Errorf</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#EBCB8B">%w</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9">err</span><span style="color:#ECEFF4">)</span><span style="color:#616E88"> // 错误被包装了，可以使用 errors.Is() 和 errors.As()</span></span>
+<span class="line"><span style="color:#D8DEE9">fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Errorf</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#EBCB8B">%v</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9">err</span><span style="color:#ECEFF4">)</span></span></code></pre>
+<p>命名错误：变量以Err开头，类型以Error结尾；
+处理错误(仅处理一次)：</p>
+<ul>
+<li>特定错误，进行匹配，分别处理</li>
+<li>可恢复错误，打印并优雅降级处理</li>
+<li>直接、或包装后返回</li>
+</ul>
+<p>处理断言失败的情况；</p>
+<p>不要<code>panic</code>；
+仅在不可恢复的错误时，使用<code>panic</code>；</p>
+<p>使用<code>atomic</code>包；</p>
+<p>使用依赖注入，而不是全局变量；</p>
+<p>阻止在pub结构体中内嵌类型，会暴露实现细节，阻碍结构体调整；私有，并使用代理模式；
+内嵌的不可导出的类型中，含有可导出字段，也会暴露出来；
+内嵌结构也比内嵌结构体好，但依旧暴露实现细节；
+内嵌的问题：对内嵌类型的修改，都是breaking change；</p>
+<p>阻止使用go内建的名称：error，string之类的；</p>
+<p>尽可能不使用<code>init()</code>函数，如果要使用，应该：</p>
+<ul>
+<li>不能依赖其他<code>init()</code>函数</li>
+<li>不操作全局变量或环境变量？</li>
+<li>不进行IO操作
+如下情况也许适合：</li>
+<li>复杂的计算</li>
+<li>可拔插的钩子</li>
+</ul>
+<p>在main函数退出（而不是其他函数）：
+使用<code>os.Exit()</code>或<code>log.Fatal*</code>立刻退出；
+从其他函数退出程序，有如下缺点：控制流程不清晰；难以测试；跳过了清理工作；
+尽可能的只退出一次；</p>
+<p>在序列化或反序列化结构体时，使用字段tag；避免修改字段名，导致break；</p>
+<p>对<code>goroutine</code>的生命周期进行管理，避免协程泄漏；</p>
+<ul>
+<li>可预期的时间内，协程停止运行</li>
+<li>有一种方式，使得协程停止运行</li>
+</ul>
+<ol>
+<li>等待goroutine退出：<code>sync.WaitGroup</code> 或 <code>close(chan)</code></li>
+<li><code>init()</code>函数内不要产生<code>goroutine</code></li>
+</ol>
+<h2 id="02--性能篇">0.2 · 性能篇</h2>
+<p>基础数据与<code>string</code>之间的转换，<code>strconv</code>比<code>fmt</code>包快；</p>
+<p>阻止重复的将字符串转换成字节数组的操作，转换就会分配内存；</p>
+<p>预先指定容器大小，避免扩容操作；</p>
+<h2 id="03--风格篇">0.3 · 风格篇</h2>
+<p>避免代码行过长，建议99个字符；</p>
+<p>风格保持一致性：易维护、易理解、低心智成本，易迁移或更新；</p>
+<p>相似的声明，成组；</p>
+<p>import 分组，排序：标准库，其他</p>
+<p>包名：</p>
+<ul>
+<li>全部小写，无大写字母和下划线</li>
+<li>尽量不重命名包名</li>
+<li>简短、简明</li>
+<li>不要复数</li>
+<li>不要信息量很小的包名：common, util, lib 等
+<a href="https://go.dev/blog/package-names">https://go.dev/blog/package-names</a>
+<a href="https://rakyll.org/style-packages">https://rakyll.org/style-packages</a></li>
+</ul>
+<p>函数名：MixedCaps</p>
+<p>导入包别名：仅在导入路径最后一个元素不符合包名的情况下使用；
+其他情况，除非冲突，否则不使用别名；</p>
+<p>函数分组及排序：</p>
+<ul>
+<li>粗略的以调用顺序排序</li>
+<li>以接收器分组
+函数在结构体、常量、变量后；工厂模式函数紧跟着类型，但在其他方法之前；
+无接收器函数在最后；</li>
+</ul>
+<p>尽可能减少嵌套：先处理错误、特殊情况，尽早返回或continue循环；</p>
+<p>减少不必要的else；</p>
+<p>顶层变量声名：不需要类型，仅在非想要的类型时使用；</p>
+<p>不可导出的全局变量/常量，以下划线开头：避免在不同文件之间，意外使用错误；</p>
+<p>结构体内嵌：
+被内嵌的结构体，应该放在最上面，且使用空行隔开；
+不应该：</p>
+<ul>
+<li>不应以便利为导向</li>
+<li>不能使得外部类型更难构造或使用</li>
+<li>不影响外部类型的零值：如果外部类型零值有用，那么内嵌后应该保持</li>
+<li>不能给外部类型暴露了无联系的函数或字段</li>
+<li>不能改变外部类型的类型语意</li>
+<li>不能暴露外部类型的实现细节</li>
+<li>不允许用户操作内部类型</li>
+<li>不能因改变内部类型功能而导致外部类型的使用发生改变</li>
+</ul>
+<p>局部变量声名：使用<code>:=</code>短变量声名；
+零值时，使用<code>var</code>声明；</p>
+<p>nil是一个有效的切片；以长度判断空切片，而不是nil；
+但nil不等于空切片，在某些场景表现不一致，比如序列化；</p>
+<p>尽可能缩小变量的范围(在不违背减少嵌套的情况下)；</p>
+<p>避免裸参数，给参数加上注释？
+最好基于需要，基于基本类型，使用新类型</p>
+<p>使用原生字符串，避免转义；</p>
+<p>初始化结构体：</p>
+<ul>
+<li>使用字段名进行初始化</li>
+<li>零值的字段，可以省略</li>
+<li>使用<code>var</code>进行零值初始化结构体</li>
+<li>使用<code>&#x26;T{}</code>进行结构体指针初始化</li>
+</ul>
+<p>使用<code>make</code>初始化<code>map</code>；
+map有固定元素数量时，使用字面量初始化；</p>
+<p>格式化字符串：将格式字符串用const申明，便于<code>go vet</code>静态分析？</p>
+<p>命名打印风格的函数：函数名以f结尾；
+<a href="https://kuzminva.wordpress.com/2017/11/07/go-vet-printf-family-check">https://kuzminva.wordpress.com/2017/11/07/go-vet-printf-family-check</a></p>
+<h2 id="04--模式篇">0.4 · 模式篇</h2>
+<p>表测试驱动
+<a href="https://go.dev/blog/subtests">https://go.dev/blog/subtests</a></p>
+<p>Functional Options</p>
+<h2 id="linting">0.5 · linting<a href="#linting" class="heading-anchor" data-heading-link="" aria-label="Link to section linting">#</a></h2>
+<p>golangci-lint</p> <!-- Diagrams rendered at build time -->  </div> </article> <nav class="mt-12 border-t border-[color:var(--theme-border-subtle)] pt-8" data-astro-cid-o5gmpz7g> <a href="/notes" class="btn-primary"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>Back to Notes</a> </nav> </div>  </main> <footer class="mt-20 border-t border-[color:var(--theme-border-subtle)]"> <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-sm text-[color:var(--theme-text-muted)] sm:flex-row sm:items-end sm:justify-between sm:px-6 lg:px-8"> <div> <p class="mb-1 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--theme-text-faint)]">
+Built for connected notes
+</p> <p class="max-w-2xl text-[0.85rem] leading-6 tracking-normal text-[color:var(--theme-text-secondary)]"> Evergreen notes turn ideas into objects that you can manipulate, combine, combine. </p> </div> <div class="text-left sm:text-right"> <p class="text-[0.8125rem] font-medium tracking-normal text-[color:var(--theme-text-muted)]">
+&copy; 2026 All rights reserved.
+</p> </div> </div> </footer>  <script type="module">const r="nord-theme",m="light",t="dark";function a(){try{return localStorage.getItem(r)}catch{return null}}function s(){return window.matchMedia("(prefers-color-scheme: dark)").matches?t:"light"}function n(){return a()||s()}function o(c){const e=document.documentElement;c===t?e.classList.add("dark"):e.classList.remove("dark")}function h(){const e=n()===t?m:t;localStorage.setItem(r,e),o(e),window.dispatchEvent(new CustomEvent("theme-change",{detail:{theme:e}}))}o(n());document.addEventListener("astro:after-swap",()=>o(n()));window.toggleTheme=h;window.getTheme=n;</script> </body> </html> 

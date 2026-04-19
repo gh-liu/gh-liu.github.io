@@ -1,0 +1,965 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>mysql</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css"><script>
+      // 内联阻塞脚本：在首帧渲染前同步应用主题，避免 View Transitions 页面切换时的白屏闪烁。
+      // 必须无 import、同步执行；若用 theme.ts 模块，会在新文档替换后延迟执行导致闪白。
+      (function() {
+        var theme = localStorage.getItem('nord-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+      })();
+    </script><script type="module" src="/_astro/BaseLayout.astro_astro_type_script_index_0_lang.D_jVB8Nw.js"></script><link rel="stylesheet" href="/_astro/_chapterSlug_.C1mDGA1Y.css">
+<style>.toc-scroll[data-astro-cid-ujbpqdc7]{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--theme-border-default) 55%,transparent) transparent}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar{width:6px}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-track{background:transparent}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-thumb{border-radius:999px;background:color-mix(in srgb,var(--theme-border-default) 52%,transparent)}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--theme-border-default) 72%,transparent)}.toc-link__label[data-astro-cid-ujbpqdc7]{display:-webkit-box;overflow:hidden;line-height:1.45;text-wrap:pretty;word-break:break-word;-webkit-box-orient:vertical;-webkit-line-clamp:2}.toc-link[data-astro-cid-ujbpqdc7]:hover .toc-link__label[data-astro-cid-ujbpqdc7],.toc-link[data-astro-cid-ujbpqdc7]:focus-visible .toc-link__label[data-astro-cid-ujbpqdc7],.toc-link[data-astro-cid-ujbpqdc7][aria-current=true] .toc-link__label[data-astro-cid-ujbpqdc7]{-webkit-line-clamp:unset}@media(max-width:1279px){.toc-link__label[data-astro-cid-ujbpqdc7]{-webkit-line-clamp:unset}}
+.knowledge-graph-container[data-astro-cid-zjb43jqo]{border:1px solid var(--theme-border-default);border-radius:8px;background:var(--theme-bg-elevated);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen,.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo],.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--theme-border-default);border-radius:6px;background:var(--theme-bg-panel);color:var(--theme-text-primary);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--theme-bg-panel-hover);color:var(--theme-accent-hover)}.knowledge-graph-toolbar-btn:active{background:var(--theme-bg-panel-hover)}.knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:var(--theme-accent);stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--theme-success);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--theme-accent-hover);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--theme-success);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--theme-secondary-accent);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--theme-warning);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--theme-node-neutral);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:var(--theme-text-faint);stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--theme-accent);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--theme-text-primary);font-weight:500;text-shadow:0 0 3px var(--theme-bg-elevated)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--theme-tooltip-bg);border:1px solid var(--theme-border-default);border-radius:4px;font-size:12px;color:var(--theme-tooltip-text);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--theme-info);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--theme-text-primary)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--theme-accent-hover)}.kg-legend--outlink{color:var(--theme-success)}.kg-legend--backlink{color:var(--theme-secondary-accent)}.kg-legend--both{color:var(--theme-warning)}.kg-legend--neighbor{color:var(--theme-node-neutral);opacity:.9}
+article[data-astro-cid-o5gmpz7g]{word-break:break-word}.note-content[data-astro-cid-o5gmpz7g] h1:first-child{display:none}
+</style></head> <body class="site-shell"> <a href="#main-content" class="skip-to-content">Skip to main content</a> <header class="sticky top-0 z-30 border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-page)] backdrop-blur-2xl"> <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8"> <div class="flex min-w-0 items-center gap-3"> <a href="/" title="Liu" class="shrink-0 rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] p-2 text-[color:var(--theme-text-primary)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] active:scale-95"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5.5 9.5V21h13V9.5"></path><path d="M9.5 21v-6h5v6"></path></svg> </a> <div class="min-w-0"> <h1 class="truncate text-lg font-bold leading-tight text-[color:var(--theme-text-primary)] sm:text-[1.1rem]"> <a href="/" class="text-inherit transition-colors hover:text-[color:var(--theme-accent-hover)]"> Liu </a> </h1> </div> </div> <div class="hidden min-w-0 flex-1 lg:block"></div> <div class="hidden items-center gap-2 lg:flex"> <a href="/books" title="Books" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22z"></path><path d="M5 4.5V22"></path><path d="M8.5 7.5h7"></path><path d="M8.5 11h7"></path></svg> </a><a href="/notes" title="Notes" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7"></path><path d="M8.5 12h7"></path><path d="M8.5 16h5"></path></svg> </a><a href="/notes/graph" title="Graph" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg> </a> <div class="relative" id="series-dropdown-root"> <a href="/notes/series" title="Series" id="series-dropdown-trigger" data-dropdown-trigger class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg> </a> <div id="series-dropdown-panel" data-dropdown-url="/series-list.json" data-empty-text="暂无系列" data-error-text="加载失败" class="absolute right-0 top-full z-50 mt-1 hidden max-h-[70vh] min-w-[12rem] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] py-2 shadow-lg" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-[color:var(--theme-text-faint)]">加载中…</span> </div> <div class="mt-1 border-t border-[color:var(--theme-border-subtle)] pt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> 查看全部系列 →
+</a> </div> </div> </div> <script type="module">document.addEventListener("click",t=>{const e=t.target;!(e instanceof HTMLElement)||!e.closest("[data-dropdown-trigger]")||t.preventDefault()});</script><div class="relative" id="tags-dropdown-root"> <a href="/notes/tags" title="Tags" id="tags-dropdown-trigger" data-dropdown-trigger class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14v17L12 17l-7 3V3z"></path></svg> </a> <div id="tags-dropdown-panel" data-dropdown-url="/tag-list.json" data-empty-text="暂无标签" data-error-text="加载失败" class="absolute right-0 top-full z-50 mt-1 hidden max-h-[70vh] min-w-[12rem] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] py-2 shadow-lg" role="menu"> <div id="tags-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-[color:var(--theme-text-faint)]">加载中…</span> </div> <div class="mt-1 border-t border-[color:var(--theme-border-subtle)] pt-1"> <a href="/notes/tags" class="block px-3 py-2 text-sm text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> 查看全部标签 →
+</a> </div> </div> </div>  <a href="https://github.com/gh-liu" title="GitHub" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg> </a> <div class="search-container" id="search-wrapper" data-pagefind-url="/pagefind/pagefind.js" data-astro-cid-35jtkoll><button id="search-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-35jtkoll><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-35jtkoll><circle cx="11" cy="11" r="8" data-astro-cid-35jtkoll></circle><path d="m21 21-4.35-4.35" data-astro-cid-35jtkoll></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-35jtkoll><div class="w-full max-w-2xl animate-fade-in overflow-hidden rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl max-h-[70vh] flex flex-col" data-astro-cid-35jtkoll><div class="border-b border-[color:var(--theme-border-subtle)] p-4" data-astro-cid-35jtkoll><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full rounded bg-[color:var(--theme-bg-panel-hover)] px-4 py-2 text-[color:var(--theme-text-primary)] placeholder-[color:var(--theme-text-faint)] focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-35jtkoll></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-35jtkoll><p class="text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll>Type to search...</p></div><div class="border-t border-[color:var(--theme-border-subtle)] p-3 text-xs text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll><p data-astro-cid-35jtkoll>Press <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>Esc</kbd> to close | Use <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>#tag</kbd> to search by tag</p></div></div></div></div> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] group relative"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="hidden h-4 w-4 text-nord-13 dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="block h-4 w-4 text-nord-9 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script type="module" src="/_astro/ThemeToggle.astro_astro_type_script_index_0_lang.oLaqEd7_.js"></script> </div> <div class="flex items-center gap-1.5 shrink-0 lg:hidden"> <a href="https://github.com/gh-liu" title="GitHub" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg> </a> <div class="search-container" id="search-wrapper" data-pagefind-url="/pagefind/pagefind.js" data-astro-cid-35jtkoll><button id="search-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-35jtkoll><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-35jtkoll><circle cx="11" cy="11" r="8" data-astro-cid-35jtkoll></circle><path d="m21 21-4.35-4.35" data-astro-cid-35jtkoll></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-35jtkoll><div class="w-full max-w-2xl animate-fade-in overflow-hidden rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl max-h-[70vh] flex flex-col" data-astro-cid-35jtkoll><div class="border-b border-[color:var(--theme-border-subtle)] p-4" data-astro-cid-35jtkoll><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full rounded bg-[color:var(--theme-bg-panel-hover)] px-4 py-2 text-[color:var(--theme-text-primary)] placeholder-[color:var(--theme-text-faint)] focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-35jtkoll></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-35jtkoll><p class="text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll>Type to search...</p></div><div class="border-t border-[color:var(--theme-border-subtle)] p-3 text-xs text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll><p data-astro-cid-35jtkoll>Press <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>Esc</kbd> to close | Use <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>#tag</kbd> to search by tag</p></div></div></div></div> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] group relative"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="hidden h-4 w-4 text-nord-13 dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="block h-4 w-4 text-nord-9 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button>  </div> </nav> <div class="border-t border-[color:var(--theme-border-subtle)]/90 px-4 py-2.5 sm:px-6 lg:hidden"> <div class="mx-auto flex max-w-6xl gap-2 overflow-x-auto pb-1"> <a href="/books" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22z"></path><path d="M5 4.5V22"></path><path d="M8.5 7.5h7"></path><path d="M8.5 11h7"></path></svg> Books </a><a href="/notes" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7"></path><path d="M8.5 12h7"></path><path d="M8.5 16h5"></path></svg> Notes </a><a href="/notes/graph" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg> Graph </a> <a href="/notes/series" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg> Series </a><a href="/notes/tags" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14v17L12 17l-7 3V3z"></path></svg> Tags </a> </div> </div> </header> <main class="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8" data-pagefind-body="true" id="main-content">  <div class="contents" data-astro-cid-ujbpqdc7> <aside class="hidden xl:block" data-astro-cid-ujbpqdc7> <div class="fixed right-6 top-28 w-56 2xl:right-10 2xl:w-64" data-astro-cid-ujbpqdc7> <div class="toc-scroll max-h-[min(60vh,calc(100vh-10rem))] overflow-y-auto rounded-[1.5rem] border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel-strong)] px-2 py-2 shadow-[var(--shadow-soft)] backdrop-blur-xl" data-astro-cid-ujbpqdc7> <div class="mb-2 px-1" data-astro-cid-ujbpqdc7> <p class="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--theme-text-muted)]" data-astro-cid-ujbpqdc7>On this page</p> </div> <nav aria-label="Table of contents" data-astro-cid-ujbpqdc7> <ul class="space-y-0.5 text-[0.8rem] leading-4" data-astro-cid-ujbpqdc7> <li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#mysql" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] font-medium text-[color:var(--theme-text-primary)]" title="1 · MySQL#" data-toc-link data-depth="1" data-target="mysql" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1 · MySQL#</span> </a> </li><li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#2--一关系型数据库--数据怎么组织和查询" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] font-medium text-[color:var(--theme-text-primary)]" title="2 · 一、关系型数据库 —— 数据怎么组织和查询" data-toc-link data-depth="1" data-target="2--一关系型数据库--数据怎么组织和查询" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2 · 一、关系型数据库 —— 数据怎么组织和查询</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#1-sql" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.1 · 1. SQL 执行流水线#" data-toc-link data-depth="2" data-target="1-sql" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.1 · 1. SQL 执行流水线#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#2" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.2 · 2. 存储：数据放在哪？#" data-toc-link data-depth="2" data-target="2" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.2 · 2. 存储：数据放在哪？#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#21" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.2.1 · 2.1 内存结构#" data-toc-link data-depth="3" data-target="21" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.2.1 · 2.1 内存结构#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#22" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.2.2 · 2.2 磁盘结构#" data-toc-link data-depth="3" data-target="22" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.2.2 · 2.2 磁盘结构#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#23" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.2.3 · 2.3 页内部结构#" data-toc-link data-depth="3" data-target="23" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.2.3 · 2.3 页内部结构#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#24" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.2.4 · 2.4 行格式#" data-toc-link data-depth="3" data-target="24" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.2.4 · 2.4 行格式#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#25" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.2.5 · 2.5 行溢出#" data-toc-link data-depth="3" data-target="25" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.2.5 · 2.5 行溢出#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#3" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.3 · 3. 索引：怎么快速找到数据？#" data-toc-link data-depth="2" data-target="3" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.3 · 3. 索引：怎么快速找到数据？#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#31" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.3.1 · 3.1 索引使用原则#" data-toc-link data-depth="3" data-target="31" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.3.1 · 3.1 索引使用原则#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#32" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.3.2 · 3.2 建索引优先考虑#" data-toc-link data-depth="3" data-target="32" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.3.2 · 3.2 建索引优先考虑#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#4" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.4 · 4. 优化器：有多条路时走哪条？#" data-toc-link data-depth="2" data-target="4" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.4 · 4. 优化器：有多条路时走哪条？#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#41" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.4.1 · 4.1 单表访问方式#" data-toc-link data-depth="3" data-target="41" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.4.1 · 4.1 单表访问方式#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#42" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.4.2 · 4.2 多表连接#" data-toc-link data-depth="3" data-target="42" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.4.2 · 4.2 多表连接#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#43" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.4.3 · 4.3 成本模型#" data-toc-link data-depth="3" data-target="43" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.4.3 · 4.3 成本模型#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#44-explain" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.4.4 · 4.4 EXPLAIN 怎么看#" data-toc-link data-depth="3" data-target="44-explain" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.4.4 · 4.4 EXPLAIN 怎么看#</span> </a> </li><li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#oltp" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] font-medium text-[color:var(--theme-text-primary)]" title="3 · 二、OLTP —— 并发读写怎么保证正确#" data-toc-link data-depth="1" data-target="oltp" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3 · 二、OLTP —— 并发读写怎么保证正确#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#5" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.1 · 5. 事务：多人同时读写怎么办？#" data-toc-link data-depth="2" data-target="5" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.1 · 5. 事务：多人同时读写怎么办？#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#51" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.1.1 · 5.1 版本链#" data-toc-link data-depth="3" data-target="51" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.1.1 · 5.1 版本链#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#52-read-view" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.1.2 · 5.2 Read View#" data-toc-link data-depth="3" data-target="52-read-view" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.1.2 · 5.2 Read View#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#53-rc-rr" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.1.3 · 5.3 RC 和 RR 的区别#" data-toc-link data-depth="3" data-target="53-rc-rr" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.1.3 · 5.3 RC 和 RR 的区别#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#6" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.2 · 6. 锁：写冲突怎么解决？#" data-toc-link data-depth="2" data-target="6" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.2 · 6. 锁：写冲突怎么解决？#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#61" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.2.1 · 6.1 表级锁#" data-toc-link data-depth="3" data-target="61" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.2.1 · 6.1 表级锁#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#62" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.2.2 · 6.2 行级锁类型#" data-toc-link data-depth="3" data-target="62" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.2.2 · 6.2 行级锁类型#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#63" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.2.3 · 6.3 死锁#" data-toc-link data-depth="3" data-target="63" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.2.3 · 6.3 死锁#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#7" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.3 · 7. 日志：崩溃了怎么办？#" data-toc-link data-depth="2" data-target="7" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.3 · 7. 日志：崩溃了怎么办？#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#71-redo-log" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.3.1 · 7.1 redo log#" data-toc-link data-depth="3" data-target="71-redo-log" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.3.1 · 7.1 redo log#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#72-undo-log" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.3.2 · 7.2 undo log#" data-toc-link data-depth="3" data-target="72-undo-log" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.3.2 · 7.2 undo log#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#73-binlog" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.3.3 · 7.3 binlog#" data-toc-link data-depth="3" data-target="73-binlog" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.3.3 · 7.3 binlog#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#74" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.3.4 · 7.4 两阶段提交#" data-toc-link data-depth="3" data-target="74" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.3.4 · 7.4 两阶段提交#</span> </a> </li><li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#schema" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] font-medium text-[color:var(--theme-text-primary)]" title="4 · 三、Schema 设计 —— 表怎么设计不埋坑#" data-toc-link data-depth="1" data-target="schema" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>4 · 三、Schema 设计 —— 表怎么设计不埋坑#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#8" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="4.1 · 8. 数据类型选择#" data-toc-link data-depth="2" data-target="8" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>4.1 · 8. 数据类型选择#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#81-null" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="4.1.1 · 8.1 NULL 的代价#" data-toc-link data-depth="3" data-target="81-null" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>4.1.1 · 8.1 NULL 的代价#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#9" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="4.2 · 9. 范式与反范式#" data-toc-link data-depth="2" data-target="9" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>4.2 · 9. 范式与反范式#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#10" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="4.3 · 10. 主键设计#" data-toc-link data-depth="2" data-target="10" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>4.3 · 10. 主键设计#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#11-online-ddl" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="4.4 · 11. Online DDL#" data-toc-link data-depth="2" data-target="11-online-ddl" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>4.4 · 11. Online DDL#</span> </a> </li><li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#5--四高可用与运维--生产环境怎么不挂" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] font-medium text-[color:var(--theme-text-primary)]" title="5 · 四、高可用与运维 —— 生产环境怎么不挂" data-toc-link data-depth="1" data-target="5--四高可用与运维--生产环境怎么不挂" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5 · 四、高可用与运维 —— 生产环境怎么不挂</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#12" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.1 · 12. 复制#" data-toc-link data-depth="2" data-target="12" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.1 · 12. 复制#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#121" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.1.1 · 12.1 复制模式#" data-toc-link data-depth="3" data-target="121" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.1.1 · 12.1 复制模式#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#122" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.1.2 · 12.2 复制延迟#" data-toc-link data-depth="3" data-target="122" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.1.2 · 12.2 复制延迟#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#13" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.2 · 13. 读写分离与分库分表#" data-toc-link data-depth="2" data-target="13" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.2 · 13. 读写分离与分库分表#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#14" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.3 · 14. 备份与恢复#" data-toc-link data-depth="2" data-target="14" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.3 · 14. 备份与恢复#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#15" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.4 · 15. 监控与排查#" data-toc-link data-depth="2" data-target="15" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.4 · 15. 监控与排查#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#151" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.4.1 · 15.1 关键指标#" data-toc-link data-depth="3" data-target="151" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.4.1 · 15.1 关键指标#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#152" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.4.2 · 15.2 慢查询排查流程#" data-toc-link data-depth="3" data-target="152" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.4.2 · 15.2 慢查询排查流程#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#153-performance_schema" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.4.3 · 15.3 performance_schema#" data-toc-link data-depth="3" data-target="153-performance_schema" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.4.3 · 15.3 performance_schema#</span> </a> </li><li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#6--附录" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] font-medium text-[color:var(--theme-text-primary)]" title="6 · 附录" data-toc-link data-depth="1" data-target="6--附录" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>6 · 附录</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#61--源码导读" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="6.1 · 源码导读" data-toc-link data-depth="2" data-target="61--源码导读" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>6.1 · 源码导读</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#62--快速自检" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="6.2 · 快速自检" data-toc-link data-depth="2" data-target="62--快速自检" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>6.2 · 快速自检</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#63--参考" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="6.3 · 参考" data-toc-link data-depth="2" data-target="63--参考" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>6.3 · 参考</span> </a> </li> </ul> </nav> </div> </div> </aside>  <button id="toc-toggle" class="fixed bottom-6 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-[color:var(--theme-accent)] px-4 py-2 text-sm font-medium text-white shadow-lg transition-colors hover:bg-[color:var(--theme-accent-hover)] xl:hidden" aria-label="Open table of contents" aria-controls="toc-drawer" aria-expanded="false" data-astro-cid-ujbpqdc7> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-ujbpqdc7> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-ujbpqdc7></path> </svg> <span data-astro-cid-ujbpqdc7>On this page</span> </button> <div id="toc-overlay" class="fixed inset-0 z-40 hidden bg-black/50 backdrop-blur-sm xl:hidden" data-astro-cid-ujbpqdc7></div> <aside id="toc-drawer" class="fixed inset-y-0 right-0 z-50 hidden w-[min(22rem,88vw)] flex-col border-l border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] px-4 py-5 shadow-2xl xl:hidden" data-astro-cid-ujbpqdc7> <div class="mb-4 flex items-center justify-between rounded-2xl border border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-panel)] px-3 py-3" data-astro-cid-ujbpqdc7> <div data-astro-cid-ujbpqdc7> <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--theme-accent)]" data-astro-cid-ujbpqdc7>Table of contents</p> <p class="mt-1 text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-ujbpqdc7>Jump through the current note.</p> </div> <button id="toc-close" class="rounded-lg p-2 text-[color:var(--theme-text-primary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)]" aria-label="Close table of contents" data-astro-cid-ujbpqdc7> <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-ujbpqdc7> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-ujbpqdc7></path> </svg> </button> </div> <nav class="toc-scroll flex-1 min-h-0 max-h-[min(70vh,calc(100vh-14rem))] overflow-y-auto rounded-[1.5rem] border border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-panel)] p-1.5" aria-label="Table of contents mobile" data-astro-cid-ujbpqdc7> <ul class="space-y-0.5 text-sm leading-snug" data-astro-cid-ujbpqdc7> <li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#mysql" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1 · MySQL#" data-toc-link data-depth="1" data-target="mysql" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1 · MySQL#</span> </a> </li><li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#2--一关系型数据库--数据怎么组织和查询" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2 · 一、关系型数据库 —— 数据怎么组织和查询" data-toc-link data-depth="1" data-target="2--一关系型数据库--数据怎么组织和查询" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2 · 一、关系型数据库 —— 数据怎么组织和查询</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#1-sql" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.1 · 1. SQL 执行流水线#" data-toc-link data-depth="2" data-target="1-sql" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.1 · 1. SQL 执行流水线#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#2" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.2 · 2. 存储：数据放在哪？#" data-toc-link data-depth="2" data-target="2" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.2 · 2. 存储：数据放在哪？#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#21" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.2.1 · 2.1 内存结构#" data-toc-link data-depth="3" data-target="21" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.2.1 · 2.1 内存结构#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#22" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.2.2 · 2.2 磁盘结构#" data-toc-link data-depth="3" data-target="22" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.2.2 · 2.2 磁盘结构#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#23" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.2.3 · 2.3 页内部结构#" data-toc-link data-depth="3" data-target="23" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.2.3 · 2.3 页内部结构#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#24" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.2.4 · 2.4 行格式#" data-toc-link data-depth="3" data-target="24" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.2.4 · 2.4 行格式#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#25" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.2.5 · 2.5 行溢出#" data-toc-link data-depth="3" data-target="25" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.2.5 · 2.5 行溢出#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#3" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.3 · 3. 索引：怎么快速找到数据？#" data-toc-link data-depth="2" data-target="3" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.3 · 3. 索引：怎么快速找到数据？#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#31" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.3.1 · 3.1 索引使用原则#" data-toc-link data-depth="3" data-target="31" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.3.1 · 3.1 索引使用原则#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#32" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.3.2 · 3.2 建索引优先考虑#" data-toc-link data-depth="3" data-target="32" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.3.2 · 3.2 建索引优先考虑#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#4" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.4 · 4. 优化器：有多条路时走哪条？#" data-toc-link data-depth="2" data-target="4" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.4 · 4. 优化器：有多条路时走哪条？#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#41" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.4.1 · 4.1 单表访问方式#" data-toc-link data-depth="3" data-target="41" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.4.1 · 4.1 单表访问方式#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#42" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.4.2 · 4.2 多表连接#" data-toc-link data-depth="3" data-target="42" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.4.2 · 4.2 多表连接#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#43" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.4.3 · 4.3 成本模型#" data-toc-link data-depth="3" data-target="43" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.4.3 · 4.3 成本模型#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#44-explain" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="2.4.4 · 4.4 EXPLAIN 怎么看#" data-toc-link data-depth="3" data-target="44-explain" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>2.4.4 · 4.4 EXPLAIN 怎么看#</span> </a> </li><li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#oltp" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3 · 二、OLTP —— 并发读写怎么保证正确#" data-toc-link data-depth="1" data-target="oltp" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3 · 二、OLTP —— 并发读写怎么保证正确#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#5" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.1 · 5. 事务：多人同时读写怎么办？#" data-toc-link data-depth="2" data-target="5" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.1 · 5. 事务：多人同时读写怎么办？#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#51" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.1.1 · 5.1 版本链#" data-toc-link data-depth="3" data-target="51" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.1.1 · 5.1 版本链#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#52-read-view" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.1.2 · 5.2 Read View#" data-toc-link data-depth="3" data-target="52-read-view" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.1.2 · 5.2 Read View#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#53-rc-rr" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.1.3 · 5.3 RC 和 RR 的区别#" data-toc-link data-depth="3" data-target="53-rc-rr" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.1.3 · 5.3 RC 和 RR 的区别#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#6" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.2 · 6. 锁：写冲突怎么解决？#" data-toc-link data-depth="2" data-target="6" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.2 · 6. 锁：写冲突怎么解决？#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#61" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.2.1 · 6.1 表级锁#" data-toc-link data-depth="3" data-target="61" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.2.1 · 6.1 表级锁#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#62" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.2.2 · 6.2 行级锁类型#" data-toc-link data-depth="3" data-target="62" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.2.2 · 6.2 行级锁类型#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#63" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.2.3 · 6.3 死锁#" data-toc-link data-depth="3" data-target="63" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.2.3 · 6.3 死锁#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#7" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.3 · 7. 日志：崩溃了怎么办？#" data-toc-link data-depth="2" data-target="7" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.3 · 7. 日志：崩溃了怎么办？#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#71-redo-log" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.3.1 · 7.1 redo log#" data-toc-link data-depth="3" data-target="71-redo-log" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.3.1 · 7.1 redo log#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#72-undo-log" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.3.2 · 7.2 undo log#" data-toc-link data-depth="3" data-target="72-undo-log" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.3.2 · 7.2 undo log#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#73-binlog" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.3.3 · 7.3 binlog#" data-toc-link data-depth="3" data-target="73-binlog" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.3.3 · 7.3 binlog#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#74" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="3.3.4 · 7.4 两阶段提交#" data-toc-link data-depth="3" data-target="74" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>3.3.4 · 7.4 两阶段提交#</span> </a> </li><li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#schema" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="4 · 三、Schema 设计 —— 表怎么设计不埋坑#" data-toc-link data-depth="1" data-target="schema" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>4 · 三、Schema 设计 —— 表怎么设计不埋坑#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#8" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="4.1 · 8. 数据类型选择#" data-toc-link data-depth="2" data-target="8" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>4.1 · 8. 数据类型选择#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#81-null" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="4.1.1 · 8.1 NULL 的代价#" data-toc-link data-depth="3" data-target="81-null" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>4.1.1 · 8.1 NULL 的代价#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#9" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="4.2 · 9. 范式与反范式#" data-toc-link data-depth="2" data-target="9" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>4.2 · 9. 范式与反范式#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#10" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="4.3 · 10. 主键设计#" data-toc-link data-depth="2" data-target="10" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>4.3 · 10. 主键设计#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#11-online-ddl" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="4.4 · 11. Online DDL#" data-toc-link data-depth="2" data-target="11-online-ddl" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>4.4 · 11. Online DDL#</span> </a> </li><li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#5--四高可用与运维--生产环境怎么不挂" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5 · 四、高可用与运维 —— 生产环境怎么不挂" data-toc-link data-depth="1" data-target="5--四高可用与运维--生产环境怎么不挂" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5 · 四、高可用与运维 —— 生产环境怎么不挂</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#12" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.1 · 12. 复制#" data-toc-link data-depth="2" data-target="12" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.1 · 12. 复制#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#121" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.1.1 · 12.1 复制模式#" data-toc-link data-depth="3" data-target="121" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.1.1 · 12.1 复制模式#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#122" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.1.2 · 12.2 复制延迟#" data-toc-link data-depth="3" data-target="122" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.1.2 · 12.2 复制延迟#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#13" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.2 · 13. 读写分离与分库分表#" data-toc-link data-depth="2" data-target="13" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.2 · 13. 读写分离与分库分表#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#14" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.3 · 14. 备份与恢复#" data-toc-link data-depth="2" data-target="14" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.3 · 14. 备份与恢复#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#15" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.4 · 15. 监控与排查#" data-toc-link data-depth="2" data-target="15" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.4 · 15. 监控与排查#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#151" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.4.1 · 15.1 关键指标#" data-toc-link data-depth="3" data-target="151" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.4.1 · 15.1 关键指标#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#152" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.4.2 · 15.2 慢查询排查流程#" data-toc-link data-depth="3" data-target="152" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.4.2 · 15.2 慢查询排查流程#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#153-performance_schema" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="5.4.3 · 15.3 performance_schema#" data-toc-link data-depth="3" data-target="153-performance_schema" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>5.4.3 · 15.3 performance_schema#</span> </a> </li><li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#6--附录" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="6 · 附录" data-toc-link data-depth="1" data-target="6--附录" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>6 · 附录</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#61--源码导读" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="6.1 · 源码导读" data-toc-link data-depth="2" data-target="61--源码导读" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>6.1 · 源码导读</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#62--快速自检" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="6.2 · 快速自检" data-toc-link data-depth="2" data-target="62--快速自检" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>6.2 · 快速自检</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#63--参考" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="6.3 · 参考" data-toc-link data-depth="2" data-target="63--参考" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>6.3 · 参考</span> </a> </li> </ul> </nav> </aside>  </div> <script>
+  const drawer = document.getElementById('toc-drawer');
+  const overlay = document.getElementById('toc-overlay');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+  const tocLinks = Array.from(document.querySelectorAll('[data-toc-link]'));
+  const observedHeadings = Array.from(document.querySelectorAll('h1[id], h2[id], h3[id]'));
+
+  function setDrawerOpen(open) {
+    if (!drawer || !overlay || !toggle) return;
+    drawer.classList.toggle('hidden', !open);
+    drawer.classList.toggle('flex', open);
+    overlay.classList.toggle('hidden', !open);
+    document.body.classList.toggle('overflow-hidden', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+  }
+
+  if (toggle) {
+    toggle.addEventListener('click', () => setDrawerOpen(!(toggle.getAttribute('aria-expanded') === 'true')));
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeDrawer);
+  }
+
+  if (overlay) {
+    overlay.addEventListener('click', closeDrawer);
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeDrawer();
+  });
+
+  function setActiveHeading(id) {
+      tocLinks.forEach((link) => {
+      const isActive = link.getAttribute('data-target') === id;
+      const marker = link.querySelector('[data-toc-marker]');
+      link.classList.toggle('text-[color:var(--theme-accent-hover)]', isActive);
+      link.classList.toggle('font-semibold', isActive);
+      link.classList.toggle('bg-[color:var(--theme-accent-soft)]', isActive);
+      link.classList.toggle('translate-x-0.5', isActive);
+      if (marker) marker.classList.toggle('hidden', !isActive);
+      link.setAttribute('aria-current', isActive ? 'true' : 'false');
+    });
+  }
+
+  if (observedHeadings.length > 0) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+      let topmost = null;
+      let topmostOffset = Infinity;
+
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const rect = entry.target.getBoundingClientRect();
+          if (rect.top >= 0 && rect.top < topmostOffset) {
+            topmostOffset = rect.top;
+            topmost = entry.target;
+          }
+        }
+      });
+
+      if (topmost && topmost.id) {
+        setActiveHeading(topmost.id);
+      }
+      },
+      { rootMargin: '-12% 0px -68% 0px' }
+    );
+
+    observedHeadings.forEach((heading) => observer.observe(heading));
+    setActiveHeading(observedHeadings[0].id);
+  }
+
+  tocLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth < 1280) closeDrawer();
+    });
+  });
+</script>  <div class="mx-auto min-w-0 max-w-3xl" data-astro-cid-o5gmpz7g> <article class="prose prose-nord dark:prose-nord max-w-none prose-headings:font-serif prose-code:before:content-none prose-code:after:content-none" data-astro-cid-o5gmpz7g> <header class="mb-8 rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel-strong)] px-5 py-5 shadow-card sm:px-6 dark:shadow-[0_16px_36px_rgba(15,23,42,0.18)]" data-astro-cid-o5gmpz7g> <h1 class="mb-4 text-[color:var(--theme-text-primary)]" data-pagefind-meta="title" data-astro-cid-o5gmpz7g>mysql</h1> <div class="flex flex-col gap-3" data-astro-cid-o5gmpz7g> <div class="min-w-0 text-[color:var(--theme-text-muted)]" data-astro-cid-o5gmpz7g> <div class="flex flex-wrap items-center gap-x-2 gap-y-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded font-medium bg-[color:var(--theme-badge-created-bg)] text-[color:var(--theme-badge-created-text)]">  <span>📅</span> <span>2026-03-19</span>  </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded font-medium bg-[color:var(--theme-badge-updated-bg)] text-[color:var(--theme-badge-updated-text)]">  <span>✏️</span> <span>2026-04-16</span>  </span>  <a href="/notes/tags/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tags/INFRA" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: INFRA"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>INFRA</span>  </a> </div> </div> <div class="header-actions-row flex flex-wrap items-center justify-end gap-2 pt-1" data-astro-cid-o5gmpz7g> <div class="flex flex-wrap items-center justify-end gap-2" data-astro-cid-o5gmpz7g> <div class="flex items-center gap-1">  <!-- Outlinks --><!-- Backlinks --><!-- No links message --><span class="italic text-[color:var(--theme-text-muted)]">No related notes</span><!-- Modals --><div id="outlinks-modal" data-modal-root class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-xl"> <!-- Header --> <div class="sticky top-0 flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-elevated)] px-6 py-4"> <h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]"> Outlinks <span class="ml-2 text-sm font-normal text-[color:var(--theme-text-muted)]">
+(0)
+</span> </h2> <button data-modal-close class="close-modal rounded p-1 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="py-8 text-center text-[color:var(--theme-text-muted)]">
+No outlinks found
+</p> </div> </div> </div><div id="backlinks-modal" data-modal-root class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-xl"> <!-- Header --> <div class="sticky top-0 flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-elevated)] px-6 py-4"> <h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]"> Backlinks <span class="ml-2 text-sm font-normal text-[color:var(--theme-text-muted)]">
+(0)
+</span> </h2> <button data-modal-close class="close-modal rounded p-1 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="py-8 text-center text-[color:var(--theme-text-muted)]">
+No backlinks found
+</p> </div> </div> </div> </div> <button id="kg-trigger-1773900375-DFUK" type="button" title="View knowledge graph" class="inline-flex rounded-lg p-2 text-[color:var(--theme-text-primary)] transition-all duration-300 ease-out hover:scale-110 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent)] hover:shadow-md active:scale-95" aria-label="Open knowledge graph"><svg class="w-4 h-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg></button><div id="kg-backdrop-1773900375-DFUK" class="fixed inset-0 bg-black/40 hidden z-40 backdrop-blur-sm" aria-hidden="true"></div><div id="kg-modal-1773900375-DFUK" class="fixed inset-0 flex items-center justify-center hidden z-50 p-4"><div class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl"><div class="flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] px-6 py-4"><h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]">Local Knowledge Graph</h2><button data-local-graph-close type="button" class="rounded-lg p-1.5 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close knowledge graph"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div class="flex-1 overflow-hidden"><div id="local-graph-1773900375-DFUK" style="height: 100%;" class="knowledge-graph-container" data-astro-cid-zjb43jqo> <div class="knowledge-graph-wrapper" data-astro-cid-zjb43jqo> <svg id="local-graph-1773900375-DFUK-svg" style="width: 100%; height: 100%;" data-astro-cid-zjb43jqo></svg> </div> </div>  <script>(function(){const containerId = "local-graph-1773900375-DFUK";
+const nodeRadius = 4;
+const showLabels = true;
+const enableZoom = true;
+const enableDrag = true;
+const dataJson = "{\"nodes\":[{\"id\":\"1773900375-DFUK\",\"urlId\":\"1773900375-DFUK\",\"label\":\"mysql\",\"title\":\"mysql\",\"group\":\"default\",\"nodeType\":\"current\"}],\"links\":[]}";
+
+  (window.__KNOWLEDGE_GRAPH_QUEUE__ = window.__KNOWLEDGE_GRAPH_QUEUE__ || []).push({
+    containerId,
+    dataJson,
+    nodeRadius,
+    showLabels,
+    enableZoom,
+    enableDrag,
+  });
+})();</script></div></div></div><script>
+        (() => {
+          const scriptEl = document.currentScript;
+          const modal = scriptEl?.previousElementSibling;
+          const backdrop = modal?.previousElementSibling;
+          const triggerBtn = backdrop?.previousElementSibling;
+          const closeBtn = modal?.querySelector('[data-local-graph-close]');
+
+          if (!triggerBtn || !modal || !backdrop || !closeBtn) return;
+
+          function openModal() {
+            modal.classList.remove('hidden');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+          }
+
+          function closeModal() {
+            modal.classList.add('hidden');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+          }
+
+          triggerBtn.addEventListener('click', openModal);
+          closeBtn.addEventListener('click', closeModal);
+          backdrop.addEventListener('click', closeModal);
+
+          document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+              closeModal();
+            }
+          });
+        })();
+      </script> </div> </div> </div> </header> <div class="note-content" data-astro-cid-o5gmpz7g>     <h1 id="mysql">1 · MySQL<a href="#mysql" class="heading-anchor" data-heading-link="" aria-label="Link to section mysql">#</a></h1>
+<p><strong>情境</strong>：应用需要持久化结构化数据，MySQL 是最主流的 OLTP 关系型数据库。
+<strong>冲突</strong>：但 MySQL 概念繁多，平铺学习容易只见树木不见森林。
+<strong>问题</strong>：怎样系统地理解 MySQL？
+<strong>答案</strong>：从四个视角切入，每个视角回答一个核心问题。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>视角</th><th>核心问题</th></tr></thead><tbody><tr><td>一、关系型数据库</td><td>数据怎么组织和查询</td></tr><tr><td>二、OLTP</td><td>并发读写怎么保证正确</td></tr><tr><td>三、Schema 设计</td><td>表怎么设计不埋坑</td></tr><tr><td>四、高可用与运维</td><td>生产环境怎么不挂</td></tr></tbody></table>
+<h1 id="2--一关系型数据库--数据怎么组织和查询">2 · 一、关系型数据库 —— 数据怎么组织和查询</h1>
+<h2 id="1-sql">2.1 · 1. SQL 执行流水线<a href="#1-sql" class="heading-anchor" data-heading-link="" aria-label="Link to section 1-sql">#</a></h2>
+<p><strong>S</strong>：应用向 MySQL 发出一条 SQL。
+<strong>C</strong>：SQL 不可能直接变成磁盘操作，中间需要多个阶段协作。
+<strong>Q</strong>：SQL 进来后经历了什么？
+<strong>A</strong>：两层流水线——<strong>Server 层</strong>理解 SQL，<strong>存储引擎层</strong>存取数据。</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>连接器 → 分析器 → 优化器 → 执行器 → 存储引擎（InnoDB）</span></span></code></pre>
+<ul>
+<li><strong>连接器</strong>：你是谁？有什么权限？</li>
+<li><strong>分析器</strong>：这条 SQL 合不合法？</li>
+<li><strong>优化器</strong>：怎么执行最快？</li>
+<li><strong>执行器</strong>：按计划调引擎接口，拿数据或写数据</li>
+</ul>
+<p>存储引擎是插件式的，默认且最重要的是 <code>InnoDB</code>。</p>
+<h2 id="2">2.2 · 2. 存储：数据放在哪？<a href="#2" class="heading-anchor" data-heading-link="" aria-label="Link to section 2">#</a></h2>
+<p><strong>S</strong>：执行器要调存储引擎读写数据。
+<strong>C</strong>：数据不能随意堆在磁盘上，否则每次访问都要到处寻址。
+<strong>Q</strong>：InnoDB 怎么组织数据？
+<strong>A</strong>：按 <code>表空间 → 段 → 区 → 页 → 行</code> 的层级组织。<strong>页</strong>（默认 16KB）是磁盘与内存交互的基本单位。</p>
+<p>关键直觉：</p>
+<ul>
+<li>MySQL 不是一行一行读磁盘的，而是<strong>一页一页</strong>读的</li>
+<li>所以性能好坏的核心指标是<strong>读了多少页</strong>，而不是读了多少行</li>
+<li>InnoDB 在内存中维护 <strong>Buffer Pool</strong> 缓存热点页，避免每次都访问磁盘</li>
+</ul>
+<h3 id="21">2.2.1 · 2.1 内存结构<a href="#21" class="heading-anchor" data-heading-link="" aria-label="Link to section 21">#</a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>结构</th><th>作用</th></tr></thead><tbody><tr><td>Buffer Pool</td><td>缓存数据页，减少磁盘 IO</td></tr><tr><td>Change Buffer</td><td>缓存二级索引变更，减少随机写</td></tr><tr><td>Adaptive Hash Index</td><td>对热点访问做自适应哈希加速</td></tr><tr><td>Log Buffer</td><td>缓存 redo log</td></tr></tbody></table>
+<h3 id="22">2.2.2 · 2.2 磁盘结构<a href="#22" class="heading-anchor" data-heading-link="" aria-label="Link to section 22">#</a></h3>
+<ul>
+<li>系统表空间、独立表空间 <code>*.ibd</code></li>
+<li>undo 表空间、redo log 文件</li>
+<li>临时表空间、通用表空间</li>
+</ul>
+<p><strong>双写缓冲</strong>（doublewrite）：先把页写到双写区域，再写到真正位置，避免写一半宕机导致页损坏。</p>
+<h3 id="23">2.2.3 · 2.3 页内部结构<a href="#23" class="heading-anchor" data-heading-link="" aria-label="Link to section 23">#</a></h3>
+<ul>
+<li>文件头 / 文件尾：页类型、校验、前后页指针</li>
+<li>页头：槽数、记录数、空闲空间等</li>
+<li>用户记录：实际数据行，通过记录头信息串成链表</li>
+<li>页目录：对记录分组建槽，支持二分查找</li>
+</ul>
+<p>理解页内结构的价值：</p>
+<ul>
+<li>页满了要分裂 → 随机主键会频繁触发页分裂</li>
+<li>页内记录不是数组而是链表 → 插入删除不需要移动数据</li>
+</ul>
+<h3 id="24">2.2.4 · 2.4 行格式<a href="#24" class="heading-anchor" data-heading-link="" aria-label="Link to section 24">#</a></h3>
+<p>常见格式：<code>Compact</code>、<code>Redundant</code>、<code>Dynamic</code>（默认）、<code>Compressed</code>。</p>
+<p>每行除用户定义列外，还有三个隐藏列：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>隐藏列</th><th>作用</th></tr></thead><tbody><tr><td><code>DB_ROW_ID</code></td><td>没有主键时由引擎自动生成</td></tr><tr><td><code>DB_TRX_ID</code></td><td>最近修改该行的事务 ID（MVCC 用）</td></tr><tr><td><code>DB_ROLL_PTR</code></td><td>指向 undo log（回滚 + MVCC 用）</td></tr></tbody></table>
+<h3 id="25">2.2.5 · 2.5 行溢出<a href="#25" class="heading-anchor" data-heading-link="" aria-label="Link to section 25">#</a></h3>
+<p>一行数据过大时无法塞进单个 16KB 页：</p>
+<ul>
+<li>行内只保留一部分数据 + 指向溢出页的指针</li>
+<li>这是 <code>TEXT/BLOB/VARCHAR</code> 大字段影响性能的底层原因之一</li>
+</ul>
+<h2 id="3">2.3 · 3. 索引：怎么快速找到数据？<a href="#3" class="heading-anchor" data-heading-link="" aria-label="Link to section 3">#</a></h2>
+<p><strong>S</strong>：数据按页组织好了，也有 Buffer Pool 做缓存。
+<strong>C</strong>：但如果每次都从头扫到尾（全表扫描），数据量大时依然很慢。
+<strong>Q</strong>：怎么减少要读的页数？
+<strong>A</strong>：用 <strong>B+ 树索引</strong>快速定位目标页。</p>
+<p>为什么是 B+ 树？</p>
+<ul>
+<li>哈希：只能等值查询，不支持范围</li>
+<li>二叉树类：树太高，IO 次数多</li>
+<li>B+ 树：扇出大、树矮（通常 2~4 层）、叶子串链表支持范围查询</li>
+</ul>
+<p>两种索引：</p>
+<ul>
+<li><strong>聚簇索引</strong>：叶子存整行数据，通常就是主键索引，一张表只有一个</li>
+<li><strong>二级索引</strong>：叶子存索引列 + 主键值，查整行要<strong>回表</strong>到聚簇索引再查一次</li>
+</ul>
+<h3 id="31">2.3.1 · 3.1 索引使用原则<a href="#31" class="heading-anchor" data-heading-link="" aria-label="Link to section 31">#</a></h3>
+<ul>
+<li><strong>最左前缀</strong>：联合索引 <code>(a, b, c)</code> 只能按 a → ab → abc 的顺序利用</li>
+<li>遇到范围查询后，后续列通常难继续充分利用</li>
+<li><strong>覆盖索引</strong>优于回表：二级索引已包含所需列就不用回表</li>
+<li>联合索引通常优于多个单列索引的 index merge</li>
+</ul>
+<h3 id="32">2.3.2 · 3.2 建索引优先考虑<a href="#32" class="heading-anchor" data-heading-link="" aria-label="Link to section 32">#</a></h3>
+<ul>
+<li>过滤列、排序列、分组列</li>
+<li>区分度高的列</li>
+<li>更短的列类型</li>
+<li>优先扩展已有联合索引，而不是盲目新增</li>
+<li>避免重复索引</li>
+</ul>
+<h2 id="4">2.4 · 4. 优化器：有多条路时走哪条？<a href="#4" class="heading-anchor" data-heading-link="" aria-label="Link to section 4">#</a></h2>
+<p><strong>S</strong>：有了索引，一条查询可能有多条执行路径。
+<strong>C</strong>：不同路径成本可能差几个数量级，选错路有索引也白搭。
+<strong>Q</strong>：MySQL 怎么选？
+<strong>A</strong>：<strong>优化器</strong>基于成本模型（读多少页 + 过滤多少行）选成本最低的路径。</p>
+<p>核心直觉：</p>
+<ul>
+<li>优化器做两个决定：<strong>走哪个索引</strong> 和 <strong>多表先查谁</strong></li>
+<li>“用了索引”不等于快——回表太多可能还不如全表扫描</li>
+<li>统计信息不准时，执行计划可能变差</li>
+</ul>
+<p>排查慢 SQL 的第一步：<code>EXPLAIN</code> 看执行计划。</p>
+<h3 id="41">2.4.1 · 4.1 单表访问方式<a href="#41" class="heading-anchor" data-heading-link="" aria-label="Link to section 41">#</a></h3>
+<p>从好到坏：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>类型</th><th>含义</th></tr></thead><tbody><tr><td><code>const</code></td><td>主键/唯一索引等值命中一条记录</td></tr><tr><td><code>ref</code></td><td>普通索引等值匹配</td></tr><tr><td><code>range</code></td><td>索引范围扫描</td></tr><tr><td><code>index</code></td><td>扫描整个索引树</td></tr><tr><td><code>ALL</code></td><td>全表扫描</td></tr></tbody></table>
+<h3 id="42">2.4.2 · 4.2 多表连接<a href="#42" class="heading-anchor" data-heading-link="" aria-label="Link to section 42">#</a></h3>
+<ol>
+<li>选一个<strong>驱动表</strong></li>
+<li>用驱动表的结果去匹配<strong>被驱动表</strong></li>
+</ol>
+<p>优化关键：驱动表尽量小、被驱动表有索引、连接顺序由优化器按成本选择。</p>
+<h3 id="43">2.4.3 · 4.3 成本模型<a href="#43" class="heading-anchor" data-heading-link="" aria-label="Link to section 43">#</a></h3>
+<ul>
+<li><strong>IO 成本</strong>：读多少页</li>
+<li><strong>CPU 成本</strong>：过滤/比较多少行</li>
+</ul>
+<p>统计信息（索引基数、数据分布）会显著影响执行计划。统计不准时，计划可能变差。</p>
+<h3 id="44-explain">2.4.4 · 4.4 EXPLAIN 怎么看<a href="#44-explain" class="heading-anchor" data-heading-link="" aria-label="Link to section 44-explain">#</a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>字段</th><th>看什么</th></tr></thead><tbody><tr><td><code>type</code></td><td>访问方式，是否退化成 ALL</td></tr><tr><td><code>key</code></td><td>实际用了哪个索引</td></tr><tr><td><code>rows</code></td><td>估计扫描多少行</td></tr><tr><td><code>Extra</code></td><td><code>Using index</code>（覆盖索引）、<code>Using filesort</code>、<code>Using temporary</code></td></tr></tbody></table>
+<hr>
+<h1 id="oltp">3 · 二、OLTP —— 并发读写怎么保证正确<a href="#oltp" class="heading-anchor" data-heading-link="" aria-label="Link to section oltp">#</a></h1>
+<h2 id="5">3.1 · 5. 事务：多人同时读写怎么办？<a href="#5" class="heading-anchor" data-heading-link="" aria-label="Link to section 5">#</a></h2>
+<p><strong>S</strong>：单用户查询没问题了。
+<strong>C</strong>：但真实系统中多个事务同时读写同一数据，可能读到改了一半的脏数据。
+<strong>Q</strong>：怎么保证每个事务看到一致的数据？
+<strong>A</strong>：<strong>ACID</strong> 定义目标，<strong>隔离级别</strong>定义严格程度，<strong>MVCC</strong> 让读写不互斥。</p>
+<p>ACID 一句话：原子（全做或全不做）、一致（数据始终合法）、隔离（事务互不干扰）、持久（提交不丢失）。</p>
+<p>隔离级别从松到严：<code>Read Uncommitted → Read Committed → Repeatable Read → Serializable</code>。InnoDB 默认 <code>Repeatable Read</code>。</p>
+<p><strong>MVCC 的核心思想</strong>：每行数据保留多个版本，普通 SELECT 读的是”某个时间点可见的版本”，而不是当前最新物理值。这样读不需要加锁，读写就不互斥了。</p>
+<h3 id="51">3.1.1 · 5.1 版本链<a href="#51" class="heading-anchor" data-heading-link="" aria-label="Link to section 51">#</a></h3>
+<p>每行的 <code>DB_TRX_ID</code> 记录最近修改的事务 ID，<code>DB_ROLL_PTR</code> 指向 undo log 中的旧版本。多次修改形成一条<strong>版本链</strong>。</p>
+<h3 id="52-read-view">3.1.2 · 5.2 Read View<a href="#52-read-view" class="heading-anchor" data-heading-link="" aria-label="Link to section 52-read-view">#</a></h3>
+<p>事务做一致性读时生成 Read View，包含：</p>
+<ul>
+<li>当前活跃事务 ID 列表</li>
+<li>最小活跃事务 ID</li>
+<li>下一个待分配事务 ID</li>
+</ul>
+<p>沿版本链找到第一个”对当前 Read View 可见”的版本返回。</p>
+<h3 id="53-rc-rr">3.1.3 · 5.3 RC 和 RR 的区别<a href="#53-rc-rr" class="heading-anchor" data-heading-link="" aria-label="Link to section 53-rc-rr">#</a></h3>
+<ul>
+<li><code>Read Committed</code>：<strong>每次</strong> SELECT 生成新 Read View → 能看到其他事务已提交的最新值</li>
+<li><code>Repeatable Read</code>：<strong>事务开始时</strong>生成一次 Read View，后续复用 → 同一事务内多次读结果一致</li>
+</ul>
+<h2 id="6">3.2 · 6. 锁：写冲突怎么解决？<a href="#6" class="heading-anchor" data-heading-link="" aria-label="Link to section 6">#</a></h2>
+<p><strong>S</strong>：MVCC 解决了”读”的并发。
+<strong>C</strong>：但写与写、写与”当前读”（<code>SELECT ... FOR UPDATE</code>）仍然要互斥。
+<strong>Q</strong>：怎么协调？
+<strong>A</strong>：<strong>锁</strong>。InnoDB 的行锁基于索引实现，用记录锁、间隙锁、邻键锁的组合来保护数据和区间。</p>
+<p>核心直觉：</p>
+<ul>
+<li>锁是分层的：全局锁 > 表级锁 <strong>行级锁</strong>（最常接触）</li>
+<li>行锁不是按物理行号加锁，而是<strong>锁索引记录</strong></li>
+<li>间隙锁锁住两条记录之间的”空隙”，防止别人插入新行（防幻读）</li>
+<li>死锁是常见现象，不是异常——InnoDB 会检测并回滚一个事务</li>
+</ul>
+<h3 id="61">3.2.1 · 6.1 表级锁<a href="#61" class="heading-anchor" data-heading-link="" aria-label="Link to section 61">#</a></h3>
+<ul>
+<li><strong>MDL（元数据锁）</strong>：防止”查表”和”改表结构”互相冲突</li>
+<li><strong>意向锁</strong>：加行锁前先加意向锁，告诉系统”表中某些行将被锁”</li>
+</ul>
+<h3 id="62">3.2.2 · 6.2 行级锁类型<a href="#62" class="heading-anchor" data-heading-link="" aria-label="Link to section 62">#</a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>类型</th><th>锁什么</th><th>作用</th></tr></thead><tbody><tr><td>记录锁 Record</td><td>已有的索引记录</td><td>防止修改/删除</td></tr><tr><td>间隙锁 Gap</td><td>两条记录之间的区间</td><td>防止插入（防幻读）</td></tr><tr><td>邻键锁 Next-Key</td><td>记录锁 + 间隙锁</td><td>RR 级别的默认行锁</td></tr><tr><td>插入意向锁</td><td>间隙中的某个位置</td><td>允许不同位置并发插入</td></tr><tr><td>自增锁</td><td>AUTO_INCREMENT 计数器</td><td>保证自增值连续</td></tr></tbody></table>
+<p><code>Next-Key Lock = Record Lock + Gap Lock</code>，这是 RR 下<strong>部分解决幻读</strong>的关键。</p>
+<h3 id="63">3.2.3 · 6.3 死锁<a href="#63" class="heading-anchor" data-heading-link="" aria-label="Link to section 63">#</a></h3>
+<p>处理：等超时 或 死锁检测后回滚代价最小的事务。</p>
+<p>降低概率：固定访问顺序、走索引缩小锁范围、把最易冲突的操作放事务最后。</p>
+<h2 id="7">3.3 · 7. 日志：崩溃了怎么办？<a href="#7" class="heading-anchor" data-heading-link="" aria-label="Link to section 7">#</a></h2>
+<p><strong>S</strong>：事务提交了，数据应该持久。
+<strong>C</strong>：但提交时数据可能还在内存（Buffer Pool）没落盘，这时宕机数据就丢了。每次都刷盘？随机 IO 太慢。
+<strong>Q</strong>：怎么既保证不丢数据，又维持写入性能？
+<strong>A</strong>：<strong>WAL</strong>——先顺序写日志，再异步刷数据页。三种日志各管一件事。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>日志</th><th>谁的</th><th>一句话</th></tr></thead><tbody><tr><td>redo log</td><td>InnoDB</td><td>崩溃后重做，保持久性</td></tr><tr><td>undo log</td><td>InnoDB</td><td>回滚 + 构造 MVCC 版本链</td></tr><tr><td>binlog</td><td>Server</td><td>主从复制 + 数据归档</td></tr></tbody></table>
+<h3 id="71-redo-log">3.3.1 · 7.1 redo log<a href="#71-redo-log" class="heading-anchor" data-heading-link="" aria-label="Link to section 71-redo-log">#</a></h3>
+<ul>
+<li>物理日志，记录”某页某偏移做了什么修改”</li>
+<li>WAL 思想：先顺序写日志，再异步刷数据页</li>
+<li>顺序写比随机写快得多，这是性能关键</li>
+</ul>
+<h3 id="72-undo-log">3.3.2 · 7.2 undo log<a href="#72-undo-log" class="heading-anchor" data-heading-link="" aria-label="Link to section 72-undo-log">#</a></h3>
+<ul>
+<li>记录修改前的旧值，用于回滚</li>
+<li>MVCC 的版本链就是由 undo log 串起来的</li>
+<li>删除通常先打 <code>delete mark</code>，由 purge 线程异步清理</li>
+</ul>
+<h3 id="73-binlog">3.3.3 · 7.3 binlog<a href="#73-binlog" class="heading-anchor" data-heading-link="" aria-label="Link to section 73-binlog">#</a></h3>
+<ul>
+<li>逻辑日志，记录”这条语句/这个事务做了什么”</li>
+<li>用于主从复制、数据归档、时间点恢复</li>
+</ul>
+<h3 id="74">3.3.4 · 7.4 两阶段提交<a href="#74" class="heading-anchor" data-heading-link="" aria-label="Link to section 74">#</a></h3>
+<p><strong>S</strong>：redo log 和 binlog 分属不同层。
+<strong>C</strong>：只写了一个没写另一个，主从数据就不一致。
+<strong>Q</strong>：怎么保证两份日志一致？
+<strong>A</strong>：两阶段提交。</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>1. redo log 写入 prepare</span></span>
+<span class="line"><span>2. binlog 写入</span></span>
+<span class="line"><span>3. redo log 标记 commit</span></span></code></pre>
+<p>崩溃恢复判断：</p>
+<ul>
+<li>redo prepare + binlog 完整 → 提交</li>
+<li>redo prepare + binlog 不完整 → 回滚</li>
+<li>redo 没有 prepare → 回滚</li>
+</ul>
+<hr>
+<h1 id="schema">4 · 三、Schema 设计 —— 表怎么设计不埋坑<a href="#schema" class="heading-anchor" data-heading-link="" aria-label="Link to section schema">#</a></h1>
+<h2 id="8">4.1 · 8. 数据类型选择<a href="#8" class="heading-anchor" data-heading-link="" aria-label="Link to section 8">#</a></h2>
+<p><strong>S</strong>：建表时需要为每列选择数据类型。
+<strong>C</strong>：类型选不好，轻则浪费空间、拖慢查询，重则数据溢出、业务出错。
+<strong>Q</strong>：怎么选？
+<strong>A</strong>：够用的前提下，<strong>越小越好、越简单越好、避免 NULL</strong>。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>场景</th><th>推荐</th><th>避免</th><th>原因</th></tr></thead><tbody><tr><td>整数</td><td><code>INT</code> / <code>BIGINT</code> 按范围选</td><td>全部用 <code>BIGINT</code></td><td>浪费空间，索引更大</td></tr><tr><td>小数/金额</td><td><code>DECIMAL</code></td><td><code>FLOAT</code> / <code>DOUBLE</code></td><td>浮点有精度问题</td></tr><tr><td>时间</td><td><code>DATETIME</code>（范围大）或 <code>TIMESTAMP</code>（自动时区，4 字节）</td><td>字符串存时间</td><td>无法做时间运算和比较</td></tr><tr><td>短文本</td><td><code>VARCHAR(N)</code> N 按实际上限</td><td><code>VARCHAR(65535)</code></td><td>内存临时表按声明长度分配</td></tr><tr><td>长文本/大对象</td><td><code>TEXT</code> / <code>BLOB</code></td><td>频繁查询的列用 TEXT</td><td>可能行溢出，影响 Buffer Pool 效率</td></tr><tr><td>布尔/状态</td><td><code>TINYINT</code></td><td><code>ENUM</code>（DDL 变更麻烦）</td><td>扩展性差</td></tr><tr><td>IP 地址</td><td><code>INT UNSIGNED</code> + <code>INET_ATON/NTOA</code></td><td><code>VARCHAR(15)</code></td><td>空间省 3 倍，比较更快</td></tr></tbody></table>
+<h3 id="81-null">4.1.1 · 8.1 NULL 的代价<a href="#81-null" class="heading-anchor" data-heading-link="" aria-label="Link to section 81-null">#</a></h3>
+<ul>
+<li>索引、统计、比较都需要额外处理</li>
+<li><code>COUNT(col)</code> 不计 NULL，<code>COUNT(*)</code> 计全部——容易出 bug</li>
+<li>建议：除非业务语义确实需要”未知”，否则 <code>NOT NULL DEFAULT ...</code></li>
+</ul>
+<h2 id="9">4.2 · 9. 范式与反范式<a href="#9" class="heading-anchor" data-heading-link="" aria-label="Link to section 9">#</a></h2>
+<p><strong>S</strong>：数据建模需要决定拆分粒度。
+<strong>C</strong>：拆太细 JOIN 多、查询慢；拆太粗冗余多、更新异常。
+<strong>Q</strong>：怎么平衡？
+<strong>A</strong>：先按第三范式设计保证正确性，再针对高频查询做<strong>有控制的反范式</strong>。</p>
+<ul>
+<li><strong>1NF</strong>：列不可再分</li>
+<li><strong>2NF</strong>：非主属性完全依赖主键（消除部分依赖）</li>
+<li><strong>3NF</strong>：非主属性不传递依赖主键（消除传递依赖）</li>
+</ul>
+<p>常见反范式手段：</p>
+<ul>
+<li>冗余列：避免高频 JOIN（如订单表冗余用户名）</li>
+<li>汇总表/计数表：避免实时聚合</li>
+<li>代价：更新时需要同步维护冗余数据</li>
+</ul>
+<h2 id="10">4.3 · 10. 主键设计<a href="#10" class="heading-anchor" data-heading-link="" aria-label="Link to section 10">#</a></h2>
+<p><strong>S</strong>：每张表需要一个主键。
+<strong>C</strong>：主键决定聚簇索引的物理组织方式，选错影响全局性能。
+<strong>Q</strong>：主键怎么选？
+<strong>A</strong>：<strong>稳定、短、递增</strong>。</p>
+<ul>
+<li><strong>稳定</strong>：主键值不应变更，否则所有二级索引都要跟着改</li>
+<li><strong>短</strong>：主键存在每个二级索引的叶子里，越短索引越小</li>
+<li><strong>递增</strong>：顺序插入减少页分裂；随机主键（如 UUID）导致大量页分裂和碎片</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>方案</th><th>优点</th><th>缺点</th></tr></thead><tbody><tr><td><code>AUTO_INCREMENT</code></td><td>递增、短、简单</td><td>分布式环境需额外协调</td></tr><tr><td>雪花 ID</td><td>趋势递增、全局唯一</td><td>8 字节、依赖时钟</td></tr><tr><td>UUID v4</td><td>全局唯一、无需协调</td><td>36 字节、完全随机、页分裂严重</td></tr><tr><td>UUID v7</td><td>全局唯一、时间递增</td><td>16 字节，仍比 BIGINT 大</td></tr></tbody></table>
+<h2 id="11-online-ddl">4.4 · 11. Online DDL<a href="#11-online-ddl" class="heading-anchor" data-heading-link="" aria-label="Link to section 11-online-ddl">#</a></h2>
+<p><strong>S</strong>：业务迭代需要频繁加列、改索引。
+<strong>C</strong>：传统 DDL 会锁表，大表操作可能锁数分钟甚至小时。
+<strong>Q</strong>：怎么不停服改表？
+<strong>A</strong>：MySQL 5.6+ 的 <strong>Online DDL</strong> 或外部工具 <code>pt-osc</code> / <code>gh-ost</code>。</p>
+<p>MySQL Online DDL 的三种算法：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>算法</th><th>过程</th><th>是否锁表</th></tr></thead><tbody><tr><td><code>INSTANT</code></td><td>只改元数据</td><td>不锁</td></tr><tr><td><code>INPLACE</code></td><td>引擎内部重建</td><td>大部分不锁（允许并发 DML）</td></tr><tr><td><code>COPY</code></td><td>创建临时表、拷贝数据</td><td>锁表</td></tr></tbody></table>
+<p>大表变更建议：优先 <code>INSTANT</code>；不支持则用 <code>gh-ost</code>（基于 binlog 的无触发器方案）。</p>
+<hr>
+<h1 id="5--四高可用与运维--生产环境怎么不挂">5 · 四、高可用与运维 —— 生产环境怎么不挂</h1>
+<h2 id="12">5.1 · 12. 复制<a href="#12" class="heading-anchor" data-heading-link="" aria-label="Link to section 12">#</a></h2>
+<p><strong>S</strong>：单机 MySQL 是单点。
+<strong>C</strong>：机器故障意味着服务不可用和数据丢失。
+<strong>Q</strong>：怎么消除单点？
+<strong>A</strong>：<strong>复制</strong>——主库写 binlog，从库拉取并重放。</p>
+<h3 id="121">5.1.1 · 12.1 复制模式<a href="#121" class="heading-anchor" data-heading-link="" aria-label="Link to section 121">#</a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>模式</th><th>流程</th><th>数据安全</th><th>性能</th></tr></thead><tbody><tr><td>异步复制</td><td>主库写完 binlog 即返回</td><td>主库宕机可能丢数据</td><td>最好</td></tr><tr><td>半同步复制</td><td>至少一个从库确认收到 binlog 才返回</td><td>几乎不丢</td><td>略慢</td></tr><tr><td>组复制 (MGR)</td><td>Paxos 协议多数派确认</td><td>不丢</td><td>更慢，但支持多写</td></tr></tbody></table>
+<h3 id="122">5.1.2 · 12.2 复制延迟<a href="#122" class="heading-anchor" data-heading-link="" aria-label="Link to section 122">#</a></h3>
+<p>常见原因：从库单线程回放、大事务、DDL 阻塞。</p>
+<p>缓解手段：并行复制（<code>slave_parallel_workers</code>）、拆大事务、避免从库做大查询。</p>
+<h2 id="13">5.2 · 13. 读写分离与分库分表<a href="#13" class="heading-anchor" data-heading-link="" aria-label="Link to section 13">#</a></h2>
+<p><strong>S</strong>：单机性能有上限。
+<strong>C</strong>：数据量/并发量增长到单机极限。
+<strong>Q</strong>：怎么突破？
+<strong>A</strong>：<strong>读写分离</strong>分担读压力，<strong>分库分表</strong>分担存储和写压力。都有额外代价。</p>
+<ul>
+<li>读写分离：主写从读，代价是复制延迟、可能读旧数据</li>
+<li>分库分表：水平拆（按行）或垂直拆（按业务域），代价是跨库 JOIN、分布式事务、全局主键</li>
+</ul>
+<h2 id="14">5.3 · 14. 备份与恢复<a href="#14" class="heading-anchor" data-heading-link="" aria-label="Link to section 14">#</a></h2>
+<p><strong>S</strong>：数据是最重要的资产。
+<strong>C</strong>：硬件故障、误操作、软件 bug 都可能导致数据丢失或损坏。
+<strong>Q</strong>：怎么兜底？
+<strong>A</strong>：定期备份 + binlog，实现<strong>任意时间点恢复</strong>（PITR）。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>工具</th><th>类型</th><th>特点</th></tr></thead><tbody><tr><td><code>mysqldump</code></td><td>逻辑备份</td><td>简单，但大库慢</td></tr><tr><td><code>xtrabackup</code></td><td>物理备份</td><td>快，支持增量备份，不锁表（InnoDB）</td></tr></tbody></table>
+<p>恢复流程：全量备份还原 → 追加 binlog 到目标时间点。</p>
+<h2 id="15">5.4 · 15. 监控与排查<a href="#15" class="heading-anchor" data-heading-link="" aria-label="Link to section 15">#</a></h2>
+<p><strong>S</strong>：系统上线了。
+<strong>C</strong>：不知道什么时候会出问题，出了问题不知道原因。
+<strong>Q</strong>：怎么做到心中有数？
+<strong>A</strong>：关键指标 + 慢查询日志 + <code>performance_schema</code>。</p>
+<h3 id="151">5.4.1 · 15.1 关键指标<a href="#151" class="heading-anchor" data-heading-link="" aria-label="Link to section 151">#</a></h3>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>指标</th><th>含义</th><th>关注阈值</th></tr></thead><tbody><tr><td>QPS / TPS</td><td>吞吐量</td><td>突变</td></tr><tr><td>慢查询数</td><td>超过 <code>long_query_time</code> 的查询</td><td>> 0 就要看</td></tr><tr><td>线程连接数</td><td><code>Threads_connected</code></td><td>接近 <code>max_connections</code></td></tr><tr><td>Buffer Pool 命中率</td><td><code>Innodb_buffer_pool_read_requests / reads</code></td><td>&#x3C; 99% 需关注</td></tr><tr><td>复制延迟</td><td><code>Seconds_Behind_Master</code></td><td>> 1s 需排查</td></tr></tbody></table>
+<h3 id="152">5.4.2 · 15.2 慢查询排查流程<a href="#152" class="heading-anchor" data-heading-link="" aria-label="Link to section 152">#</a></h3>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>开启 slow_query_log → mysqldumpslow 聚合 → EXPLAIN 看执行计划 → 优化索引/SQL/表结构</span></span></code></pre>
+<h3 id="153-performance_schema">5.4.3 · 15.3 performance_schema<a href="#153-performance_schema" class="heading-anchor" data-heading-link="" aria-label="Link to section 153-performance_schema">#</a></h3>
+<p>MySQL 内置的运行时诊断工具，可查：</p>
+<ul>
+<li>等待事件（锁等待、IO 等待）</li>
+<li>SQL 统计（执行次数、耗时分布）</li>
+<li>内存使用</li>
+</ul>
+<hr>
+<h1 id="6--附录">6 · 附录</h1>
+<h2 id="61--源码导读">6.1 · 源码导读</h2>
+<p>先分清两个目录：<code>sql/</code>（Server 层）、<code>storage/innobase/</code>（InnoDB）。</p>
+<p>执行主链路：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>handle_connection → do_command → dispatch_command → mysql_parse → mysql_execute_command</span></span></code></pre>
+<p>InnoDB 核心模块：</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>前缀</th><th>模块</th></tr></thead><tbody><tr><td><code>btr*</code></td><td>B+ 树</td></tr><tr><td><code>trx*</code></td><td>事务</td></tr><tr><td><code>lock*</code></td><td>锁</td></tr><tr><td><code>fsp*</code></td><td>表空间/区/页</td></tr><tr><td><code>row*</code></td><td>行操作</td></tr><tr><td><code>dict*</code></td><td>数据字典</td></tr></tbody></table>
+<p>推荐按操作路径读：建表 → 插入 → 查询 → 更新/删除 → 提交/恢复。</p>
+<h2 id="62--快速自检">6.2 · 快速自检</h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>#</th><th>问题</th><th>对应</th></tr></thead><tbody><tr><td>1</td><td>Server 层和 InnoDB 层分别负责什么？</td><td>§1</td></tr><tr><td>2</td><td>为什么 InnoDB 选 B+ 树，而不是哈希或二叉树？</td><td>§3</td></tr><tr><td>3</td><td>聚簇索引和二级索引有什么区别？什么是回表？</td><td>§3</td></tr><tr><td>4</td><td>最左前缀原则为什么成立？</td><td>§3.1</td></tr><tr><td>5</td><td>为什么”用了索引”也可能慢？</td><td>§4</td></tr><tr><td>6</td><td>MVCC 依赖哪些字段和日志？</td><td>§5</td></tr><tr><td>7</td><td>RR 下如何理解幻读与 Next-Key Lock？</td><td>§6</td></tr><tr><td>8</td><td>redo log、undo log、binlog 分别解决什么问题？</td><td>§7</td></tr><tr><td>9</td><td>为什么需要两阶段提交？</td><td>§7.4</td></tr><tr><td>10</td><td><code>VARCHAR(N)</code> 的 N 应该怎么选？NULL 有什么代价？</td><td>§8</td></tr><tr><td>11</td><td>主键为什么要递增？UUID 有什么问题？</td><td>§10</td></tr><tr><td>12</td><td>大表 DDL 怎么做到不停服？</td><td>§11</td></tr><tr><td>13</td><td>异步复制和半同步复制的区别？</td><td>§12</td></tr><tr><td>14</td><td>慢查询怎么排查？</td><td>§15</td></tr></tbody></table>
+<h2 id="63--参考">6.3 · 参考</h2>
+<ul>
+<li><a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-storage-engine.html">https://dev.mysql.com/doc/refman/5.7/en/innodb-storage-engine.html</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-architecture.html">https://dev.mysql.com/doc/refman/5.7/en/innodb-architecture.html</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/8.4/en/explain-output.html">https://dev.mysql.com/doc/refman/8.4/en/explain-output.html</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-transaction-isolation-levels.html">https://dev.mysql.com/doc/refman/5.7/en/innodb-transaction-isolation-levels.html</a></li>
+<li><a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-undo-logs.html">https://dev.mysql.com/doc/refman/5.7/en/innodb-undo-logs.html</a></li>
+<li><a href="https://tech.meituan.com/2014/06/30/mysql-index.html">https://tech.meituan.com/2014/06/30/mysql-index.html</a></li>
+</ul> <!-- Diagrams rendered at build time -->  </div> </article> <nav class="mt-12 border-t border-[color:var(--theme-border-subtle)] pt-8" data-astro-cid-o5gmpz7g> <a href="/notes" class="btn-primary"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>Back to Notes</a> </nav> </div>  </main> <footer class="mt-20 border-t border-[color:var(--theme-border-subtle)]"> <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-sm text-[color:var(--theme-text-muted)] sm:flex-row sm:items-end sm:justify-between sm:px-6 lg:px-8"> <div> <p class="mb-1 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--theme-text-faint)]">
+Built for connected notes
+</p> <p class="max-w-2xl text-[0.85rem] leading-6 tracking-normal text-[color:var(--theme-text-secondary)]"> Evergreen notes turn ideas into objects that you can manipulate, combine, combine. </p> </div> <div class="text-left sm:text-right"> <p class="text-[0.8125rem] font-medium tracking-normal text-[color:var(--theme-text-muted)]">
+&copy; 2026 All rights reserved.
+</p> </div> </div> </footer>  <script type="module">const r="nord-theme",m="light",t="dark";function a(){try{return localStorage.getItem(r)}catch{return null}}function s(){return window.matchMedia("(prefers-color-scheme: dark)").matches?t:"light"}function n(){return a()||s()}function o(c){const e=document.documentElement;c===t?e.classList.add("dark"):e.classList.remove("dark")}function h(){const e=n()===t?m:t;localStorage.setItem(r,e),o(e),window.dispatchEvent(new CustomEvent("theme-change",{detail:{theme:e}}))}o(n());document.addEventListener("astro:after-swap",()=>o(n()));window.toggleTheme=h;window.getTheme=n;</script> </body> </html> 

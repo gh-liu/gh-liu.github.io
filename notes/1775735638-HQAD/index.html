@@ -1,0 +1,550 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>Gossip</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css"><script>
+      // 内联阻塞脚本：在首帧渲染前同步应用主题，避免 View Transitions 页面切换时的白屏闪烁。
+      // 必须无 import、同步执行；若用 theme.ts 模块，会在新文档替换后延迟执行导致闪白。
+      (function() {
+        var theme = localStorage.getItem('nord-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+      })();
+    </script><script type="module" src="/_astro/BaseLayout.astro_astro_type_script_index_0_lang.D_jVB8Nw.js"></script><link rel="stylesheet" href="/_astro/_chapterSlug_.C1mDGA1Y.css">
+<style>.toc-scroll[data-astro-cid-ujbpqdc7]{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--theme-border-default) 55%,transparent) transparent}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar{width:6px}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-track{background:transparent}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-thumb{border-radius:999px;background:color-mix(in srgb,var(--theme-border-default) 52%,transparent)}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--theme-border-default) 72%,transparent)}.toc-link__label[data-astro-cid-ujbpqdc7]{display:-webkit-box;overflow:hidden;line-height:1.45;text-wrap:pretty;word-break:break-word;-webkit-box-orient:vertical;-webkit-line-clamp:2}.toc-link[data-astro-cid-ujbpqdc7]:hover .toc-link__label[data-astro-cid-ujbpqdc7],.toc-link[data-astro-cid-ujbpqdc7]:focus-visible .toc-link__label[data-astro-cid-ujbpqdc7],.toc-link[data-astro-cid-ujbpqdc7][aria-current=true] .toc-link__label[data-astro-cid-ujbpqdc7]{-webkit-line-clamp:unset}@media(max-width:1279px){.toc-link__label[data-astro-cid-ujbpqdc7]{-webkit-line-clamp:unset}}
+.knowledge-graph-container[data-astro-cid-zjb43jqo]{border:1px solid var(--theme-border-default);border-radius:8px;background:var(--theme-bg-elevated);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen,.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo],.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--theme-border-default);border-radius:6px;background:var(--theme-bg-panel);color:var(--theme-text-primary);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--theme-bg-panel-hover);color:var(--theme-accent-hover)}.knowledge-graph-toolbar-btn:active{background:var(--theme-bg-panel-hover)}.knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:var(--theme-accent);stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--theme-success);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--theme-accent-hover);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--theme-success);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--theme-secondary-accent);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--theme-warning);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--theme-node-neutral);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:var(--theme-text-faint);stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--theme-accent);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--theme-text-primary);font-weight:500;text-shadow:0 0 3px var(--theme-bg-elevated)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--theme-tooltip-bg);border:1px solid var(--theme-border-default);border-radius:4px;font-size:12px;color:var(--theme-tooltip-text);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--theme-info);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--theme-text-primary)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--theme-accent-hover)}.kg-legend--outlink{color:var(--theme-success)}.kg-legend--backlink{color:var(--theme-secondary-accent)}.kg-legend--both{color:var(--theme-warning)}.kg-legend--neighbor{color:var(--theme-node-neutral);opacity:.9}
+article[data-astro-cid-o5gmpz7g]{word-break:break-word}.note-content[data-astro-cid-o5gmpz7g] h1:first-child{display:none}
+</style></head> <body class="site-shell"> <a href="#main-content" class="skip-to-content">Skip to main content</a> <header class="sticky top-0 z-30 border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-page)] backdrop-blur-2xl"> <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8"> <div class="flex min-w-0 items-center gap-3"> <a href="/" title="Liu" class="shrink-0 rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] p-2 text-[color:var(--theme-text-primary)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] active:scale-95"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5.5 9.5V21h13V9.5"></path><path d="M9.5 21v-6h5v6"></path></svg> </a> <div class="min-w-0"> <h1 class="truncate text-lg font-bold leading-tight text-[color:var(--theme-text-primary)] sm:text-[1.1rem]"> <a href="/" class="text-inherit transition-colors hover:text-[color:var(--theme-accent-hover)]"> Liu </a> </h1> </div> </div> <div class="hidden min-w-0 flex-1 lg:block"></div> <div class="hidden items-center gap-2 lg:flex"> <a href="/books" title="Books" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22z"></path><path d="M5 4.5V22"></path><path d="M8.5 7.5h7"></path><path d="M8.5 11h7"></path></svg> </a><a href="/notes" title="Notes" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7"></path><path d="M8.5 12h7"></path><path d="M8.5 16h5"></path></svg> </a><a href="/notes/graph" title="Graph" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg> </a> <div class="relative" id="series-dropdown-root"> <a href="/notes/series" title="Series" id="series-dropdown-trigger" data-dropdown-trigger class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg> </a> <div id="series-dropdown-panel" data-dropdown-url="/series-list.json" data-empty-text="暂无系列" data-error-text="加载失败" class="absolute right-0 top-full z-50 mt-1 hidden max-h-[70vh] min-w-[12rem] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] py-2 shadow-lg" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-[color:var(--theme-text-faint)]">加载中…</span> </div> <div class="mt-1 border-t border-[color:var(--theme-border-subtle)] pt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> 查看全部系列 →
+</a> </div> </div> </div> <script type="module">document.addEventListener("click",t=>{const e=t.target;!(e instanceof HTMLElement)||!e.closest("[data-dropdown-trigger]")||t.preventDefault()});</script><div class="relative" id="tags-dropdown-root"> <a href="/notes/tags" title="Tags" id="tags-dropdown-trigger" data-dropdown-trigger class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14v17L12 17l-7 3V3z"></path></svg> </a> <div id="tags-dropdown-panel" data-dropdown-url="/tag-list.json" data-empty-text="暂无标签" data-error-text="加载失败" class="absolute right-0 top-full z-50 mt-1 hidden max-h-[70vh] min-w-[12rem] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] py-2 shadow-lg" role="menu"> <div id="tags-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-[color:var(--theme-text-faint)]">加载中…</span> </div> <div class="mt-1 border-t border-[color:var(--theme-border-subtle)] pt-1"> <a href="/notes/tags" class="block px-3 py-2 text-sm text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> 查看全部标签 →
+</a> </div> </div> </div>  <a href="https://github.com/gh-liu" title="GitHub" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg> </a> <div class="search-container" id="search-wrapper" data-pagefind-url="/pagefind/pagefind.js" data-astro-cid-35jtkoll><button id="search-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-35jtkoll><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-35jtkoll><circle cx="11" cy="11" r="8" data-astro-cid-35jtkoll></circle><path d="m21 21-4.35-4.35" data-astro-cid-35jtkoll></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-35jtkoll><div class="w-full max-w-2xl animate-fade-in overflow-hidden rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl max-h-[70vh] flex flex-col" data-astro-cid-35jtkoll><div class="border-b border-[color:var(--theme-border-subtle)] p-4" data-astro-cid-35jtkoll><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full rounded bg-[color:var(--theme-bg-panel-hover)] px-4 py-2 text-[color:var(--theme-text-primary)] placeholder-[color:var(--theme-text-faint)] focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-35jtkoll></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-35jtkoll><p class="text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll>Type to search...</p></div><div class="border-t border-[color:var(--theme-border-subtle)] p-3 text-xs text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll><p data-astro-cid-35jtkoll>Press <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>Esc</kbd> to close | Use <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>#tag</kbd> to search by tag</p></div></div></div></div> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] group relative"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="hidden h-4 w-4 text-nord-13 dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="block h-4 w-4 text-nord-9 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script type="module" src="/_astro/ThemeToggle.astro_astro_type_script_index_0_lang.oLaqEd7_.js"></script> </div> <div class="flex items-center gap-1.5 shrink-0 lg:hidden"> <a href="https://github.com/gh-liu" title="GitHub" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg> </a> <div class="search-container" id="search-wrapper" data-pagefind-url="/pagefind/pagefind.js" data-astro-cid-35jtkoll><button id="search-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-35jtkoll><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-35jtkoll><circle cx="11" cy="11" r="8" data-astro-cid-35jtkoll></circle><path d="m21 21-4.35-4.35" data-astro-cid-35jtkoll></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-35jtkoll><div class="w-full max-w-2xl animate-fade-in overflow-hidden rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl max-h-[70vh] flex flex-col" data-astro-cid-35jtkoll><div class="border-b border-[color:var(--theme-border-subtle)] p-4" data-astro-cid-35jtkoll><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full rounded bg-[color:var(--theme-bg-panel-hover)] px-4 py-2 text-[color:var(--theme-text-primary)] placeholder-[color:var(--theme-text-faint)] focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-35jtkoll></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-35jtkoll><p class="text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll>Type to search...</p></div><div class="border-t border-[color:var(--theme-border-subtle)] p-3 text-xs text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll><p data-astro-cid-35jtkoll>Press <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>Esc</kbd> to close | Use <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>#tag</kbd> to search by tag</p></div></div></div></div> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] group relative"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="hidden h-4 w-4 text-nord-13 dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="block h-4 w-4 text-nord-9 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button>  </div> </nav> <div class="border-t border-[color:var(--theme-border-subtle)]/90 px-4 py-2.5 sm:px-6 lg:hidden"> <div class="mx-auto flex max-w-6xl gap-2 overflow-x-auto pb-1"> <a href="/books" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22z"></path><path d="M5 4.5V22"></path><path d="M8.5 7.5h7"></path><path d="M8.5 11h7"></path></svg> Books </a><a href="/notes" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7"></path><path d="M8.5 12h7"></path><path d="M8.5 16h5"></path></svg> Notes </a><a href="/notes/graph" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg> Graph </a> <a href="/notes/series" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg> Series </a><a href="/notes/tags" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14v17L12 17l-7 3V3z"></path></svg> Tags </a> </div> </div> </header> <main class="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8" data-pagefind-body="true" id="main-content">  <div class="contents" data-astro-cid-ujbpqdc7> <aside class="hidden xl:block" data-astro-cid-ujbpqdc7> <div class="fixed right-6 top-28 w-56 2xl:right-10 2xl:w-64" data-astro-cid-ujbpqdc7> <div class="toc-scroll max-h-[min(60vh,calc(100vh-10rem))] overflow-y-auto rounded-[1.5rem] border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel-strong)] px-2 py-2 shadow-[var(--shadow-soft)] backdrop-blur-xl" data-astro-cid-ujbpqdc7> <div class="mb-2 px-1" data-astro-cid-ujbpqdc7> <p class="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--theme-text-muted)]" data-astro-cid-ujbpqdc7>On this page</p> </div> <nav aria-label="Table of contents" data-astro-cid-ujbpqdc7> <ul class="space-y-0.5 text-[0.8rem] leading-4" data-astro-cid-ujbpqdc7> <li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#gossip" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] font-medium text-[color:var(--theme-text-primary)]" title="1 · Gossip#" data-toc-link data-depth="1" data-target="gossip" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1 · Gossip#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#1" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.1 · 1. 核心直觉#" data-toc-link data-depth="2" data-target="1" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.1 · 1. 核心直觉#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#2" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.2 · 2. 基本工作方式#" data-toc-link data-depth="2" data-target="2" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.2 · 2. 基本工作方式#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#3" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.3 · 3. 为什么它扩散得快#" data-toc-link data-depth="2" data-target="3" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.3 · 3. 为什么它扩散得快#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#4-gossip" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.4 · 4. Gossip 适合传播什么#" data-toc-link data-depth="2" data-target="4-gossip" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.4 · 4. Gossip 适合传播什么#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#5" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.5 · 5. 它解决的是传播，不是冲突#" data-toc-link data-depth="2" data-target="5" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.5 · 5. 它解决的是传播，不是冲突#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#6" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6 · 6. 常见变体#" data-toc-link data-depth="2" data-target="6" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6 · 6. 常见变体#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#1-rumor-mongering" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.1 · 1. Rumor Mongering#" data-toc-link data-depth="3" data-target="1-rumor-mongering" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.1 · 1. Rumor Mongering#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#2-anti-entropy" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.2 · 2. Anti-Entropy#" data-toc-link data-depth="3" data-target="2-anti-entropy" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.2 · 2. Anti-Entropy#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#7" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.7 · 7. 典型工程参数#" data-toc-link data-depth="2" data-target="7" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.7 · 7. 典型工程参数#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#8" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.8 · 8. 优点#" data-toc-link data-depth="2" data-target="8" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.8 · 8. 优点#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#9" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.9 · 9. 缺点#" data-toc-link data-depth="2" data-target="9" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.9 · 9. 缺点#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#10-gossip-vs-broadcast-vs-raft" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.10 · 10. Gossip vs Broadcast vs Raft#" data-toc-link data-depth="2" data-target="10-gossip-vs-broadcast-vs-raft" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.10 · 10. Gossip vs Broadcast vs Raft#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#11-gossip-crdt" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.11 · 11. Gossip 和 CRDT 的关系#" data-toc-link data-depth="2" data-target="11-gossip-crdt" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.11 · 11. Gossip 和 CRDT 的关系#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#12" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.12 · 12. 常见应用场景#" data-toc-link data-depth="2" data-target="12" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.12 · 12. 常见应用场景#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#13-swimgossip" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13 · 13. SWIM：Gossip 的成员管理实现#" data-toc-link data-depth="2" data-target="13-swimgossip" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13 · 13. SWIM：Gossip 的成员管理实现#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#1-swim" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13.1 · 1. SWIM 解决什么问题#" data-toc-link data-depth="3" data-target="1-swim" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13.1 · 1. SWIM 解决什么问题#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#2-swim" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13.2 · 2. SWIM 的两个核心组件#" data-toc-link data-depth="3" data-target="2-swim" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13.2 · 2. SWIM 的两个核心组件#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#3-suspect" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13.3 · 3. Suspect 机制为什么重要#" data-toc-link data-depth="3" data-target="3-suspect" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13.3 · 3. Suspect 机制为什么重要#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#4-swim-gossip" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13.4 · 4. SWIM 和纯 Gossip 的区别#" data-toc-link data-depth="3" data-target="4-swim-gossip" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13.4 · 4. SWIM 和纯 Gossip 的区别#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#5-swim" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13.5 · 5. 为什么 SWIM 可扩展#" data-toc-link data-depth="3" data-target="5-swim" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13.5 · 5. 为什么 SWIM 可扩展#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#6-swim" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13.6 · 6. SWIM 的代价#" data-toc-link data-depth="3" data-target="6-swim" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13.6 · 6. SWIM 的代价#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#7" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13.7 · 7. 工程上的典型落点#" data-toc-link data-depth="3" data-target="7" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13.7 · 7. 工程上的典型落点#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#14" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.14 · 14. 什么时候该用，什么时候不该用#" data-toc-link data-depth="2" data-target="14" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.14 · 14. 什么时候该用，什么时候不该用#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#15" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.15 · 15. 关键判断#" data-toc-link data-depth="2" data-target="15" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.15 · 15. 关键判断#</span> </a> </li> </ul> </nav> </div> </div> </aside>  <button id="toc-toggle" class="fixed bottom-6 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-[color:var(--theme-accent)] px-4 py-2 text-sm font-medium text-white shadow-lg transition-colors hover:bg-[color:var(--theme-accent-hover)] xl:hidden" aria-label="Open table of contents" aria-controls="toc-drawer" aria-expanded="false" data-astro-cid-ujbpqdc7> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-ujbpqdc7> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-ujbpqdc7></path> </svg> <span data-astro-cid-ujbpqdc7>On this page</span> </button> <div id="toc-overlay" class="fixed inset-0 z-40 hidden bg-black/50 backdrop-blur-sm xl:hidden" data-astro-cid-ujbpqdc7></div> <aside id="toc-drawer" class="fixed inset-y-0 right-0 z-50 hidden w-[min(22rem,88vw)] flex-col border-l border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] px-4 py-5 shadow-2xl xl:hidden" data-astro-cid-ujbpqdc7> <div class="mb-4 flex items-center justify-between rounded-2xl border border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-panel)] px-3 py-3" data-astro-cid-ujbpqdc7> <div data-astro-cid-ujbpqdc7> <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--theme-accent)]" data-astro-cid-ujbpqdc7>Table of contents</p> <p class="mt-1 text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-ujbpqdc7>Jump through the current note.</p> </div> <button id="toc-close" class="rounded-lg p-2 text-[color:var(--theme-text-primary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)]" aria-label="Close table of contents" data-astro-cid-ujbpqdc7> <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-ujbpqdc7> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-ujbpqdc7></path> </svg> </button> </div> <nav class="toc-scroll flex-1 min-h-0 max-h-[min(70vh,calc(100vh-14rem))] overflow-y-auto rounded-[1.5rem] border border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-panel)] p-1.5" aria-label="Table of contents mobile" data-astro-cid-ujbpqdc7> <ul class="space-y-0.5 text-sm leading-snug" data-astro-cid-ujbpqdc7> <li class="pl-0" data-astro-cid-ujbpqdc7> <a href="#gossip" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1 · Gossip#" data-toc-link data-depth="1" data-target="gossip" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1 · Gossip#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#1" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.1 · 1. 核心直觉#" data-toc-link data-depth="2" data-target="1" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.1 · 1. 核心直觉#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#2" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.2 · 2. 基本工作方式#" data-toc-link data-depth="2" data-target="2" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.2 · 2. 基本工作方式#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#3" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.3 · 3. 为什么它扩散得快#" data-toc-link data-depth="2" data-target="3" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.3 · 3. 为什么它扩散得快#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#4-gossip" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.4 · 4. Gossip 适合传播什么#" data-toc-link data-depth="2" data-target="4-gossip" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.4 · 4. Gossip 适合传播什么#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#5" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.5 · 5. 它解决的是传播，不是冲突#" data-toc-link data-depth="2" data-target="5" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.5 · 5. 它解决的是传播，不是冲突#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#6" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6 · 6. 常见变体#" data-toc-link data-depth="2" data-target="6" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6 · 6. 常见变体#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#1-rumor-mongering" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.1 · 1. Rumor Mongering#" data-toc-link data-depth="3" data-target="1-rumor-mongering" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.1 · 1. Rumor Mongering#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#2-anti-entropy" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.6.2 · 2. Anti-Entropy#" data-toc-link data-depth="3" data-target="2-anti-entropy" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.6.2 · 2. Anti-Entropy#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#7" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.7 · 7. 典型工程参数#" data-toc-link data-depth="2" data-target="7" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.7 · 7. 典型工程参数#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#8" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.8 · 8. 优点#" data-toc-link data-depth="2" data-target="8" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.8 · 8. 优点#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#9" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.9 · 9. 缺点#" data-toc-link data-depth="2" data-target="9" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.9 · 9. 缺点#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#10-gossip-vs-broadcast-vs-raft" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.10 · 10. Gossip vs Broadcast vs Raft#" data-toc-link data-depth="2" data-target="10-gossip-vs-broadcast-vs-raft" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.10 · 10. Gossip vs Broadcast vs Raft#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#11-gossip-crdt" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.11 · 11. Gossip 和 CRDT 的关系#" data-toc-link data-depth="2" data-target="11-gossip-crdt" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.11 · 11. Gossip 和 CRDT 的关系#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#12" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.12 · 12. 常见应用场景#" data-toc-link data-depth="2" data-target="12" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.12 · 12. 常见应用场景#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#13-swimgossip" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13 · 13. SWIM：Gossip 的成员管理实现#" data-toc-link data-depth="2" data-target="13-swimgossip" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13 · 13. SWIM：Gossip 的成员管理实现#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#1-swim" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13.1 · 1. SWIM 解决什么问题#" data-toc-link data-depth="3" data-target="1-swim" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13.1 · 1. SWIM 解决什么问题#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#2-swim" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13.2 · 2. SWIM 的两个核心组件#" data-toc-link data-depth="3" data-target="2-swim" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13.2 · 2. SWIM 的两个核心组件#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#3-suspect" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13.3 · 3. Suspect 机制为什么重要#" data-toc-link data-depth="3" data-target="3-suspect" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13.3 · 3. Suspect 机制为什么重要#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#4-swim-gossip" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13.4 · 4. SWIM 和纯 Gossip 的区别#" data-toc-link data-depth="3" data-target="4-swim-gossip" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13.4 · 4. SWIM 和纯 Gossip 的区别#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#5-swim" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13.5 · 5. 为什么 SWIM 可扩展#" data-toc-link data-depth="3" data-target="5-swim" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13.5 · 5. 为什么 SWIM 可扩展#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#6-swim" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13.6 · 6. SWIM 的代价#" data-toc-link data-depth="3" data-target="6-swim" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13.6 · 6. SWIM 的代价#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#7" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.13.7 · 7. 工程上的典型落点#" data-toc-link data-depth="3" data-target="7" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.13.7 · 7. 工程上的典型落点#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#14" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.14 · 14. 什么时候该用，什么时候不该用#" data-toc-link data-depth="2" data-target="14" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.14 · 14. 什么时候该用，什么时候不该用#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#15" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="1.15 · 15. 关键判断#" data-toc-link data-depth="2" data-target="15" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>1.15 · 15. 关键判断#</span> </a> </li> </ul> </nav> </aside>  </div> <script>
+  const drawer = document.getElementById('toc-drawer');
+  const overlay = document.getElementById('toc-overlay');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+  const tocLinks = Array.from(document.querySelectorAll('[data-toc-link]'));
+  const observedHeadings = Array.from(document.querySelectorAll('h1[id], h2[id], h3[id]'));
+
+  function setDrawerOpen(open) {
+    if (!drawer || !overlay || !toggle) return;
+    drawer.classList.toggle('hidden', !open);
+    drawer.classList.toggle('flex', open);
+    overlay.classList.toggle('hidden', !open);
+    document.body.classList.toggle('overflow-hidden', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+  }
+
+  if (toggle) {
+    toggle.addEventListener('click', () => setDrawerOpen(!(toggle.getAttribute('aria-expanded') === 'true')));
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeDrawer);
+  }
+
+  if (overlay) {
+    overlay.addEventListener('click', closeDrawer);
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeDrawer();
+  });
+
+  function setActiveHeading(id) {
+      tocLinks.forEach((link) => {
+      const isActive = link.getAttribute('data-target') === id;
+      const marker = link.querySelector('[data-toc-marker]');
+      link.classList.toggle('text-[color:var(--theme-accent-hover)]', isActive);
+      link.classList.toggle('font-semibold', isActive);
+      link.classList.toggle('bg-[color:var(--theme-accent-soft)]', isActive);
+      link.classList.toggle('translate-x-0.5', isActive);
+      if (marker) marker.classList.toggle('hidden', !isActive);
+      link.setAttribute('aria-current', isActive ? 'true' : 'false');
+    });
+  }
+
+  if (observedHeadings.length > 0) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+      let topmost = null;
+      let topmostOffset = Infinity;
+
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const rect = entry.target.getBoundingClientRect();
+          if (rect.top >= 0 && rect.top < topmostOffset) {
+            topmostOffset = rect.top;
+            topmost = entry.target;
+          }
+        }
+      });
+
+      if (topmost && topmost.id) {
+        setActiveHeading(topmost.id);
+      }
+      },
+      { rootMargin: '-12% 0px -68% 0px' }
+    );
+
+    observedHeadings.forEach((heading) => observer.observe(heading));
+    setActiveHeading(observedHeadings[0].id);
+  }
+
+  tocLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth < 1280) closeDrawer();
+    });
+  });
+</script>  <div class="mx-auto min-w-0 max-w-3xl" data-astro-cid-o5gmpz7g> <article class="prose prose-nord dark:prose-nord max-w-none prose-headings:font-serif prose-code:before:content-none prose-code:after:content-none" data-astro-cid-o5gmpz7g> <header class="mb-8 rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel-strong)] px-5 py-5 shadow-card sm:px-6 dark:shadow-[0_16px_36px_rgba(15,23,42,0.18)]" data-astro-cid-o5gmpz7g> <h1 class="mb-4 text-[color:var(--theme-text-primary)]" data-pagefind-meta="title" data-astro-cid-o5gmpz7g>Gossip</h1> <div class="flex flex-col gap-3" data-astro-cid-o5gmpz7g> <div class="min-w-0 text-[color:var(--theme-text-muted)]" data-astro-cid-o5gmpz7g> <div class="flex flex-wrap items-center gap-x-2 gap-y-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded font-medium bg-[color:var(--theme-badge-created-bg)] text-[color:var(--theme-badge-created-text)]">  <span>📅</span> <span>2026-04-09</span>  </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded font-medium bg-[color:var(--theme-badge-updated-bg)] text-[color:var(--theme-badge-updated-text)]">  <span>✏️</span> <span>2026-04-09</span>  </span>  <a href="/notes/tags/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a> </div> </div> <div class="header-actions-row flex flex-wrap items-center justify-end gap-2 pt-1" data-astro-cid-o5gmpz7g> <div class="flex flex-wrap items-center justify-end gap-2" data-astro-cid-o5gmpz7g> <div class="flex items-center gap-1">  <!-- Outlinks --><button type="button" data-modal-id="outlinks-modal" class="open-list-modal flex items-center gap-2 rounded px-3 py-1 text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="Links to 2 note(s)"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M13 7l5 5m0 0l-5 5m5-5H6"></path> </svg> <span class="font-medium">2 links</span> </button><!-- Backlinks --><!-- No links message --><!-- Modals --><div id="outlinks-modal" data-modal-root class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-xl"> <!-- Header --> <div class="sticky top-0 flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-elevated)] px-6 py-4"> <h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]"> Outlinks <span class="ml-2 text-sm font-normal text-[color:var(--theme-text-muted)]">
+(2)
+</span> </h2> <button data-modal-close class="close-modal rounded p-1 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <ul class="space-y-2"> <li> <a href="/notes/1775529615-EMLN" class="block rounded p-3 text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <div class="font-medium">CRDT</div> <div class="mt-1 break-all text-xs text-[color:var(--theme-text-muted)]"> /notes/1775529615-EMLN </div> </a> </li><li> <a href="/notes/1770123038-ZSEZ" class="block rounded p-3 text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <div class="font-medium">raft</div> <div class="mt-1 break-all text-xs text-[color:var(--theme-text-muted)]"> /notes/1770123038-ZSEZ </div> </a> </li> </ul> </div> </div> </div><div id="backlinks-modal" data-modal-root class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-xl"> <!-- Header --> <div class="sticky top-0 flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-elevated)] px-6 py-4"> <h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]"> Backlinks <span class="ml-2 text-sm font-normal text-[color:var(--theme-text-muted)]">
+(0)
+</span> </h2> <button data-modal-close class="close-modal rounded p-1 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="py-8 text-center text-[color:var(--theme-text-muted)]">
+No backlinks found
+</p> </div> </div> </div> </div> <button id="kg-trigger-1775735638-HQAD" type="button" title="View knowledge graph" class="inline-flex rounded-lg p-2 text-[color:var(--theme-text-primary)] transition-all duration-300 ease-out hover:scale-110 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent)] hover:shadow-md active:scale-95" aria-label="Open knowledge graph"><svg class="w-4 h-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg></button><div id="kg-backdrop-1775735638-HQAD" class="fixed inset-0 bg-black/40 hidden z-40 backdrop-blur-sm" aria-hidden="true"></div><div id="kg-modal-1775735638-HQAD" class="fixed inset-0 flex items-center justify-center hidden z-50 p-4"><div class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl"><div class="flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] px-6 py-4"><h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]">Local Knowledge Graph</h2><button data-local-graph-close type="button" class="rounded-lg p-1.5 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close knowledge graph"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div class="flex-1 overflow-hidden"><div id="local-graph-1775735638-HQAD" style="height: 100%;" class="knowledge-graph-container" data-astro-cid-zjb43jqo> <div class="knowledge-graph-wrapper" data-astro-cid-zjb43jqo> <svg id="local-graph-1775735638-HQAD-svg" style="width: 100%; height: 100%;" data-astro-cid-zjb43jqo></svg> </div> </div>  <script>(function(){const containerId = "local-graph-1775735638-HQAD";
+const nodeRadius = 4;
+const showLabels = true;
+const enableZoom = true;
+const enableDrag = true;
+const dataJson = "{\"nodes\":[{\"id\":\"1775735638-HQAD\",\"urlId\":\"1775735638-HQAD\",\"label\":\"Gossip\",\"title\":\"Gossip\",\"group\":\"default\",\"nodeType\":\"current\"},{\"id\":\"1775529615-EMLN\",\"urlId\":\"1775529615-EMLN\",\"label\":\"CRDT\",\"title\":\"CRDT\",\"group\":\"default\",\"nodeType\":\"outlink\"},{\"id\":\"1770123038-ZSEZ\",\"urlId\":\"1770123038-ZSEZ\",\"label\":\"raft\",\"title\":\"raft\",\"group\":\"default\",\"nodeType\":\"outlink\"},{\"id\":\"1775788521-CNQE\",\"urlId\":\"1775788521-CNQE\",\"label\":\"mit6.824\",\"title\":\"mit6.824\",\"group\":\"default\",\"nodeType\":\"neighbor\"},{\"id\":\"1775094302-RCVU\",\"urlId\":\"1775094302-RCVU\",\"label\":\"分布式系统\",\"title\":\"分布式系统\",\"group\":\"default\",\"nodeType\":\"neighbor\"}],\"links\":[{\"source\":\"1775735638-HQAD\",\"target\":\"1775529615-EMLN\"},{\"source\":\"1775735638-HQAD\",\"target\":\"1770123038-ZSEZ\"},{\"source\":\"1775788521-CNQE\",\"target\":\"1775094302-RCVU\"},{\"source\":\"1775788521-CNQE\",\"target\":\"1770123038-ZSEZ\"},{\"source\":\"1775094302-RCVU\",\"target\":\"1770123038-ZSEZ\"}]}";
+
+  (window.__KNOWLEDGE_GRAPH_QUEUE__ = window.__KNOWLEDGE_GRAPH_QUEUE__ || []).push({
+    containerId,
+    dataJson,
+    nodeRadius,
+    showLabels,
+    enableZoom,
+    enableDrag,
+  });
+})();</script></div></div></div><script>
+        (() => {
+          const scriptEl = document.currentScript;
+          const modal = scriptEl?.previousElementSibling;
+          const backdrop = modal?.previousElementSibling;
+          const triggerBtn = backdrop?.previousElementSibling;
+          const closeBtn = modal?.querySelector('[data-local-graph-close]');
+
+          if (!triggerBtn || !modal || !backdrop || !closeBtn) return;
+
+          function openModal() {
+            modal.classList.remove('hidden');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+          }
+
+          function closeModal() {
+            modal.classList.add('hidden');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+          }
+
+          triggerBtn.addEventListener('click', openModal);
+          closeBtn.addEventListener('click', closeModal);
+          backdrop.addEventListener('click', closeModal);
+
+          document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+              closeModal();
+            }
+          });
+        })();
+      </script> </div> </div> </div> </header> <div class="note-content" data-astro-cid-o5gmpz7g>     <h1 id="gossip">1 · Gossip<a href="#gossip" class="heading-anchor" data-heading-link="" aria-label="Link to section gossip">#</a></h1>
+<blockquote>
+<p>流言式广播 / epidemic protocol</p>
+</blockquote>
+<blockquote>
+<p>不是一次把消息发给所有节点，而是每个节点随机告诉少数几个节点，让信息像传八卦一样在集群里快速扩散</p>
+</blockquote>
+<p>S 集群很大、节点动态上下线、网络不稳定，要求元数据、成员信息、状态变更能低成本扩散到所有节点
+C 如果每次变更都要求中心节点、全量广播或强一致同步，成本高、扩展性差，而且单点明显；但完全不传播又会导致各节点视图长期分裂
+Q 有没有一种不依赖中心、容忍丢包和乱序、可以在大规模集群里把信息快速传播开的机制？
+A Gossip。每个节点周期性随机选择少量邻居交换状态，让信息以概率方式扩散到整个系统；它牺牲瞬时一致性，换来高可用、低协调成本和良好的扩展性，最终通过不断传播实现 eventual consistency</p>
+<hr>
+<h2 id="1">1.1 · 1. 核心直觉<a href="#1" class="heading-anchor" data-heading-link="" aria-label="Link to section 1">#</a></h2>
+<p>Gossip 的本质不是”广播”，而是<strong>受控扩散</strong>：</p>
+<ul>
+<li>每个节点只和少量节点通信，而不是和所有节点通信</li>
+<li>每轮传播只扩散一小步，但多轮之后覆盖整个集群</li>
+<li>不要求某次传播必达，允许重复、乱序、延迟</li>
+<li>靠冗余传播和周期性交换，让信息最终被大家都知道</li>
+</ul>
+<p>这和人类社会里”传八卦”很像：</p>
+<ul>
+<li>你告诉 3 个人</li>
+<li>这 3 个人再各告诉 3 个人</li>
+<li>很快整个群体都知道了</li>
+</ul>
+<p>所以它也常被叫做 <strong>epidemic protocol（流行病协议）</strong></p>
+<h2 id="2">1.2 · 2. 基本工作方式<a href="#2" class="heading-anchor" data-heading-link="" aria-label="Link to section 2">#</a></h2>
+<p>一个最简化的 Gossip 协议通常是这样：</p>
+<ol>
+<li>每个节点维护一份本地状态</li>
+<li>节点定期触发一个 gossip round</li>
+<li>每轮随机选 <code>k</code> 个其他节点</li>
+<li>把自己知道的新状态发过去，或向对方拉取状态</li>
+<li>对方合并后，在后续轮次继续向外扩散</li>
+</ol>
+<p>于是一次变更不会瞬间到达所有节点，但会在若干轮后覆盖大多数节点。</p>
+<p>常见传播模式：</p>
+<ul>
+<li><strong>Push</strong>：我把我知道的消息推给别人</li>
+<li><strong>Pull</strong>：我向别人拉取它知道的消息</li>
+<li><strong>Push-Pull</strong>：双方交换各自已知状态，实践中最常见</li>
+</ul>
+<h2 id="3">1.3 · 3. 为什么它扩散得快<a href="#3" class="heading-anchor" data-heading-link="" aria-label="Link to section 3">#</a></h2>
+<p>Gossip 的关键不是单次快，而是<strong>整体扩散速度非常高</strong>。</p>
+<p>如果每个节点每轮都再告诉几个节点，那么已知消息的节点数会接近指数增长：</p>
+<ul>
+<li>第 1 轮：1 个节点知道</li>
+<li>第 2 轮：少数节点知道</li>
+<li>第 3~5 轮：大量节点知道</li>
+<li>若干轮后：几乎全体节点知道</li>
+</ul>
+<p>因此它在大规模集群里常常只需要大约 <code>O(log N)</code> 轮就能让消息传播到绝大多数节点。</p>
+<p>注意这里是<strong>概率保证</strong>，不是强保证：</p>
+<ul>
+<li>不能保证某条消息在固定时刻所有节点都收到</li>
+<li>只能说随着轮次增加，未收到的概率越来越小</li>
+</ul>
+<h2 id="4-gossip">1.4 · 4. Gossip 适合传播什么<a href="#4-gossip" class="heading-anchor" data-heading-link="" aria-label="Link to section 4-gossip">#</a></h2>
+<p>Gossip 特别适合传播：</p>
+<ul>
+<li><strong>成员信息</strong>：谁加入了集群，谁离开了，谁疑似故障</li>
+<li><strong>节点健康状态</strong>：某节点是否 alive / suspect / dead</li>
+<li><strong>配置信息或元数据</strong>：分片位置、副本分布、版本号</li>
+<li><strong>副本状态摘要</strong>：我有哪些数据版本、你有哪些版本</li>
+<li><strong>最终一致性数据</strong>：允许延迟收敛的状态</li>
+</ul>
+<p>不适合传播：</p>
+<ul>
+<li>必须立刻全局一致的数据</li>
+<li>需要线性一致性的写入结果</li>
+<li>依赖严格顺序的命令日志</li>
+</ul>
+<p>一句话：</p>
+<blockquote>
+<p>Gossip 擅长传播”观察到的事实”，不擅长做”不可撤回的全局承诺”</p>
+</blockquote>
+<h2 id="5">1.5 · 5. 它解决的是传播，不是冲突<a href="#5" class="heading-anchor" data-heading-link="" aria-label="Link to section 5">#</a></h2>
+<p>这个点很重要：</p>
+<p><strong>Gossip 是一种传播机制，不是冲突解决机制，也不是共识协议。</strong></p>
+<p>它回答的是：</p>
+<ul>
+<li>一条信息如何扩散到全网？</li>
+</ul>
+<p>它不回答的是：</p>
+<ul>
+<li>两个节点同时写了冲突值怎么办？</li>
+<li>哪个值才是全局唯一正确值？</li>
+<li>所有人何时可以承诺这个结果不可回退？</li>
+</ul>
+<p>所以 Gossip 往往要和别的机制配合：</p>
+<ul>
+<li>和 <strong>版本向量 / 时间戳</strong> 配合，用来判断新旧</li>
+<li>和 <a href="/notes/1775529615-EMLN">CRDT</a> 配合，用来自动合并并发更新</li>
+<li>和 <strong>故障检测协议</strong> 配合，用来传播 suspect / alive / dead</li>
+<li>和 <strong>Anti-Entropy</strong> 配合，用来做周期性状态修复</li>
+</ul>
+<h2 id="6">1.6 · 6. 常见变体<a href="#6" class="heading-anchor" data-heading-link="" aria-label="Link to section 6">#</a></h2>
+<h3 id="1-rumor-mongering">1.6.1 · 1. Rumor Mongering<a href="#1-rumor-mongering" class="heading-anchor" data-heading-link="" aria-label="Link to section 1-rumor-mongering">#</a></h3>
+<p>更像”传闻传播”：</p>
+<ul>
+<li>某节点拿到一条新消息后，主动向随机节点转发</li>
+<li>一条消息会被传播若干轮，直到大家大致都知道</li>
+</ul>
+<p>适合传播离散事件，例如：</p>
+<ul>
+<li>某节点上线</li>
+<li>某节点下线</li>
+<li>某个配置变更</li>
+</ul>
+<h3 id="2-anti-entropy">1.6.2 · 2. Anti-Entropy<a href="#2-anti-entropy" class="heading-anchor" data-heading-link="" aria-label="Link to section 2-anti-entropy">#</a></h3>
+<p>更像”对账同步”：</p>
+<ul>
+<li>节点定期互相比较状态摘要</li>
+<li>如果发现彼此不同，就补齐差异</li>
+</ul>
+<p>适合传播持续变化的数据状态，而不只是某条瞬时事件。</p>
+<p>Rumor Mongering 重在”快扩散”
+Anti-Entropy 重在”最终修复”</p>
+<p>很多系统两者一起用：</p>
+<ul>
+<li>新消息先靠 rumor 快速扩散</li>
+<li>后续再靠 anti-entropy 慢慢补漏和收敛</li>
+</ul>
+<h2 id="7">1.7 · 7. 典型工程参数<a href="#7" class="heading-anchor" data-heading-link="" aria-label="Link to section 7">#</a></h2>
+<p>实现 Gossip 时通常会调这些参数：</p>
+<ul>
+<li><strong>gossip interval</strong>：多久发起一轮传播</li>
+<li><strong>fanout</strong>：每轮联系多少个节点</li>
+<li><strong>message age / ttl</strong>：一条消息最多传多少轮</li>
+<li><strong>payload</strong>：一轮带多少条状态</li>
+<li><strong>suspicion timeout</strong>：怀疑某节点故障后，多久升级为 dead</li>
+</ul>
+<p>这些参数本质上是在平衡：</p>
+<ul>
+<li>扩散速度</li>
+<li>网络带宽</li>
+<li>CPU 开销</li>
+<li>收敛时间</li>
+<li>误判概率</li>
+</ul>
+<p>fanout 越大、间隔越短，传播越快，但资源消耗越高。</p>
+<h2 id="8">1.8 · 8. 优点<a href="#8" class="heading-anchor" data-heading-link="" aria-label="Link to section 8">#</a></h2>
+<ul>
+<li><strong>高度可扩展</strong>：不需要中心节点，不需要全量广播</li>
+<li><strong>容错性好</strong>：消息丢失、重复、乱序通常都能容忍</li>
+<li><strong>负载均匀</strong>：通信压力分散在所有节点上</li>
+<li><strong>实现简单</strong>：协议核心往往不复杂</li>
+<li><strong>适合动态集群</strong>：节点频繁加入、退出、重启也能工作</li>
+<li><strong>最终一致性友好</strong>：很适合作为副本同步的传播层</li>
+</ul>
+<h2 id="9">1.9 · 9. 缺点<a href="#9" class="heading-anchor" data-heading-link="" aria-label="Link to section 9">#</a></h2>
+<ul>
+<li><strong>不能提供强一致性</strong>：传播快不等于全局一致</li>
+<li><strong>传播结果是概率性的</strong>：只能说大概率很快到达</li>
+<li><strong>短时间内视图不一致</strong>：不同节点看到的集群状态可能不同</li>
+<li><strong>故障检测可能误判</strong>：网络抖动时容易把慢节点当故障节点</li>
+<li><strong>调参敏感</strong>：interval、fanout、timeout 不合理会影响效果</li>
+<li><strong>全局确定性差</strong>：很难给出”某时刻所有节点都知道”的强保证</li>
+</ul>
+<h2 id="10-gossip-vs-broadcast-vs-raft">1.10 · 10. Gossip vs Broadcast vs Raft<a href="#10-gossip-vs-broadcast-vs-raft" class="heading-anchor" data-heading-link="" aria-label="Link to section 10-gossip-vs-broadcast-vs-raft">#</a></h2>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>协议/机制</th><th>目标</th><th>保证</th><th>成本</th></tr></thead><tbody><tr><td>Gossip</td><td>让信息扩散到全网</td><td>概率收敛、最终一致</td><td>低</td></tr><tr><td>全量广播</td><td>一次发给所有节点</td><td>取决于底层网络</td><td>高</td></tr><tr><td>[[1770123038-ZSEZ</td><td>Raft]] / Paxos</td><td>对某个值/日志达成共识</td><td>强一致、可提交</td></tr></tbody></table>
+<p>可以这样理解：</p>
+<ul>
+<li><strong>Broadcast</strong>：我现在立刻通知所有人</li>
+<li><strong>Gossip</strong>：我告诉几个人，让它自己传开</li>
+<li><strong>Raft</strong>：不是先传播，而是先达成一个不能反悔的决定</li>
+</ul>
+<p>所以 Gossip 和 Raft 不是同类东西：</p>
+<ul>
+<li>Gossip 解决 dissemination（传播）</li>
+<li><a href="/notes/1770123038-ZSEZ">Raft</a> 解决 consensus（共识）</li>
+</ul>
+<h2 id="11-gossip-crdt">1.11 · 11. Gossip 和 CRDT 的关系<a href="#11-gossip-crdt" class="heading-anchor" data-heading-link="" aria-label="Link to section 11-gossip-crdt">#</a></h2>
+<p>这是一个非常常见的组合：</p>
+<ul>
+<li><a href="/notes/1775529615-EMLN">CRDT</a> 负责”并发更新如何合并且保证收敛”</li>
+<li><strong>Gossip</strong> 负责”这些更新如何低成本传播到所有副本”</li>
+</ul>
+<p>也就是说：</p>
+<ul>
+<li>CRDT 解决的是<strong>合并语义</strong></li>
+<li>Gossip 解决的是<strong>传播路径</strong></li>
+</ul>
+<p>两者叠在一起，就很适合做高可用、低延迟、最终一致性的分布式系统。</p>
+<h2 id="12">1.12 · 12. 常见应用场景<a href="#12" class="heading-anchor" data-heading-link="" aria-label="Link to section 12">#</a></h2>
+<ul>
+<li><strong>集群成员管理</strong>：维护节点列表和健康状态</li>
+<li><strong>服务发现</strong>：节点把自己的存在和状态传播出去</li>
+<li><strong>Dynamo 风格系统</strong>：传播副本版本和成员信息</li>
+<li><strong>Cassandra / Riak 一类系统</strong>：传播节点状态和拓扑信息</li>
+<li><strong>Serf / Consul 一类系统</strong>：传播 membership 和 failure detection 结果</li>
+<li><strong>大规模缓存 / KV 集群</strong>：传播分片和副本元数据</li>
+</ul>
+<p>工程里最常见的一个判断标准：</p>
+<blockquote>
+<p>如果你的问题是”让大家尽快知道”，Gossip 常常合适；
+如果你的问题是”让大家先同意再执行”，那就是共识问题了。</p>
+</blockquote>
+<h2 id="13-swimgossip">1.13 · 13. SWIM：Gossip 的成员管理实现<a href="#13-swimgossip" class="heading-anchor" data-heading-link="" aria-label="Link to section 13-swimgossip">#</a></h2>
+<p>SWIM 全称：</p>
+<p><code>Scalable Weakly-consistent Infection-style Process Group Membership Protocol</code></p>
+<p>它可以理解为：</p>
+<ul>
+<li>Gossip 提供”消息如何扩散”</li>
+<li>SWIM 在这个基础上，专门解决”谁还活着、谁挂了、成员列表如何传播”</li>
+</ul>
+<p>也就是说，SWIM 不是泛化的 Gossip 教科书定义，而是一个非常经典、非常工程化的 <strong>membership + failure detection</strong> 协议。</p>
+<h3 id="1-swim">1.13.1 · 1. SWIM 解决什么问题<a href="#1-swim" class="heading-anchor" data-heading-link="" aria-label="Link to section 1-swim">#</a></h3>
+<p>在集群里，节点最基础的问题不是数据同步，而是：</p>
+<ul>
+<li>现在集群里有哪些节点？</li>
+<li>哪个节点还活着？</li>
+<li>某个节点是真的挂了，还是只是网络抖动？</li>
+<li>这些判断怎么低成本通知给其他节点？</li>
+</ul>
+<p>如果用朴素方案：</p>
+<ul>
+<li>每个节点心跳给所有节点：<code>O(N^2)</code>，集群一大就很贵</li>
+<li>由中心节点统一探测：简单，但容易单点</li>
+</ul>
+<p>SWIM 的思路是：</p>
+<ul>
+<li>用<strong>随机探测</strong>做 failure detection</li>
+<li>用<strong>gossip 式传播</strong> disseminate membership updates</li>
+</ul>
+<h3 id="2-swim">1.13.2 · 2. SWIM 的两个核心组件<a href="#2-swim" class="heading-anchor" data-heading-link="" aria-label="Link to section 2-swim">#</a></h3>
+<h4 id="failure-detector">1.13.2.1 · Failure Detector<a href="#failure-detector" class="heading-anchor" data-heading-link="" aria-label="Link to section failure-detector">#</a></h4>
+<p>每个节点周期性随机挑一个目标节点 <code>ping</code>：</p>
+<ul>
+<li>对方回复 <code>ack</code>，说明活着</li>
+<li>如果没回复，不立刻判死</li>
+<li>而是让若干个其他节点代为探测，这叫 <strong>indirect ping</strong></li>
+</ul>
+<p>也就是：</p>
+<ol>
+<li>A <code>ping</code> B</li>
+<li>B 没回</li>
+<li>A 请求 C、D、E 去 <code>ping</code> B</li>
+<li>如果别人能联系上 B，说明可能只是 A 到 B 的链路有问题</li>
+</ol>
+<p>这是 SWIM 很关键的点：</p>
+<blockquote>
+<p>它不是简单地”超时即死亡”，而是先做一次间接确认，降低误判。</p>
+</blockquote>
+<h4 id="dissemination-component">1.13.2.2 · Dissemination Component<a href="#dissemination-component" class="heading-anchor" data-heading-link="" aria-label="Link to section dissemination-component">#</a></h4>
+<p>一旦某节点得出某个成员事件：</p>
+<ul>
+<li><code>alive</code></li>
+<li><code>suspect</code></li>
+<li><code>dead</code></li>
+<li><code>join</code></li>
+<li><code>leave</code></li>
+</ul>
+<p>这些信息不会集中广播，而是塞进后续 gossip 消息中，逐轮传播给其他节点。</p>
+<p>所以 SWIM 其实是：</p>
+<ul>
+<li>探测层负责发现变化</li>
+<li>Gossip 层负责传播变化</li>
+</ul>
+<h3 id="3-suspect">1.13.3 · 3. Suspect 机制为什么重要<a href="#3-suspect" class="heading-anchor" data-heading-link="" aria-label="Link to section 3-suspect">#</a></h3>
+<p>SWIM 很经典的一点是引入了 <strong>suspect</strong> 状态，而不是直接从 <code>alive -> dead</code>。</p>
+<p>状态通常可以粗略理解为：</p>
+<ul>
+<li><code>alive</code>：我最近确认它还活着</li>
+<li><code>suspect</code>：我联系不到它，但还不敢立刻判死</li>
+<li><code>dead</code>：经过一段时间或更多证据后，认为它已失效</li>
+</ul>
+<p>这样做的原因是：</p>
+<ul>
+<li>网络分区</li>
+<li>短时抖动</li>
+<li>GC pause</li>
+<li>节点过载</li>
+</ul>
+<p>都可能让一个健康节点暂时不响应。</p>
+<p>如果直接判死，系统会频繁误摘节点；
+先进入 <code>suspect</code>，给它一个”自证存活”窗口，就稳很多。</p>
+<h3 id="4-swim-gossip">1.13.4 · 4. SWIM 和纯 Gossip 的区别<a href="#4-swim-gossip" class="heading-anchor" data-heading-link="" aria-label="Link to section 4-swim-gossip">#</a></h3>
+<p>纯 Gossip 更像一种传播模式：</p>
+<ul>
+<li>我有信息</li>
+<li>我随机告诉别人</li>
+<li>最终大家都知道</li>
+</ul>
+<p>但它本身不规定：</p>
+<ul>
+<li>怎么判断节点故障</li>
+<li>如何减少误判</li>
+<li>成员状态怎么编码</li>
+</ul>
+<p>SWIM 则把这套事情具体化了：</p>
+<ul>
+<li>用随机 <code>ping</code> 做主动探测</li>
+<li>用 <code>indirect ping</code> 降低误判</li>
+<li>用 <code>suspect</code> 作为中间态</li>
+<li>用 gossip 传播成员变化</li>
+</ul>
+<p>一句话：</p>
+<blockquote>
+<p>Gossip 是思想，SWIM 是一个把这套思想落到成员管理上的经典协议。</p>
+</blockquote>
+<h3 id="5-swim">1.13.5 · 5. 为什么 SWIM 可扩展<a href="#5-swim" class="heading-anchor" data-heading-link="" aria-label="Link to section 5-swim">#</a></h3>
+<p>SWIM 可扩展的关键在于：</p>
+<ul>
+<li>每轮只探测少数节点，而不是全量心跳</li>
+<li>成员变化靠增量 gossip 扩散，而不是全网广播</li>
+<li>故障检测和传播分离，职责清晰</li>
+</ul>
+<p>因此它把成员管理的成本控制在接近常数或线性摊薄，而不是让每个节点维护一张全连接心跳网。</p>
+<p>这也是它能在大规模集群里好用的根本原因。</p>
+<h3 id="6-swim">1.13.6 · 6. SWIM 的代价<a href="#6-swim" class="heading-anchor" data-heading-link="" aria-label="Link to section 6-swim">#</a></h3>
+<p>SWIM 很强，但也不是免费午餐：</p>
+<ul>
+<li><strong>弱一致</strong>：短时间内不同节点对成员列表的看法可能不同</li>
+<li><strong>误判仍可能发生</strong>：只是比简单超时心跳少很多</li>
+<li><strong>参数敏感</strong>：探测周期、suspect 超时、转发轮数都会影响效果</li>
+<li><strong>不是共识协议</strong>：它告诉你”谁可能挂了”，不是”全体正式同意它挂了”</li>
+</ul>
+<h3 id="7">1.13.7 · 7. 工程上的典型落点<a href="#7" class="heading-anchor" data-heading-link="" aria-label="Link to section 7">#</a></h3>
+<p>SWIM 常见于：</p>
+<ul>
+<li>服务发现</li>
+<li>集群成员列表维护</li>
+<li>故障节点摘除</li>
+<li>调度系统中的 worker 存活探测</li>
+<li>KV / cache / service mesh 控制面的节点健康传播</li>
+</ul>
+<p>很多工程系统不会原封不动实现论文版 SWIM，而是在它基础上加：</p>
+<ul>
+<li>更好的 suspicion 规则</li>
+<li>incarnation number</li>
+<li>更丰富的消息 piggyback</li>
+<li>与服务注册、健康检查、路由表联动</li>
+</ul>
+<p>但底层思想通常都还是 SWIM 那套。</p>
+<h2 id="14">1.14 · 14. 什么时候该用，什么时候不该用<a href="#14" class="heading-anchor" data-heading-link="" aria-label="Link to section 14">#</a></h2>
+<p>什么时候该用：</p>
+<ul>
+<li>节点很多，中心化广播成本太高</li>
+<li>可以接受短时间视图不一致</li>
+<li>主要目标是传播状态，而不是做全局裁决</li>
+<li>系统更在意可用性和扩展性，而不是瞬时一致</li>
+</ul>
+<p>什么时候不该用：</p>
+<ul>
+<li>你需要强一致读写</li>
+<li>你需要严格顺序</li>
+<li>你需要确认某个结果已经被多数派正式提交</li>
+<li>业务不允许短时间内出现不同节点看到不同结果</li>
+</ul>
+<h2 id="15">1.15 · 15. 关键判断<a href="#15" class="heading-anchor" data-heading-link="" aria-label="Link to section 15">#</a></h2>
+<p>Gossip 的价值不在于”保证正确”，而在于：</p>
+<ul>
+<li>用很低的协调成本</li>
+<li>在很大的集群规模下</li>
+<li>让信息以足够快的速度</li>
+<li>最终扩散并收敛</li>
+</ul>
+<p>所以它特别适合作为<strong>大规模分布式系统的传播底座</strong>，但不应该被误当成强一致协议。</p>
+<hr>
+<p>Ref:</p>
+<ol>
+<li><a href="https://en.wikipedia.org/wiki/Gossip_protocol">https://en.wikipedia.org/wiki/Gossip_protocol</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Epidemic_algorithm">https://en.wikipedia.org/wiki/Epidemic_algorithm</a></li>
+<li><a href="https://highscalability.com/gossip-protocol-explained/">https://highscalability.com/gossip-protocol-explained/</a></li>
+<li>SWIM: Scalable Weakly-consistent Infection-style Process Group Membership Protocol</li>
+</ol> <!-- Diagrams rendered at build time -->  </div> </article> <nav class="mt-12 border-t border-[color:var(--theme-border-subtle)] pt-8" data-astro-cid-o5gmpz7g> <a href="/notes" class="btn-primary"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>Back to Notes</a> </nav> </div>  </main> <footer class="mt-20 border-t border-[color:var(--theme-border-subtle)]"> <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-sm text-[color:var(--theme-text-muted)] sm:flex-row sm:items-end sm:justify-between sm:px-6 lg:px-8"> <div> <p class="mb-1 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--theme-text-faint)]">
+Built for connected notes
+</p> <p class="max-w-2xl text-[0.85rem] leading-6 tracking-normal text-[color:var(--theme-text-secondary)]"> Evergreen notes turn ideas into objects that you can manipulate, combine, combine. </p> </div> <div class="text-left sm:text-right"> <p class="text-[0.8125rem] font-medium tracking-normal text-[color:var(--theme-text-muted)]">
+&copy; 2026 All rights reserved.
+</p> </div> </div> </footer>  <script type="module">const r="nord-theme",m="light",t="dark";function a(){try{return localStorage.getItem(r)}catch{return null}}function s(){return window.matchMedia("(prefers-color-scheme: dark)").matches?t:"light"}function n(){return a()||s()}function o(c){const e=document.documentElement;c===t?e.classList.add("dark"):e.classList.remove("dark")}function h(){const e=n()===t?m:t;localStorage.setItem(r,e),o(e),window.dispatchEvent(new CustomEvent("theme-change",{detail:{theme:e}}))}o(n());document.addEventListener("astro:after-swap",()=>o(n()));window.toggleTheme=h;window.getTheme=n;</script> </body> </html> 

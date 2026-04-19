@@ -1,0 +1,583 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="description" content="Blog"><title>Go: Garbage Collection 垃圾回收</title><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/devicons/devicon@v2.16.0/devicon.min.css"><script>
+      // 内联阻塞脚本：在首帧渲染前同步应用主题，避免 View Transitions 页面切换时的白屏闪烁。
+      // 必须无 import、同步执行；若用 theme.ts 模块，会在新文档替换后延迟执行导致闪白。
+      (function() {
+        var theme = localStorage.getItem('nord-theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        if (theme === 'dark') document.documentElement.classList.add('dark');
+        else document.documentElement.classList.remove('dark');
+      })();
+    </script><script type="module" src="/_astro/BaseLayout.astro_astro_type_script_index_0_lang.D_jVB8Nw.js"></script><link rel="stylesheet" href="/_astro/_chapterSlug_.C1mDGA1Y.css">
+<style>.toc-scroll[data-astro-cid-ujbpqdc7]{scrollbar-width:thin;scrollbar-color:color-mix(in srgb,var(--theme-border-default) 55%,transparent) transparent}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar{width:6px}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-track{background:transparent}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-thumb{border-radius:999px;background:color-mix(in srgb,var(--theme-border-default) 52%,transparent)}.toc-scroll[data-astro-cid-ujbpqdc7]::-webkit-scrollbar-thumb:hover{background:color-mix(in srgb,var(--theme-border-default) 72%,transparent)}.toc-link__label[data-astro-cid-ujbpqdc7]{display:-webkit-box;overflow:hidden;line-height:1.45;text-wrap:pretty;word-break:break-word;-webkit-box-orient:vertical;-webkit-line-clamp:2}.toc-link[data-astro-cid-ujbpqdc7]:hover .toc-link__label[data-astro-cid-ujbpqdc7],.toc-link[data-astro-cid-ujbpqdc7]:focus-visible .toc-link__label[data-astro-cid-ujbpqdc7],.toc-link[data-astro-cid-ujbpqdc7][aria-current=true] .toc-link__label[data-astro-cid-ujbpqdc7]{-webkit-line-clamp:unset}@media(max-width:1279px){.toc-link__label[data-astro-cid-ujbpqdc7]{-webkit-line-clamp:unset}}
+.knowledge-graph-container[data-astro-cid-zjb43jqo]{border:1px solid var(--theme-border-default);border-radius:8px;background:var(--theme-bg-elevated);position:relative;overflow:hidden}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen,.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen{width:100vw;height:100vh;border-radius:0}.knowledge-graph-container[data-astro-cid-zjb43jqo]:fullscreen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo],.knowledge-graph-container[data-astro-cid-zjb43jqo]::-webkit-full-screen .knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%}.knowledge-graph-toolbar{position:absolute;top:8px;right:8px;z-index:10;display:flex;gap:4px;align-items:center}.knowledge-graph-toolbar-btn{width:32px;height:32px;padding:0;border:1px solid var(--theme-border-default);border-radius:6px;background:var(--theme-bg-panel);color:var(--theme-text-primary);font-size:16px;font-weight:600;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background .15s,color .15s}.knowledge-graph-toolbar-btn:hover{background:var(--theme-bg-panel-hover);color:var(--theme-accent-hover)}.knowledge-graph-toolbar-btn:active{background:var(--theme-bg-panel-hover)}.knowledge-graph-wrapper[data-astro-cid-zjb43jqo]{width:100%;height:100%;display:flex;align-items:center;justify-content:center}.knowledge-graph-node{cursor:pointer;stroke:var(--theme-accent);stroke-width:2.5px;transition:all .2s ease}.knowledge-graph-node:hover{stroke-width:2.5px;filter:brightness(1.2)}.knowledge-graph-node.active{stroke:var(--theme-success);stroke-width:3px;filter:drop-shadow(0 0 8px rgba(191,97,106,.5))}.knowledge-graph-node--current{stroke:var(--theme-accent-hover);stroke-width:3px;filter:drop-shadow(0 0 6px rgba(94,129,172,.6))}.knowledge-graph-node--outlink{stroke:var(--theme-success);stroke-width:2.5px}.knowledge-graph-node--backlink{stroke:var(--theme-secondary-accent);stroke-width:2.5px}.knowledge-graph-node--both{stroke:var(--theme-warning);stroke-width:2.5px}.knowledge-graph-node--neighbor{stroke:var(--theme-node-neutral);stroke-width:2px;opacity:.9}.knowledge-graph-link{stroke:var(--theme-text-faint);stroke-opacity:.85;stroke-width:2px}.knowledge-graph-link.active{stroke:var(--theme-accent);stroke-opacity:.9;stroke-width:2px}.knowledge-graph-label{pointer-events:none;font-size:11px;text-anchor:middle;fill:var(--theme-text-primary);font-weight:500;text-shadow:0 0 3px var(--theme-bg-elevated)}.knowledge-graph-tooltip{position:absolute;padding:8px 12px;background:var(--theme-tooltip-bg);border:1px solid var(--theme-border-default);border-radius:4px;font-size:12px;color:var(--theme-tooltip-text);pointer-events:none;z-index:1000;box-shadow:0 2px 8px #0000004d;white-space:nowrap}.knowledge-graph-tooltip-type{color:var(--theme-info);font-size:11px}.knowledge-graph-legend{position:absolute;bottom:8px;left:8px;z-index:10;display:flex;flex-wrap:wrap;gap:8px 12px;font-size:11px;color:var(--theme-text-primary)}.kg-legend-item{display:inline-flex;align-items:center;gap:4px}.kg-legend--current{color:var(--theme-accent-hover)}.kg-legend--outlink{color:var(--theme-success)}.kg-legend--backlink{color:var(--theme-secondary-accent)}.kg-legend--both{color:var(--theme-warning)}.kg-legend--neighbor{color:var(--theme-node-neutral);opacity:.9}
+article[data-astro-cid-o5gmpz7g]{word-break:break-word}.note-content[data-astro-cid-o5gmpz7g] h1:first-child{display:none}
+</style></head> <body class="site-shell"> <a href="#main-content" class="skip-to-content">Skip to main content</a> <header class="sticky top-0 z-30 border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-page)] backdrop-blur-2xl"> <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3 sm:px-6 lg:px-8"> <div class="flex min-w-0 items-center gap-3"> <a href="/" title="Liu" class="shrink-0 rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] p-2 text-[color:var(--theme-text-primary)] transition-all duration-200 ease-out hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] active:scale-95"> <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"></path><path d="M5.5 9.5V21h13V9.5"></path><path d="M9.5 21v-6h5v6"></path></svg> </a> <div class="min-w-0"> <h1 class="truncate text-lg font-bold leading-tight text-[color:var(--theme-text-primary)] sm:text-[1.1rem]"> <a href="/" class="text-inherit transition-colors hover:text-[color:var(--theme-accent-hover)]"> Liu </a> </h1> </div> </div> <div class="hidden min-w-0 flex-1 lg:block"></div> <div class="hidden items-center gap-2 lg:flex"> <a href="/books" title="Books" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22z"></path><path d="M5 4.5V22"></path><path d="M8.5 7.5h7"></path><path d="M8.5 11h7"></path></svg> </a><a href="/notes" title="Notes" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7"></path><path d="M8.5 12h7"></path><path d="M8.5 16h5"></path></svg> </a><a href="/notes/graph" title="Graph" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg> </a> <div class="relative" id="series-dropdown-root"> <a href="/notes/series" title="Series" id="series-dropdown-trigger" data-dropdown-trigger class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg> </a> <div id="series-dropdown-panel" data-dropdown-url="/series-list.json" data-empty-text="暂无系列" data-error-text="加载失败" class="absolute right-0 top-full z-50 mt-1 hidden max-h-[70vh] min-w-[12rem] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] py-2 shadow-lg" role="menu"> <div id="series-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-[color:var(--theme-text-faint)]">加载中…</span> </div> <div class="mt-1 border-t border-[color:var(--theme-border-subtle)] pt-1"> <a href="/notes/series" class="block px-3 py-2 text-sm text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> 查看全部系列 →
+</a> </div> </div> </div> <script type="module">document.addEventListener("click",t=>{const e=t.target;!(e instanceof HTMLElement)||!e.closest("[data-dropdown-trigger]")||t.preventDefault()});</script><div class="relative" id="tags-dropdown-root"> <a href="/notes/tags" title="Tags" id="tags-dropdown-trigger" data-dropdown-trigger class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14v17L12 17l-7 3V3z"></path></svg> </a> <div id="tags-dropdown-panel" data-dropdown-url="/tag-list.json" data-empty-text="暂无标签" data-error-text="加载失败" class="absolute right-0 top-full z-50 mt-1 hidden max-h-[70vh] min-w-[12rem] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] py-2 shadow-lg" role="menu"> <div id="tags-dropdown-list" class="py-1"> <span class="block px-3 py-2 text-xs text-[color:var(--theme-text-faint)]">加载中…</span> </div> <div class="mt-1 border-t border-[color:var(--theme-border-subtle)] pt-1"> <a href="/notes/tags" class="block px-3 py-2 text-sm text-[color:var(--theme-accent)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> 查看全部标签 →
+</a> </div> </div> </div>  <a href="https://github.com/gh-liu" title="GitHub" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg> </a> <div class="search-container" id="search-wrapper" data-pagefind-url="/pagefind/pagefind.js" data-astro-cid-35jtkoll><button id="search-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-35jtkoll><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-35jtkoll><circle cx="11" cy="11" r="8" data-astro-cid-35jtkoll></circle><path d="m21 21-4.35-4.35" data-astro-cid-35jtkoll></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-35jtkoll><div class="w-full max-w-2xl animate-fade-in overflow-hidden rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl max-h-[70vh] flex flex-col" data-astro-cid-35jtkoll><div class="border-b border-[color:var(--theme-border-subtle)] p-4" data-astro-cid-35jtkoll><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full rounded bg-[color:var(--theme-bg-panel-hover)] px-4 py-2 text-[color:var(--theme-text-primary)] placeholder-[color:var(--theme-text-faint)] focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-35jtkoll></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-35jtkoll><p class="text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll>Type to search...</p></div><div class="border-t border-[color:var(--theme-border-subtle)] p-3 text-xs text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll><p data-astro-cid-35jtkoll>Press <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>Esc</kbd> to close | Use <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>#tag</kbd> to search by tag</p></div></div></div></div> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] group relative"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="hidden h-4 w-4 text-nord-13 dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="block h-4 w-4 text-nord-9 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button> <script type="module" src="/_astro/ThemeToggle.astro_astro_type_script_index_0_lang.oLaqEd7_.js"></script> </div> <div class="flex items-center gap-1.5 shrink-0 lg:hidden"> <a href="https://github.com/gh-liu" title="GitHub" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-label="GitHub"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"></path></svg> </a> <div class="search-container" id="search-wrapper" data-pagefind-url="/pagefind/pagefind.js" data-astro-cid-35jtkoll><button id="search-toggle" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" aria-label="Search notes" title="Search (⌘K)" data-astro-cid-35jtkoll><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-35jtkoll><circle cx="11" cy="11" r="8" data-astro-cid-35jtkoll></circle><path d="m21 21-4.35-4.35" data-astro-cid-35jtkoll></path></svg></button><div id="search-modal" class="hidden fixed inset-0 z-50 bg-black bg-opacity-50 flex items-start justify-center pt-20 backdrop-blur-sm" data-astro-cid-35jtkoll><div class="w-full max-w-2xl animate-fade-in overflow-hidden rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl max-h-[70vh] flex flex-col" data-astro-cid-35jtkoll><div class="border-b border-[color:var(--theme-border-subtle)] p-4" data-astro-cid-35jtkoll><input type="search" id="search-input" placeholder="Search notes... (use #tag for tag search)" class="w-full rounded bg-[color:var(--theme-bg-panel-hover)] px-4 py-2 text-[color:var(--theme-text-primary)] placeholder-[color:var(--theme-text-faint)] focus:outline-none focus:ring-2 focus:ring-nord-9 dark:focus:ring-nord-8" autocomplete="off" data-astro-cid-35jtkoll></div><div id="search-results" class="flex-1 overflow-y-auto p-4" data-astro-cid-35jtkoll><p class="text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll>Type to search...</p></div><div class="border-t border-[color:var(--theme-border-subtle)] p-3 text-xs text-[color:var(--theme-text-muted)]" data-astro-cid-35jtkoll><p data-astro-cid-35jtkoll>Press <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>Esc</kbd> to close | Use <kbd class="rounded bg-[color:var(--theme-bg-panel-hover)] px-1 py-0.5" data-astro-cid-35jtkoll>#tag</kbd> to search by tag</p></div></div></div></div> <button id="theme-toggle" aria-label="Toggle theme" title="Toggle theme" class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] text-[color:var(--theme-text-primary)] shadow-[var(--shadow-soft)] transition-all duration-200 hover:-translate-y-0.5 hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)] group relative"> <span class="inline-block transition-transform duration-200 ease-out group-hover:rotate-12"> <svg id="sun-icon" class="hidden h-4 w-4 text-nord-13 dark:block" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <circle cx="12" cy="12" r="5"></circle> <line x1="12" y1="1" x2="12" y2="3"></line> <line x1="12" y1="21" x2="12" y2="23"></line> <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line> <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line> <line x1="1" y1="12" x2="3" y2="12"></line> <line x1="21" y1="12" x2="23" y2="12"></line> <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line> <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line> </svg> <svg id="moon-icon" class="block h-4 w-4 text-nord-9 dark:hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path> </svg> </span> </button>  </div> </nav> <div class="border-t border-[color:var(--theme-border-subtle)]/90 px-4 py-2.5 sm:px-6 lg:hidden"> <div class="mx-auto flex max-w-6xl gap-2 overflow-x-auto pb-1"> <a href="/books" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 4.5A2.5 2.5 0 0 1 7.5 2H19v18H7.5A2.5 2.5 0 0 0 5 22z"></path><path d="M5 4.5V22"></path><path d="M8.5 7.5h7"></path><path d="M8.5 11h7"></path></svg> Books </a><a href="/notes" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><rect x="5" y="3.5" width="14" height="17" rx="2"></rect><path d="M8.5 8h7"></path><path d="M8.5 12h7"></path><path d="M8.5 16h5"></path></svg> Notes </a><a href="/notes/graph" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg> Graph </a> <a href="/notes/series" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"></path></svg> Series </a><a href="/notes/tags" class="inline-flex items-center gap-2 whitespace-nowrap rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel)] px-3 py-2 text-sm font-medium text-[color:var(--theme-text-primary)] transition-colors hover:border-[color:var(--theme-accent)] hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]"> <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 3h14v17L12 17l-7 3V3z"></path></svg> Tags </a> </div> </div> </header> <main class="relative mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8" data-pagefind-body="true" id="main-content">  <div class="contents" data-astro-cid-ujbpqdc7> <aside class="hidden xl:block" data-astro-cid-ujbpqdc7> <div class="fixed right-6 top-28 w-56 2xl:right-10 2xl:w-64" data-astro-cid-ujbpqdc7> <div class="toc-scroll max-h-[min(60vh,calc(100vh-10rem))] overflow-y-auto rounded-[1.5rem] border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel-strong)] px-2 py-2 shadow-[var(--shadow-soft)] backdrop-blur-xl" data-astro-cid-ujbpqdc7> <div class="mb-2 px-1" data-astro-cid-ujbpqdc7> <p class="text-[0.65rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--theme-text-muted)]" data-astro-cid-ujbpqdc7>On this page</p> </div> <nav aria-label="Table of contents" data-astro-cid-ujbpqdc7> <ul class="space-y-0.5 text-[0.8rem] leading-4" data-astro-cid-ujbpqdc7> <li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#step-1-gc" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.1 · Step 1: 为什么需要 GC#" data-toc-link data-depth="2" data-target="step-1-gc" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.1 · Step 1: 为什么需要 GC#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#step-2-mark-and-sweep" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.2 · Step 2: Mark-and-Sweep 算法#" data-toc-link data-depth="2" data-target="step-2-mark-and-sweep" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.2 · Step 2: Mark-and-Sweep 算法#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#write-barrier" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.2.1 · Write Barrier 写屏障#" data-toc-link data-depth="3" data-target="write-barrier" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.2.1 · Write Barrier 写屏障#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#stw-safepoint" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.2.2 · STW 与 Safepoint#" data-toc-link data-depth="3" data-target="stw-safepoint" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.2.2 · STW 与 Safepoint#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#step-3-tri-color-marking" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.3 · Step 3: 三色标记（Tri-Color Marking）—— 从根对象开始扫描#" data-toc-link data-depth="2" data-target="step-3-tri-color-marking" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.3 · Step 3: 三色标记（Tri-Color Marking）—— 从根对象开始扫描#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#031--并发标记的细节" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.3.1 · 并发标记的细节" data-toc-link data-depth="3" data-target="031--并发标记的细节" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.3.1 · 并发标记的细节</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#large-object-optimization" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.3.2 · Large Object Optimization#" data-toc-link data-depth="3" data-target="large-object-optimization" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.3.2 · Large Object Optimization#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#mutator-assist" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.3.3 · Mutator Assist#" data-toc-link data-depth="3" data-target="mutator-assist" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.3.3 · Mutator Assist#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#step-4-sweep" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.4 · Step 4: 清除（Sweep）#" data-toc-link data-depth="2" data-target="step-4-sweep" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.4 · Step 4: 清除（Sweep）#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#concurrent-sweep-details" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.4.1 · Concurrent Sweep Details#" data-toc-link data-depth="3" data-target="concurrent-sweep-details" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.4.1 · Concurrent Sweep Details#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#step-5-gc-cycle" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5 · Step 5: GC Cycle 全景#" data-toc-link data-depth="2" data-target="step-5-gc-cycle" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5 · Step 5: GC Cycle 全景#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#phase-1-sweep-termination" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5.1 · Phase 1: Sweep Termination#" data-toc-link data-depth="3" data-target="phase-1-sweep-termination" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5.1 · Phase 1: Sweep Termination#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#phase-2-mark-phase" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5.2 · Phase 2: Mark Phase#" data-toc-link data-depth="3" data-target="phase-2-mark-phase" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5.2 · Phase 2: Mark Phase#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#phase-3-mark-termination" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5.3 · Phase 3: Mark Termination#" data-toc-link data-depth="3" data-target="phase-3-mark-termination" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5.3 · Phase 3: Mark Termination#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#phase-4-sweep-phase" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5.4 · Phase 4: Sweep Phase#" data-toc-link data-depth="3" data-target="phase-4-sweep-phase" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5.4 · Phase 4: Sweep Phase#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#next-cycle-trigger-gogc" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5.5 · Next Cycle Trigger (GOGC)#" data-toc-link data-depth="3" data-target="next-cycle-trigger-gogc" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5.5 · Next Cycle Trigger (GOGC)#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#pacing-algorithm" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5.6 · Pacing Algorithm#" data-toc-link data-depth="3" data-target="pacing-algorithm" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5.6 · Pacing Algorithm#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#gc-observability" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.6 · GC Observability#" data-toc-link data-depth="2" data-target="gc-observability" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.6 · GC Observability#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#gc-trace" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.6.1 · GC Trace#" data-toc-link data-depth="3" data-target="gc-trace" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.6.1 · GC Trace#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#pacing-trace" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.6.2 · Pacing Trace#" data-toc-link data-depth="3" data-target="pacing-trace" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.6.2 · Pacing Trace#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#forced-collection-helper-functions" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.7 · Forced Collection &#38; Helper Functions#" data-toc-link data-depth="2" data-target="forced-collection-helper-functions" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.7 · Forced Collection &amp; Helper Functions#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#advanced-features-cleanups-and-weak-pointers-go-124" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.8 · Advanced Features: Cleanups and Weak Pointers (Go 1.24+)#" data-toc-link data-depth="2" data-target="advanced-features-cleanups-and-weak-pointers-go-124" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.8 · Advanced Features: Cleanups and Weak Pointers (Go 1.24+)#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#runtimeaddcleanup" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.8.1 · runtime.AddCleanup#" data-toc-link data-depth="3" data-target="runtimeaddcleanup" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.8.1 · runtime.AddCleanup#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#weakpointer" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.8.2 · weak.Pointer#" data-toc-link data-depth="3" data-target="weakpointer" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.8.2 · weak.Pointer#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#combined-usage" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.8.3 · Combined Usage#" data-toc-link data-depth="3" data-target="combined-usage" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.8.3 · Combined Usage#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#caveats" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.8.4 · Caveats#" data-toc-link data-depth="3" data-target="caveats" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.8.4 · Caveats#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#guidance" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.9 · Guidance#" data-toc-link data-depth="2" data-target="guidance" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.9 · Guidance#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#references" class="toc-link group relative block rounded-lg px-2 py-1 text-[color:var(--theme-text-muted)] transition-all duration-200 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.10 · References#" data-toc-link data-depth="2" data-target="references" data-astro-cid-ujbpqdc7> <span class="absolute left-0.5 top-1/2 hidden h-4 w-1 -translate-y-1/2 rounded-full bg-[color:var(--theme-accent)]" data-toc-marker data-astro-cid-ujbpqdc7></span> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.10 · References#</span> </a> </li> </ul> </nav> </div> </div> </aside>  <button id="toc-toggle" class="fixed bottom-6 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-[color:var(--theme-accent)] px-4 py-2 text-sm font-medium text-white shadow-lg transition-colors hover:bg-[color:var(--theme-accent-hover)] xl:hidden" aria-label="Open table of contents" aria-controls="toc-drawer" aria-expanded="false" data-astro-cid-ujbpqdc7> <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-ujbpqdc7> <path d="M4 6h16M4 12h16M4 18h16" data-astro-cid-ujbpqdc7></path> </svg> <span data-astro-cid-ujbpqdc7>On this page</span> </button> <div id="toc-overlay" class="fixed inset-0 z-40 hidden bg-black/50 backdrop-blur-sm xl:hidden" data-astro-cid-ujbpqdc7></div> <aside id="toc-drawer" class="fixed inset-y-0 right-0 z-50 hidden w-[min(22rem,88vw)] flex-col border-l border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] px-4 py-5 shadow-2xl xl:hidden" data-astro-cid-ujbpqdc7> <div class="mb-4 flex items-center justify-between rounded-2xl border border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-panel)] px-3 py-3" data-astro-cid-ujbpqdc7> <div data-astro-cid-ujbpqdc7> <p class="text-xs font-semibold uppercase tracking-[0.18em] text-[color:var(--theme-accent)]" data-astro-cid-ujbpqdc7>Table of contents</p> <p class="mt-1 text-sm text-[color:var(--theme-text-muted)]" data-astro-cid-ujbpqdc7>Jump through the current note.</p> </div> <button id="toc-close" class="rounded-lg p-2 text-[color:var(--theme-text-primary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)]" aria-label="Close table of contents" data-astro-cid-ujbpqdc7> <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" data-astro-cid-ujbpqdc7> <path d="M18 6L6 18M6 6l12 12" data-astro-cid-ujbpqdc7></path> </svg> </button> </div> <nav class="toc-scroll flex-1 min-h-0 max-h-[min(70vh,calc(100vh-14rem))] overflow-y-auto rounded-[1.5rem] border border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-panel)] p-1.5" aria-label="Table of contents mobile" data-astro-cid-ujbpqdc7> <ul class="space-y-0.5 text-sm leading-snug" data-astro-cid-ujbpqdc7> <li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#step-1-gc" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.1 · Step 1: 为什么需要 GC#" data-toc-link data-depth="2" data-target="step-1-gc" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.1 · Step 1: 为什么需要 GC#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#step-2-mark-and-sweep" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.2 · Step 2: Mark-and-Sweep 算法#" data-toc-link data-depth="2" data-target="step-2-mark-and-sweep" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.2 · Step 2: Mark-and-Sweep 算法#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#write-barrier" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.2.1 · Write Barrier 写屏障#" data-toc-link data-depth="3" data-target="write-barrier" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.2.1 · Write Barrier 写屏障#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#stw-safepoint" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.2.2 · STW 与 Safepoint#" data-toc-link data-depth="3" data-target="stw-safepoint" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.2.2 · STW 与 Safepoint#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#step-3-tri-color-marking" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.3 · Step 3: 三色标记（Tri-Color Marking）—— 从根对象开始扫描#" data-toc-link data-depth="2" data-target="step-3-tri-color-marking" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.3 · Step 3: 三色标记（Tri-Color Marking）—— 从根对象开始扫描#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#031--并发标记的细节" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.3.1 · 并发标记的细节" data-toc-link data-depth="3" data-target="031--并发标记的细节" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.3.1 · 并发标记的细节</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#large-object-optimization" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.3.2 · Large Object Optimization#" data-toc-link data-depth="3" data-target="large-object-optimization" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.3.2 · Large Object Optimization#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#mutator-assist" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.3.3 · Mutator Assist#" data-toc-link data-depth="3" data-target="mutator-assist" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.3.3 · Mutator Assist#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#step-4-sweep" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.4 · Step 4: 清除（Sweep）#" data-toc-link data-depth="2" data-target="step-4-sweep" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.4 · Step 4: 清除（Sweep）#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#concurrent-sweep-details" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.4.1 · Concurrent Sweep Details#" data-toc-link data-depth="3" data-target="concurrent-sweep-details" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.4.1 · Concurrent Sweep Details#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#step-5-gc-cycle" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5 · Step 5: GC Cycle 全景#" data-toc-link data-depth="2" data-target="step-5-gc-cycle" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5 · Step 5: GC Cycle 全景#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#phase-1-sweep-termination" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5.1 · Phase 1: Sweep Termination#" data-toc-link data-depth="3" data-target="phase-1-sweep-termination" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5.1 · Phase 1: Sweep Termination#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#phase-2-mark-phase" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5.2 · Phase 2: Mark Phase#" data-toc-link data-depth="3" data-target="phase-2-mark-phase" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5.2 · Phase 2: Mark Phase#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#phase-3-mark-termination" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5.3 · Phase 3: Mark Termination#" data-toc-link data-depth="3" data-target="phase-3-mark-termination" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5.3 · Phase 3: Mark Termination#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#phase-4-sweep-phase" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5.4 · Phase 4: Sweep Phase#" data-toc-link data-depth="3" data-target="phase-4-sweep-phase" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5.4 · Phase 4: Sweep Phase#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#next-cycle-trigger-gogc" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5.5 · Next Cycle Trigger (GOGC)#" data-toc-link data-depth="3" data-target="next-cycle-trigger-gogc" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5.5 · Next Cycle Trigger (GOGC)#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#pacing-algorithm" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.5.6 · Pacing Algorithm#" data-toc-link data-depth="3" data-target="pacing-algorithm" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.5.6 · Pacing Algorithm#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#gc-observability" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.6 · GC Observability#" data-toc-link data-depth="2" data-target="gc-observability" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.6 · GC Observability#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#gc-trace" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.6.1 · GC Trace#" data-toc-link data-depth="3" data-target="gc-trace" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.6.1 · GC Trace#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#pacing-trace" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.6.2 · Pacing Trace#" data-toc-link data-depth="3" data-target="pacing-trace" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.6.2 · Pacing Trace#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#forced-collection-helper-functions" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.7 · Forced Collection &#38; Helper Functions#" data-toc-link data-depth="2" data-target="forced-collection-helper-functions" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.7 · Forced Collection &amp; Helper Functions#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#advanced-features-cleanups-and-weak-pointers-go-124" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.8 · Advanced Features: Cleanups and Weak Pointers (Go 1.24+)#" data-toc-link data-depth="2" data-target="advanced-features-cleanups-and-weak-pointers-go-124" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.8 · Advanced Features: Cleanups and Weak Pointers (Go 1.24+)#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#runtimeaddcleanup" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.8.1 · runtime.AddCleanup#" data-toc-link data-depth="3" data-target="runtimeaddcleanup" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.8.1 · runtime.AddCleanup#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#weakpointer" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.8.2 · weak.Pointer#" data-toc-link data-depth="3" data-target="weakpointer" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.8.2 · weak.Pointer#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#combined-usage" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.8.3 · Combined Usage#" data-toc-link data-depth="3" data-target="combined-usage" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.8.3 · Combined Usage#</span> </a> </li><li class="pl-4" data-astro-cid-ujbpqdc7> <a href="#caveats" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.8.4 · Caveats#" data-toc-link data-depth="3" data-target="caveats" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.8.4 · Caveats#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#guidance" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.9 · Guidance#" data-toc-link data-depth="2" data-target="guidance" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.9 · Guidance#</span> </a> </li><li class="pl-2" data-astro-cid-ujbpqdc7> <a href="#references" class="toc-link block rounded-lg px-2 py-1 text-[color:var(--theme-text-secondary)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent-hover)]" title="0.10 · References#" data-toc-link data-depth="2" data-target="references" data-astro-cid-ujbpqdc7> <span class="toc-link__label block" data-astro-cid-ujbpqdc7>0.10 · References#</span> </a> </li> </ul> </nav> </aside>  </div> <script>
+  const drawer = document.getElementById('toc-drawer');
+  const overlay = document.getElementById('toc-overlay');
+  const toggle = document.getElementById('toc-toggle');
+  const closeBtn = document.getElementById('toc-close');
+  const tocLinks = Array.from(document.querySelectorAll('[data-toc-link]'));
+  const observedHeadings = Array.from(document.querySelectorAll('h1[id], h2[id], h3[id]'));
+
+  function setDrawerOpen(open) {
+    if (!drawer || !overlay || !toggle) return;
+    drawer.classList.toggle('hidden', !open);
+    drawer.classList.toggle('flex', open);
+    overlay.classList.toggle('hidden', !open);
+    document.body.classList.toggle('overflow-hidden', open);
+    toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+  }
+
+  function closeDrawer() {
+    setDrawerOpen(false);
+  }
+
+  if (toggle) {
+    toggle.addEventListener('click', () => setDrawerOpen(!(toggle.getAttribute('aria-expanded') === 'true')));
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeDrawer);
+  }
+
+  if (overlay) {
+    overlay.addEventListener('click', closeDrawer);
+  }
+
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeDrawer();
+  });
+
+  function setActiveHeading(id) {
+      tocLinks.forEach((link) => {
+      const isActive = link.getAttribute('data-target') === id;
+      const marker = link.querySelector('[data-toc-marker]');
+      link.classList.toggle('text-[color:var(--theme-accent-hover)]', isActive);
+      link.classList.toggle('font-semibold', isActive);
+      link.classList.toggle('bg-[color:var(--theme-accent-soft)]', isActive);
+      link.classList.toggle('translate-x-0.5', isActive);
+      if (marker) marker.classList.toggle('hidden', !isActive);
+      link.setAttribute('aria-current', isActive ? 'true' : 'false');
+    });
+  }
+
+  if (observedHeadings.length > 0) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+      let topmost = null;
+      let topmostOffset = Infinity;
+
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          const rect = entry.target.getBoundingClientRect();
+          if (rect.top >= 0 && rect.top < topmostOffset) {
+            topmostOffset = rect.top;
+            topmost = entry.target;
+          }
+        }
+      });
+
+      if (topmost && topmost.id) {
+        setActiveHeading(topmost.id);
+      }
+      },
+      { rootMargin: '-12% 0px -68% 0px' }
+    );
+
+    observedHeadings.forEach((heading) => observer.observe(heading));
+    setActiveHeading(observedHeadings[0].id);
+  }
+
+  tocLinks.forEach((link) => {
+    link.addEventListener('click', () => {
+      if (window.innerWidth < 1280) closeDrawer();
+    });
+  });
+</script>  <div class="mx-auto min-w-0 max-w-3xl" data-astro-cid-o5gmpz7g> <article class="prose prose-nord dark:prose-nord max-w-none prose-headings:font-serif prose-code:before:content-none prose-code:after:content-none" data-astro-cid-o5gmpz7g> <header class="mb-8 rounded-2xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-panel-strong)] px-5 py-5 shadow-card sm:px-6 dark:shadow-[0_16px_36px_rgba(15,23,42,0.18)]" data-astro-cid-o5gmpz7g> <h1 class="mb-4 text-[color:var(--theme-text-primary)]" data-pagefind-meta="title" data-astro-cid-o5gmpz7g>Go: Garbage Collection 垃圾回收</h1> <div class="flex flex-col gap-3" data-astro-cid-o5gmpz7g> <div class="min-w-0 text-[color:var(--theme-text-muted)]" data-astro-cid-o5gmpz7g> <div class="flex flex-wrap items-center gap-x-2 gap-y-2"> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded font-medium bg-[color:var(--theme-badge-created-bg)] text-[color:var(--theme-badge-created-text)]">  <span>📅</span> <span>2026-02-10</span>  </span> <span class="inline-flex items-center gap-1 px-2.5 py-1 text-xs rounded font-medium bg-[color:var(--theme-badge-updated-bg)] text-[color:var(--theme-badge-updated-text)]">  <span>✏️</span> <span>2026-03-24</span>  </span> <a href="/notes/series/inside-go" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-green-light dark:tag-text-green-dark !no-underline hover:!no-underline" title="系列：Inside Go"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M4 6h16M4 12h16M4 18h16"></path> </svg> <span>Inside Go</span>  </a> <a href="/notes/tags/CS" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: CS"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>CS</span>  </a><a href="/notes/tags/GO" class="inline-flex items-center gap-1 px-2.5 sm:px-3 py-1.5 sm:py-1 text-xs sm:text-xs font-semibold rounded bg-nord-6 dark:bg-nord-2/60 shadow-sm dark:shadow-md transition-all duration-200 ease-out hover:shadow-md dark:hover:shadow-lg hover:translate-y-[-1px] tag-text-blue-light dark:tag-text-blue-dark !no-underline hover:!no-underline" title="Tag: GO"> <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M5 3h14v17L12 17l-7 3V3z"></path> </svg> <span>GO</span>  </a> </div> </div> <div class="header-actions-row flex flex-wrap items-center justify-end gap-2 pt-1" data-astro-cid-o5gmpz7g> <div class="flex flex-wrap items-center justify-end gap-2" data-astro-cid-o5gmpz7g> <div class="flex items-center gap-1">  <!-- Outlinks --><!-- Backlinks --><!-- No links message --><span class="italic text-[color:var(--theme-text-muted)]">No related notes</span><!-- Modals --><div id="outlinks-modal" data-modal-root class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-xl"> <!-- Header --> <div class="sticky top-0 flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-elevated)] px-6 py-4"> <h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]"> Outlinks <span class="ml-2 text-sm font-normal text-[color:var(--theme-text-muted)]">
+(0)
+</span> </h2> <button data-modal-close class="close-modal rounded p-1 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="py-8 text-center text-[color:var(--theme-text-muted)]">
+No outlinks found
+</p> </div> </div> </div><div id="backlinks-modal" data-modal-root class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"> <div class="w-full max-w-2xl max-h-[80vh] overflow-y-auto rounded-lg border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-xl"> <!-- Header --> <div class="sticky top-0 flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] bg-[color:var(--theme-bg-elevated)] px-6 py-4"> <h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]"> Backlinks <span class="ml-2 text-sm font-normal text-[color:var(--theme-text-muted)]">
+(0)
+</span> </h2> <button data-modal-close class="close-modal rounded p-1 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close modal"> <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"> <path d="M18 6L6 18M6 6l12 12"></path> </svg> </button> </div> <!-- Content --> <div class="p-6"> <p class="py-8 text-center text-[color:var(--theme-text-muted)]">
+No backlinks found
+</p> </div> </div> </div> </div> <button id="kg-trigger-1770735258-AQIZ" type="button" title="View knowledge graph" class="inline-flex rounded-lg p-2 text-[color:var(--theme-text-primary)] transition-all duration-300 ease-out hover:scale-110 hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-accent)] hover:shadow-md active:scale-95" aria-label="Open knowledge graph"><svg class="w-4 h-4" fill="currentColor" stroke="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3" fill="currentColor"></circle><circle cx="6" cy="6" r="1.5"></circle><circle cx="18" cy="6" r="1.5"></circle><circle cx="6" cy="18" r="1.5"></circle><circle cx="18" cy="18" r="1.5"></circle><circle cx="12" cy="4" r="1.5"></circle><circle cx="12" cy="20" r="1.5"></circle><circle cx="4" cy="12" r="1.5"></circle><circle cx="20" cy="12" r="1.5"></circle></svg></button><div id="kg-backdrop-1770735258-AQIZ" class="fixed inset-0 bg-black/40 hidden z-40 backdrop-blur-sm" aria-hidden="true"></div><div id="kg-modal-1770735258-AQIZ" class="fixed inset-0 flex items-center justify-center hidden z-50 p-4"><div class="flex max-h-[85vh] w-full max-w-3xl flex-col overflow-hidden rounded-xl border border-[color:var(--theme-border-default)] bg-[color:var(--theme-bg-elevated)] shadow-2xl"><div class="flex items-center justify-between border-b border-[color:var(--theme-border-subtle)] px-6 py-4"><h2 class="text-lg font-semibold text-[color:var(--theme-text-primary)]">Local Knowledge Graph</h2><button data-local-graph-close type="button" class="rounded-lg p-1.5 text-[color:var(--theme-text-muted)] transition-colors hover:bg-[color:var(--theme-bg-panel-hover)] hover:text-[color:var(--theme-text-primary)]" aria-label="Close knowledge graph"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg></button></div><div class="flex-1 overflow-hidden"><div id="local-graph-1770735258-AQIZ" style="height: 100%;" class="knowledge-graph-container" data-astro-cid-zjb43jqo> <div class="knowledge-graph-wrapper" data-astro-cid-zjb43jqo> <svg id="local-graph-1770735258-AQIZ-svg" style="width: 100%; height: 100%;" data-astro-cid-zjb43jqo></svg> </div> </div>  <script>(function(){const containerId = "local-graph-1770735258-AQIZ";
+const nodeRadius = 4;
+const showLabels = true;
+const enableZoom = true;
+const enableDrag = true;
+const dataJson = "{\"nodes\":[{\"id\":\"1770735258-AQIZ\",\"urlId\":\"1770735258-AQIZ\",\"label\":\"Go: Garbage Collection 垃圾回收\",\"title\":\"Go: Garbage Collection 垃圾回收\",\"group\":\"default\",\"nodeType\":\"current\"}],\"links\":[]}";
+
+  (window.__KNOWLEDGE_GRAPH_QUEUE__ = window.__KNOWLEDGE_GRAPH_QUEUE__ || []).push({
+    containerId,
+    dataJson,
+    nodeRadius,
+    showLabels,
+    enableZoom,
+    enableDrag,
+  });
+})();</script></div></div></div><script>
+        (() => {
+          const scriptEl = document.currentScript;
+          const modal = scriptEl?.previousElementSibling;
+          const backdrop = modal?.previousElementSibling;
+          const triggerBtn = backdrop?.previousElementSibling;
+          const closeBtn = modal?.querySelector('[data-local-graph-close]');
+
+          if (!triggerBtn || !modal || !backdrop || !closeBtn) return;
+
+          function openModal() {
+            modal.classList.remove('hidden');
+            backdrop.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+          }
+
+          function closeModal() {
+            modal.classList.add('hidden');
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = '';
+          }
+
+          triggerBtn.addEventListener('click', openModal);
+          closeBtn.addEventListener('click', closeModal);
+          backdrop.addEventListener('click', closeModal);
+
+          document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && !modal.classList.contains('hidden')) {
+              closeModal();
+            }
+          });
+        })();
+      </script> </div> </div> </div> </header> <div class="note-content" data-astro-cid-o5gmpz7g>     <h2 id="step-1-gc">0.1 · Step 1: 为什么需要 GC<a href="#step-1-gc" class="heading-anchor" data-heading-link="" aria-label="Link to section step-1-gc">#</a></h2>
+<p>Go 程序运行时，通过逃逸分析决定对象分配在栈还是堆上。栈上的对象随函数返回自动回收，但堆上的对象生命周期不确定——当没有任何引用指向它时，它就成了垃圾，需要被回收。这就是 GC 的职责。</p>
+<p><strong>Per-P allocation</strong>: Memory allocated through size-isolated regions in each P, minimizing lock contention and fragmentation</p>
+<p>Go uses concurrent tri-color mark-and-sweep garbage collection with write barriers. The collector is non-generational and non-compacting.</p>
+<h2 id="step-2-mark-and-sweep">0.2 · Step 2: Mark-and-Sweep 算法<a href="#step-2-mark-and-sweep" class="heading-anchor" data-heading-link="" aria-label="Link to section step-2-mark-and-sweep">#</a></h2>
+<p>GC 的核心思路分两步：</p>
+<ol>
+<li><strong>标记（Mark）</strong>：从根对象出发，遍历所有可达对象，标记为”存活”</li>
+<li><strong>清除（Sweep）</strong>：未被标记的对象就是垃圾，回收其内存</li>
+</ol>
+<p>最朴素的实现需要暂停整个程序（Stop-The-World），但 Go 追求低延迟，因此将大部分 GC 工作做成<strong>并发</strong>的——GC 线程与应用线程（mutator）同时运行。</p>
+<p>并发带来一个问题：在标记过程中，mutator 可能修改指针关系，导致存活对象被误判为垃圾。Go 通过**写屏障（Write Barrier）**解决这个问题。</p>
+<h3 id="write-barrier">0.2.1 · Write Barrier 写屏障<a href="#write-barrier" class="heading-anchor" data-heading-link="" aria-label="Link to section write-barrier">#</a></h3>
+<p><strong>Purpose</strong>: Prevent black objects from pointing directly to white objects</p>
+<p><strong>Implementation</strong>:</p>
+<ul>
+<li>Inserted at compile time</li>
+<li>When pointer assignment occurs, write barrier records the store</li>
+<li>Marks/rescans affected objects as needed</li>
+</ul>
+<p><strong>Enables</strong> concurrent marking without additional STW pauses</p>
+<p>但写屏障的开启/关闭本身需要所有 P 处于一致状态，这就引出了 STW 和 safepoint。</p>
+<h3 id="stw-safepoint">0.2.2 · STW 与 Safepoint<a href="#stw-safepoint" class="heading-anchor" data-heading-link="" aria-label="Link to section stw-safepoint">#</a></h3>
+<p>虽然 Go GC 是并发的，但仍需要短暂的 STW 来保证一致性。STW 出现在两个关键时刻：</p>
+<ol>
+<li><strong>Mark 开始时</strong>：开启写屏障、启用 mutator assist、入队根标记任务。此时需要所有 P 处于一致状态</li>
+<li><strong>Mark 结束时</strong>：确认所有标记工作完成，关闭 worker 和 assist，执行清理（flush mcache 等）</li>
+</ol>
+<p>STW pauses are kept short — typically sub-millisecond. All P’s must reach a GC safe point before STW can proceed.</p>
+<p><strong>Safepoint</strong>: 有配套 stack map / liveness 信息的可暂停点</p>
+<p><strong>编译期</strong>：编译器在特定位置（函数调用点、循环回边等）生成 <strong>stack map / liveness 信息</strong>，记录哪些寄存器/栈槽持有活跃指针。这些位置就是 safepoint。</p>
+<p><strong>运行时</strong>：当 GC 需要 STW 时，向所有 goroutine 发出抢占请求，每个 goroutine 运行到下一个 safepoint 时暂停。此时 runtime 可以用编译期生成的 stack map 精确扫描栈上的指针根。</p>
+<p>STW 的本质就是「等所有 P/goroutine 停在 safepoint 上」。没有 stack map 的位置不能暂停，否则 GC 无法区分栈上的整数和指针。</p>
+<blockquote>
+<p>Go 1.14+ 引入了<strong>异步抢占</strong>（signal-based preemption），即使没有函数调用的紧密循环也能被打断到 safepoint。</p>
+</blockquote>
+<h2 id="step-3-tri-color-marking">0.3 · Step 3: 三色标记（Tri-Color Marking）—— 从根对象开始扫描<a href="#step-3-tri-color-marking" class="heading-anchor" data-heading-link="" aria-label="Link to section step-3-tri-color-marking">#</a></h2>
+<p>标记阶段使用三色抽象来追踪对象状态：</p>
+<p><strong>Colors</strong>:</p>
+<ul>
+<li><strong>White 白色</strong>: Object is unmarked（默认状态，可能是垃圾）</li>
+<li><strong>Gray 灰色</strong>: Object is marked, but its children haven’t been scanned yet（已发现，待扫描子对象）</li>
+<li><strong>Black 黑色</strong>: Object is marked, its children have been scanned（已完成扫描）</li>
+</ul>
+<p><strong>Invariant</strong>: Black objects never point directly to white objects (enforced by write barrier)</p>
+<p><strong>Process</strong>:</p>
+<ol>
+<li>Start with roots (stack, globals, etc.) as gray</li>
+<li>Scan gray objects, mark their children as gray, color parent black</li>
+<li>Repeat until no gray objects remain</li>
+<li>All remaining white objects are garbage</li>
+</ol>
+<h3 id="031--并发标记的细节">0.3.1 · 并发标记的细节</h3>
+<p>标记分为 STW 准备和并发执行两部分：</p>
+<p><strong>Preparation</strong> (STW):</p>
+<ul>
+<li>Set gcphase to _GCmark</li>
+<li>Enable write barrier</li>
+<li>Enable mutator assist</li>
+<li>Queue root marking jobs</li>
+</ul>
+<p><strong>Concurrent Marking</strong>:</p>
+<ul>
+<li>Start the world (P’s resume work)</li>
+<li>GC work distributed between dedicated marking workers and mutator assist</li>
+<li>Write barrier records overwritten and new pointers</li>
+<li>New allocations immediately marked as black</li>
+<li>Scan all stacks, color globals and heap-external pointers</li>
+<li>Exhaust gray work queue</li>
+</ul>
+<p><strong>Termination Detection</strong>:</p>
+<ul>
+<li>Use distributed termination algorithm (gcMarkDone) to detect when no more root jobs or gray objects exist</li>
+<li>Transition to mark termination phase</li>
+</ul>
+<h3 id="large-object-optimization">0.3.2 · Large Object Optimization<a href="#large-object-optimization" class="heading-anchor" data-heading-link="" aria-label="Link to section large-object-optimization">#</a></h3>
+<p><strong>Problem</strong>: Scanning large objects can cause long pauses, reduce parallelism</p>
+<p><strong>Solution</strong>:</p>
+<ul>
+<li>Objects larger than maxObletBytes split into array of oblets (max maxObletBytes each)</li>
+<li>When scanning reaches large object, only scan first oblet</li>
+<li>Remaining oblets queued as new jobs</li>
+</ul>
+<h3 id="mutator-assist">0.3.3 · Mutator Assist<a href="#mutator-assist" class="heading-anchor" data-heading-link="" aria-label="Link to section mutator-assist">#</a></h3>
+<p><strong>Problem</strong>: If mutators allocate faster than collector can mark, heap grows unbounded</p>
+<p><strong>Solution</strong>: When allocation rate exceeds marking rate, mutators must assist GC</p>
+<ul>
+<li>Assist work includes marking and sweeping</li>
+<li>Amount of assist per allocation determined by pacing algorithm</li>
+</ul>
+<h2 id="step-4-sweep">0.4 · Step 4: 清除（Sweep）<a href="#step-4-sweep" class="heading-anchor" data-heading-link="" aria-label="Link to section step-4-sweep">#</a></h2>
+<p>标记完成后，所有 white 对象都是垃圾。清除阶段回收这些对象的内存。</p>
+<p><strong>Preparation</strong>:</p>
+<ul>
+<li>Set gcphase to _GCoff</li>
+<li>Configure sweep state</li>
+<li>Disable write barrier</li>
+</ul>
+<p><strong>Concurrent Sweeping</strong>:</p>
+<ul>
+<li>Start the world</li>
+<li>New allocations are white</li>
+<li>Spans are lazily swept as needed for allocation</li>
+<li>Background goroutine sweeps spans concurrently</li>
+</ul>
+<h3 id="concurrent-sweep-details">0.4.1 · Concurrent Sweep Details<a href="#concurrent-sweep-details" class="heading-anchor" data-heading-link="" aria-label="Link to section concurrent-sweep-details">#</a></h3>
+<p><strong>Mechanics</strong>:</p>
+<ul>
+<li>Background goroutine lazily sweeps spans (helps non-CPU-bound programs)</li>
+<li>When goroutine needs a new span:
+<ol>
+<li>Try to reclaim via sweeping (sweep same-size spans until at least one object freed)</li>
+<li>If insufficient, sweep larger or multiple spans as needed</li>
+<li>If still insufficient, request from OS</li>
+</ol>
+</li>
+</ul>
+<p><strong>Safety</strong>:</p>
+<ul>
+<li>All mcache flushed to central cache at mark termination, making them empty</li>
+<li>Goroutines flush mcache when fetching new span</li>
+<li>Finalizer goroutine only runs after all spans are swept</li>
+<li>At next GC start, any remaining unswept spans are forcefully swept</li>
+</ul>
+<p><strong>Critical invariant</strong>: No operations on unswept spans (would corrupt GC bitmap)</p>
+<h2 id="step-5-gc-cycle">0.5 · Step 5: GC Cycle 全景<a href="#step-5-gc-cycle" class="heading-anchor" data-heading-link="" aria-label="Link to section step-5-gc-cycle">#</a></h2>
+<p>一个完整的 GC cycle 分为四个阶段：</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>Phase 1          Phase 2                    Phase 3          Phase 4</span></span>
+<span class="line"><span>Sweep Term.      Mark Phase                 Mark Term.       Sweep Phase</span></span>
+<span class="line"><span>|── STW ──|── STW ──|── Concurrent ──|── STW ──|──── Concurrent ────|</span></span>
+<span class="line"><span>  清扫残留    开写屏障    三色标记并发执行  关写屏障       并发清除</span></span>
+<span class="line"><span>              入队根任务                    flush mcache    懒清扫 span</span></span></code></pre>
+<h3 id="phase-1-sweep-termination">0.5.1 · Phase 1: Sweep Termination<a href="#phase-1-sweep-termination" class="heading-anchor" data-heading-link="" aria-label="Link to section phase-1-sweep-termination">#</a></h3>
+<ul>
+<li><strong>STW</strong>: All P’s reach GC safe point</li>
+<li>Sweep any remaining unswept spans (only if GC was forced before expected time)</li>
+</ul>
+<h3 id="phase-2-mark-phase">0.5.2 · Phase 2: Mark Phase<a href="#phase-2-mark-phase" class="heading-anchor" data-heading-link="" aria-label="Link to section phase-2-mark-phase">#</a></h3>
+<ul>
+<li><strong>STW Preparation</strong>: 开启写屏障、启用 assist、入队根标记任务</li>
+<li><strong>Concurrent Marking</strong>: 三色标记并发执行</li>
+<li><strong>Termination Detection</strong>: gcMarkDone 检测所有灰色对象已处理完毕</li>
+</ul>
+<h3 id="phase-3-mark-termination">0.5.3 · Phase 3: Mark Termination<a href="#phase-3-mark-termination" class="heading-anchor" data-heading-link="" aria-label="Link to section phase-3-mark-termination">#</a></h3>
+<ul>
+<li><strong>STW</strong>: All P’s reach safe point</li>
+<li>Set gcphase to _GCmarktermination</li>
+<li>Disable workers and assists</li>
+<li>Housekeeping (flush mcaches, etc.)</li>
+</ul>
+<h3 id="phase-4-sweep-phase">0.5.4 · Phase 4: Sweep Phase<a href="#phase-4-sweep-phase" class="heading-anchor" data-heading-link="" aria-label="Link to section phase-4-sweep-phase">#</a></h3>
+<ul>
+<li><strong>Concurrent Sweeping</strong>: 懒清扫，按需回收 span</li>
+</ul>
+<h3 id="next-cycle-trigger-gogc">0.5.5 · Next Cycle Trigger (GOGC)<a href="#next-cycle-trigger-gogc" class="heading-anchor" data-heading-link="" aria-label="Link to section next-cycle-trigger-gogc">#</a></h3>
+<p>Triggered when allocated memory reaches a threshold relative to live memory:</p>
+<ul>
+<li>Controlled by GOGC environment variable (default 100)</li>
+<li>Example: If GOGC=100 and live heap is 4M, next GC triggers at 8M</li>
+</ul>
+<h3 id="pacing-algorithm">0.5.6 · Pacing Algorithm<a href="#pacing-algorithm" class="heading-anchor" data-heading-link="" aria-label="Link to section pacing-algorithm">#</a></h3>
+<p><strong>Goal</strong>: Keep heap size near target while minimizing pause time</p>
+<p><strong>Mechanism</strong>:</p>
+<ul>
+<li>Feedback loop: Gather info about running application</li>
+<li>Stress metric: How fast application allocates heap memory</li>
+<li>Before each collection: Estimate time to finish collection</li>
+<li>Adjust marking pace and assist requirements dynamically</li>
+</ul>
+<p><strong>Tuning</strong>: Controlled implicitly via GOGC and allocation patterns</p>
+<h2 id="gc-observability">0.6 · GC Observability<a href="#gc-observability" class="heading-anchor" data-heading-link="" aria-label="Link to section gc-observability">#</a></h2>
+<h3 id="gc-trace">0.6.1 · GC Trace<a href="#gc-trace" class="heading-anchor" data-heading-link="" aria-label="Link to section gc-trace">#</a></h3>
+<p>Enable with: <code>GODEBUG=gctrace=1 go run main.go</code></p>
+<p><strong>Example output</strong>:</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="plaintext"><code><span class="line"><span>gc 1405 @6.068s 11%: 0.058+1.2+0.083 ms clock, 0.70+2.5/1.5/0+0.99 ms cpu, 7->11->6 MB, 10 MB goal, 12 P</span></span></code></pre>
+<p><strong>Breakdown</strong>:</p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<table><thead><tr><th>Metric</th><th>Meaning</th></tr></thead><tbody><tr><td>gc 1405</td><td>The 1405th GC run</td></tr><tr><td>@6.068s</td><td>Elapsed time since program start</td></tr><tr><td>11%</td><td>Percent of CPU spent in GC so far</td></tr><tr><td><strong>Wall-Clock Times</strong></td><td></td></tr><tr><td>0.058ms</td><td>STW - Mark Start (write barrier on)</td></tr><tr><td>1.2ms</td><td>Concurrent - Marking</td></tr><tr><td>0.083ms</td><td>STW - Mark Termination (write barrier off)</td></tr><tr><td><strong>CPU Times</strong></td><td></td></tr><tr><td>0.70ms</td><td>STW - Mark Start</td></tr><tr><td>2.5ms</td><td>Concurrent - Mark Assist (inline with allocation)</td></tr><tr><td>1.5ms</td><td>Concurrent - Background GC time</td></tr><tr><td>0ms</td><td>Concurrent - Idle GC time</td></tr><tr><td>0.99ms</td><td>STW - Mark Termination</td></tr><tr><td><strong>Memory</strong></td><td></td></tr><tr><td>7MB</td><td>Heap in-use before marking started</td></tr><tr><td>11MB</td><td>Heap in-use after marking finished</td></tr><tr><td>6MB</td><td>Heap marked as live after marking</td></tr><tr><td>10MB</td><td>Collection goal for heap in-use after marking</td></tr><tr><td><strong>Threads</strong></td><td></td></tr><tr><td>12P</td><td>Number of logical processors</td></tr></tbody></table>
+<h3 id="pacing-trace">0.6.2 · Pacing Trace<a href="#pacing-trace" class="heading-anchor" data-heading-link="" aria-label="Link to section pacing-trace">#</a></h3>
+<p>Enable with: <code>GODEBUG=gcpacertrace=1</code></p>
+<p>Shows pacing decisions and feedback adjustments.</p>
+<h2 id="forced-collection-helper-functions">0.7 · Forced Collection &#x26; Helper Functions<a href="#forced-collection-helper-functions" class="heading-anchor" data-heading-link="" aria-label="Link to section forced-collection-helper-functions">#</a></h2>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> GC</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {}</span></span></code></pre>
+<p>Forces a garbage collection cycle:</p>
+<ol>
+<li>Waits until sweep termination, sweep phase, or mark termination</li>
+<li>Assists with sweep if needed</li>
+<li>Waits for next GC mark and termination phases to complete</li>
+<li>Assists with sweep again if needed</li>
+</ol>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#616E88">// Sweep any remaining unswept spans, returns pages returned to heap</span></span>
+<span class="line"><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> sweepone</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1"> uintptr</span><span style="color:#ECEFF4"> {}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// Check if all spans are swept</span></span>
+<span class="line"><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> isSweepDone</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1"> bool</span><span style="color:#ECEFF4"> {}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">// Start GC with specified trigger type</span></span>
+<span class="line"><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> gcStart</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">trigger</span><span style="color:#D8DEE9FF"> gcTrigger</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {}</span></span></code></pre>
+<h2 id="advanced-features-cleanups-and-weak-pointers-go-124">0.8 · Advanced Features: Cleanups and Weak Pointers (Go 1.24+)<a href="#advanced-features-cleanups-and-weak-pointers-go-124" class="heading-anchor" data-heading-link="" aria-label="Link to section advanced-features-cleanups-and-weak-pointers-go-124">#</a></h2>
+<h3 id="runtimeaddcleanup">0.8.1 · runtime.AddCleanup<a href="#runtimeaddcleanup" class="heading-anchor" data-heading-link="" aria-label="Link to section runtimeaddcleanup">#</a></h3>
+<p>Function signature: <code>runtime.AddCleanup(obj any, cleanup func(arg), arg)</code></p>
+<p><strong>Purpose</strong>: Queue a cleanup function to run when object becomes unreachable (improved finalizer)</p>
+<p><strong>Advantages over SetFinalizer</strong>:</p>
+<ol>
+<li><strong>Avoid object resurrection</strong>: Cleanup function receives only the arg, not the original object. Object is not forcibly kept alive.</li>
+<li><strong>Faster reclamation</strong>: Object can be reclaimed immediately, no need for two GC cycles</li>
+<li><strong>Support reference cycles</strong>: Object can participate in cycles (even self-pointers)</li>
+</ol>
+<p><strong>Why SetFinalizer is problematic</strong>:</p>
+<ul>
+<li>Object resurrection: Finalizer called with object pointer → GC must keep object alive</li>
+<li>Two GC cycles needed: First cycle detects unreachable → runs finalizer; Second cycle reclaims memory</li>
+</ul>
+<p><strong>Typical use</strong>: Clean up external resources (syscall.Munmap for mmap, file descriptor closure, etc.)</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#616E88">// Example: Memory-mapped file</span></span>
+<span class="line"><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> MemoryMappedFile </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">	data</span><span style="color:#ECEFF4"> []</span><span style="color:#81A1C1">byte</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> NewMemoryMappedFile</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">filename</span><span style="color:#81A1C1"> string</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> (</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">MemoryMappedFile</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> error</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">	// ... create memory mapping ...</span></span>
+<span class="line"><span style="color:#D8DEE9">	mf</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> &#x26;</span><span style="color:#D8DEE9FF">MemoryMappedFile</span><span style="color:#ECEFF4">{</span><span style="color:#D8DEE9">data</span><span style="color:#ECEFF4">:</span><span style="color:#D8DEE9"> data</span><span style="color:#ECEFF4">}</span></span>
+<span class="line"><span style="color:#D8DEE9">	cleanup</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">data</span><span style="color:#ECEFF4"> []</span><span style="color:#81A1C1">byte</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">		syscall</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Munmap</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">data</span><span style="color:#ECEFF4">)</span><span style="color:#616E88"> // cleanup resource</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#D8DEE9">	runtime</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">AddCleanup</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">mf</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> cleanup</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> data</span><span style="color:#ECEFF4">)</span><span style="color:#616E88"> // auto-run when mf unreachable</span></span>
+<span class="line"><span style="color:#81A1C1">	return</span><span style="color:#D8DEE9"> mf</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> nil</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<p><strong>Rules</strong>:</p>
+<ul>
+<li>Cleanup function must NOT reference the original object (directly or via captured variables), or cleanup never runs</li>
+<li>Special check: If arg is the object itself, AddCleanup panics (prevents finalizer-style misuse)</li>
+<li>Non-deterministic: GC may never run cleanups (implementation-dependent)</li>
+</ul>
+<h3 id="weakpointer">0.8.2 · weak.Pointer<a href="#weakpointer" class="heading-anchor" data-heading-link="" aria-label="Link to section weakpointer">#</a></h3>
+<p>Generic type: <code>weak.Pointer[T]</code></p>
+<p><strong>Purpose</strong>: Safely point to object without preventing GC (pointer ignored by GC)</p>
+<p><strong>Key method</strong>: <code>Value() *T</code> returns valid pointer or nil</p>
+<p><strong>Core properties</strong>:</p>
+<ol>
+<li><strong>Comparable and stable identity</strong>: Weak pointer identity persists even after object is reclaimed. Safe for map key or CompareAndDelete.</li>
+<li><strong>Independent references</strong>: Multiple weak pointers to same object are independent</li>
+</ol>
+<p><strong>Typical use</strong>: Cache deduplication without manual lifecycle management</p>
+<pre class="astro-code nord" style="background-color:#2e3440ff;color:#d8dee9ff; overflow-x: auto;" tabindex="0" data-language="go"><code><span class="line"><span style="color:#616E88">// Example: Cached memory-mapped files</span></span>
+<span class="line"><span style="color:#81A1C1">var</span><span style="color:#D8DEE9"> cache</span><span style="color:#D8DEE9FF"> sync</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Map </span><span style="color:#616E88">// map[string]weak.Pointer[MemoryMappedFile]</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> NewCachedMemoryMappedFile</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">filename</span><span style="color:#81A1C1"> string</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> (</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">MemoryMappedFile</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> error</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">	var</span><span style="color:#D8DEE9"> newFile</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">MemoryMappedFile</span></span>
+<span class="line"><span style="color:#81A1C1">	for</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">		// Try to load from cache</span></span>
+<span class="line"><span style="color:#D8DEE9">		value</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> ok</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> cache</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Load</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">filename</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#81A1C1">		if</span><span style="color:#81A1C1"> !</span><span style="color:#D8DEE9">ok</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">			if</span><span style="color:#D8DEE9"> newFile</span><span style="color:#81A1C1"> ==</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">				var</span><span style="color:#D8DEE9"> err</span><span style="color:#81A1C1"> error</span></span>
+<span class="line"><span style="color:#D8DEE9">				newFile</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> err</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> NewMemoryMappedFile</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">filename</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#81A1C1">				if</span><span style="color:#D8DEE9"> err</span><span style="color:#81A1C1"> !=</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">					return</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> err</span></span>
+<span class="line"><span style="color:#ECEFF4">				}</span></span>
+<span class="line"><span style="color:#ECEFF4">			}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">			// Create weak pointer and try to insert</span></span>
+<span class="line"><span style="color:#D8DEE9">			wp</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> weak</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Make</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">newFile</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#D8DEE9">			value</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> loaded</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> cache</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">LoadOrStore</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">filename</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> wp</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#81A1C1">			if</span><span style="color:#81A1C1"> !</span><span style="color:#D8DEE9">loaded</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#616E88">				// Register cleanup: delete map entry when object unreachable</span></span>
+<span class="line"><span style="color:#D8DEE9">				runtime</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">AddCleanup</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">newFile</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">filename</span><span style="color:#81A1C1"> string</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#D8DEE9">					cache</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">CompareAndDelete</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">filename</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> wp</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">				},</span><span style="color:#D8DEE9"> filename</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#81A1C1">				return</span><span style="color:#D8DEE9"> newFile</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> nil</span></span>
+<span class="line"><span style="color:#ECEFF4">			}</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">		// Check if cache entry is still valid</span></span>
+<span class="line"><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> mf</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> value</span><span style="color:#ECEFF4">.(</span><span style="color:#D8DEE9FF">weak</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">MemoryMappedFile</span><span style="color:#ECEFF4">]).</span><span style="color:#88C0D0">Value</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9"> mf</span><span style="color:#81A1C1"> !=</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span class="line"><span style="color:#81A1C1">			return</span><span style="color:#D8DEE9"> mf</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> nil</span></span>
+<span class="line"><span style="color:#ECEFF4">		}</span></span>
+<span class="line"></span>
+<span class="line"><span style="color:#616E88">		// Entry invalid, delete and retry</span></span>
+<span class="line"><span style="color:#D8DEE9">		cache</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">CompareAndDelete</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">filename</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> value</span><span style="color:#ECEFF4">)</span></span>
+<span class="line"><span style="color:#ECEFF4">	}</span></span>
+<span class="line"><span style="color:#ECEFF4">}</span></span></code></pre>
+<p><strong>Rules</strong>:</p>
+<ul>
+<li><strong>As map key</strong>: Map value must NOT strongly reference the object pointed to, or object stays alive (cache ineffective)
+<ul>
+<li>This inspired ephemeron concept (future work) to resolve</li>
+</ul>
+</li>
+<li>Non-deterministic: Behavior depends on GC implementation details</li>
+</ul>
+<h3 id="combined-usage">0.8.3 · Combined Usage<a href="#combined-usage" class="heading-anchor" data-heading-link="" aria-label="Link to section combined-usage">#</a></h3>
+<p>Both features together enable:</p>
+<ol>
+<li><strong>Self-cleaning cache</strong>: Weak pointer to object, auto-cleanup when no other references exist</li>
+<li><strong>Composable design</strong>: Multiple independent cleanups on single object, supports modular design</li>
+</ol>
+<h3 id="caveats">0.8.4 · Caveats<a href="#caveats" class="heading-anchor" data-heading-link="" aria-label="Link to section caveats">#</a></h3>
+<ol>
+<li>
+<p><strong>Error-prone</strong>:</p>
+<ul>
+<li>Cleanup function cannot reference original object (direct or captured)</li>
+<li>Weak pointer map key’s value cannot strongly reference object</li>
+<li>Problems are subtle and hard to debug</li>
+</ul>
+</li>
+<li>
+<p><strong>Non-deterministic</strong>:</p>
+<ul>
+<li>Cleanup execution depends on GC implementation</li>
+<li>May never run (though rare in practice)</li>
+<li>Special testing techniques needed (see GC Guide)</li>
+</ul>
+</li>
+<li>
+<p><strong>Advanced feature</strong>:</p>
+<ul>
+<li>Most Go code rarely needs direct usage</li>
+<li>Prefer higher-level patterns (e.g., <code>unique</code> package)</li>
+<li>Use only when explicitly needed</li>
+</ul>
+</li>
+</ol>
+<h2 id="guidance">0.9 · Guidance<a href="#guidance" class="heading-anchor" data-heading-link="" aria-label="Link to section guidance">#</a></h2>
+<p>These are low-level advanced features. Reference the <a href="https://go.dev/doc/gc-guide">GC Guide</a> for detailed semantics and testing. Use cleanups and weak pointers only for clear-cut scenarios (cache deduplication, resource management), not as general solutions. Most code benefits from these features indirectly.</p>
+<h2 id="references">0.10 · References<a href="#references" class="heading-anchor" data-heading-link="" aria-label="Link to section references">#</a></h2>
+<ul>
+<li><a href="https://making.pusher.com/golangs-real-time-gc-in-theory-and-practice/">https://making.pusher.com/golangs-real-time-gc-in-theory-and-practice/</a></li>
+<li><a href="https://studygolang.com/articles/23364">https://studygolang.com/articles/23364</a></li>
+<li><a href="https://juejin.cn/post/6844903940186701831">https://juejin.cn/post/6844903940186701831</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/402759799">https://zhuanlan.zhihu.com/p/402759799</a></li>
+<li><a href="https://memorymanagement.org/">https://memorymanagement.org/</a></li>
+<li><a href="https://gchandbook.org/">https://gchandbook.org/</a></li>
+<li><a href="https://docs.google.com/document/d/1gCsFxXamW8RRvOe5hECz98Ftk-tcRRJcDFANj2VwCB0/edit">https://docs.google.com/document/d/1gCsFxXamW8RRvOe5hECz98Ftk-tcRRJcDFANj2VwCB0/edit</a></li>
+<li><a href="https://docs.google.com/document/d/1wmjrocXIWTr1JxU-3EQBI6BK6KgtiFArkG47XK73xIQ/edit#">https://docs.google.com/document/d/1wmjrocXIWTr1JxU-3EQBI6BK6KgtiFArkG47XK73xIQ/edit#</a></li>
+<li><a href="https://github.com/golang/proposal/blob/master/design/14951-soft-heap-limit.md">https://github.com/golang/proposal/blob/master/design/14951-soft-heap-limit.md</a></li>
+<li><a href="https://go.dev/blog/cleanups-and-weak">https://go.dev/blog/cleanups-and-weak</a></li>
+<li><a href="https://go.dev/doc/gc-guide">https://go.dev/doc/gc-guide</a></li>
+</ul> <!-- Diagrams rendered at build time -->  </div> </article> <nav class="mt-12 border-t border-[color:var(--theme-border-subtle)] pt-8" data-astro-cid-o5gmpz7g> <a href="/notes" class="btn-primary"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>Back to Notes</a> </nav> </div>  </main> <footer class="mt-20 border-t border-[color:var(--theme-border-subtle)]"> <div class="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-6 text-sm text-[color:var(--theme-text-muted)] sm:flex-row sm:items-end sm:justify-between sm:px-6 lg:px-8"> <div> <p class="mb-1 text-[0.68rem] font-semibold uppercase tracking-[0.22em] text-[color:var(--theme-text-faint)]">
+Built for connected notes
+</p> <p class="max-w-2xl text-[0.85rem] leading-6 tracking-normal text-[color:var(--theme-text-secondary)]"> Evergreen notes turn ideas into objects that you can manipulate, combine, combine. </p> </div> <div class="text-left sm:text-right"> <p class="text-[0.8125rem] font-medium tracking-normal text-[color:var(--theme-text-muted)]">
+&copy; 2026 All rights reserved.
+</p> </div> </div> </footer>  <script type="module">const r="nord-theme",m="light",t="dark";function a(){try{return localStorage.getItem(r)}catch{return null}}function s(){return window.matchMedia("(prefers-color-scheme: dark)").matches?t:"light"}function n(){return a()||s()}function o(c){const e=document.documentElement;c===t?e.classList.add("dark"):e.classList.remove("dark")}function h(){const e=n()===t?m:t;localStorage.setItem(r,e),o(e),window.dispatchEvent(new CustomEvent("theme-change",{detail:{theme:e}}))}o(n());document.addEventListener("astro:after-swap",()=>o(n()));window.toggleTheme=h;window.getTheme=n;</script> </body> </html> 
