@@ -1,0 +1,333 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>数据存储与检索</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E4%B8%8E%E6%A3%80%E7%B4%A2">数据存储与检索</h1>
+<blockquote>
+<p>聚焦 <code>OLTP</code> 场景下两类核心存储引擎家族：</p>
+<ul>
+<li><code>LSM</code> / 日志结构：写入不可变数据文件，后台再合并</li>
+<li><code>B-Tree</code> / 页更新：在页组织的树上就地维护有序结构</li>
+</ul>
+</blockquote>
+<h2 id="1.%20%E9%97%AE%E9%A2%98%E8%83%8C%E6%99%AF">1. 问题背景</h2>
+<p><code>OLTP</code> 的核心矛盾不是“能不能存”，而是：</p>
+<ul>
+<li>写入必须足够快，且崩溃后可恢复</li>
+<li>点查必须稳定低延迟</li>
+<li>范围查询不能太差</li>
+<li>更新和删除不能让空间无限膨胀</li>
+</ul>
+<p>因此，存储引擎的本质问题是：</p>
+<blockquote>
+<p>如何维护一个从 <code>key -> value</code> 或 <code>key -> row-id</code> 的映射，
+使得写、读、空间回收、崩溃恢复之间达到可接受的平衡。</p>
+</blockquote>
+<p>这既是 <strong>主存储</strong> 的问题，也是 <strong>二级索引</strong> 的问题。</p>
+<ul>
+<li>对主存储：<code>key -> row/value</code></li>
+<li>对二级索引：<code>secondary-key -> primary-key/row-id</code></li>
+</ul>
+<p>从这个视角看，常见的 <code>OLTP</code> 存储结构大致分成两大家族：</p>
+<ol>
+<li><strong>日志结构存储引擎（Log-Structured / LSM 家族）</strong></li>
+<li><strong>原地更新存储引擎（B-Tree 家族）</strong></li>
+</ol>
+<h2 id="2.%20LSM%20%E5%AE%B6%E6%97%8F%EF%BC%9A%E6%8A%8A%E9%9A%8F%E6%9C%BA%E5%86%99%E6%94%B9%E9%80%A0%E6%88%90%E9%A1%BA%E5%BA%8F%E5%86%99">2. LSM 家族：把随机写改造成顺序写</h2>
+<h3 id="2.1%20%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3">2.1 核心思想</h3>
+<p><code>LSM</code> 的基本策略是：</p>
+<ul>
+<li>内存中维护一个有序结构（<code>memtable</code>）</li>
+<li>磁盘上维护多个<strong>不可变</strong>的有序文件（<code>SSTable</code> / <code>segment</code>）</li>
+<li>新写入先顺序追加到日志，再写入内存表</li>
+<li>内存表满了再一次性刷成新文件</li>
+<li>后台持续做 merge / compaction，把多个文件合并、去重、清理墓碑</li>
+</ul>
+<p>它的本质是：</p>
+<blockquote>
+<p>写时不急着维护一个“全局已整理”的结构，
+而是先便宜地记下来，读时和后台合并时再补秩序。</p>
+</blockquote>
+<h3 id="2.2%20%E5%86%99%E8%B7%AF%E5%BE%84">2.2 写路径</h3>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>write(key, value)</span></span>
+<span data-line=""><span>  -> append WAL</span></span>
+<span data-line=""><span>  -> update memtable</span></span>
+<span data-line=""><span>  -> memtable flush</span></span>
+<span data-line=""><span>  -> new SSTable</span></span>
+<span data-line=""><span>  -> background compaction</span></span></code></pre></figure>
+<p>优点：</p>
+<ul>
+<li>磁盘写大多是<strong>顺序追加</strong></li>
+<li>把随机写放大压到较低</li>
+<li>对高写入吞吐更友好</li>
+</ul>
+<p>代价：</p>
+<ul>
+<li>一个 key 可能分散在多个文件中</li>
+<li>删除通常不是立刻物理删除，而是写入 <code>tombstone</code></li>
+<li>必须依赖 compaction 回收空间与减少读放大</li>
+</ul>
+<h3 id="2.3%20%E8%AF%BB%E8%B7%AF%E5%BE%84">2.3 读路径</h3>
+<p>读取一个 key 时通常要按“新到旧”检查多个位置：</p>
+<ol>
+<li>查 <code>memtable</code></li>
+<li>查最近刷盘的 <code>SSTable</code></li>
+<li>再查更老的 <code>SSTable</code></li>
+<li>遇到最新版本或墓碑后停止</li>
+</ol>
+<p>为了降低这个成本，<code>LSM</code> 通常会配套：</p>
+<ul>
+<li><code>Bloom Filter</code>：快速判断“该文件大概率没有这个 key”</li>
+<li>分层索引：先定位 block，再进块内查找</li>
+<li>block cache：缓存热点数据块</li>
+</ul>
+<p>所以 <code>LSM</code> 的性能画像是：</p>
+<ul>
+<li><strong>写友好</strong></li>
+<li><strong>点查可接受，但要靠过滤器和缓存</strong></li>
+<li><strong>范围查询能做，但跨文件 merge 让实现更复杂</strong></li>
+</ul>
+<h3 id="2.4%20Compaction%20%E6%98%AF%20LSM%20%E7%9A%84%E4%BB%A3%E4%BB%B7%E7%BB%93%E7%AE%97%E5%99%A8">2.4 Compaction 是 LSM 的代价结算器</h3>
+<p><code>LSM</code> 不能只写不并。因为如果一直追加：</p>
+<ul>
+<li>同一个 key 会有很多旧版本</li>
+<li>读请求需要查很多文件</li>
+<li>磁盘空间会被旧版本和墓碑吃掉</li>
+</ul>
+<p>所以 compaction 负责三件事：</p>
+<ol>
+<li>合并多个有序文件</li>
+<li>丢弃旧版本</li>
+<li>清理已过期的墓碑并重写布局</li>
+</ol>
+<p>这也是 <code>LSM</code> 最核心的后台成本来源：</p>
+<ul>
+<li>CPU 消耗</li>
+<li>I/O 消耗</li>
+<li>写放大转移到后台合并阶段</li>
+</ul>
+<h3 id="2.5%20LSM%20%E7%9A%84%E5%B8%B8%E8%A7%81%E5%8F%98%E4%BD%93">2.5 LSM 的常见变体</h3>
+<h4 id="%E5%8F%98%E4%BD%93%201%EF%BC%9A%E6%8C%89%E5%B1%82%E7%BA%A7%E7%BB%84%E7%BB%87%E7%9A%84%20Leveled%20LSM">变体 1：按层级组织的 <code>Leveled LSM</code></h4>
+<p>特点：</p>
+<ul>
+<li>较高层文件多、重叠多</li>
+<li>较低层按 key range 划分，层内尽量不重叠</li>
+<li>读放大较小</li>
+<li>compaction 更频繁，写放大更高</li>
+</ul>
+<p>适合：</p>
+<ul>
+<li>读延迟要求更稳</li>
+<li>不能接受查太多文件</li>
+</ul>
+<h4 id="%E5%8F%98%E4%BD%93%202%EF%BC%9A%E6%8C%89%E6%89%B9%E6%AC%A1%E7%B4%AF%E7%A7%AF%E7%9A%84%20Tiered%20%2F%20Size-Tiered%20LSM">变体 2：按批次累积的 <code>Tiered / Size-Tiered LSM</code></h4>
+<p>特点：</p>
+<ul>
+<li>同层保留多个批次文件</li>
+<li>攒够再整体合并</li>
+<li>写放大较低</li>
+<li>读放大更高，空间放大也更明显</li>
+</ul>
+<p>适合：</p>
+<ul>
+<li>写吞吐优先</li>
+<li>可接受更高的后台读成本</li>
+</ul>
+<h4 id="%E5%8F%98%E4%BD%93%203%EF%BC%9ALSM%20%E4%BD%9C%E4%B8%BA%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95">变体 3：<code>LSM</code> 作为二级索引</h4>
+<p>当二级索引也采用 <code>LSM</code> 时，本质仍是：</p>
+<ul>
+<li>把 <code>secondary-key -> primary-key</code> 记录成有序不可变文件</li>
+<li>更新时写入新版本或墓碑</li>
+<li>依靠 compaction 去重与清理</li>
+</ul>
+<p>这样可以让索引写入也保持顺序化，但代价是：</p>
+<ul>
+<li>二级索引读取也会承受多文件查询</li>
+<li>范围查询与去重逻辑更复杂</li>
+</ul>
+<h2 id="3.%20B-Tree%20%E5%AE%B6%E6%97%8F%EF%BC%9A%E5%A7%8B%E7%BB%88%E7%BB%B4%E6%8A%A4%E4%B8%80%E4%B8%AA%E5%8F%AF%E6%9F%A5%E8%AF%A2%E7%9A%84%E6%9C%89%E5%BA%8F%E7%BB%93%E6%9E%84">3. B-Tree 家族：始终维护一个可查询的有序结构</h2>
+<h3 id="3.1%20%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3">3.1 核心思想</h3>
+<p><code>B-Tree</code> 家族的基本策略是：</p>
+<ul>
+<li>磁盘被划分为固定大小的 page</li>
+<li>page 组织成多叉平衡树</li>
+<li>每次写入都把新值插入或更新到树中的相应位置</li>
+<li>通过 page split / merge 维持平衡</li>
+</ul>
+<p>它的本质是：</p>
+<blockquote>
+<p>写的时候就把结构整理好，
+让之后的读可以沿树稳定地走到目标位置。</p>
+</blockquote>
+<p>相比 <code>LSM</code>，它更像是在持续维护一个“随时可读”的全局有序视图。</p>
+<h3 id="3.2%20%E8%AF%BB%E8%B7%AF%E5%BE%84">3.2 读路径</h3>
+<p>读一个 key 时：</p>
+<ol>
+<li>从根 page 开始</li>
+<li>按 key 范围向下走到内部节点</li>
+<li>到叶子节点定位记录</li>
+</ol>
+<p>特点：</p>
+<ul>
+<li>树高通常较低</li>
+<li>点查路径稳定</li>
+<li>范围扫描天然友好，因为叶子节点本身按 key 有序</li>
+</ul>
+<p>因此 <code>B-Tree</code> 的一个强项是：</p>
+<blockquote>
+<p>一旦定位到起点，后续的范围扫描可以沿叶子链表顺序读下去。</p>
+</blockquote>
+<h3 id="3.3%20%E5%86%99%E8%B7%AF%E5%BE%84">3.3 写路径</h3>
+<p>写入时通常会：</p>
+<ol>
+<li>找到目标叶子页</li>
+<li>在页内插入、更新或删除记录</li>
+<li>页满则分裂</li>
+<li>必要时向上递归调整父节点</li>
+</ol>
+<p>优点：</p>
+<ul>
+<li>读路径短且稳定</li>
+<li>范围查询非常自然</li>
+<li>不需要像 <code>LSM</code> 那样跨多个不可变文件找最新版本</li>
+</ul>
+<p>代价：</p>
+<ul>
+<li>磁盘层面更像<strong>随机写</strong></li>
+<li>页分裂、页合并、碎片整理都有成本</li>
+<li>写入吞吐通常不如把随机写批量顺序化的 <code>LSM</code></li>
+</ul>
+<h3 id="3.4%20B-Tree%20%E7%9A%84%E5%B8%B8%E8%A7%81%E5%8F%98%E4%BD%93">3.4 B-Tree 的常见变体</h3>
+<h4 id="%E5%8F%98%E4%BD%93%201%EF%BC%9AB%2B%20Tree">变体 1：<code>B+ Tree</code></h4>
+<p>这是数据库里最常见的形态：</p>
+<ul>
+<li>内部节点只存导航键</li>
+<li>数据主要放在叶子节点</li>
+<li>叶子节点按顺序链接</li>
+</ul>
+<p>这比经典 <code>B-Tree</code> 更适合磁盘页：</p>
+<ul>
+<li>扇出更大，树更矮</li>
+<li>范围扫描更高效</li>
+</ul>
+<h4 id="%E5%8F%98%E4%BD%93%202%EF%BC%9A%E8%81%9A%E7%B0%87%E4%B8%8E%E9%9D%9E%E8%81%9A%E7%B0%87%E7%BB%84%E7%BB%87">变体 2：聚簇与非聚簇组织</h4>
+<p>虽然不展开具体产品，但抽象上可区分两类：</p>
+<ul>
+<li><strong>聚簇</strong>：叶子直接存主记录</li>
+<li><strong>非聚簇</strong>：叶子存引用，再回到主存储取记录</li>
+</ul>
+<p>这直接影响：</p>
+<ul>
+<li>主键范围扫描性能</li>
+<li>二级索引是否需要回表</li>
+</ul>
+<h4 id="%E5%8F%98%E4%BD%93%203%EF%BC%9AB-Tree%20%E4%BD%9C%E4%B8%BA%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95">变体 3：<code>B-Tree</code> 作为二级索引</h4>
+<p>这是最经典的二级索引结构：</p>
+<ul>
+<li><code>secondary-key</code> 在叶子上有序排列</li>
+<li>叶子记录指向主键或物理位置</li>
+<li>等值查找和前缀范围查找都很自然</li>
+</ul>
+<p>它的优势是：</p>
+<ul>
+<li>二级索引查找路径稳定</li>
+<li>有序遍历和 <code>ORDER BY</code> / range scan 友好</li>
+</ul>
+<p>它的代价是：</p>
+<ul>
+<li>每次写入主数据时，相关索引页也要一起维护</li>
+<li>索引越多，写放大越明显</li>
+</ul>
+<h2 id="4.%20%E4%B8%A4%E5%A4%A7%E5%AE%B6%E6%97%8F%E7%9A%84%E6%A0%B9%E6%9C%AC%E5%8F%96%E8%88%8D">4. 两大家族的根本取舍</h2>
+<h3 id="4.1%20%E5%AF%B9%E6%AF%94%E8%A1%A8">4.1 对比表</h3>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th><code>LSM</code> 家族</th>
+<th><code>B-Tree</code> 家族</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>写入路径</td>
+<td>先追加，再后台合并</td>
+<td>直接更新树页</td>
+</tr>
+<tr>
+<td>磁盘写模式</td>
+<td>偏顺序写</td>
+<td>偏随机写</td>
+</tr>
+<tr>
+<td>点查</td>
+<td>需要查 memtable + 多文件</td>
+<td>沿树查找，路径稳定</td>
+</tr>
+<tr>
+<td>范围查询</td>
+<td>可做，但常需跨文件 merge</td>
+<td>天然友好</td>
+</tr>
+<tr>
+<td>空间回收</td>
+<td>依赖 compaction</td>
+<td>依赖页回收/整理</td>
+</tr>
+<tr>
+<td>删除</td>
+<td>tombstone + 延迟清理</td>
+<td>直接删索引项/记录</td>
+</tr>
+<tr>
+<td>写放大来源</td>
+<td>compaction</td>
+<td>页分裂、索引维护</td>
+</tr>
+<tr>
+<td>典型优势</td>
+<td>高写吞吐</td>
+<td>稳定读延迟、范围查询</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4.2%20%E4%B8%80%E4%B8%AA%E6%9B%B4%E6%9C%AC%E8%B4%A8%E7%9A%84%E7%90%86%E8%A7%A3">4.2 一个更本质的理解</h3>
+<p>两者不是“一个先进，一个落后”，而是把成本放在不同阶段：</p>
+<ul>
+<li><code>LSM</code>：<strong>写时省，读时和后台还</strong></li>
+<li><code>B-Tree</code>：<strong>写时还，读时省</strong></li>
+</ul>
+<p>也可以说：</p>
+<ul>
+<li><code>LSM</code> 倾向于把“整理顺序”的工作<strong>延后</strong></li>
+<li><code>B-Tree</code> 倾向于把“整理顺序”的工作<strong>当场完成</strong></li>
+</ul>
+<h3 id="4.3%20%E5%AE%83%E4%BB%AC%E4%B8%BA%E4%BB%80%E4%B9%88%E9%83%BD%E8%83%BD%E5%90%8C%E6%97%B6%E7%94%A8%E4%BA%8E%E4%B8%BB%E5%AD%98%E5%82%A8%E5%92%8C%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95">4.3 它们为什么都能同时用于主存储和二级索引</h3>
+<p>因为主存储与二级索引的共同本质都是：</p>
+<blockquote>
+<p>维护一个按 key 可查、可更新、可恢复的有序映射。</p>
+</blockquote>
+<p>差别只在于 value 的内容：</p>
+<ul>
+<li>主存储：value 是整行或记录本体</li>
+<li>二级索引：value 是主键、row-id 或指针</li>
+</ul>
+<p>因此：</p>
+<ul>
+<li><code>LSM</code> 可以既做表，也做索引</li>
+<li><code>B-Tree</code> 可以既做表，也做索引</li>
+</ul>
+<p>存储引擎真正要回答的不是“是不是索引”，而是：</p>
+<ul>
+<li>更新是在原位置维护，还是先追加后整理？</li>
+<li>为了更快写，愿意接受多少读放大？</li>
+<li>为了更稳读，愿意接受多少写放大？</li>
+</ul>
+<h2 id="5.%20%E7%BB%93%E8%AE%BA">5. 结论</h2>
+<p>如果只看 <code>OLTP</code> 存储引擎家族，可以把问题压缩成一句话：</p>
+<blockquote>
+<p><code>LSM</code> 通过不可变文件 + 后台合并，把随机写转换为顺序写；
+<code>B-Tree</code> 通过页式平衡树，把数据始终维持在一个可直接查询的有序结构中。</p>
+</blockquote>
+<p>二者的差异，不在“谁支持索引”，而在：</p>
+<ul>
+<li><strong>什么时候维护秩序</strong></li>
+<li><strong>把成本放在写时、读时，还是后台</strong></li>
+</ul>
+<p>这也是理解后续一切变体的总入口。</p></article></main></body></html>

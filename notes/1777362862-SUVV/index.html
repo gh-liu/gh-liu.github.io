@@ -1,0 +1,120 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: recover</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Go%3A%20recover">Go: recover</h1>
+<p><code>recover</code> 用来<code>截住</code>当前 goroutine 正在展开的 <a href="/notes/1777362880-NBNJ">panic</a>。</p>
+<p>它不是通用的异常捕获；只有在非常特定的时机调用才会生效。</p>
+<h2 id="recover%20%E6%98%AF%E4%BB%80%E4%B9%88">recover 是什么</h2>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> recover</span><span style="color:#ECEFF4">()</span><span style="color:#D8DEE9FF"> any</span></span></code></pre></figure>
+<ul>
+<li>如果当前 goroutine 正在 panic 展开，<code>recover()</code> 返回 panic 的值</li>
+<li>如果当前 goroutine 没有在 panic，返回 <code>nil</code></li>
+<li>成功 <code>recover</code> 后，这次 panic 停止继续向上展开</li>
+</ul>
+<h2 id="recover%20%E4%BD%95%E6%97%B6%E7%94%9F%E6%95%88">recover 何时生效</h2>
+<p>只有一种可靠场景：</p>
+<ul>
+<li><code>recover</code> 必须在 <code>defer</code> 调用的函数里执行</li>
+<li>并且该 <code>defer</code> 必须位于发生 panic 的同一个 goroutine 的调用栈上</li>
+</ul>
+<p>最常见写法：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">defer</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> r</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> recover</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9"> r</span><span style="color:#81A1C1"> !=</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">		log</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Printf</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">panic recovered: </span><span style="color:#EBCB8B">%v</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> r</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""><span style="color:#ECEFF4">}()</span></span></code></pre></figure>
+<p>反例：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> bad</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> r</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> recover</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9"> r</span><span style="color:#81A1C1"> !=</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span><span style="color:#616E88"> // 无效：不在 defer 中</span></span>
+<span data-line=""><span style="color:#D8DEE9">		fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Println</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">r</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<h2 id="%E6%A0%87%E5%87%86%E7%94%A8%E6%B3%95">标准用法</h2>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> serve</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> r</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> recover</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9"> r</span><span style="color:#81A1C1"> !=</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">			log</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Printf</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">panic: </span><span style="color:#EBCB8B">%v</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> r</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">		}</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#88C0D0">	doWork</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p>语义上等价于：</p>
+<ul>
+<li><code>doWork()</code> 发生 panic</li>
+<li>开始栈展开</li>
+<li>执行这个 <code>defer</code></li>
+<li><code>recover()</code> 取到 panic 值</li>
+<li>这次 panic 被截住</li>
+<li><code>serve()</code> 从当前位置结束返回</li>
+</ul>
+<p>注意：<code>recover</code> 后不会<code>回到 panic 那一行继续执行</code>。</p>
+<p>它只会停止展开，然后让当前函数沿正常返回路径结束。</p>
+<h2 id="goroutine%20%E8%BE%B9%E7%95%8C">goroutine 边界</h2>
+<p><code>recover</code> 只能恢复<code>当前 goroutine</code>中的 panic。</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> main</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">		fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Println</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">main recover:</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span><span style="color:#88C0D0"> recover</span><span style="color:#ECEFF4">())</span><span style="color:#616E88"> // recover 不到子 goroutine</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">	go</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">		panic</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">boom</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	time</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Sleep</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">time</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">Second</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p>上面子 goroutine 的 panic，不会被 <code>main</code> 里的 <code>recover</code> 捕获。</p>
+<p>正确做法是在 goroutine 入口包一层：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">go</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> r</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> recover</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9"> r</span><span style="color:#81A1C1"> !=</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">			log</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Printf</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">worker panic: </span><span style="color:#EBCB8B">%v</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> r</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">		}</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#88C0D0">	doWork</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#ECEFF4">}()</span></span></code></pre></figure>
+<h2 id="recover%20%E7%9A%84%E5%B1%80%E9%99%90">recover 的局限</h2>
+<p><code>recover</code> 只是防止进程被当前 panic 直接打死，不代表状态一定安全。</p>
+<p>恢复后要问两个问题：</p>
+<ol>
+<li>资源是否仍然一致</li>
+<li>当前请求 / 当前任务是否还能继续</li>
+</ol>
+<p>因此 <code>recover</code> 常见用途是<code>隔离故障边界</code>：</p>
+<ul>
+<li>HTTP middleware：避免单个请求打崩整个服务</li>
+<li>worker / goroutine wrapper：避免单个任务打崩整个进程</li>
+<li>任务调度器：记录 panic 并标记任务失败</li>
+</ul>
+<p>但不适合：</p>
+<ul>
+<li>在底层库里到处吞 panic</li>
+<li>恢复后继续执行一个已被破坏的复杂流程</li>
+</ul>
+<h2 id="panic%2Frecover%20%E9%85%8D%E5%90%88%E6%A8%A1%E5%BC%8F">panic/recover 配合模式</h2>
+<p>一种常见模式：内部用 panic 快速中断深层递归或复杂控制流，最外层统一 recover 并转回 <code>error</code>。</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> Parse</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">data</span><span style="color:#ECEFF4"> []</span><span style="color:#81A1C1">byte</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">err</span><span style="color:#81A1C1"> error</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> r</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> recover</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9"> r</span><span style="color:#81A1C1"> !=</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">			err</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Errorf</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">parse failed: </span><span style="color:#EBCB8B">%v</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> r</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">		}</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#88C0D0">	parse</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">data</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">	return</span><span style="color:#81A1C1"> nil</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p>这种模式能做，但 Go 社区更常规的风格仍然是：优先显式返回 <code>error</code>。</p>
+<h2 id="runtime%20%E8%A7%86%E8%A7%92">runtime 视角</h2>
+<p>从实现上看：</p>
+<ul>
+<li><code>panic</code> 触发后，runtime 在当前 goroutine 上逐层执行 <code>defer</code></li>
+<li><code>recover</code> 只有在这些 <code>defer</code> 里才有机会读到<code>当前活跃的 panic</code></li>
+<li>一旦某个 <code>defer</code> 成功恢复，该 panic 就不再继续向更上层传播</li>
+</ul>
+<p>所以 <code>recover</code> 的本质不是<code>随处捕获异常</code>，而是<code>在栈展开阶段拦截 panic</code>。</p>
+<h2 id="%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5">最佳实践</h2>
+<ol>
+<li>只在明确边界使用 <code>recover</code>，如 handler / goroutine / worker 入口</li>
+<li><code>recover</code> 后至少记录 panic 值和堆栈</li>
+<li>不要把 <code>recover</code> 当作普通分支控制工具</li>
+<li>恢复后优先终止当前请求或任务，而不是盲目继续</li>
+<li>如果只是业务失败，返回 <code>error</code>，不要设计成 <code>panic + recover</code></li>
+</ol></article></main></body></html>

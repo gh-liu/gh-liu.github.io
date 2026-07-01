@@ -1,0 +1,15 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>编码：数据格式</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E7%BC%96%E7%A0%81%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%A0%BC%E5%BC%8F">编码：数据格式</h1>
+<p>向后兼容性：较新的代码可以读取由<code>较旧</code>代码写入的数据。
+向前兼容性：较旧的代码可以读取由<code>较新</code>代码写入的数据。</p>
+<blockquote>
+<p>如何支持新旧数据和代码需要共存的系统？
+如何用于数据存储和通信：在数据库、Web 服务、REST API、远程过程调用（RPC）、事件驱动系统中...</p>
+</blockquote>
+<p>内存表示 &#x3C;-> 字节序列：编码/序列化、解码反序列化
+内存的结构表示针对CPU的高效访问与操作进行了优化（通常是指针）</p>
+<ul>
+<li>JSON、XML 及其二进制变体</li>
+<li>Protocol Buffers (protobuf)：通过将字段类型和标签号打包到单个字节中来节省更多空间</li>
+</ul>
+<p>基于模式的二禁止编码：protobuf, avro</p>
+<p>模式演化 -> 兼容性?</p></article></main></body></html>

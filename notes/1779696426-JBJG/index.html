@@ -1,0 +1,23 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>effect-system</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="effect-system">effect-system</h1>
+<blockquote>
+<p>规则：把函数的副作用（IO、异常、状态、异步）作为类型的一部分显式标注
+作用：在类型层追踪与约束副作用，让纯与不纯可组合、可推理、可替换</p>
+</blockquote>
+<blockquote>
+<p>类型系统管"值是什么"，效应系统管"会发生什么（行为）"</p>
+</blockquote>
+<h2 id="%E5%BD%A2%E6%80%81">形态</h2>
+<ul>
+<li>受检异常：Java <code>throws</code></li>
+<li>错误是值：Go <code>error</code>、Rust <code>Result</code>、Zig <code>!T</code></li>
+<li>Monad 封装：Haskell <code>IO</code>、<code>State</code></li>
+<li>代数效应：Koka、OCaml 5 —— 声明效应 + handler 解释</li>
+</ul>
+<h2 id="NOTES">NOTES</h2>
+<p>callee 必须诚实声明自己做了什么；caller 必须面对它调用的东西会带来的 effects。
+前者是编译期检查，后者是caller必须处理callee可能的副作用？</p>
+<p>Effect System 关心的就是：某个 effect 从哪里产生，如何在调用链上传播，最终在哪里被处理。</p>
+<h1 id="links">links</h1>
+<ol>
+<li><a href="https://blog.yoshuawuyts.com/why-effects/">https://blog.yoshuawuyts.com/why-effects/</a></li>
+</ol></article></main></body></html>

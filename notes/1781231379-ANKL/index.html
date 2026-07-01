@@ -1,0 +1,74 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>分布式数据系统</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E5%88%86%E5%B8%83%E5%BC%8F%E6%95%B0%E6%8D%AE%E7%B3%BB%E7%BB%9F">分布式数据系统</h1>
+<blockquote>
+<p>理解一个分布式数据系统，就是理解它如何在不可靠的分布式环境中，把某类数据问题抽象成稳定的读写语义，并通过数据面、控制面和运维面持续维持这些语义。</p>
+</blockquote>
+<h2 id="%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B">心智模型</h2>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>问题 -> 语义 -> 机制 -> 边界</span></span></code></pre></figure>
+<ol>
+<li>问题：它解决什么类型的数据问题？
+<ul>
+<li>业务需要什么能力？缓存、队列、搜索、事务、分析、时序、对象存储？</li>
+<li>主要访问模式是什么？读多、写多、点查、范围查、聚合、流式消费？</li>
+</ul>
+</li>
+<li>语义：它向使用者承诺什么？
+<ul>
+<li>数据模型是什么？KV、文档、关系、列式、日志、图？</li>
+<li>读写语义是什么？一致性、事务、隔离、顺序、可见性、失败后的结果？</li>
+</ul>
+</li>
+<li>机制：它如何让语义成立？
+<ul>
+<li>数据面：一次读写请求如何完成。</li>
+<li>控制面：系统如何长期维持拓扑、复制、恢复、均衡和演进。</li>
+<li>运维面：系统如何被观察、诊断、保护和恢复。</li>
+</ul>
+</li>
+<li>边界：它在什么条件下工作得好，什么条件下开始失效？
+<ul>
+<li>优化了什么，所以适合什么。</li>
+<li>牺牲了什么，所以不适合什么。</li>
+<li>成本、复杂度、故障模式和规模上限在哪里。</li>
+</ul>
+</li>
+</ol>
+<h2 id="%E7%B3%BB%E7%BB%9F%E6%8B%86%E8%A7%A3%E6%B8%85%E5%8D%95">系统拆解清单</h2>
+<p>系统拆解清单是对心智模型的展开：系统定位回答<code>问题和语义</code>，基础架构回答<code>机制</code>，适用场景、权衡边界和运维侧回答<code>边界</code>。</p>
+<ol>
+<li>系统定位
+<ul>
+<li>它解决什么问题？</li>
+<li>它抽象出了什么模型？</li>
+<li>它向用户承诺什么语义？</li>
+</ul>
+</li>
+<li>基础架构
+<ul>
+<li>数据面：读写路径如何运行？</li>
+<li>控制面：如何让读写路径长期正确运行？</li>
+<li>核心机制：分片、复制、一致性、恢复、调度如何支撑语义？</li>
+</ul>
+</li>
+<li>适用场景
+<ul>
+<li>业务场景决定访问模式。</li>
+<li>访问模式决定数据模型、索引方式、分区方式和存储结构。</li>
+<li>SLO 决定延迟、吞吐、可用性、一致性和成本要求。</li>
+</ul>
+</li>
+<li>权衡边界
+<ul>
+<li>优化了什么，所以适用于什么？</li>
+<li>牺牲了什么，所以不适用于什么？</li>
+<li>规模、成本、复杂度和故障模式的边界在哪里？</li>
+</ul>
+</li>
+<li>运维侧
+<ul>
+<li>如何长期稳定运行、观察、诊断和恢复？</li>
+<li>持续验证什么：读写路径是否健康，控制面是否稳定，资源是否足够，数据是否安全。</li>
+<li>监控什么：节点健康、读写路径、存储路径、控制面状态、客户端体验。</li>
+<li>如何定位问题：现象 -> 影响面 -> 路径 -> 瓶颈 -> 控制面状态 -> 最近变更 -> 恢复动作。</li>
+</ul>
+</li>
+</ol></article></main></body></html>

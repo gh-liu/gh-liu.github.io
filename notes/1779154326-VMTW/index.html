@@ -1,0 +1,24 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: 标准库 slog</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E6%A0%87%E5%87%86%E5%BA%93%20slog">标准库 slog</h1>
+<blockquote>
+<p>Go 标准库的结构化日志包，记录由 time、level、message 和 key-value 属性组成。</p>
+</blockquote>
+<p>核心架构 Logger -> Record -> Handler</p>
+<ul>
+<li>Logger：暴露 Debug/Info/Warn/Error 等方法，每条调用生成 Record</li>
+<li>Handler：接收 Record 决定输出方式；内置 TextHandler（key=value）和 JSONHandler（行分隔 JSON）</li>
+</ul>
+<p>SetDefault 让顶层函数和 log 包都走自定义 handle</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> doc</span><span style="color:#A3BE8C"> slog</span></span></code></pre></figure>
+<ul>
+<li>不用全局 logger，把 logger 作为依赖传入：测试、库代码、多环境配置都更可控</li>
+<li>使用 LogAttrs ：字段类型更明确，不用松散 kv</li>
+<li>使用 slog.Attr 构造器：封装业务字段 helper</li>
+<li>复杂对象用 slog.Group</li>
+<li>用 sloglint 强制规则</li>
+</ul>
+<ol>
+<li>公共属性用 With 预格式化</li>
+<li>参数总会求值——昂贵计算用 LogValuer 延迟</li>
+<li>用 LogAttrs 避免 any 装箱</li>
+<li>Context 版本：可传 ctx，便于 handler 提取 trace 信息</li>
+</ol></article></main></body></html>

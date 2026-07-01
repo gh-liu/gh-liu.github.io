@@ -1,0 +1,21 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>docker</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="docker">docker</h1>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">docker</span><span style="color:#A3BE8C"> pull</span><span style="color:#A3BE8C"> mongo:8.3.1</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#88C0D0">docker</span><span style="color:#A3BE8C"> run</span><span style="color:#A3BE8C"> -d</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">        --name</span><span style="color:#A3BE8C"> my-mongo</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">        -p</span><span style="color:#A3BE8C"> 27017:27017</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">        -e</span><span style="color:#A3BE8C"> MONGO_INITDB_ROOT_USERNAME=admin</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">        -e</span><span style="color:#A3BE8C"> MONGO_INITDB_ROOT_PASSWORD=mypassword</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">        mongo:8.3.1</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#88C0D0">docker</span><span style="color:#A3BE8C"> exec</span><span style="color:#A3BE8C"> -it</span><span style="color:#A3BE8C"> my-mongo</span><span style="color:#A3BE8C"> mongosh</span><span style="color:#A3BE8C"> -u</span><span style="color:#A3BE8C"> admin</span><span style="color:#A3BE8C"> -p</span><span style="color:#A3BE8C"> mypassword</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#88C0D0">docker</span><span style="color:#A3BE8C"> run</span><span style="color:#A3BE8C"> --rm</span><span style="color:#A3BE8C"> -it</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">        --network</span><span style="color:#A3BE8C"> host</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">        mongo:8.3.1</span><span style="color:#A3BE8C"> mongosh</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">        -u</span><span style="color:#A3BE8C"> admin</span><span style="color:#A3BE8C"> -p</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#88C0D0">docker</span><span style="color:#A3BE8C"> run</span><span style="color:#A3BE8C"> --rm</span><span style="color:#A3BE8C"> -it</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">        --network</span><span style="color:#A3BE8C"> host</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">        mongo:8.3.1</span><span style="color:#A3BE8C"> mongosh</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#D8DEE9">        $DBLINK</span></span></code></pre></figure></article></main></body></html>

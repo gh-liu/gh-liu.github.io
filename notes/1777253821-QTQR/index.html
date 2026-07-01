@@ -1,0 +1,53 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>dig</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="dig">dig</h1>
+<p>S 排查 DNS 解析问题时用。适合确认某个域名当前解析到什么 IP、权威记录是否正确、不同 DNS 服务器返回是否一致、递归链路哪里出了问题。</p>
+<p>C 常见冲突：</p>
+<ul>
+<li>浏览器访问失败，但不确定是网络问题还是 DNS 问题</li>
+<li>域名刚改解析，怀疑本地缓存、公共 DNS、权威 DNS 返回不一致</li>
+<li>邮件、子域名、CDN、负载均衡配置异常，想确认 MX / CNAME / NS 等记录</li>
+<li>某台机器能解析，另一台不能解析，想对比指定 DNS 服务器的返回结果</li>
+</ul>
+<p>Q 排查时常问：</p>
+<ul>
+<li>这个域名现在解析到了什么记录</li>
+<li>是哪个 DNS 服务器给出的答案</li>
+<li>权威 DNS 和递归 DNS 返回是否一致</li>
+<li>结果是不是被简化了，TTL 是多少，是否还在传播中</li>
+<li>某个 IP 反查回来的域名是什么</li>
+</ul>
+<h2 id="%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4%E7%A4%BA%E4%BE%8B">常见命令示例</h2>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">man</span><span style="color:#A3BE8C"> dig</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88"># 查 A 记录，默认最常见</span></span>
+<span data-line=""><span style="color:#88C0D0">dig</span><span style="color:#A3BE8C"> example.com</span></span>
+<span data-line=""><span style="color:#88C0D0">dig</span><span style="color:#A3BE8C"> example.com</span><span style="color:#A3BE8C"> A</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88"># 查 AAAA 记录，也就是 IPv6</span></span>
+<span data-line=""><span style="color:#88C0D0">dig</span><span style="color:#A3BE8C"> example.com</span><span style="color:#A3BE8C"> AAAA</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88"># 查别名、邮件服务器、权威 DNS</span></span>
+<span data-line=""><span style="color:#88C0D0">dig</span><span style="color:#A3BE8C"> www.example.com</span><span style="color:#A3BE8C"> CNAME</span></span>
+<span data-line=""><span style="color:#88C0D0">dig</span><span style="color:#A3BE8C"> example.com</span><span style="color:#A3BE8C"> MX</span></span>
+<span data-line=""><span style="color:#88C0D0">dig</span><span style="color:#A3BE8C"> example.com</span><span style="color:#A3BE8C"> NS</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88"># 看完整输出，重点关注 ANSWER / AUTHORITY / SERVER / Query time</span></span>
+<span data-line=""><span style="color:#88C0D0">dig</span><span style="color:#A3BE8C"> example.com</span></span>
+<span data-line=""><span style="color:#616E88"># 查所有常见记录，不一定每个 DNS 都支持</span></span>
+<span data-line=""><span style="color:#88C0D0">dig</span><span style="color:#A3BE8C"> example.com</span><span style="color:#A3BE8C"> ANY</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88"># 速记：</span></span>
+<span data-line=""><span style="color:#616E88"># @server = 指定 DNS 服务器</span></span>
+<span data-line=""><span style="color:#616E88"># +short  = 只输出答案</span></span>
+<span data-line=""><span style="color:#616E88"># +trace  = 逐级追踪</span></span>
+<span data-line=""><span style="color:#616E88"># -x      = 反查 PTR</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88"># 指定 DNS 服务器查询</span></span>
+<span data-line=""><span style="color:#88C0D0">dig</span><span style="color:#A3BE8C"> @8.8.8.8</span><span style="color:#A3BE8C"> example.com</span></span>
+<span data-line=""><span style="color:#88C0D0">dig</span><span style="color:#A3BE8C"> @1.1.1.1</span><span style="color:#A3BE8C"> example.com</span><span style="color:#A3BE8C"> MX</span></span>
+<span data-line=""><span style="color:#616E88"># 只看答案，适合快速确认或写脚本</span></span>
+<span data-line=""><span style="color:#88C0D0">dig</span><span style="color:#A3BE8C"> +short</span><span style="color:#A3BE8C"> example.com</span></span>
+<span data-line=""><span style="color:#88C0D0">dig</span><span style="color:#A3BE8C"> +short</span><span style="color:#A3BE8C"> example.com</span><span style="color:#A3BE8C"> MX</span></span>
+<span data-line=""><span style="color:#616E88"># 从根域开始逐级追踪解析链路</span></span>
+<span data-line=""><span style="color:#88C0D0">dig</span><span style="color:#A3BE8C"> +trace</span><span style="color:#A3BE8C"> example.com</span></span>
+<span data-line=""><span style="color:#616E88"># 反向解析 IP，看 PTR 记录</span></span>
+<span data-line=""><span style="color:#88C0D0">dig</span><span style="color:#A3BE8C"> -x</span><span style="color:#B48EAD"> 8.8.8.8</span></span></code></pre></figure></article></main></body></html>

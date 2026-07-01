@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>周志明的架构课</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E5%91%A8%E5%BF%97%E6%98%8E%E7%9A%84%E6%9E%B6%E6%9E%84%E8%AF%BE">周志明的架构课</h1>
+<blockquote>
+<p>geektime 周志明的架构课</p>
+</blockquote>
+<h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9">核心观点</h2>
+<blockquote>
+<p>这门课的重点不是某个框架怎么用，而是建立一张完整的现代架构地图：系统为什么会从单体走向微服务，再走向云原生；每一步解决了什么问题，又引入了什么复杂度。</p>
+</blockquote>
+<ul>
+<li><strong>架构演进的本质是复杂度转移</strong>：从单体到 SOA、微服务、云原生，不是复杂度消失，而是复杂度从代码内部转移到服务间通信、运维治理和基础设施层。</li>
+<li><strong>微服务不是目标，而是手段</strong>：它解决的是组织规模、业务边界、交付效率的问题，同时也带来事务、一致性、治理和观测上的新成本。</li>
+<li><strong>分布式系统真正难的不是拆服务，而是拆完以后怎么保证可靠性</strong>：远程调用、事务、缓存、服务发现、容错、限流、安全、可观测性，才是长期成本所在。</li>
+<li><strong>云原生的核心价值是把复杂度下沉到基础设施</strong>：容器、Kubernetes、服务网格、不可变基础设施，本质上都在把分布式问题标准化、自动化、平台化。</li>
+<li><strong>架构师的工作不是追热点，而是在约束下做取舍</strong>：在成本、性能、可靠性、扩展性和团队协作之间找到合适平衡。</li>
+</ul>
+<h2 id="%E4%B8%BB%E7%BA%BF">主线</h2>
+<h3 id="1.%20%E6%BC%94%E8%BF%9B%E4%B8%AD%E7%9A%84%E6%9E%B6%E6%9E%84">1. 演进中的架构</h3>
+<p>课程先从 Unix、单体、SOA、微服务，一路讲到后微服务和无服务架构。</p>
+<p>这一部分的重点不是背定义，而是理解：</p>
+<ul>
+<li>为什么旧架构在当时是合理的</li>
+<li>新架构是为了解什么问题而出现的</li>
+<li>新方案引入了哪些新的代价和边界</li>
+</ul>
+<p>可把它看成一条认知主线：</p>
+<p><code>单体 -> 服务化 -> 微服务 -> 云原生 -> Serverless</code></p>
+<h3 id="2.%20%E6%9E%B6%E6%9E%84%E5%B8%88%E7%9A%84%E8%A7%86%E8%A7%92">2. 架构师的视角</h3>
+<p>课程把"架构设计"从抽象概念拆成一组可讨论的问题：</p>
+<ul>
+<li>远程调用怎么做</li>
+<li>RPC 和 REST 怎么选</li>
+<li>本地事务和分布式事务如何处理</li>
+<li>缓存如何协同</li>
+<li>认证、授权、凭证、加密、传输安全如何落地</li>
+</ul>
+<p>这一部分的价值在于：架构设计不再是拍脑袋选框架，而是围绕一系列约束条件做工程判断。</p>
+<h3 id="3.%20%E5%88%86%E5%B8%83%E5%BC%8F%E7%9A%84%E5%9F%BA%E7%9F%B3">3. 分布式的基石</h3>
+<p>这是整门课最通用的一部分，覆盖现代分布式系统的共性问题：</p>
+<ul>
+<li>服务发现、路由、负载均衡</li>
+<li>故障处理、容错、限流</li>
+<li>分布式共识</li>
+<li>零信任安全</li>
+<li>日志、追踪、度量等可观测性能力</li>
+</ul>
+<p>这部分传达的核心认识是：</p>
+<blockquote>
+<p>分布式系统的难点，从来不在"把模块拆开"，而在"如何让多个不可靠节点对外表现得足够可靠"。</p>
+</blockquote>
+<h3 id="4.%20%E4%BB%8E%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%88%B0%E4%BA%91%E5%8E%9F%E7%94%9F">4. 从微服务到云原生</h3>
+<p>这里的关键概念是<strong>不可变基础设施</strong>。</p>
+<p>课程的判断很明确：云原生不只是容器化，也不只是 K8s，而是把原本需要应用自己承担的一部分复杂度，转交给基础设施和平台层处理。</p>
+<p>重点包括：</p>
+<ul>
+<li>容器：封装运行环境</li>
+<li>Kubernetes：调度、编排、资源管理</li>
+<li>网络与存储：为分布式运行提供统一底座</li>
+<li>服务网格：把通信治理从业务代码里剥离出来</li>
+</ul>
+<p>一句话概括：</p>
+<blockquote>
+<p>微服务主要解决服务拆分问题，云原生主要解决拆分之后的交付、治理和运行问题。</p>
+</blockquote>
+<h3 id="5.%20%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%AE%9E%E8%B7%B5">5. 探索与实践</h3>
+<p>课程最后用 <code>Fenix's Bookstore</code> 做多种架构实现和部署实践，包括：</p>
+<ul>
+<li>基于 Spring Boot 的单体架构</li>
+<li>基于 Spring Cloud 的微服务架构</li>
+<li>基于 Kubernetes 的微服务架构</li>
+<li>基于 Istio 的服务网格架构</li>
+<li>基于云计算的无服务架构</li>
+</ul>
+<p>这部分适合把前面的抽象概念映射回真实工程，观察同一个业务系统在不同架构下的收益与代价。</p>
+<h2 id="%E8%BF%99%E9%97%A8%E8%AF%BE%E6%9C%80%E5%80%BC%E5%BE%97%E5%90%B8%E6%94%B6%E7%9A%84%E5%88%A4%E6%96%AD">这门课最值得吸收的判断</h2>
+<ol>
+<li><strong>单体不是落后方案</strong>：在团队规模、业务复杂度、交付频率还没到一定程度前，单体往往是性价比最高的选择。</li>
+<li><strong>微服务的收益和成本必须一起看</strong>：拆分提升了自治和扩展性，也放大了网络调用、数据一致性和运维治理问题。</li>
+<li><strong>可靠性是分布式架构的第一主题</strong>：容错、隔离、限流、观测、安全，比"怎么拆"更决定系统长期可维护性。</li>
+<li><strong>云原生的价值在于标准化和自动化</strong>：它让很多高复杂度能力不再由业务团队重复造轮子。</li>
+<li><strong>架构演进没有银弹，只有取舍</strong>：任何方案都在交换复杂度、成本和灵活性。</li>
+</ol>
+<h2 id="%E9%80%82%E5%90%88%E6%80%8E%E4%B9%88%E8%AF%BB">适合怎么读</h2>
+<ul>
+<li>第一遍通读，建立概念地图，不追求全懂。</li>
+<li>第二遍按问题回查，比如事务、缓存、限流、可观测性。</li>
+<li>第三遍结合实战章节看同一系统在不同架构下的实现差异。</li>
+</ul>
+<h2 id="%E4%B8%80%E5%8F%A5%E8%AF%9D%E6%80%BB%E7%BB%93">一句话总结</h2>
+<blockquote>
+<p>这门课最大的价值，是帮你建立一种判断力：什么时候该用单体，什么时候该拆成微服务，什么时候该借助云原生基础设施，以及每一步你到底在交换什么。</p>
+</blockquote></article></main></body></html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>helm</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="helm">helm</h1>
+<p>S：K8s 应用包含多份 YAML，环境差异多。
+C：手写和复制配置易漂移，升级回滚难追踪。
+Q：如何把应用交付变成可版本化、可复用的包？
+A：Helm 用 Chart 模板化资源，用 values 注入环境配置，并以 release 记录安装、升级、回滚。</p>
+<h2 id="%E6%A0%B8%E5%BF%83%E6%8A%BD%E8%B1%A1">核心抽象</h2>
+<ul>
+<li>Chart：应用包，组合一组 K8s 资源模板、默认 values 和元数据。</li>
+<li>Values：参数输入，解决环境差异和配置复用问题。</li>
+<li>Template：K8s YAML 模板，解决重复手写资源清单的问题。</li>
+<li>Release：Chart 的一次安装实例，解决升级、回滚、状态追踪问题。</li>
+<li>Repository：Chart 分发仓库，解决应用包发现和复用问题。</li>
+</ul>
+<p>Helm 可以理解为 K8s 之上的应用交付抽象层：K8s 管资源，Helm 管由一组资源组成的应用包及其生命周期。</p>
+<p>心智模型：Helm 以 Chart 为交付单位，以 Release 为生命周期管理对象。</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>Chart + Values</span></span>
+<span data-line=""><span>  -> helm install / upgrade</span></span>
+<span data-line=""><span>  -> K8s Resources</span></span>
+<span data-line=""><span>  -> Release</span></span></code></pre></figure>
+<h2 id="%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4">常用命令</h2>
+<p>最常用心智模型：
+找包：repo/search/show
+预览：template/dry-run
+安装：install
+变更：upgrade/rollback
+排查：list/status/history/get
+开发：create/lint</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88"># repo：添加、更新、搜索</span></span>
+<span data-line=""><span style="color:#88C0D0">helm</span><span style="color:#A3BE8C"> repo</span><span style="color:#A3BE8C"> add</span><span style="color:#A3BE8C"> bitnami</span><span style="color:#A3BE8C"> https://charts.bitnami.com/bitnami</span></span>
+<span data-line=""><span style="color:#88C0D0">helm</span><span style="color:#A3BE8C"> repo</span><span style="color:#A3BE8C"> update</span></span>
+<span data-line=""><span style="color:#88C0D0">helm</span><span style="color:#A3BE8C"> search</span><span style="color:#A3BE8C"> repo</span><span style="color:#A3BE8C"> nginx</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88"># release：安装、更新、回滚、卸载</span></span>
+<span data-line=""><span style="color:#88C0D0">helm</span><span style="color:#A3BE8C"> install</span><span style="color:#A3BE8C"> my-nginx</span><span style="color:#A3BE8C"> bitnami/nginx</span></span>
+<span data-line=""><span style="color:#88C0D0">helm</span><span style="color:#A3BE8C"> upgrade</span><span style="color:#A3BE8C"> my-nginx</span><span style="color:#A3BE8C"> bitnami/nginx</span><span style="color:#A3BE8C"> --set</span><span style="color:#A3BE8C"> service.type=NodePort</span></span>
+<span data-line=""><span style="color:#88C0D0">helm</span><span style="color:#A3BE8C"> upgrade</span><span style="color:#A3BE8C"> --install</span><span style="color:#A3BE8C"> my-nginx</span><span style="color:#A3BE8C"> bitnami/nginx</span><span style="color:#A3BE8C"> -f</span><span style="color:#A3BE8C"> values.yaml</span></span>
+<span data-line=""><span style="color:#88C0D0">helm</span><span style="color:#A3BE8C"> rollback</span><span style="color:#A3BE8C"> my-nginx</span><span style="color:#B48EAD"> 1</span></span>
+<span data-line=""><span style="color:#88C0D0">helm</span><span style="color:#A3BE8C"> uninstall</span><span style="color:#A3BE8C"> my-nginx</span></span></code></pre></figure>
+<p><code>helm install</code> 会把 Chart + values 渲染成 K8s 资源并提交给 API Server；Helm 管 release 生命周期，K8s 负责实际运行。</p></article></main></body></html>

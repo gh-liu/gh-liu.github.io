@@ -1,0 +1,28 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>review-patch</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E5%8D%9A%E5%AE%A2%E7%AC%94%E8%AE%B0%EF%BC%9Areview-patch">博客笔记：review-patch</h1>
+<blockquote>
+<p><a href="https://kuniyu.jp/ja/blog/8">https://kuniyu.jp/ja/blog/8</a></p>
+</blockquote>
+<p>一句话补充如下点：</p>
+<ul>
+<li>是什么（What）— <code>review patch</code> 不是附属工作，而是开源协作里的共同维护机制；它要求贡献者不仅提交代码，也通过 review 帮助筛选风险、传递知识、分担 maintainer 的认知与决策负担。</li>
+<li>为什么（Why）— 如果社区成员都只发 patch 不 review，维护压力就会持续堆到少数 maintainer 身上，项目吞吐量、质量和协作氛围都会恶化；反过来，review 是建立信誉、扩大影响力、从“提交者”成长为“维护者候选人”的关键路径。</li>
+<li>怎么做（How）— 从自己最熟悉的小范围开始 review，先补充确认、提问、指出风险与边界条件，再逐步扩大覆盖面；不要等“全懂了”才开始，也不要为了刷参与感去 review 自己并不理解的内容。</li>
+</ul>
+<h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
+<p><code>review patch</code> 不只是帮作者挑错，而是社区成员分担维护成本、建立可信度、从“只提交代码的人”成长为“共同维护系统的人”的关键行为；即使只能在自己熟悉的小范围内 review，也比只持续发补丁而不参与反馈更像一个 <em>good citizen</em>。</p>
+<h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
+<ol>
+<li>Review 是一种社区责任分摊机制。文章用 <code>10 * reviews - 3 * authorship</code> 这样的统计把问题说得很直白：如果大家都只提交 patch，不参与 review，维护压力最终会集中到少数 maintainer 身上。</li>
+<li>Review 不要求一开始就“什么都懂”。作者真正转变的起点，不是能力突然够了，而是意识到可以先从自己熟悉的 socket 小领域开始，逐步扩大知识边界。</li>
+<li>持续 review 会改变个人和团队在社区里的形象。它不仅提升技术影响力，也会让 maintainer 把你视为可信赖的协作者，而不是只增加队列负担的补丁作者。</li>
+<li>这篇文章把“技术领导力”说得很具体：不是单纯产出更多代码，而是开始主动承担系统演化中的判断责任。能 review，才说明你开始进入“帮助别人把事情做对”的阶段。</li>
+<li>统计指标本身未必精确，但它能暴露协作结构的问题。很多工程指标都一样：数字不是真相本身，却能迫使团队正视本来被忽略的失衡。</li>
+</ol>
+<h2 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h2>
+<ol>
+<li>以后看待开源贡献时，不再只算“发了多少 patch”，而要把“帮别人 review 了多少、帮 maintainer 节省了多少判断成本”也纳入贡献定义。</li>
+<li>为自己选一个熟悉的小领域作为 review 起点；哪怕暂时只能确认思路、测试覆盖、边界条件和命名语义，也先参与，而不是等到能做 maintainer 级判断才开口。</li>
+<li>review 时优先提供三类高价值反馈：这段改动解决了什么问题、可能引入哪些风险、是否遗漏了约束/测试/兼容性考虑；避免只给没有判断价值的表面评论。</li>
+<li>把 review 当成学习路径而不是额外负担。通过持续看别人如何拆 patch、解释动机、回应质疑，反过来训练自己的设计判断和沟通能力。</li>
+<li>警惕“只提交、不共担”的协作习惯。无论在开源社区还是团队内部，长期只输出代码而不参与 review，都会让自己停留在局部生产者角色，很难进入更高层次的协作位置。</li>
+</ol></article></main></body></html>

@@ -1,0 +1,77 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>倒排索引</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E5%80%92%E6%8E%92%E7%B4%A2%E5%BC%95">倒排索引</h1>
+<ul>
+<li><strong>S 场景</strong>：按关键词查海量文档（搜索引擎、ES、日志、全文索引）。</li>
+<li><strong>C 冲突</strong>：正排索引（docId → 内容）查"含某词的文档"必须 O(N) 全扫。</li>
+<li><strong>Q 问题</strong>：如何 O(1) 拿到含某词的文档列表，并支持布尔组合与相关性排序？</li>
+<li><strong>A 答案</strong>：把映射倒过来——term → posting list（含 docId、TF、位置），配合分词器、压缩与段合并。</li>
+</ul>
+<h2 id="%E6%9E%B6%E6%9E%84">架构</h2>
+<h3 id="%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">数据结构</h3>
+<pre><code>词典（FST / B+ 树 / Hash）         Posting Lists
+┌──────────┬─────┬─────────┐
+│ term     │ df  │ pointer │ ──→ [(doc1, tf, [pos...]),
+├──────────┼─────┼─────────┤      (doc3, tf, [pos...]),
+│ "redis"  │  4  │   ●─────┼──→   (doc7, ...), ...]
+│ "kafka"  │  3  │   ●     │
+│ "mongo"  │  2  │   ●     │
+└──────────┴─────┴─────────┘
+</code></pre>
+<h3 id="%E6%9E%84%E5%BB%BA">构建</h3>
+<pre><code>文档 → 预处理（去 HTML、归一） → 分词 → 词干化
+     → 生成 (term, docId, pos, tf) → 按 term 聚合 → 写词典 + posting
+</code></pre>
+<h3 id="%E6%9F%A5%E8%AF%A2">查询</h3>
+<pre><code>query → 同样的 Analyzer → terms → 查词典 → 取 posting lists
+      → 求交/并集 → BM25 打分 → top-K
+</code></pre>
+<h2 id="%E5%85%B3%E9%94%AE%E7%BB%84%E4%BB%B6">关键组件</h2>
+<ul>
+<li><strong>词典</strong>：FST（Lucene）压缩前后缀，兼顾查询与内存</li>
+<li><strong>Posting List</strong>：差值编码 + VarInt / Roaring Bitmap，加 skip list 加速求交</li>
+<li><strong>Analyzer</strong>：Character Filter → Tokenizer → Token Filter（小写/停用词/同义词/词干）</li>
+<li><strong>Segment</strong>：Lucene 风格——小 segment 不可变，后台 merge（类 LSM compaction），删除靠位图</li>
+<li><strong>打分 BM25</strong>：</li>
+</ul>
+<pre><code>              tf · (k1 + 1)
+score = idf · ─────────────────────────
+              tf + k1 · (1 - b + b · |d|/avgdl)
+</code></pre>
+<h2 id="%E5%AF%B9%E6%AF%94">对比</h2>
+<table>
+<thead>
+<tr>
+<th>索引</th>
+<th>查询模式</th>
+<th>用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>倒排</td>
+<td>term → docs</td>
+<td>全文检索</td>
+</tr>
+<tr>
+<td>正排</td>
+<td>docId → 内容</td>
+<td>取详情、过滤</td>
+</tr>
+<tr>
+<td>B+ 树</td>
+<td>精确/范围</td>
+<td>关系型主键</td>
+</tr>
+<tr>
+<td>LSM</td>
+<td>KV、范围</td>
+<td>写密集 NoSQL</td>
+</tr>
+<tr>
+<td>HNSW</td>
+<td>近似最近邻</td>
+<td>语义/向量检索</td>
+</tr>
+</tbody>
+</table>
+<h2 id="%E5%B7%A5%E4%B8%9A%E5%AE%9E%E7%8E%B0">工业实现</h2>
+<p>Lucene → Elasticsearch / Solr / Tantivy；PostgreSQL GIN、MySQL FULLTEXT、ClickHouse token bloom。</p></article></main></body></html>

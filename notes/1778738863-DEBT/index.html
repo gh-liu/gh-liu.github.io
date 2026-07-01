@@ -1,0 +1,594 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>clickhouse</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="clickhouse">clickhouse</h1>
+<blockquote>
+<p>高性能、列式、面向 OLAP 的 SQL 数据库</p>
+</blockquote>
+<p>ClickHouse 是一个列式 OLAP 数据库，主要用于大规模数据分析、实时报表、日志分析、用户行为分析、监控指标分析等场景。</p>
+<p>从海量明细数据里，快速算聚合结果。</p>
+<p>大量插入，少量更新，频繁聚合查询。</p>
+<blockquote>
+<p>大量追加写 少量修改删除 频繁聚合查询</p>
+</blockquote>
+<ul>
+<li>S：业务数据量爆炸式增长，日志、埋点、监控指标动辄百亿、千亿行，业务方希望对这些数据做实时多维分析、即席查询和报表。</li>
+<li>C：传统的行式 OLTP 数据库（MySQL、PostgreSQL）面向事务设计，做大规模聚合扫描时 IO 放大严重、CPU 利用率低；Hadoop/Spark 这类离线方案延迟在分钟到小时级，无法满足交互式分析的体验；自研列存又成本高、生态弱。</li>
+<li>Q：有没有一种数据库，既能像列式存储那样高效压缩与扫描海量数据，又能像 SQL 数据库那样易用，并且查询延迟做到亚秒级？</li>
+<li>A：ClickHouse —— 通过<strong>列式存储 + 向量化执行 + MPP 并行 + LSM 结构的 MergeTree</strong>，在单机上就能跑出 GB/s 级别的扫描吞吐，对百亿行数据的聚合查询通常在秒级返回，且兼容标准 SQL，是当下 OLAP 场景的事实标准之一。</li>
+</ul>
+<h2 id="%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86">实现原理</h2>
+<p>核心思想：<strong>让 CPU 始终在对连续内存块做紧凑的、SIMD 友好的计算</strong>。</p>
+<blockquote>
+<p>一句话：<strong>少读 + 顺序读 + 批量算 + 多核并行 + 多机并行</strong>。</p>
+</blockquote>
+<ul>
+<li><strong>列式存储</strong>：每列单独成文件，类型一致带来高压缩比（LZ4/ZSTD 常见 5×~20×），查询只读用到的列。</li>
+<li><strong>MergeTree 引擎</strong>：数据按主键排序写入不可变 Part，后台持续 Merge 成大 Part（类 LSM Compaction）。</li>
+<li><strong>稀疏主键索引</strong>：每 <code>index_granularity</code>（默认 8192 行）一条索引项常驻内存，配合分区裁剪、Skip Index（minmax/bloom 等）大量跳过数据。</li>
+<li><strong>向量化执行</strong>：算子间传递 Block（默认 65536 行），按列循环 + SIMD + LLVM JIT，避开 Volcano 一次一行的开销。</li>
+<li><strong>MPP 并行</strong>：单机按 Part/Granule 多线程扫描；分布式表两阶段聚合（本地 partial → 全局 merge）减少跨节点数据。</li>
+<li><strong>写入路径</strong>：append-only 大批次写一次成一个 Part，小批量会产生大量小 Part 拖垮 Merge；update/delete 是异步 Mutation，重写整段 Part。</li>
+<li><strong>副本与一致性</strong>：<code>ReplicatedMergeTree</code> 借 ZooKeeper/Keeper 异步多副本复制；事务能力弱（仅单 Part 原子），不适合 OLTP。</li>
+</ul>
+<p>1.先理解列式数据库和 OLAP。
+2.学会 MergeTree 建表。
+3.重点理解 PARTITION BY 和 ORDER BY。
+4.掌握常用聚合函数：count、uniq、sum、avg、quantile。
+5.学会数据导入：CSV、JSON、Kafka、MySQL <a href="/notes/1779331750-ELEY">CDC</a>。
+6.学会物化视图做预聚合。
+7.再看 Projection、Dictionary、分布式表、集群部署。</p>
+<h2 id="%E8%A1%A8%E8%AE%BE%E8%AE%A1%E6%A0%B8%E5%BF%83%3A">表设计核心:</h2>
+<ul>
+<li>ENGINE = MergeTree   决定表的存储能力</li>
+<li>PARTITION BY ...     数据怎么分区管理</li>
+<li>ORDER BY ...         数据在磁盘上怎么排序 直接影响查询性能</li>
+</ul>
+<p>MergeTree 适合大批量写入、大规模查询、后台自动整理数据的表引擎。</p>
+<table>
+<thead>
+<tr>
+<th>项目</th>
+<th>PARTITION BY</th>
+<th>ORDER BY</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>主要作用</td>
+<td>数据分区管理</td>
+<td>数据排序和索引</td>
+</tr>
+<tr>
+<td>常见字段</td>
+<td>时间</td>
+<td>查询过滤字段</td>
+</tr>
+<tr>
+<td>是否越细越好</td>
+<td>不是</td>
+<td>也不是，需匹配查询</td>
+</tr>
+<tr>
+<td>常见写法</td>
+<td><code>toYYYYMM(time)</code></td>
+<td><code>(type, time, id)</code></td>
+</tr>
+<tr>
+<td>影响</td>
+<td>删除、裁剪、管理</td>
+<td>查询性能核心</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>MergeTree 是 ClickHouse 最常用表引擎。</li>
+<li>PARTITION BY 通常按时间分区，比如月或天。</li>
+<li>分区不要按 user_id、uuid、request_id 这类高基数字段。</li>
+<li>ORDER BY 是查询性能核心，不是结果排序。</li>
+<li>ORDER BY 要根据最常用 WHERE 条件设计。</li>
+</ol>
+<h2 id="%E8%81%9A%E5%90%88">聚合</h2>
+<table>
+<thead>
+<tr>
+<th>函数</th>
+<th>作用</th>
+<th>常见用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>count()</code></td>
+<td>统计行数</td>
+<td>PV、请求量、订单量</td>
+</tr>
+<tr>
+<td><code>uniq()</code></td>
+<td>去重计数</td>
+<td>UV、去重设备数</td>
+</tr>
+<tr>
+<td><code>sum()</code></td>
+<td>求和</td>
+<td>销售额、流量</td>
+</tr>
+<tr>
+<td><code>avg()</code></td>
+<td>平均值</td>
+<td>平均耗时、平均订单金额</td>
+</tr>
+<tr>
+<td><code>min()</code></td>
+<td>最小值</td>
+<td>最早时间、最低价格</td>
+</tr>
+<tr>
+<td><code>max()</code></td>
+<td>最大值</td>
+<td>最晚时间、最高金额</td>
+</tr>
+<tr>
+<td><code>quantile()</code></td>
+<td>分位数</td>
+<td>P95、P99 延迟</td>
+</tr>
+<tr>
+<td><code>topK()</code></td>
+<td>高频值</td>
+<td>热门页面、热门城市</td>
+</tr>
+<tr>
+<td><code>countIf()</code></td>
+<td>条件计数</td>
+<td>错误数、点击数</td>
+</tr>
+<tr>
+<td><code>sumIf()</code></td>
+<td>条件求和</td>
+<td>已支付金额、退款金额</td>
+</tr>
+</tbody>
+</table>
+<h2 id="%E5%86%99%E5%85%A5">写入</h2>
+<ol>
+<li>原则 1：批量写入 为大批量插入优化</li>
+<li>原则 2：控制小 part   后台会合并 part，但如果小批次太多，后台合并压力会很大</li>
+<li>原则 3：尽量按分区写入</li>
+<li>原则 4：数据类型要对齐</li>
+<li>原则 5：失败要能重试 写入链路最好设计成：应用 → 队列 → 消费者 → ClickHouse</li>
+</ol>
+<h2 id="%E7%89%A9%E5%8C%96%E8%A7%86%E5%9B%BE%EF%BC%9A%E5%A6%82%E4%BD%95%E6%8A%8A%E6%85%A2%E6%9F%A5%E8%AF%A2%E5%8F%98%E6%88%90%E5%BF%AB%E6%9F%A5%E8%AF%A2">物化视图：如何把慢查询变成快查询</h2>
+<p>把查询时的聚合计算，提前放到写入时完成。</p>
+<h2 id="Projection%EF%BC%9A%E8%A1%A8%E5%86%85%E6%8A%95%E5%BD%B1%EF%BC%8C%E5%A6%82%E4%BD%95%E4%BC%98%E5%8C%96%E4%B8%8D%E5%90%8C%E6%9F%A5%E8%AF%A2%E6%A8%A1%E5%BC%8F">Projection：表内投影，如何优化不同查询模式</h2>
+<p>同一张 ClickHouse 表内部，额外存了一份按另一种方式组织的数据(表内副本)</p>
+<ul>
+<li>物化视图是<code>另一张显式目标表</code></li>
+<li>Projection 是<code>同一张表内部的隐藏优化结构</code></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>对比项</th>
+<th>Materialized View</th>
+<th>Projection</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>存储位置</td>
+<td>单独目标表</td>
+<td>原表内部</td>
+</tr>
+<tr>
+<td>查询方式</td>
+<td>通常查目标表</td>
+<td>仍然查原表</td>
+</tr>
+<tr>
+<td>是否透明</td>
+<td>不透明，需要你知道目标表</td>
+<td>比较透明，优化器自动选择</td>
+</tr>
+<tr>
+<td>适合</td>
+<td>预聚合、ETL、复杂转换</td>
+<td>多种排序、部分预聚合</td>
+</tr>
+<tr>
+<td>是否支持 Join 定义</td>
+<td>支持复杂一些</td>
+<td>Projection 定义不支持 Join</td>
+</tr>
+<tr>
+<td>是否支持 WHERE 过滤定义</td>
+<td>可以</td>
+<td>Projection 定义不支持 WHERE</td>
+</tr>
+<tr>
+<td>TTL 灵活性</td>
+<td>目标表可单独 TTL</td>
+<td>不能和源表用不同 TTL</td>
+</tr>
+<tr>
+<td>链式处理</td>
+<td>可以链式物化视图</td>
+<td>不支持链式</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Dictionary%20%E9%AB%98%E6%80%A7%E8%83%BD%20Key-Value%20%E6%9F%A5%E8%AF%A2%E7%BB%93%E6%9E%84%EF%BC%8C%E5%B8%B8%E7%94%A8%E6%9D%A5%E5%81%9A%E7%BB%B4%E5%BA%A6%E8%A1%A8%E6%9F%A5%E8%AF%A2">Dictionary 高性能 Key-Value 查询结构，常用来做维度表查询</h2>
+<p>一种来自内部或外部数据源的 key-value 表示，用于低延迟 lookup 查询，常用于优化 Join 或数据 enrichment</p>
+<p>把维表变成一个快速查找结构，查询时用 key 去取属性，而不是每次做完整 Join</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>更适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>事实表很大，维表较小</td>
+<td>Dictionary</td>
+</tr>
+<tr>
+<td>只需要根据 key 查几个字段</td>
+<td>Dictionary</td>
+</tr>
+<tr>
+<td>维表更新不需要秒级实时</td>
+<td>Dictionary</td>
+</tr>
+<tr>
+<td>复杂多条件 Join</td>
+<td>Join</td>
+</tr>
+<tr>
+<td>多对多关系</td>
+<td>Join</td>
+</tr>
+<tr>
+<td>需要 Join 后保留大量维表字段</td>
+<td>宽表或 Join</td>
+</tr>
+<tr>
+<td>维度字段查询极高频</td>
+<td>Dictionary 或宽表</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Join%20%E4%B8%8E%E5%AE%BD%E8%A1%A8%E8%AE%BE%E8%AE%A1">Join 与宽表设计</h2>
+<p>宽表 就是把查询常用字段提前合并到一张事实表里</p>
+<p>ClickHouse 偏向：查询时少 Join，写入时多处理，尽量让查询阶段扫一张大宽表。</p>
+<p>ClickHouse Join 的一个重要规则：小表放右边, 很多 Join 算法会基于右表构建内存结构</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>推荐方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>高频固定报表</td>
+<td>宽表</td>
+</tr>
+<tr>
+<td>事实表巨大，维表较小，按 key 查属性</td>
+<td>Dictionary</td>
+</tr>
+<tr>
+<td>维表很小</td>
+<td>Join 也可以</td>
+</tr>
+<tr>
+<td>临时分析</td>
+<td>Join</td>
+</tr>
+<tr>
+<td>多对多关系</td>
+<td>Join 或中间明细表</td>
+</tr>
+<tr>
+<td>维度变化慢，按事件发生时口径统计</td>
+<td>宽表</td>
+</tr>
+<tr>
+<td>维度变化快，按当前口径统计</td>
+<td>Dictionary 或 Join</td>
+</tr>
+<tr>
+<td>查询需要极低延迟</td>
+<td>宽表或预聚合</td>
+</tr>
+<tr>
+<td>查询字段很多，每次都要补很多维度</td>
+<td>宽表</td>
+</tr>
+<tr>
+<td>维表太大无法放内存</td>
+<td>Join / Direct Dictionary / 宽表重建</td>
+</tr>
+</tbody>
+</table>
+<h2 id="TTL%20%E4%B8%8E%E5%86%B7%E7%83%AD%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86">TTL 与冷热数据管理</h2>
+<p>自动删除过期数据
+自动冷热分层
+自动清理大字段
+辅助数据生命周期管理</p>
+<p>自动删除过期数据
+自动冷热分层
+自动清理大字段
+辅助数据生命周期管理</p>
+<h2 id="MergeTree%20%E5%8F%98%E4%BD%93">MergeTree 变体</h2>
+<p>ReplacingMergeTree / SummingMergeTree / AggregatingMergeTree</p>
+<p>普通 MergeTree 存明细；ReplacingMergeTree 存<code>最后一版</code>；SummingMergeTree 存<code>可累加指标</code>；AggregatingMergeTree 存<code>聚合状态</code>。</p>
+<table>
+<thead>
+<tr>
+<th>引擎</th>
+<th>主要用途</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ReplacingMergeTree</code></td>
+<td>去重、保留最新版本</td>
+</tr>
+<tr>
+<td><code>SummingMergeTree</code></td>
+<td>自动把数值列求和</td>
+</tr>
+<tr>
+<td><code>AggregatingMergeTree</code></td>
+<td>存储聚合状态，适合复杂预聚合</td>
+</tr>
+</tbody>
+</table>
+<p>为什么 数据写进去后，不会像 MySQL 那样频繁原地更新，而是通过后台 merge 慢慢合并数据。
+也就是在merge时候做一些操作</p>
+<h2 id="%E6%95%B0%E6%8D%AE%E6%9B%B4%E6%96%B0%E4%B8%8E%E5%88%A0%E9%99%A4">数据更新与删除</h2>
+<p>追加写入 → 后台合并 → 查询时读取列式数据</p>
+<blockquote>
+<p>我要写入一个新事实，让查询或后台 merge 得到新结果</p>
+</blockquote>
+<p>不像 MySQL 那样频繁原地更新：ClickHouse 面向 OLAP，大量数据顺序写入、压缩、列式扫描更重要；原地更新会破坏这种高吞吐写入和列式存储优势。</p>
+<h2 id="%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E5%9F%BA%E7%A1%80">性能优化基础</h2>
+<blockquote>
+<p>让查询少读数据，而不是读完以后算得更快</p>
+</blockquote>
+<p>核心抽象: 从磁盘上很多有序数据块中，尽量少拿块; 优化(哪些块不用读)</p>
+<p>第一步：看 query_log  read_rows,read_bytes
+第二步：看 SQL 访问模式
+第三步：看表结构
+第四步：EXPLAIN indexes = 1
+第五步：决定优化手段</p>
+<p>看执行计划、读行数、索引命中、避免全表扫</p>
+<h2 id="%E6%95%B0%E6%8D%AE%E5%8E%8B%E7%BC%A9%E4%B8%8E%E7%B1%BB%E5%9E%8B%E8%AE%BE%E8%AE%A1"><strong>数据压缩与类型设计</strong></h2>
+<p><code>LowCardinality</code>、<code>Enum</code>、<code>Decimal</code>、Nullable 使用建议</p>
+<table>
+<thead>
+<tr>
+<th>类型</th>
+<th>特点</th>
+<th>适合</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LowCardinality(String)</code></td>
+<td>灵活，自动字典编码</td>
+<td>低基数但会变化的字符串</td>
+</tr>
+<tr>
+<td><code>Enum8 / Enum16</code></td>
+<td>严格，值集合固定</td>
+<td>稳定状态机、固定枚举</td>
+</tr>
+<tr>
+<td><code>String</code></td>
+<td>最通用，但可能重</td>
+<td>高基数或自由文本</td>
+</tr>
+</tbody>
+</table>
+<h2 id="%E5%88%86%E5%B8%83%E5%BC%8F%E8%A1%A8%E4%B8%8E%E9%9B%86%E7%BE%A4"><strong>分布式表与集群</strong></h2>
+<p>三层概念：本地表、分片 shard、副本 replica、Distributed 表
+shard 存不同部分的数据；replica 是相同数据的副本；Distributed 表本身不存数据，而是把查询转发到各个 shard，并汇总结果。</p>
+<ul>
+<li>shard：分片，解决容量和吞吐扩展</li>
+<li>replica：副本，解决高可用和读扩展</li>
+<li>Distributed 表：提供一个统一查询入口</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>概念</th>
+<th>数据关系</th>
+<th>解决问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>shard</td>
+<td>不同 shard 存不同数据</td>
+<td>扩容、分摊计算、分摊写入</td>
+</tr>
+<tr>
+<td>replica</td>
+<td>同一 shard 的多个副本存相同数据</td>
+<td>高可用、容灾、读扩展</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>负责什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Distributed</code></td>
+<td>跨 shard 查询和写入路由</td>
+</tr>
+<tr>
+<td><code>ReplicatedMergeTree</code></td>
+<td>同一个 shard 内的副本复制</td>
+</tr>
+<tr>
+<td><code>ON CLUSTER</code></td>
+<td>在多个节点执行 DDL</td>
+</tr>
+<tr>
+<td><code>Keeper / ZooKeeper</code></td>
+<td>协调副本元数据和复制状态</td>
+</tr>
+</tbody>
+</table>
+<p>ClickHouse 集群 = 多个本地 MergeTree 表 + Distributed 统一入口 + shard 分片 + replica 副本。</p>
+<h2 id="%E5%89%AF%E6%9C%AC%E4%B8%8E%E9%AB%98%E5%8F%AF%E7%94%A8"><strong>副本与高可用</strong></h2>
+<p>副本主要解决：高可用，容灾，读扩展，故障恢复</p>
+<p>ClickHouse 的复制是“表级别”的，同一个 server 上可以同时有复制表和非复制表。
+这张表使用了 <code>ReplicatedMergeTree</code> 才有复制能力。</p>
+<p>Keeper ：副本复制的协调者 / 元数据日志中心
+主要存：复制元数据，副本状态，复制队列，分布式 DDL 相关信息</p>
+<p>ClickHouse 的复制更适合这样理解：面向 OLAP 的异步副本复制
+更关注：高吞吐写入，大规模分析，最终一致，可用性；而不是：每次写后读都强一致</p>
+<p>system.replicas 是监控副本状态的核心系统表</p>
+<h2 id="Kafka%20%E6%8E%A5%E5%85%A5"><strong>Kafka 接入</strong></h2>
+<p>ClickHouse 有一个 Kafka 表引擎，把 Kafka topic 暴露成一张 ClickHouse 表</p>
+<p>查询 Kafka Engine 表时，本质是在消费 Kafka 消息</p>
+<pre><code>你查一次
+  ↓
+ClickHouse 消费一批消息
+  ↓
+consumer offset 往前推进
+  ↓
+下次可能读不到同一批消息
+</code></pre>
+<p>Kafka Engine 表更适合搭配：Materialized View；让 MV 持续消费 Kafka，然后写入真正的 MergeTree 表</p>
+<p>ClickHouse 接 Kafka，最常见是三张表：</p>
+<ol>
+<li>Kafka Engine 表：负责读 Kafka</li>
+<li>MergeTree 目标表：负责存真实数据</li>
+<li>Materialized View：负责把 Kafka 表的数据写入MergeTree目标表</li>
+</ol>
+<pre><code>Kafka topic: user_events
+        ↓
+kafka_events_queue  -- Kafka Engine 表，不长期存数据
+        ↓
+mv_kafka_to_events  -- Materialized View，消费并写入
+        ↓
+events_local        -- MergeTree 表，真正存数据
+</code></pre>
+<h2 id="MySQL%20%E5%90%8C%E6%AD%A5%E5%88%B0%20ClickHouse"><strong>MySQL 同步到 ClickHouse</strong></h2>
+<p>MySQL 是行级更新的 OLTP 源库，ClickHouse 是追加优先的 OLAP 分析库，中间通常靠 <code>CDC</code> 把<code>变更流</code>转成<code>可分析数据</code></p>
+<p>MySQL binlog 也是一种事实日志
+<a href="/notes/1779331750-ELEY">CDC</a> 是把数据库变更日志变成事件流
+ClickHouse 消费这个事件流，生成分析表</p>
+<p><a href="/notes/1779331750-ELEY">CDC</a>: Change Data Capture 变更数据捕获：捕获源数据库里发生了什么变化
+CDC 把数据库内部的变化，变成外部系统可以消费的事件流。</p>
+<pre><code>MySQL binlog
+  ↓
+解析 INSERT / UPDATE / DELETE
+  ↓
+生成变更事件
+  ↓
+写入 Kafka 或直接写入 ClickHouse
+</code></pre>
+<p>Debezium 读取 MySQL binlog ，把 INSERT / UPDATE / DELETE 变成 Kafka 消息
+Flink 清洗 / join / 聚合 / 宽表化
+DataX 定时批量抽取
+Airbyte 快速搭建数据同步</p>
+<p>Debezium 偏“捕获变更”
+Flink 偏“处理变更”
+DataX 偏“批量搬运”
+Airbyte 偏“连接器化同步”</p>
+<table>
+<thead>
+<tr>
+<th>场景</th>
+<th>方案</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>简单单表同步</td>
+<td>Airbyte / DataX / ClickPipes / connector</td>
+</tr>
+<tr>
+<td>MySQL binlog 进入 Kafka</td>
+<td>Debezium</td>
+</tr>
+<tr>
+<td>多表 join、清洗、聚合</td>
+<td>Flink CDC</td>
+</tr>
+<tr>
+<td>离线批量导入</td>
+<td>DataX / Spark / 自研批处理</td>
+</tr>
+<tr>
+<td>高度定制同步语义</td>
+<td>自研 consumer</td>
+</tr>
+<tr>
+<td>需要复杂错误处理和回放</td>
+<td>Kafka + Flink / 自研</td>
+</tr>
+</tbody>
+</table>
+<h2 id="%E7%9B%91%E6%8E%A7%E4%B8%8E%E8%BF%90%E7%BB%B4"><strong>监控与运维</strong></h2>
+<p>system 表：小 part、慢 merge、副本延迟、磁盘快满，是 ClickHouse 运维四大高频问题</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>主要看哪里</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>慢查询</td>
+<td><code>system.query_log</code></td>
+</tr>
+<tr>
+<td>当前正在跑的查询</td>
+<td><code>system.processes</code></td>
+</tr>
+<tr>
+<td>表的 part 是否过多</td>
+<td><code>system.parts</code></td>
+</tr>
+<tr>
+<td>merge 是否跟不上</td>
+<td><code>system.merges</code></td>
+</tr>
+<tr>
+<td>副本是否延迟</td>
+<td><code>system.replicas</code></td>
+</tr>
+<tr>
+<td>复制队列是否堆积</td>
+<td><code>system.replication_queue</code></td>
+</tr>
+<tr>
+<td>磁盘空间</td>
+<td><code>system.disks</code></td>
+</tr>
+<tr>
+<td>表大小</td>
+<td><code>system.parts</code></td>
+</tr>
+<tr>
+<td>mutation 是否卡住</td>
+<td><code>system.mutations</code> / <code>system.merges</code></td>
+</tr>
+<tr>
+<td>Kafka 消费是否异常</td>
+<td>Kafka consumer lag + ClickHouse logs / Kafka 表状态</td>
+</tr>
+</tbody>
+</table>
+<h2 id="%E5%AE%9E%E6%88%98%E9%A1%B9%E7%9B%AE%EF%BC%9A%E7%94%A8%E6%88%B7%E8%A1%8C%E4%B8%BA%E5%88%86%E6%9E%90%E7%B3%BB%E7%BB%9F"><strong>实战项目：用户行为分析系统</strong></h2>
+<p>从建表、导入、预聚合到报表查询完整走一遍</p></article></main></body></html>

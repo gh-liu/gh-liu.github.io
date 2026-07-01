@@ -1,0 +1,179 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>TAPL</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9ATAPL">读书笔记：TAPL</h1>
+<blockquote>
+<p><a href="https://book.douban.com/subject/1761910/">https://book.douban.com/subject/1761910/</a></p>
+</blockquote>
+<blockquote>
+<p>Types and Programming Languages (TAPL) — Benjamin C. Pierce
+<a href="https://www.cis.upenn.edu/~bcpierce/tapl/">https://www.cis.upenn.edu/~bcpierce/tapl/</a></p>
+</blockquote>
+<blockquote>
+<p><a href="https://zackoverflow.dev/writing/tapl">https://zackoverflow.dev/writing/tapl</a></p>
+</blockquote>
+<ul>
+<li>是什么（What）— 类型系统是一种<strong>轻量级形式化方法</strong>，通过在编译期对程序中各项的求值结果进行分类，自动证明某类运行时错误<strong>不可能发生</strong></li>
+<li>为什么（Why）— 在表达力（能写多少程序）与可判定性（能静态证明多少性质）之间做权衡；用类型把"不该发生的状态变得不可表达（make illegal states unrepresentable）"</li>
+<li>怎么做（How）— 从无类型 λ 演算出发，逐步加入简单类型、子类型、递归类型、多态、存在类型、高阶类型，每一步都给出语法、求值规则、定型规则，并证明 <strong>Progress + Preservation = Soundness</strong></li>
+</ul>
+<h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
+<h3 id="1.%20%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%AE%9A%E4%B9%89%EF%BC%88Pierce%20%E7%9A%84%E7%BB%8F%E5%85%B8%E8%A1%A8%E8%BF%B0%EF%BC%89">1. 类型系统的定义（Pierce 的经典表述）</h3>
+<blockquote>
+<p>A type system is a tractable syntactic method for proving the absence of certain program behaviors by classifying phrases according to the kinds of values they compute.</p>
+</blockquote>
+<p>四个关键词：</p>
+<ul>
+<li><strong>tractable（可处理）</strong>：定型算法必须高效、可判定</li>
+<li><strong>syntactic（语法的）</strong>：基于程序文本的形状，而非运行时行为</li>
+<li><strong>proving absence（证明不发生）</strong>：保证某类错误不出现，但不保证程序正确</li>
+<li><strong>classifying（分类）</strong>：把表达式按"它会算出什么"归类</li>
+</ul>
+<h3 id="2.%20%E5%BD%A2%E5%BC%8F%E5%8C%96%E6%96%B9%E6%B3%95%E7%9A%84%E4%B8%89%E4%BB%B6%E5%A5%97">2. 形式化方法的三件套</h3>
+<p>TAPL 中所有的语言定义都遵循同一套范式：</p>
+<ul>
+<li><strong>语法（Syntax）</strong>：用 BNF 描述项（terms）和类型（types）</li>
+<li><strong>求值规则（Evaluation）</strong>：小步语义 <code>t → t'</code>，定义程序如何一步步执行</li>
+<li><strong>定型规则（Typing）</strong>：判断式 <code>Γ ⊢ t : T</code>，在上下文 Γ 下项 t 具有类型 T</li>
+</ul>
+<h3 id="3.%20%E7%B1%BB%E5%9E%8B%E5%AE%89%E5%85%A8%20%3D%20Progress%20%2B%20Preservation">3. 类型安全 = Progress + Preservation</h3>
+<p>这是全书最核心的定理模板：</p>
+<ul>
+<li><strong>Progress（进展性）</strong>：良类型的项要么是值，要么能继续求值（不会卡住）
+<ul>
+<li><code>If ⊢ t : T, then either t is a value or ∃ t'. t → t'</code></li>
+</ul>
+</li>
+<li><strong>Preservation（保持性，又叫 Subject Reduction）</strong>：求值一步后类型不变
+<ul>
+<li><code>If ⊢ t : T and t → t', then ⊢ t' : T</code></li>
+</ul>
+</li>
+<li>二者合起来：良类型程序永远不会进入"卡住状态（stuck state）"——即非值且无法继续求值的状态</li>
+</ul>
+<h3 id="4.%20%CE%BB%20%E6%BC%94%E7%AE%97%E6%98%AF%E4%B8%80%E5%88%87%E7%9A%84%E5%9F%BA%E7%9F%B3">4. λ 演算是一切的基石</h3>
+<ul>
+<li><strong>无类型 λ 演算（untyped λ-calculus）</strong>：图灵完备，但 <code>Ω = (λx. x x)(λx. x x)</code> 这类项会发散</li>
+<li><strong>简单类型 λ 演算（STLC）</strong>：加上 <code>→</code> 类型后，所有良类型项强归约（strongly normalizing），但失去图灵完备性</li>
+<li>这是表达力 vs 安全性的根本权衡</li>
+</ul>
+<h3 id="5.%20%E7%B1%BB%E5%9E%8B%E7%B3%BB%E7%BB%9F%E7%9A%84%E6%BC%94%E5%8C%96%E9%98%B6%E6%A2%AF">5. 类型系统的演化阶梯</h3>
+<p>TAPL 按"复杂度递增"组织全书，每一章都是给前一个系统加一个特性：</p>
+<ul>
+<li><strong>λ→</strong>：简单类型</li>
+<li><strong>λ&#x3C;:</strong>：加子类型（subtyping）</li>
+<li><strong>λµ</strong>：加递归类型（recursive types）</li>
+<li><strong>λ2/System F</strong>：加全称多态（universal polymorphism / parametric polymorphism）</li>
+<li><strong>λ∃</strong>：加存在类型（existential types）→ 抽象数据类型</li>
+<li><strong>Fω</strong>：加高阶多态（type operators）</li>
+<li><strong>Fω&#x3C;:</strong>：把所有特性合在一起，是现代语言（Scala、Rust trait、TypeScript）的理论原型</li>
+</ul>
+<h3 id="6.%20Curry-Howard%20%E5%90%8C%E6%9E%84">6. Curry-Howard 同构</h3>
+<ul>
+<li><strong>命题即类型，证明即程序（Propositions as Types, Proofs as Programs）</strong></li>
+<li>类型 <code>A → B</code> 对应蕴含 <code>A ⇒ B</code></li>
+<li>类型 <code>A × B</code> 对应合取 <code>A ∧ B</code></li>
+<li>类型 <code>A + B</code> 对应析取 <code>A ∨ B</code></li>
+<li>多态对应全称量化 <code>∀</code></li>
+<li>存在类型对应存在量化 <code>∃</code></li>
+<li>这是类型论与逻辑学的深层联系，也是 Coq、Agda、Lean 等定理证明器的基础</li>
+</ul>
+<h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
+<ol>
+<li>
+<p><strong>类型不是"标注"，而是"证明"</strong>：每一条定型规则都是一条推理规则；写出 <code>e : T</code> 等价于在某种逻辑里给出了一个证明。把类型系统看成"嵌在编译器里的小型证明助手"。</p>
+</li>
+<li>
+<p><strong>"卡住"才是真正的错误</strong>：TAPL 把"运行时错误"重新定义为"求值卡住"。1+true 之所以是错的，不是因为它"语义错误"，而是因为没有任何求值规则能继续推进。这种统一让"安全"成了一个可证明的数学性质。</p>
+</li>
+<li>
+<p><strong>进展性 + 保持性是万能模板</strong>：无论你设计什么新类型系统，都按这两条定理来证明它的安全性。如果证不出来，说明系统有漏洞——通常是某条定型规则太松或某条求值规则没覆盖。</p>
+</li>
+<li>
+<p><strong>子类型即安全替换（Liskov 的形式化）</strong>：<code>S &#x3C;: T</code> 意味着任何需要 T 的地方都可以用 S。函数类型的子类型是逆变-协变的：<code>(T1 → T2) &#x3C;: (S1 → S2)</code> 当且仅当 <code>S1 &#x3C;: T1</code> 且 <code>T2 &#x3C;: S2</code>。这是 OOP 中"参数逆变、返回值协变"规则的来源。</p>
+</li>
+<li>
+<p><strong>递归类型需要"折叠/展开"</strong>：<code>µX. T</code> 类型必须显式 <code>fold/unfold</code>（等价递归 vs 同构递归）。Rust 的 <code>Box&#x3C;T></code> 解决无限大小问题，本质就是引入一层显式不动点。</p>
+</li>
+<li>
+<p><strong>多态 = 类型抽象 + 类型应用</strong>：System F 的 <code>ΛX. t</code> 和 <code>t [T]</code> 与 λ 演算的 <code>λx. t</code> 和 <code>t e</code> 完全对偶。类型推断在 System F 中是不可判定的，所以实际语言（ML、Haskell）用 Hindley-Milner 限制为前束（rank-1）多态。</p>
+</li>
+<li>
+<p><strong>存在类型 = 抽象数据类型（ADT）</strong>：<code>{∃X, {a: X, f: X → Int}}</code> 表示"存在某个类型 X，对外暴露字段 a 和函数 f"。这正是模块、接口、<code>dyn Trait</code> 的形式化基础。</p>
+</li>
+<li>
+<p><strong>类型系统是设计语言的"骨架"</strong>：你想让语言支持什么特性（继承、泛型、模式匹配、effect），就先在类型系统里把它表达清楚，再考虑语法糖。Rust 的所有权、TypeScript 的结构类型、Scala 的隐式参数，都是类型系统层面的设计决策。</p>
+</li>
+<li>
+<p><strong>保守即安全</strong>：类型系统拒绝的程序中，绝大部分其实在运行时是安全的（如 <code>if true then 1 else "abc"</code>）。这是必然的代价：类型检查是不完备的（rejects some safe programs），但必须是可靠的（never accepts an unsafe program）。</p>
+</li>
+<li>
+<p><strong>形式化不是奢侈品</strong>：写出语法、求值规则、定型规则、证明 Progress + Preservation——这套训练能让你在设计 DSL、API、配置语言时，瞬间识别"这里语义不闭合""那条规则会破坏类型安全"。</p>
+</li>
+</ol>
+<h2 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h2>
+<ol>
+<li>
+<p><strong>读 TAPL 的方式</strong>：</p>
+<ul>
+<li>第 1-2 部分（Ch 1-7）必读：建立无类型 λ 演算与简单类型系统</li>
+<li>第 3 部分（Ch 8-12）必读：STLC、类型安全证明、扩展（pair、sum、recursion）</li>
+<li>第 4 部分（Ch 13-18）按需：引用、异常、子类型、递归类型</li>
+<li>第 5 部分（Ch 22-23）：Hindley-Milner 类型推断 + System F</li>
+<li>第 6 部分（Ch 28-32）：高阶多态 + 子类型，挑战大</li>
+<li><strong>配合实现</strong>：每章末尾的 OCaml 实现一定要跑、改、扩展</li>
+</ul>
+</li>
+<li>
+<p><strong>做配套练习</strong>：</p>
+<ul>
+<li>用 OCaml/Haskell/Rust 实现 STLC 解释器</li>
+<li>实现类型检查器，至少写到 System F 子集</li>
+<li>加一个新特性（如 <code>let rec</code>、<code>record</code>、<code>sum type</code>）并证明 Progress/Preservation</li>
+</ul>
+</li>
+<li>
+<p><strong>画推导树</strong>：每条定型规则、每个例子，手动画出推导树，理解"类型是怎么被推出来的"</p>
+</li>
+<li>
+<p><strong>关联实际语言</strong>：</p>
+<ul>
+<li>Rust 借用检查 ↔ 仿射类型（affine types，TAPL 未深入但可延伸）</li>
+<li>TypeScript ↔ 结构子类型 + 联合类型 + 条件类型</li>
+<li>Haskell ↔ Hindley-Milner + 类型类</li>
+<li>Scala ↔ Fω&#x3C;: 的近似</li>
+</ul>
+</li>
+<li>
+<p><strong>学习路径延伸</strong>：</p>
+<ul>
+<li><strong>ATTAPL（Advanced Topics in Types and Programming Languages）</strong>：TAPL 续作，涵盖依赖类型、模块、副作用类型</li>
+<li><strong>Software Foundations</strong>（Pierce 团队）：用 Coq 把 TAPL 的所有证明形式化重做一遍</li>
+<li><strong>PLFA（Programming Language Foundations in Agda）</strong>：Agda 版本</li>
+</ul>
+</li>
+<li>
+<p><strong>写自己的语言</strong>：基于 STLC 设计一个小型 DSL（如配置语言、查询语言），把"类型设计先行"作为习惯</p>
+</li>
+</ol>
+<h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
+<ol>
+<li>
+<p><strong>"A type system is a tractable syntactic method for proving the absence of certain program behaviors."</strong> — Pierce 给类型系统的定义，每一个词都不可省</p>
+</li>
+<li>
+<p><strong>"Well-typed programs cannot go wrong."</strong> — Robin Milner，类型安全的口号式表述</p>
+</li>
+<li>
+<p><strong>"Make illegal states unrepresentable."</strong> — Yaron Minsky，类型系统在工程上的最高指导原则</p>
+</li>
+<li>
+<p><strong>"Types are the leaven of computer programming; they make it digestible."</strong> — Pierce，类型是编程语言的"酵母"</p>
+</li>
+<li>
+<p><strong>"Progress + Preservation = Type Soundness"</strong> — 一切类型安全证明的万能公式</p>
+</li>
+<li>
+<p><strong>"Propositions as Types, Proofs as Programs."</strong> — Curry-Howard 同构，连接逻辑与计算的桥梁</p>
+</li>
+<li>
+<p><strong>"The design of a type system is the design of a language."</strong> — 类型系统不是附加物，而是语言设计的核心</p>
+</li>
+</ol></article></main></body></html>

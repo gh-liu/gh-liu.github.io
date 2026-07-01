@@ -1,0 +1,117 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>系统设计题</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E9%A2%98">系统设计题</h1>
+<ul>
+<li><strong>S 场景（Scenario）</strong>：明确系统服务的用户群体、核心功能、典型使用场景。例如设计短链系统时，用户是普通网民，核心功能是生成/跳转短链，场景是社交平台分享长链接。</li>
+<li><strong>C 冲突（Conflict）</strong>：识别系统面临的核心矛盾与约束。例如短链系统需支撑高并发读（跳转请求远多于生成请求）、持久化存储短链映射、低延迟响应。</li>
+<li><strong>Q 问题（Question）</strong>：拆解为可量化的技术问题。例如：需要多少存储？平均/峰值QPS是多少？缓存如何设计？</li>
+<li><strong>A 回答（Answer）</strong>：输出具体设计方案、量级估算、组件拆分、瓶颈分析与应对。</li>
+</ul>
+<p>怎么从<code>我要设计一个系统</code>落到<code>这个系统大概要多少机器、多少存储、怎么拆组件、哪里会成为瓶颈</code></p>
+<p>系统设计不是背组件，而是根据规模和业务约束，在延迟、吞吐、一致性、可用性、成本和复杂度之间做取舍。</p>
+<h2 id="%E4%BB%8E%E9%9C%80%E6%B1%82%E5%88%B0%E8%90%BD%E5%9C%B0%E7%9A%84%E6%A0%B8%E5%BF%83%E6%B5%81%E7%A8%8B">从需求到落地的核心流程</h2>
+<p>上述问题的解答核心分5步：</p>
+<ol>
+<li><strong>需求澄清</strong>：明确功能需求（核心功能边界）、非功能需求（可用性、一致性、延迟、成本等）、约束条件（如团队技术栈、合规要求）。</li>
+<li><strong>量级估算</strong>：基于DAU/MAU等指标计算QPS、存储、带宽等核心参数（详见下方估算指标说明与示例）。</li>
+<li><strong>高层设计</strong>：拆分核心组件（接入层、业务层、数据层、中间件层），梳理组件间交互关系，输出架构图。</li>
+<li><strong>详细设计</strong>：确定各组件技术选型（如数据库用MySQL/NoSQL、缓存用Redis/Memcached）、数据模型、接口定义、一致性方案。</li>
+<li><strong>瓶颈与扩展</strong>：识别潜在瓶颈（如数据库读压力、存储不足），给出扩展方案（如加缓存、分库分表、分布式存储），并估算所需资源（机器数、存储量等）。</li>
+</ol>
+<h2 id="%E5%B8%B8%E8%A7%81%E4%BC%B0%E7%AE%97%E6%8C%87%E6%A0%87%EF%BC%9A%E9%87%8D%E7%82%B9%E6%98%AF%E6%95%B0%E9%87%8F%E7%BA%A7">常见估算指标：重点是数量级</h2>
+<h3 id="1.%20DAU%20%2F%20MAU">1. DAU / MAU</h3>
+<ul>
+<li><strong>定义</strong>：每日活跃用户 / 每月活跃用户</li>
+<li><strong>估算</strong>：MAU ≈ DAU × 30 × 留存率（通常取0.3~0.5），即 DAU ≈ MAU × (1/30 ~ 1/15)</li>
+<li><strong>示例</strong>：MAU=1亿，则 DAU≈3000万~7000万</li>
+</ul>
+<h3 id="2.%20QPS%EF%BC%88Queries%20Per%20Second%EF%BC%89">2. QPS（Queries Per Second）</h3>
+<ul>
+<li><strong>定义</strong>：每秒请求数</li>
+<li><strong>估算</strong>：QPS = DAU × 人均日请求数 / 86400</li>
+<li><strong>示例</strong>：DAU=1000万，人均日请求20次 → QPS = 1000万×20/86400 ≈ 2300</li>
+</ul>
+<h3 id="3.%20Peak%20QPS%EF%BC%88%E5%B3%B0%E5%80%BCQPS%EF%BC%89">3. Peak QPS（峰值QPS）</h3>
+<ul>
+<li><strong>定义</strong>：峰值 QPS</li>
+<li><strong>估算</strong>：Peak QPS ≈ 平均QPS × 峰值系数（通常取3~5，取决于业务特性）</li>
+<li><strong>示例</strong>：平均QPS=2000，峰值系数=3 → Peak QPS=6000</li>
+</ul>
+<h3 id="4.%20Read%20%2F%20Write%20Ratio%EF%BC%88%E8%AF%BB%E5%86%99%E6%AF%94%E4%BE%8B%EF%BC%89">4. Read / Write Ratio（读写比例）</h3>
+<ul>
+<li><strong>定义</strong>：读写请求比例</li>
+<li><strong>典型值</strong>：读多写少场景（如新闻、电商详情）可达 100:1；读写均衡场景（如IM）约 2:1</li>
+<li><strong>影响</strong>：决定缓存策略、数据库主从配置</li>
+</ul>
+<h3 id="5.%20Storage%EF%BC%88%E5%AD%98%E5%82%A8%E9%87%8F%EF%BC%89">5. Storage（存储量）</h3>
+<ul>
+<li><strong>定义</strong>：存储量</li>
+<li><strong>估算</strong>：存储量 = 单条数据大小 × 日新增量 × 保留天数</li>
+<li><strong>示例</strong>：短链系统，每条记录100B，日新增100万条，保留1年 → 100B×100万×365 ≈ 36.5GB</li>
+</ul>
+<h3 id="6.%20Bandwidth%EF%BC%88%E5%B8%A6%E5%AE%BD%EF%BC%89">6. Bandwidth（带宽）</h3>
+<ul>
+<li><strong>定义</strong>：带宽</li>
+<li><strong>估算</strong>：入带宽 = 写QPS × 单请求大小；出带宽 = 读QPS × 单响应大小</li>
+<li><strong>示例</strong>：读QPS=2000，单响应1KB → 出带宽 = 2000×1KB = 2MB/s ≈ 16Mbps</li>
+</ul>
+<h3 id="7.%20Cache%20Size%EF%BC%88%E7%BC%93%E5%AD%98%E5%AE%B9%E9%87%8F%EF%BC%89">7. Cache Size（缓存容量）</h3>
+<ul>
+<li><strong>定义</strong>：缓存容量</li>
+<li><strong>估算</strong>：缓存量 = 热点数据量 × 缓存比例（通常缓存20%热点数据可覆盖80%请求）</li>
+<li><strong>示例</strong>：总数据100GB，热点20% → 缓存需20GB</li>
+</ul>
+<h3 id="8.%20Message%20Throughput%EF%BC%88%E6%B6%88%E6%81%AF%E5%90%9E%E5%90%90%EF%BC%89">8. Message Throughput（消息吞吐）</h3>
+<ul>
+<li><strong>定义</strong>：消息吞吐</li>
+<li><strong>估算</strong>：消息数/秒 = 用户数 × 人均消息频率</li>
+<li><strong>示例</strong>：IM系统，100万在线用户，人均每分钟1条消息 → 100万/60 ≈ 1.67万条/秒</li>
+</ul>
+<h3 id="9.%20Database%20Rows%EF%BC%88%E6%95%B0%E6%8D%AE%E5%BA%93%E8%A1%8C%E6%95%B0%E5%A2%9E%E9%95%BF%EF%BC%89">9. Database Rows（数据库行数增长）</h3>
+<ul>
+<li><strong>定义</strong>：数据库行数增长</li>
+<li><strong>估算</strong>：日增长行数 = 日新增记录数；年增长 = 日增长 × 365</li>
+<li><strong>示例</strong>：日新增订单10万 → 年新增3650万行，需考虑分库分表</li>
+</ul>
+<h2 id="%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E7%A4%BA%E4%BE%8B%EF%BC%9A%E7%9F%AD%E9%93%BE%E7%B3%BB%E7%BB%9F">系统设计示例：短链系统</h2>
+<h3 id="S%20%E5%9C%BA%E6%99%AF">S 场景</h3>
+<p>设计一个类似 bit.ly 的短链服务，用户提交长链接，系统返回短链；其他用户访问短链时跳转到原始长链接。</p>
+<h3 id="C%20%E5%86%B2%E7%AA%81">C 冲突</h3>
+<ul>
+<li>高并发读（跳转请求 >> 生成请求）</li>
+<li>短链需全局唯一且尽可能短</li>
+<li>低延迟跳转（&#x3C;100ms）</li>
+<li>数据持久化且可统计点击量</li>
+</ul>
+<h3 id="Q%20%E9%97%AE%E9%A2%98">Q 问题</h3>
+<ul>
+<li>日生成短链100万，日跳转1亿次，读写比100:1</li>
+<li>需要多大存储？</li>
+<li>平均/峰值QPS多少？</li>
+<li>如何保证短链唯一性？</li>
+<li>缓存如何设计？</li>
+</ul>
+<h3 id="A%20%E5%9B%9E%E7%AD%94">A 回答</h3>
+<p><strong>量级估算</strong>：</p>
+<ul>
+<li>DAU: 1000万（假设），生成短链100万/天，跳转1亿/天</li>
+<li>平均写QPS = 100万/86400 ≈ 12；读QPS = 1亿/86400 ≈ 1157</li>
+<li>Peak读QPS ≈ 1157 × 3 = 3471</li>
+<li>存储：每条记录100B，日100万条，保留1年 → 100B×100万×365 ≈ 36.5GB</li>
+<li>缓存：热点20%数据（7.3GB），用Redis</li>
+</ul>
+<p><strong>高层设计</strong>：</p>
+<pre><code>用户 → API Gateway → 短链服务 → 数据库（MySQL）
+                           ↓
+                        Redis缓存
+</code></pre>
+<p><strong>详细设计</strong>：</p>
+<ul>
+<li>短链生成：雪花算法或自增ID转Base62</li>
+<li>缓存：Redis缓存热点短链映射，TTL 24小时</li>
+<li>数据库：MySQL存储映射关系，按短链hash分表</li>
+<li>跳转：先查缓存，未命中查DB，异步记录点击日志</li>
+</ul>
+<p><strong>瓶颈与扩展</strong>：</p>
+<ul>
+<li>瓶颈：数据库读压力（已用缓存缓解）</li>
+<li>扩展：缓存集群、数据库读写分离、CDN加速跳转</li>
+</ul></article></main></body></html>

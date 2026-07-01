@@ -1,0 +1,110 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>序理论</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="order%20theory">order theory</h1>
+<blockquote>
+<p><a href="https://oi-wiki.org/math/order-theory">https://oi-wiki.org/math/order-theory</a></p>
+</blockquote>
+<p>用二元关系严格描述<code>谁在谁之前</code></p>
+<p>一个<code>序</code>本质上是集合上的<code>二元关系</code>：对元素 a, b，定义 a ⪯ b 表示：a 在某种意义下<code>不晚于 / 不大于 / 先于</code> b。</p>
+<p>我们到底在定义<code>哪种关系</code>？这个关系是否自反、反对称、传递、连接？</p>
+<h2 id="%E5%81%8F%E5%BA%8F%E5%85%A8%E5%BA%8F%20Partial%20%2F%20Total%20Order">偏序全序 Partial / Total Order</h2>
+<p>偏序：允许两元素「不可比」。只要求<code>有因果/约束的地方有顺序</code>。
+全序：任意两元素都能比。任意两个元素都必须排出先后。</p>
+<p><code>≤</code> 是抽象关系（可以是整除、子集、依赖…，不一定是数值大小）。</p>
+<p>** 偏序的三条法则 **</p>
+<table>
+<thead>
+<tr>
+<th>法则</th>
+<th>定义</th>
+<th>直觉</th>
+<th>反例（不满足就不是偏序）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>自反 Reflexive</td>
+<td><code>a ≤ a</code></td>
+<td>自己跟自己成立</td>
+<td>严格小于 <code>&#x3C;</code>（<code>3&#x3C;3</code> 不成立）</td>
+</tr>
+<tr>
+<td>反对称 Antisymmetric</td>
+<td><code>a ≤ b 且 b ≤ a ⟹ a = b</code></td>
+<td>不许「互相超车」=禁止环</td>
+<td>「同班同学」（互相同班但不是同一人）</td>
+</tr>
+<tr>
+<td>传递 Transitive</td>
+<td><code>a ≤ b 且 b ≤ c ⟹ a ≤ c</code></td>
+<td>能一路接力推下去</td>
+<td>石头剪刀布的「赢」（赢不传递）</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>反对称 ≠ 非对称：它<strong>允许</strong> <code>a ≤ a</code>，只禁止 <code>a≠b</code> 时的双向箭头。</p>
+</blockquote>
+<p><strong>全序 = 偏序 + 完全性</strong>：任意 <code>a,b</code> 必有 <code>a ≤ b</code> 或 <code>b ≤ a</code>。
+全序排出来是一条「链」(连接性，所有元素都能排成一条线)，偏序可以分叉。</p>
+<pre><code>全序（链）            偏序（可分叉/不可比）
+   1                      文件夹
+   |                     /      \
+   2                  子A        子B   &#x3C;- A、B 不可比
+   |                   |          |
+   3                  A1         B1
+</code></pre>
+<h3 id="%E4%BE%8B%E5%AD%90">例子</h3>
+<table>
+<thead>
+<tr>
+<th>集合</th>
+<th>关系</th>
+<th>偏序</th>
+<th>全序</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>整数</td>
+<td><code>≤</code></td>
+<td>✅</td>
+<td>✅</td>
+<td>任意两数能比大小</td>
+</tr>
+<tr>
+<td>正整数</td>
+<td>整除 <code>a∣b</code></td>
+<td>✅</td>
+<td>❌</td>
+<td>2 和 3 互不整除</td>
+</tr>
+<tr>
+<td>集合族</td>
+<td>子集 <code>⊆</code></td>
+<td>✅</td>
+<td>❌</td>
+<td><code>{1}</code> 和 <code>{2}</code> 不可比</td>
+</tr>
+<tr>
+<td>字符串</td>
+<td>字典序</td>
+<td>✅</td>
+<td>✅</td>
+<td>任意两串都能排序</td>
+</tr>
+<tr>
+<td>任务依赖</td>
+<td>「先于」</td>
+<td>✅</td>
+<td>❌</td>
+<td>无依赖的任务并行不可比</td>
+</tr>
+</tbody>
+</table>
+<h3 id="%E4%B8%BA%E4%BB%80%E4%B9%88%20CS%20%E9%87%8C%E9%87%8D%E8%A6%81">为什么 CS 里重要</h3>
+<ul>
+<li><strong>分布式时间</strong>：Lamport 时间戳给全序，向量时钟给偏序（能识别并发/不可比事件）；happens-before 本质是偏序。</li>
+<li><strong>拓扑排序</strong>：把偏序（DAG 依赖）线性化成一个全序。</li>
+<li><strong>CRDT / 版本向量</strong>：用偏序判断冲突（不可比 = 并发修改 = 冲突）。</li>
+<li><strong>排序算法</strong>：要求全序，否则无法确定唯一排列。</li>
+</ul></article></main></body></html>

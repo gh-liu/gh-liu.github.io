@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>服务网格</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E6%9C%8D%E5%8A%A1%E7%BD%91%E6%A0%BC">服务网格</h1>
+<p>服务间通信的控制平面</p>
+<blockquote>
+<p>服务网格 = 把<code>服务间通信</code>的通用能力，从业务代码/SDK里抽出来，交给基础设施统一处理。</p>
+</blockquote>
+<p>服务发现和负载均衡只是其中两项：解决的是<code>找到谁、连到谁</code>；
+服务网格解决的是<code>服务之间如何安全、可靠、可观测、可控制地通信</code>。</p>
+<h1 id="istio">istio</h1>
+<p>通过透明代理把服务间通信收归基础设施管理。</p>
+<p>Istio 官方也把架构分成 data plane 和 control plane：</p>
+<ul>
+<li>数据平面通常由 Envoy sidecar 组成，负责拦截和控制服务间通信</li>
+<li>控制平面 istiod 负责配置这些代理</li>
+</ul>
+<p>Istio 通过给每个 Pod 注入 Envoy 代理，劫持进出 Pod 的流量；再由 istiod 统一把路由、安全、负载均衡、熔断、遥测等规则下发给这些 Envoy。
+App A -> 本地 Envoy A -> 远端 Envoy B -> App B</p>
+<pre><code>                控制平面
+              +--------+
+              | istiod |
+              +--------+
+                  |
+              xDS 配置下发
+                  |
+------------------------------------------------
+                  |
+              数据平面
++---------------- Pod A ----------------+
+| App A  &#x3C;->  Envoy Sidecar             |
++---------------------------------------+
+                  |
+              mTLS / HTTP / TCP
+                  |
++---------------- Pod B ----------------+
+| Envoy Sidecar  &#x3C;->  App B             |
++---------------------------------------+
+</code></pre></article></main></body></html>

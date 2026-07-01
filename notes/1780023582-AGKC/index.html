@@ -1,0 +1,154 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>singbox</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="sing-box">sing-box</h1>
+<blockquote>
+<p><a href="https://sing-box.sagernet.org">https://sing-box.sagernet.org</a></p>
+</blockquote>
+<p>sing-box 是一个通用代理平台（universal proxy platform），不是单一协议客户端，而是一个配置驱动的网络代理、DNS、路由、转发引擎。</p>
+<h2 id="%E6%A0%B8%E5%BF%83%E6%8A%BD%E8%B1%A1">核心抽象</h2>
+<p>最核心的抽象是：<strong>Inbound / Route / Outbound</strong>。</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>Application</span></span>
+<span data-line=""><span>  -> Inbound</span></span>
+<span data-line=""><span>  -> Route</span></span>
+<span data-line=""><span>  -> Outbound</span></span>
+<span data-line=""><span>  -> Network</span></span></code></pre></figure>
+<ul>
+<li><strong>Inbound</strong>：流量入口，负责接收或接管流量。
+<ul>
+<li>例如 <code>socks</code>、<code>http</code>、<code>mixed</code>、<code>tun</code>、<code>redirect</code>、<code>tproxy</code>。</li>
+<li>也可以作为代理服务端接收 <code>shadowsocks</code>、<code>vmess</code>、<code>vless</code>、<code>trojan</code>、<code>hysteria2</code> 等协议。</li>
+</ul>
+</li>
+<li><strong>Outbound</strong>：流量出口，负责把流量送出去。
+<ul>
+<li>例如 <code>direct</code>、<code>block</code>、<code>socks</code>、<code>http</code>、<code>shadowsocks</code>、<code>vless</code>、<code>trojan</code>、<code>wireguard</code>、<code>tor</code>、<code>ssh</code>。</li>
+<li>也支持组合出口，例如 <code>selector</code>、<code>urltest</code>。</li>
+</ul>
+</li>
+<li><strong>Route</strong>：分流决策层，根据规则选择 outbound。
+<ul>
+<li>可按域名、IP、端口、协议、入站 tag、进程、GeoIP、Geosite、rule-set 等匹配。</li>
+</ul>
+</li>
+<li><strong>Rule / Rule Set</strong>：规则抽象。
+<ul>
+<li>Rule 是单条匹配逻辑。</li>
+<li>Rule Set 是可复用、可远程更新的规则集合。</li>
+</ul>
+</li>
+<li><strong>DNS</strong>：域名解析系统，既服务代理内部解析，也可以处理客户端 DNS 请求。
+<ul>
+<li>支持 DNS rules、多 DNS server、缓存、FakeIP、IPv4/IPv6 策略、EDNS Client Subnet 等。</li>
+</ul>
+</li>
+</ul>
+<h2 id="%E6%95%B0%E6%8D%AE%E6%B5%81">数据流</h2>
+<p>典型数据流：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>Application</span></span>
+<span data-line=""><span>  -> OS proxy / TUN / transparent proxy</span></span>
+<span data-line=""><span>  -> sing-box inbound</span></span>
+<span data-line=""><span>  -> metadata extraction</span></span>
+<span data-line=""><span>  -> DNS resolution / FakeIP mapping</span></span>
+<span data-line=""><span>  -> route rule matching</span></span>
+<span data-line=""><span>  -> selected outbound</span></span>
+<span data-line=""><span>  -> remote network or proxy server</span></span></code></pre></figure>
+<p>过程：</p>
+<ol>
+<li>应用发起连接，例如访问 <code>example.com:443</code>。</li>
+<li>流量进入某个 inbound：
+<ul>
+<li>应用显式配置 SOCKS/HTTP 代理；</li>
+<li>或系统流量被 TUN 接管；</li>
+<li>或 Linux 透明代理由 iptables/nftables 转入 <code>redirect</code> / <code>tproxy</code>。</li>
+</ul>
+</li>
+<li>sing-box 提取连接元信息：目标域名/IP、端口、网络类型、来源 inbound、进程信息等。</li>
+<li>如目标是域名，可能进入 DNS 子系统，按 DNS rules 选择解析服务器、使用缓存或 FakeIP。</li>
+<li>route 按规则匹配，得到 outbound tag。</li>
+<li>outbound 执行转发：
+<ul>
+<li><code>direct</code>：直连目标；</li>
+<li><code>block</code>：阻断；</li>
+<li>代理协议 outbound：封装后发给代理服务器；</li>
+<li><code>selector</code>：转给当前选择的子 outbound；</li>
+<li><code>urltest</code>：按延迟测试选择出口。</li>
+</ul>
+</li>
+<li>返回流量沿原路径回到应用。</li>
+</ol>
+<h2 id="TUN%20%E4%B8%8E%E9%80%8F%E6%98%8E%E4%BB%A3%E7%90%86">TUN 与透明代理</h2>
+<p>TUN 和透明代理都能让应用无需显式配置代理，但接入层不同。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>TUN inbound</th>
+<th>透明代理：redirect / tproxy</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>接入方式</td>
+<td>创建虚拟网卡，系统路由把流量送入 TUN</td>
+<td>用 iptables/nftables 拦截流量</td>
+</tr>
+<tr>
+<td>OS 视角</td>
+<td>类似 VPN</td>
+<td>类似内核防火墙规则劫持</td>
+</tr>
+<tr>
+<td>配置复杂度</td>
+<td>相对简单</td>
+<td>更复杂，需要防火墙、mark、策略路由</td>
+</tr>
+<tr>
+<td>UDP 支持</td>
+<td>更自然</td>
+<td><code>redirect</code> 不适合复杂 UDP，<code>tproxy</code> 更完整</td>
+</tr>
+<tr>
+<td>适合场景</td>
+<td>桌面端、移动端、全局代理</td>
+<td>Linux 网关、路由器、旁路由</td>
+</tr>
+</tbody>
+</table>
+<p>一句话：<strong>TUN 是从虚拟网卡/路由层接管流量；透明代理是从防火墙/策略路由层劫持流量。</strong></p>
+<h2 id="Rule%20Set">Rule Set</h2>
+<p>sing-box 支持 <code>route.rule_set</code>，规则里可以通过 <code>rule_set</code> 引用本地或远程规则集。</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="json" data-theme="nord"><code data-language="json" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#ECEFF4">{</span></span>
+<span data-line=""><span style="color:#ECEFF4">       "</span><span style="color:#8FBCBB">route</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#ECEFF4">              "</span><span style="color:#8FBCBB">rule_set</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> [</span></span>
+<span data-line=""><span style="color:#ECEFF4">                     {</span></span>
+<span data-line=""><span style="color:#ECEFF4">                            "</span><span style="color:#8FBCBB">tag</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">geosite-cn</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#ECEFF4">                            "</span><span style="color:#8FBCBB">type</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">remote</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#ECEFF4">                            "</span><span style="color:#8FBCBB">format</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">binary</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#ECEFF4">                            "</span><span style="color:#8FBCBB">url</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">https://raw.githubusercontent.com/SagerNet/sing-geosite/rule-set/geosite-cn.srs</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""><span style="color:#ECEFF4">                     }</span></span>
+<span data-line=""><span style="color:#ECEFF4">              ],</span></span>
+<span data-line=""><span style="color:#ECEFF4">              "</span><span style="color:#8FBCBB">rules</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> [</span></span>
+<span data-line=""><span style="color:#ECEFF4">                     {</span></span>
+<span data-line=""><span style="color:#ECEFF4">                            "</span><span style="color:#8FBCBB">rule_set</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">geosite-cn</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#ECEFF4">                            "</span><span style="color:#8FBCBB">outbound</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">direct</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""><span style="color:#ECEFF4">                     }</span></span>
+<span data-line=""><span style="color:#ECEFF4">              ],</span></span>
+<span data-line=""><span style="color:#ECEFF4">              "</span><span style="color:#8FBCBB">final</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">proxy</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""><span style="color:#ECEFF4">       }</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p>Rule set 类型：</p>
+<ul>
+<li><code>inline</code>：直接写在配置里。</li>
+<li><code>local</code>：引用本地规则文件。</li>
+<li><code>remote</code>：从 URL 下载规则文件。</li>
+</ul>
+<p>Rule set 格式：</p>
+<ul>
+<li><code>source</code>：sing-box 的 JSON source 格式。</li>
+<li><code>binary</code>：编译后的 <code>.srs</code> 格式。</li>
+</ul>
+<p>注意：sing-box 不直接支持 Clash rule-provider YAML 格式，需要转换成 sing-box source JSON 或 <code>.srs</code>。</p>
+<p>常见 <code>.srs</code> 规则来源：</p>
+<ul>
+<li><code>SagerNet/sing-geosite</code></li>
+<li><code>SagerNet/sing-geoip</code></li>
+<li><code>MetaCubeX/meta-rules-dat</code></li>
+</ul></article></main></body></html>

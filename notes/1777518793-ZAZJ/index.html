@@ -1,0 +1,67 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>git-commit-message</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E5%8D%9A%E5%AE%A2%E7%AC%94%E8%AE%B0%EF%BC%9Agit-commit-message">博客笔记：git-commit-message</h1>
+<blockquote>
+<p><a href="https://chris.beams.io/git-commit">https://chris.beams.io/git-commit</a></p>
+</blockquote>
+<p>一句话补充如下点：</p>
+<ul>
+<li>是什么（What）— 一份「优秀 Git commit message」的写作规范，由 7 条具体规则组成，把提交信息当作向协作者（包括未来的自己）传达<strong>变更上下文</strong>的正式文档来对待。</li>
+<li>为什么（Why）— <code>diff</code> 只能告诉你<strong>改了什么</strong>，只有 commit message 能讲清<strong>为什么改</strong>；维护者最强大的工具之一就是项目的 <code>git log</code>，结构化、风格一致的提交历史让 <code>blame / revert / rebase / log / shortlog</code> 等命令真正发挥威力，也降低重建代码上下文的成本。</li>
+<li>怎么做（How）— 严格遵循 7 条规则；正文聚焦 what &#x26; why，不写 how（代码自身解释 how）；不能一句话讲清的就用编辑器写完整正文，避免 <code>-m</code> 草草了事；提交太大写不出 50 字标题时，说明该拆成原子提交。</li>
+</ul>
+<h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
+<blockquote>
+<p>A diff will tell you what changed, but only the commit message can properly tell you why. 一条精心打磨的 commit message 是开发者向协作者传达<strong>变更上下文</strong>的最佳方式，也是衡量一个开发者是否是好协作者的标志。</p>
+</blockquote>
+<h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
+<ol>
+<li>
+<p><strong>七条规则（The Seven Rules）</strong>：</p>
+<ol>
+<li>Subject 与 body 之间用空行分隔（很多 Git 工具靠这个空行来识别标题与正文）。</li>
+<li>Subject 限制在 50 字以内（GitHub 超过 50 警告、超过 72 截断；写不下说明提交粒度过大，应拆分为原子提交）。</li>
+<li>Subject 首字母大写。</li>
+<li>Subject 末尾不加句号（节省宝贵字符）。</li>
+<li>Subject 使用<strong>祈使语气</strong>（imperative mood），与 Git 自身（<code>merge</code>、<code>revert</code>、PR merge）生成的信息风格保持一致。</li>
+<li>Body 在 72 字处手动换行（Git 不自动换行，留出缩进余量保证总宽 ≤ 80）。</li>
+<li>Body 解释 <strong>what &#x26; why</strong>，而不是 <strong>how</strong>（how 由代码本身说明，复杂逻辑用源码注释而非 commit message 解释）。</li>
+</ol>
+</li>
+<li>
+<p><strong>祈使语气的判断公式</strong>：一条合格的 subject 必须能补全这句话——
+<em>"If applied, this commit will ___"</em>。</p>
+<ul>
+<li>✅ <code>Refactor subsystem X for readability</code></li>
+<li>✅ <code>Remove deprecated methods</code></li>
+<li>❌ <code>Fixed bug with Y</code> / <code>Changing behavior of X</code> / <code>More fixes for broken stuff</code></li>
+</ul>
+</li>
+<li>
+<p><strong>不是每个 commit 都需要 body</strong>：简单到一目了然的改动（如 <code>Fix typo in introduction to user guide</code>）一行足矣，可以放心用 <code>-m</code>；但只要值得解释上下文，就该用编辑器写完整正文，不要被 <code>-m</code> 的便利绑架。</p>
+</li>
+<li>
+<p><strong>提交历史的「破窗效应」</strong>：因为历史混乱所以没人看，因为没人看所以越来越混乱——这是个恶性循环；反过来一份被精心维护的 log 会让 <code>blame / revert / rebase / shortlog</code> 真正活起来，code review 也变成可独立完成的有价值工作。</p>
+</li>
+<li>
+<p><strong>聚焦 why 的写法套路</strong>：解释「改之前是怎么工作的、有什么问题、现在怎么工作、为什么选这个方案」，而不是逐行复述 diff；issue / PR 编号等元数据放在正文末尾，例如 <code>Resolves: #123</code> / <code>See also: #456, #789</code>。</p>
+</li>
+<li>
+<p><strong>样板模板</strong>（可作为编辑器 commit template）：</p>
+<pre><code>Summarize changes in around 50 characters or less
+
+More detailed explanatory text, if necessary. Wrap it to about 72
+characters or so. Explain the problem that this commit is solving.
+Focus on why you are making this change as opposed to how (the code
+explains that). Are there side effects or other unintuitive
+consequences of this change? Here's the place to explain them.
+
+- Bullet points are okay, too
+- Use a hyphen or asterisk, preceded by a single space
+
+Resolves: #123
+See also: #456, #789
+</code></pre>
+</li>
+<li>
+<p><strong>风格一致性比规则本身更重要</strong>：规则的目的是「消除猜测」（remove the guesswork），让 log 成为一份<em>真的会被读</em>的文档；起初是负担，习惯后会变成团队的生产力与骄傲来源。</p>
+</li>
+</ol></article></main></body></html>

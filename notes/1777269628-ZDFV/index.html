@@ -1,0 +1,90 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>设计模式</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F">设计模式</h1>
+<blockquote>
+<p>设计模式是面向对象设计中的<code>经验库</code>：当某类问题反复出现时，用更稳定、更可复用的结构去解决它。</p>
+</blockquote>
+<p>S 软件设计里，很多问题会反复出现，例如对象如何创建、模块如何解耦、对象之间如何协作。
+C 如果每次都临时设计，代码通常会和具体实现强耦合，导致难复用、难扩展、难测试。
+Q 有没有一套可复用的经验，帮助我们在特定场景下更稳妥地组织代码？
+A 设计模式就是对常见设计问题的抽象总结。它不是现成代码，而是被反复验证过的解决思路，帮助我们在可维护性、扩展性和解耦之间做更好的权衡。</p>
+<h2 id="%E4%BB%80%E4%B9%88%E6%98%AF%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F">什么是设计模式</h2>
+<p>设计模式是针对<code>特定上下文中的重复设计问题</code>的通用解法。它强调的是结构和协作关系，而不是某种固定语法。</p>
+<p>可以把它理解为：</p>
+<ul>
+<li>不是算法：算法关注<code>步骤如何执行</code></li>
+<li>不是框架：框架是可运行的代码骨架</li>
+<li>是经验模板：描述问题、适用场景、角色分工和后果</li>
+</ul>
+<h2 id="%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%AD%A6">为什么要学</h2>
+<ul>
+<li>提高抽象能力：遇到问题时，能先识别结构，再决定实现</li>
+<li>降低沟通成本：说<code>观察者模式</code>通常比长篇解释更高效</li>
+<li>避免重复踩坑：很多模式本质上是在处理耦合、变化和职责分配</li>
+<li>提升可维护性：让代码更容易替换实现、增加功能和编写测试</li>
+</ul>
+<h3 id="%E6%B3%A8%E6%84%8F">注意</h3>
+<ul>
+<li>不要为了用模式而用模式</li>
+<li>优先解决真实问题，再判断是否适合抽象成模式</li>
+<li>很多现代语言特性会弱化某些模式的形式感，但背后的设计思想仍然有效</li>
+<li>设计模式的价值不在<code>记住名字</code>，而在<code>识别变化点并合理封装</code></li>
+</ul>
+<h2 id="%E4%B8%89%E5%A4%A7%E7%B1%BB">三大类</h2>
+<ul>
+<li>创建型：对象<code>怎么创建</code>，解决<code>出生</code>（对象怎么创建出来）</li>
+<li>结构型：对象和类<code>怎么组织</code>，以获得新功能，解决<code>拼装</code>（已有类/对象怎么组合、包装、适配）</li>
+<li>行为型：对象之间<code>怎么协作</code>，解决<code>做事</code>（逻辑怎么切换、对象怎么协作、流程怎么安排）</li>
+</ul>
+<h3 id="1.%20%E5%88%9B%E5%BB%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F">1. 创建型模式</h3>
+<p>关注<code>对象怎么创建更合理</code>，核心是把<code>使用对象</code>和<code>创建对象</code>分离。</p>
+<p>常见模式：</p>
+<ul>
+<li>单例（Singleton）：保证一个类只有一个实例</li>
+<li>工厂方法（Factory Method）：把对象创建延迟到子类或工厂中</li>
+<li>抽象工厂（Abstract Factory）：创建一组相关对象</li>
+<li>建造者（Builder）：分步骤构造复杂对象</li>
+<li>原型（Prototype）：通过复制已有对象创建新对象</li>
+</ul>
+<p>适用场景：</p>
+<ul>
+<li>创建逻辑复杂</li>
+<li>需要隐藏具体实现类</li>
+<li>同一套业务可能切换不同产品族</li>
+</ul>
+<h3 id="2.%20%E7%BB%93%E6%9E%84%E5%9E%8B%E6%A8%A1%E5%BC%8F">2. 结构型模式</h3>
+<p>关注<code>类和对象如何组合</code>，核心是通过组合而不是硬编码继承来组织能力。</p>
+<p>常见模式：</p>
+<ul>
+<li>适配器（Adapter）：把一个接口转换成客户端期望的接口</li>
+<li>装饰器（Decorator）：在不改原类的前提下动态扩展功能</li>
+<li>代理（Proxy）：为真实对象提供访问控制或附加行为</li>
+<li>外观（Facade）：对复杂子系统提供统一入口</li>
+<li>组合（Composite）：用树形结构统一处理局部和整体</li>
+</ul>
+<p>适用场景：</p>
+<ul>
+<li>旧接口和新系统不兼容</li>
+<li>需要按需叠加功能</li>
+<li>子系统复杂，希望对外暴露更简单的调用方式</li>
+</ul>
+<h3 id="3.%20%E8%A1%8C%E4%B8%BA%E5%9E%8B%E6%A8%A1%E5%BC%8F">3. 行为型模式</h3>
+<p>关注<code>对象之间如何协作</code>，核心是职责分配、消息传递和流程控制。</p>
+<p>常见模式：</p>
+<ul>
+<li>观察者（Observer）：状态变化时通知依赖方</li>
+<li>策略（Strategy）：把一组可替换算法封装起来</li>
+<li>命令（Command）：把请求封装成对象</li>
+<li>状态（State）：对象在不同状态下表现不同</li>
+<li>模板方法（Template Method）：定义流程骨架，局部步骤交给子类实现</li>
+</ul>
+<p>适用场景：</p>
+<ul>
+<li>同一行为存在多种实现策略</li>
+<li>流程固定但细节可变</li>
+<li>需要解耦<code>发起者</code>和<code>执行者</code></li>
+</ul>
+<h1 id="links">links</h1>
+<ol>
+<li><a href="https://en.wikipedia.org/wiki/Design_Patterns">https://en.wikipedia.org/wiki/Design_Patterns</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Software_design_pattern">https://en.wikipedia.org/wiki/Software_design_pattern</a></li>
+<li><a href="https://refactoringguru.cn/design-patterns">https://refactoringguru.cn/design-patterns</a></li>
+</ol></article></main></body></html>

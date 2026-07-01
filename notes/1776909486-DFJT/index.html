@@ -1,0 +1,93 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>role-of-algo</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="role-of-algo">role-of-algo</h1>
+<blockquote>
+<p><a href="https://matklad.github.io/2023/08/13/role-of-algorithms.html">https://matklad.github.io/2023/08/13/role-of-algorithms.html</a></p>
+</blockquote>
+<blockquote>
+<p>算法的真正作用，不是让你在工作中频繁手写高级数据结构，而是训练你写正确代码、看见不变量、识别问题结构，并把系统世界里的抽象连接起来。</p>
+</blockquote>
+<blockquote>
+<p>在小处持续追求更干净、更短、更对的表达，可能会塑造你在大处做简洁设计的能力（抓住少数关键约束，然后让结构顺下来</p>
+</blockquote>
+<ol>
+<li>训练写正确小程序：底层逻辑、状态约束、边界条件、复杂度/结构、小正确性、最小失败输入/最小复现路径</li>
+<li>抓性质、不变量：大型成功系统，重要的是10%的架构性质，其他都是胶水和绒毛；不变量 = 在过程推进中始终保持为真的东西；</li>
+<li>识别问题结构：识别 amortized 和 worst-case 的区别；内化核心想法（建立一套结构词汇表）</li>
+<li>知识网（连接所有知识）：数据结构不一定以“原名”出现，但它会作为系统部件反复出现</li>
+</ol>
+<h2 id="%E6%A0%B8%E5%BF%83%E7%AE%97%E6%B3%95%E6%B8%85%E5%8D%95">核心算法清单</h2>
+<ul>
+<li>查找、排序、存储结构是一条线
+<ul>
+<li>binary search 到处都是</li>
+<li>merge sort 和 LSM-tree 连得很近，排序和合并是存储系统的真实基础设施</li>
+<li>binary heap 到处都是，尤其是 timer、Dijkstra、k-way merge</li>
+<li>B-tree，对 memory hierarchy 友好，它适配缓存、页、块、磁盘/内存层级</li>
+</ul>
+</li>
+<li>图算法、依赖关系、遍历是一条线
+<ul>
+<li>DFS / BFS / Topological Sort 非常工程化：DFS：深入探索，BFS：按层扩散，Topological sort：安排依赖执行顺序</li>
+<li>SCC 是“允许环时”的工具：DAG 没环时，拓扑排序很好办；有环时，就要先理解“环的结构”</li>
+<li>Floyd-Warshall 是动态规划的“总 Boss”：按阶段维持不变量（逐步放宽可用信息/中间节点集合，让最优子结构不断扩展</li>
+</ul>
+</li>
+<li>字符串、自动机、哈希也是一条线</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>类别</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>搜索</strong></td>
+<td>linear search, binary search</td>
+</tr>
+<tr>
+<td><strong>排序</strong></td>
+<td>quadratic sorting, quick sort, merge sort, heap sort</td>
+</tr>
+<tr>
+<td><strong>线性结构</strong></td>
+<td>growable array (ArrayList/vector), doubly-linked list, skip list</td>
+</tr>
+<tr>
+<td><strong>栈/队列</strong></td>
+<td>stack, queue, monotonic stack, monotonic queue</td>
+</tr>
+<tr>
+<td><strong>树</strong></td>
+<td>binary heap, BST, AVL tree, red-black tree, B-tree, splay tree, trie</td>
+</tr>
+<tr>
+<td><strong>哈希</strong></td>
+<td>hash table (chaining, open addressing)</td>
+</tr>
+<tr>
+<td><strong>图遍历</strong></td>
+<td>DFS, BFS, topological sort, strongly connected components</td>
+</tr>
+<tr>
+<td><strong>图最优</strong></td>
+<td>MST (Prim, Kruskal), shortest paths (BFS, Dijkstra, Floyd–Warshall, Bellman–Ford)</td>
+</tr>
+<tr>
+<td><strong>字符串</strong></td>
+<td>substring search (quadratic, Rabin-Karp, Boyer-Moore, KMP), Aho-Corasick</td>
+</tr>
+<tr>
+<td><strong>技巧</strong></td>
+<td>two pointers (fast-slow, left-right), sliding window, union-find</td>
+</tr>
+<tr>
+<td><strong>范式</strong></td>
+<td>divide &#x26; conquer, DP (LCS, edit distance), greedy, backtracking, branch &#x26; bound</td>
+</tr>
+<tr>
+<td><strong>设计</strong></td>
+<td>LRU, LFU</td>
+</tr>
+</tbody>
+</table></article></main></body></html>

@@ -1,0 +1,16 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: map swiss table</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Go%3A%20map%20swiss%20table">Go: map swiss table</h1>
+<blockquote>
+<p><a href="https://go.dev/blog/swisstable">https://go.dev/blog/swisstable</a></p>
+</blockquote>
+<p>本质：一套 cache-friendly + SIMD + bit trick 的实现方式；极致利用 CPU cache 和向量指令</p>
+<p>现代 CPU：算术便宜，内存贵；慢在cachemiss；用更多的bittrick，换更少的内存访问（减少miss）。</p>
+<ul>
+<li>open addressing（开放寻址）</li>
+<li>metadata（控制字节）分离</li>
+<li>SIMD 批量匹配</li>
+<li>减少随机内存访问</li>
+</ul>
+<h2 id="links">links</h2>
+<ol>
+<li><a href="https://philpearl.github.io/post/swissing_a_table">https://philpearl.github.io/post/swissing_a_table</a></li>
+</ol></article></main></body></html>

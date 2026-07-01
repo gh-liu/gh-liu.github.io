@@ -1,0 +1,58 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>NoSQL Distilled</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9ANoSQL%20Distilled">读书笔记：NoSQL Distilled</h1>
+<blockquote>
+<p><a href="https://martinfowler.com/books/nosql.html">https://martinfowler.com/books/nosql.html</a>
+<a href="https://www.oreilly.com/library/view/nosql-distilled-a/9780133036138/">https://www.oreilly.com/library/view/nosql-distilled-a/9780133036138/</a></p>
+</blockquote>
+<p>NoSQL 并不是<code>不要 SQL</code>，而是<code>不要只用关系模型思考一切</code>。
+先想访问模式，再想存储模型。围绕已知访问模式做建模。</p>
+<p>一句话补充如下点：</p>
+<ul>
+<li>是什么（What）— NoSQL 是一组放弃关系模型与强一致性、围绕「聚合（Aggregate）+ 分布式集群」重新组织数据的数据库家族（键值、文档、列族、图）。</li>
+<li>为什么（Why）— 关系模型与应用对象之间存在阻抗失配，且单机关系库难以横向扩展；当数据量、吞吐与开发节奏成为约束时，需要用一致性、模式灵活度与运维复杂度去换取扩展性与开发效率。</li>
+<li>怎么做（How）— 围绕业务读写访问路径来设计聚合边界，按 CAP/PACELC 选择一致性策略（Quorum、版本向量、最终一致），用 polyglot persistence 让每个有界上下文选最合适的存储，并用 schema-on-read + 数据库重构（迁移脚本）应对 schemaless 带来的隐式模式。</li>
+</ul>
+<h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
+<blockquote>
+<p>NoSQL 不是「No SQL」，而是「Not Only SQL」——它的真正价值不在于丢掉 SQL，而在于打破了「一种数据库吃所有场景」的默认假设，让我们可以根据<strong>数据访问模式</strong>与<strong>集群形态</strong>为每个有界上下文挑选合适的存储模型。关系数据库依然是默认选项，NoSQL 是被业务/规模/模型逼出来的、有意识的权衡。</p>
+</blockquote>
+<p>核心抓手：<strong>聚合（Aggregate）</strong> —— 一组总是一起读写的对象边界。聚合定义了：</p>
+<ul>
+<li>一致性的最小单元（多数 NoSQL 只在聚合内部保证 ACID）</li>
+<li>分片（sharding）与复制的最小单元</li>
+<li>跨网络传输与缓存的最小单元</li>
+</ul>
+<p>四种模型，本质上都是「以聚合为单位组织数据」的不同变体；图数据库是个例外，它反过来强调<strong>关系本身</strong>作为一等公民。</p>
+<h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
+<ol>
+<li><strong>阻抗失配的真正成本</strong>：不是 ORM 写起来麻烦，而是关系模型把一个业务对象拆成多张表后，<strong>事务、缓存、复制粒度都被割裂</strong>了。聚合让「业务一致性边界」与「存储单元」对齐。</li>
+<li><strong>聚合无关 vs. 聚合导向</strong>：键值、文档、列族都是聚合导向（按整块取出）；关系库与图库是聚合无关（可任意组合字段/节点）。这决定了「跨聚合分析」是否轻松。</li>
+<li><strong>Schemaless 是错觉</strong>：数据库不强制 schema，并不意味着没有 schema——schema 只是被<strong>隐式地下放到了应用代码</strong>中。读时校验、版本化迁移、Schema-on-Read 不是免费的。</li>
+<li><strong>CAP 不是三选二，是「分区时二选一」</strong>：网络分区一旦发生，只能在一致性 (C) 与可用性 (A) 之间选；没有分区时两者都能要。把 CAP 当口号会做出错误决策，应配合 PACELC（无分区时的延迟 vs 一致性）一起想。</li>
+<li><strong>一致性的多维度</strong>：写一致性（更新冲突）、读一致性（读到旧值/不一致视图）、复制一致性（副本之间）、跨会话一致性（read-your-writes / monotonic read）。Quorum 公式 <code>W + R > N</code> 给出了可调节的杠杆。</li>
+<li><strong>版本向量 > 时间戳</strong>：分布式环境下时钟不可靠，用版本向量（vector clock）检测并发写、把冲突解决推给应用层，比「最后写入获胜」更诚实。</li>
+<li><strong>分布式模型只有四种</strong>：单服务器、分片、主从复制、对等复制——加上「分片+复制」的组合。所有 NoSQL 的运维特性都可以从这四种模型推导出来。</li>
+<li><strong>Map-Reduce 是聚合分析的自然范式</strong>：当数据按聚合分布在多节点时，把计算推到数据所在节点，再用 reduce 汇总，是绕过「跨聚合 join」缺失的标准答案。</li>
+<li><strong>Polyglot Persistence 是终局</strong>：一个系统内部用多种存储——会话/购物车用键值，订单/产品用文档，推荐/社交关系用图，报表用列族或数据仓库。代价是<strong>运维复杂度</strong> + <strong>跨库一致性</strong>。</li>
+<li><strong>数据库迁移没有消失</strong>：schemaless 让「加字段」零成本，但「改语义、迁数据」的工作并没有少；需要写「增量迁移 + 双读双写 + 后台回填」的剧本。</li>
+<li><strong>图数据库是另一类问题</strong>：当<strong>关系本身</strong>比节点属性更有价值时（社交、推荐、欺诈、依赖图），用关系库做 N 层 join 会爆炸，图库才是正解。它的「分布式扩展」恰恰是最难的——因为关系跨节点。</li>
+<li><strong>不要为了 NoSQL 而 NoSQL</strong>：要么数据规模/吞吐确实压垮了关系库，要么数据模型与对象天然吻合（文档/图）；否则关系库依然胜出。</li>
+</ol>
+<h2 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h2>
+<ol>
+<li>在做存储选型时，先画出<strong>聚合边界</strong>：哪些对象一起读、一起写、一起失效？再回答「需要跨聚合事务吗」「读路径是按聚合 ID 还是按属性查询」。</li>
+<li>用 CAP/PACELC 框架审视现有系统：发生网络分区时业务接受谁挂？平时延迟与一致性如何取舍？把答案写进设计文档。</li>
+<li>如果用最终一致存储，明确<strong>写一致性策略</strong>（quorum、版本向量、CRDT、应用层冲突解决）和<strong>读一致性保证</strong>（read-your-writes、单调读）。</li>
+<li>对 schemaless 的库，<strong>显式管理隐式 schema</strong>：版本字段、文档结构契约、迁移脚本仓库、消费者向后兼容策略。</li>
+<li>评估 polyglot persistence 时把<strong>运维成本</strong>算进去：备份、监控、SRE 学习曲线、跨库一致性补偿——它们经常超过节省下来的开发成本。</li>
+<li>重新评估手头几个项目：哪些场景真的需要 NoSQL？哪些只是「觉得 MySQL 不够潮」？把判断写出来，避免随大流。</li>
+<li>学习并实践一次 Map-Reduce / 聚合管道（Mongo aggregation、Spark）——补齐「无 join」环境下的分析思路。</li>
+</ol>
+<h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
+<ol>
+<li>「NoSQL 是 <em>Not Only SQL</em>，不是 <em>No SQL</em>」——它扩展而非取代关系数据库。</li>
+<li>「聚合是分布式数据的自然单元」（Aggregates are the natural units of distribution）。</li>
+<li>「Schemaless 数据库并没有消除 schema，只是把它推给了应用代码」。</li>
+<li>「CAP 定理告诉你的不是『三选二』，而是『分区出现时，你打算牺牲谁』」。</li>
+<li>「Polyglot Persistence：用对的工具做对的事」——一个企业内部存在多种数据库是常态，不是错。</li>
+<li>「关系数据库依然是默认选项；选择 NoSQL 必须有明确的理由」。</li>
+</ol></article></main></body></html>

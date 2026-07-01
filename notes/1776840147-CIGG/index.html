@@ -1,0 +1,46 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>实现领域驱动设计</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E5%AE%9E%E7%8E%B0%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1">读书笔记：实现领域驱动设计</h1>
+<blockquote>
+<p>Implementing Domain-Driven Design</p>
+</blockquote>
+<blockquote>
+<p><a href="https://book.douban.com/subject/25844633">https://book.douban.com/subject/25844633</a></p>
+</blockquote>
+<p>一句话补充如下点：</p>
+<ul>
+<li>是什么（What）— 一套以领域模型为核心、分战略设计（限界上下文/上下文映射）与战术设计（实体/值对象/聚合/领域事件）的软件设计方法论。</li>
+<li>为什么（Why）— 传统开发先切数据再堆行为，业务逻辑碎片化；DDD 让团队先用通用语言理解业务，再以模型驱动代码，降低业务与技术的耦合。</li>
+<li>怎么做（How）— 事件风暴协作建模 → 通用语言统一沟通 → 限界上下文划边界 → 聚合/领域事件等战术模式落地代码；不该做：为分任务拆上下文、设计臃肿聚合。</li>
+</ul>
+<h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
+<p>DDD 从<strong>战略</strong>和<strong>战术</strong>两个层面驱动软件设计：</p>
+<ol>
+<li>战略层用通用语言、限界上下文和上下文映射划清业务边界；</li>
+<li>战术层用实体、值对象、聚合、领域事件等构建块将领域模型落地为代码，使<strong>业务模型与代码模型保持一致</strong>。</li>
+</ol>
+<ul>
+<li>软件的核心复杂度在于业务本身，而非技术；应先理解业务再写代码，而非反过来。</li>
+<li>限界上下文是 DDD 最关键的模式：同一概念在不同上下文中含义不同，必须显式划定边界才能建立精确模型。</li>
+<li>聚合是一致性的最小单元：一次事务只修改一个聚合，跨聚合通过领域事件实现最终一致性。</li>
+<li>通用语言不是可选的文档工作，而是贯穿需求、设计、代码的统一表达，是团队协作的基础设施。</li>
+</ul>
+<h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
+<ol>
+<li><strong>先有边界，后有模型</strong>：限界上下文是 DDD 最核心的战略模式。同一个词（如"订单"）在不同上下文中含义不同，不划清边界就无法建立精确模型。</li>
+<li><strong>设计小聚合</strong>：聚合越大，并发冲突和重构成本越高。应以"真正的不变条件"为一致性边界，通过唯一标识引用其他聚合，跨聚合使用最终一致性。</li>
+<li><strong>通用语言不是文档，而是活的代码</strong>：代码中的类名、方法名应直接反映领域概念，代码即设计、设计即沟通。</li>
+<li><strong>领域事件是解耦利器</strong>：当"发生 A 则触发 B"时，用领域事件替代直接调用，既解耦聚合/微服务，又形成完整的业务闭环。</li>
+<li><strong>战略设计比战术设计更重要</strong>：子域划分和上下文边界的错误，比实体建模的错误代价高得多；为分配任务而拆分限界上下文是一种常见的反模式。</li>
+</ol>
+<h2 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h2>
+<ol>
+<li>在现有项目中识别核心域、支撑域和通用域，画出上下文映射图，审视当前服务边界是否与业务边界对齐。</li>
+<li>审查现有聚合设计：是否存在臃肿聚合？能否拆小并通过领域事件实现最终一致性？</li>
+<li>在团队中推行通用语言，确保 PRD、代码、日常沟通使用同一套术语。</li>
+</ol>
+<h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
+<ol>
+<li>"领域驱动设计是教我们如何做好软件的，同时也是教我们如何更好地使用面向对象技术的。"</li>
+<li>"DDD 让你首先考虑的是业务语言，而不是数据。"</li>
+<li>"为了分配任务而拆分限界上下文是一种错误的上下文建模方式。"</li>
+<li>"在一致性边界之内建模真正的不变条件。"</li>
+</ol></article></main></body></html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>缓存</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E7%BC%93%E5%AD%98">缓存</h1>
+<p>S 什么场景
+C 什么冲突
+Q 什么问题
+A 回答问题</p>
+<blockquote>
+<p>把常用数据放到更快、更近的地方，减少重复计算和数据库访问。</p>
+</blockquote>
+<ol>
+<li>降低数据库读压力</li>
+<li>降低延迟</li>
+<li>抗热点流量</li>
+<li>保存临时状态</li>
+<li>保存预计算结果</li>
+</ol>
+<blockquote>
+<p>数据有两份之后，如何保证一致性？</p>
+</blockquote>
+<ol>
+<li>Cache Aside 旁路缓存：读请求先查缓存，未命中再查数据库并回填；写请求先更新数据库，再删除缓存，让后续读请求重新加载。</li>
+</ol>
+<p>缓存一致性通常不是绝对强一致，而是：尽量缩短不一致窗口。
+缓存一般用于可容忍短暂不一致的读场景，通过删除缓存、TTL、重试和异步补偿来控制不一致窗口。</p>
+<p>缓存穿透、击穿、雪崩</p>
+<ul>
+<li>缓存穿透 Cache Penetration：查询一个缓存和数据库都不存在的数据，导致每次都打到数据库</li>
+<li>缓存击穿 Cache Breakdown：一个热点 key 过期瞬间，大量请求同时打到数据库</li>
+<li>缓存雪崩 Cache Avalanche：大量 key 同时过期，或者 Redis 故障，导致流量全部打到数据库</li>
+</ul>
+<h1 id="CDN">CDN</h1>
+<blockquote>
+<p>静态资源离用户太远，访问慢，源站压力大。</p>
+</blockquote>
+<h1 id="Blob%20Storage%20%2F%20Object%20Storage%20%E5%AF%B9%E8%B1%A1%E5%AD%98%E5%82%A8">Blob Storage / Object Storage 对象存储</h1>
+<blockquote>
+<p>大文件不要直接放数据库。</p>
+</blockquote></article></main></body></html>

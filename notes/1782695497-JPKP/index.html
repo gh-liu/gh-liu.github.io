@@ -1,0 +1,91 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: types</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Go%3A%20types">Go: types</h1>
+<blockquote>
+<p><a href="https://github.com/golang/example/blob/master/gotypes/README.md">https://github.com/golang/example/blob/master/gotypes/README.md</a>
+<a href="https://www.youtube.com/watch?v=3N381ubZTeo">https://www.youtube.com/watch?v=3N381ubZTeo</a>
+<a href="https://docs.google.com/presentation/d/13OvHYozAUBeISPRoLgG7kMBuja1NsU1D_mMlmbaYojk/view">https://docs.google.com/presentation/d/13OvHYozAUBeISPRoLgG7kMBuja1NsU1D_mMlmbaYojk/view</a></p>
+</blockquote>
+<p><code>go/types</code> 是 Go 的类型检查器。<code>go/parser</code> 只把源码变成 AST；<code>go/types</code> 负责回答三个语义问题：</p>
+<ul>
+<li>这个名字引用哪个声明？</li>
+<li>这个表达式是什么类型？</li>
+<li>这个常量表达式的值是多少？</li>
+</ul>
+<p>三者不能完全分开做：数组长度依赖常量值，<code>unsafe.Sizeof</code> 的值依赖类型，<code>T{k: 0}</code> 里的 <code>k</code> 是字段还是变量又依赖 <code>T</code> 的类型。</p>
+<h2 id="%E5%9F%BA%E6%9C%AC%E7%94%A8%E6%B3%95">基本用法</h2>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9">fset</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> token</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">NewFileSet</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#D8DEE9">file</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> _</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> parser</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">ParseFile</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">fset</span><span style="color:#ECEFF4">,</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">x.go</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> src</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#D8DEE9">info</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> &#x26;</span><span style="color:#D8DEE9FF">types</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Info</span><span style="color:#ECEFF4">{</span></span>
+<span data-line=""><span style="color:#D8DEE9">	Defs</span><span style="color:#ECEFF4">:</span><span style="color:#81A1C1">  map</span><span style="color:#ECEFF4">[</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">ast</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Ident</span><span style="color:#ECEFF4">]</span><span style="color:#D8DEE9FF">types</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Object</span><span style="color:#ECEFF4">{},</span></span>
+<span data-line=""><span style="color:#D8DEE9">	Uses</span><span style="color:#ECEFF4">:</span><span style="color:#81A1C1">  map</span><span style="color:#ECEFF4">[</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">ast</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Ident</span><span style="color:#ECEFF4">]</span><span style="color:#D8DEE9FF">types</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Object</span><span style="color:#ECEFF4">{},</span></span>
+<span data-line=""><span style="color:#D8DEE9">	Types</span><span style="color:#ECEFF4">:</span><span style="color:#81A1C1"> map</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">ast</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Expr</span><span style="color:#ECEFF4">]</span><span style="color:#D8DEE9FF">types</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">TypeAndValue</span><span style="color:#ECEFF4">{},</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span>
+<span data-line=""><span style="color:#D8DEE9">conf</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9FF"> types</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Config</span><span style="color:#ECEFF4">{</span><span style="color:#D8DEE9">Importer</span><span style="color:#ECEFF4">:</span><span style="color:#D8DEE9"> importer</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Default</span><span style="color:#ECEFF4">()}</span></span>
+<span data-line=""><span style="color:#D8DEE9">pkg</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> err</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> conf</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Check</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">example/x</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> fset</span><span style="color:#ECEFF4">,</span><span style="color:#ECEFF4"> []</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">ast</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">File</span><span style="color:#ECEFF4">{</span><span style="color:#D8DEE9">file</span><span style="color:#ECEFF4">},</span><span style="color:#D8DEE9"> info</span><span style="color:#ECEFF4">)</span></span></code></pre></figure>
+<ul>
+<li><code>FileSet</code>：把 <code>token.Pos</code> 翻译成文件、行、列。</li>
+<li><code>Config</code>：类型检查配置；有 import 时通常要给 <code>Importer</code>。</li>
+<li><code>Package</code>：检查后的包，能拿到包名、import path、包级 scope。</li>
+<li><code>Info</code>：最重要的结果容器；只有提前初始化的 map 才会被填充。</li>
+</ul>
+<p>真实工程更推荐用 <code>golang.org/x/tools/go/packages</code>，它会处理 module、build tags、cgo、依赖和类型检查。</p>
+<h2 id="%E5%87%A0%E4%B8%AA%E6%A0%B8%E5%BF%83%E6%A6%82%E5%BF%B5">几个核心概念</h2>
+<p><code>types.Object</code> 表示“声明出来的东西”：函数、变量、常量、类型名、import 后的包名、内建函数等。同一个声明对应同一个 Object，所以判断“是不是同一个声明”通常可以比较 object 指针。不要用旧的 <code>go/ast.Object</code>，它没有完整类型信息。</p>
+<p><code>types.Scope</code> 是 name 到 Object 的映射。大致结构：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>Universe: int, string, len, append, nil, ...</span></span>
+<span data-line=""><span>└── Package: 包级 const/var/type/func</span></span>
+<span data-line=""><span>    └── File: imports</span></span>
+<span data-line=""><span>        └── Local: 函数、if、for、switch 等局部块</span></span></code></pre></figure>
+<p>查找一个位置能看到的名字：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9">inner</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> pkg</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Scope</span><span style="color:#ECEFF4">().</span><span style="color:#88C0D0">Innermost</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">pos</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#D8DEE9">_</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> obj</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> inner</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">LookupParent</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">name</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> pos</span><span style="color:#ECEFF4">)</span></span></code></pre></figure>
+<p><code>pos</code> 很关键：同一个 block 内，声明前和声明后看到的名字可能不同。</p>
+<p><code>types.Info</code> 是 AST 到语义的索引，常用字段：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Defs</code> / <code>Uses</code></td>
+<td>identifier 定义/引用了哪个 Object</td>
+</tr>
+<tr>
+<td><code>Types</code></td>
+<td>表达式的类型、常量值、mode</td>
+</tr>
+<tr>
+<td><code>Selections</code></td>
+<td><code>x.f</code> 这种字段/方法选择</td>
+</tr>
+<tr>
+<td><code>Scopes</code></td>
+<td>AST block 对应的 Scope</td>
+</tr>
+</tbody>
+</table>
+<p>注意：<code>fmt.Println</code> 是 qualified identifier，<code>fmt</code> 和 <code>Println</code> 都看 <code>Uses</code>；只有 <code>x.f</code> 这种字段/方法选择才看 <code>Selections</code>。</p>
+<h2 id="Type">Type</h2>
+<p><code>types.Type</code> 只有一个核心方法：<code>Underlying() Type</code>。</p>
+<p>常见具体类型：<code>Basic</code>、<code>Pointer</code>、<code>Array</code>、<code>Slice</code>、<code>Map</code>、<code>Chan</code>、<code>Struct</code>、<code>Signature</code>、<code>Alias</code>、<code>Named</code>、<code>Interface</code>、<code>TypeParam</code>。</p>
+<p>几个经验规则：</p>
+<ul>
+<li>不要用 <code>t1 == t2</code> 判断类型相同，用 <code>types.Identical(t1, t2)</code>。</li>
+<li>判断赋值、比较、转换、接口实现，用 <code>AssignableTo</code>、<code>Comparable</code>、<code>ConvertibleTo</code>、<code>Implements</code>。</li>
+<li>分析底层结构时先用 <code>Underlying()</code>，否则 <code>type MyMap map[string]int</code> 会被当成 <code>Named</code>，而不是 <code>Map</code>：<code>switch typ.Underlying().(type) { ... }</code>。</li>
+</ul>
+<h2 id="%E6%96%B9%E6%B3%95%E3%80%81%E5%AD%97%E6%AE%B5%E5%92%8C%E8%BE%93%E5%87%BA">方法、字段和输出</h2>
+<ul>
+<li>字段/方法查找不要只用 <code>Name()</code> 做 key；未导出名字还和 package path 有关，用 <code>obj.Id()</code> 或 <code>types.Id(pkg, name)</code>。</li>
+<li>获取方法集用 <code>types.NewMethodSet(t)</code>；只查一个字段/方法时用 <code>types.LookupFieldOrMethod</code> 更便宜。</li>
+<li><code>Type.String()</code> / <code>Object.String()</code> 常带完整 import path；生成代码或面向用户输出时用 <code>types.TypeString</code> / <code>types.ObjectString</code> 加 qualifier。</li>
+</ul>
+<h2 id="%E4%BD%BF%E7%94%A8%20checklist">使用 checklist</h2>
+<ol>
+<li>真实项目优先 <code>go/packages</code>；demo 才手动 parse + check。</li>
+<li>需要什么结果，就初始化 <code>types.Info</code> 对应 map。</li>
+<li><code>ast.Ident</code> 查 <code>Defs</code> / <code>Uses</code>；表达式查 <code>Types</code>；<code>x.f</code> 查 <code>Selections</code>。</li>
+<li>同一声明比较 <code>Object</code>；同一类型用 <code>types.Identical</code>。</li>
+</ol></article></main></body></html>

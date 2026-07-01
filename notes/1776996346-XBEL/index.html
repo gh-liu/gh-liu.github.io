@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>invariant</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="invariant">invariant</h1>
+<blockquote>
+<p><a href="https://matklad.github.io/2023/10/06/what-is-an-invariant.html">https://matklad.github.io/2023/10/06/what-is-an-invariant.html</a></p>
+</blockquote>
+<p>S: 程序和系统都会随时间演化，路径很多，难以逐条推理。
+C: 代码可能符合经验法则、看起来正确，但边界条件仍然错。
+Q: 如何用一种稳定的方式推理动态变化中的程序和系统？
+A: 找出 invariant：演化过程中<code>始终成立</code>的性质。它压缩了时间维度，让我们不用枚举所有路径，而是围绕共享约束写代码、设计系统。</p>
+<h2 id="%E5%B0%8F%E5%B0%BA%E5%BA%A6%EF%BC%9A%E7%94%A8%20invariant%20%E5%86%99%E5%AF%B9%E7%BB%86%E8%8A%82">小尺度：用 invariant 写对细节</h2>
+<p>对 insertion point 来说，目标是返回最小的索引 <code>i</code>，使得把 <code>x</code> 插入 <code>xs[i]</code> 后数组仍然有序。</p>
+<p>可以把循环 invariant 明确写成：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>for i in 0..lo: xs[i] &#x3C; x</span></span>
+<span data-line=""><span>for i in hi..:  x &#x3C;= xs[i]</span></span></code></pre></figure>
+<p>也就是：</p>
+<ul>
+<li><code>lo</code> 左侧的元素一定小于 <code>x</code>。</li>
+<li><code>hi</code> 右侧的元素一定大于等于 <code>x</code>。</li>
+<li>答案始终落在 <code>[lo, hi]</code> 里。</li>
+</ul>
+<p>于是分支应该贴合 invariant：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="rust" data-theme="nord"><code data-language="rust" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">if</span><span style="color:#D8DEE9"> xs</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9">mid</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1"> &#x3C;</span><span style="color:#D8DEE9"> x</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">    lo</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> mid</span><span style="color:#81A1C1"> +</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4">;</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span><span style="color:#81A1C1"> else</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">    hi</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> mid</span><span style="color:#ECEFF4">;</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p><code>xs[mid] &#x3C; x</code> 时，<code>mid</code> 也属于“小于 x 的左侧区域”，所以下界可以推进到 <code>mid + 1</code>。否则，<code>mid</code> 可能就是第一个大于等于 <code>x</code> 的位置，所以上界只能收缩到 <code>mid</code>。</p>
+<p>原始写法的问题是：当 <code>x == xs[mid]</code> 时，把 <code>lo</code> 设为 <code>mid</code> 会破坏“<code>lo</code> 左侧都小于 <code>x</code>”这个 invariant。</p>
+<h2 id="%E5%A4%A7%E5%B0%BA%E5%BA%A6%EF%BC%9A%E7%94%A8%20invariant%20%E7%BA%A6%E6%9D%9F%E7%B3%BB%E7%BB%9F%E6%BC%94%E5%8C%96">大尺度：用 invariant 约束系统演化</h2>
+<p>系统级 invariant 是一些紧凑、会影响整个代码库的设计约束。</p>
+<p>例子：</p>
+<ul>
+<li>Cargo：用户输入的文件路径保持原样，不随意 canonicalize。因为文件系统语义复杂，看似等价的路径未必真的等价。</li>
+<li>rust-analyzer：IDE API 暴露的是一个完整、冻结的世界快照；内部可以按需计算和缓存，但调用方不用感知这些细节。</li>
+<li>TigerBeetle：启动后不再分配内存；交易逻辑不直接读磁盘；读磁盘 API 对上层表现为不会失败。</li>
+</ul>
+<p>这些 invariant 一旦成立，很多局部代码就不用反复处理同一类复杂性。代价是它们会“传染”到系统各处，要求所有代码都遵守。</p>
+<h2 id="%E8%AE%B0%E5%BF%86%E7%82%B9">记忆点</h2>
+<ul>
+<li>Invariant 是“变化过程中不变的东西”。</li>
+<li>小尺度 invariant 帮助写对循环、递归、状态机等细节。</li>
+<li>大尺度 invariant 帮助大型系统保持简单、统一的心智模型。</li>
+<li>好的 invariant 应该足够精确，能指导代码分支和边界条件。</li>
+<li>如果某段代码需要靠反复试错 <code>+1</code>、<code>-1</code> 或特殊分支修补，通常说明 invariant 还没想清楚。</li>
+</ul></article></main></body></html>

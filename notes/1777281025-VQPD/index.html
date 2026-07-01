@@ -1,0 +1,134 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>分库分表</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8">分库分表</h1>
+<p>S 单库单表在数据量、索引规模、单主写入吞吐上都有上限；主从复制只能扩读，写请求最终还是落在主库。
+C 一旦把数据拆到多个库表，事务、Join、分页、扩容、排障都会明显变复杂；拆错分片键，后面迁移成本极高。
+Q 什么时候该做分库分表？它到底解决什么，不解决什么？分片键怎么选，拆完后最常见的代价和坑有哪些？
+A 分库分表本质上是把单机数据库里的数据和写流量，按某个规则拆到多个分片上，以换取容量和写扩展；它解决的是<code>单主写瓶颈</code>和<code>单表过大</code>，但代价是把很多单机数据库内部问题暴露成分布式系统问题。</p>
+<h2 id="%E5%AE%83%E5%92%8C%E4%B8%BB%E4%BB%8E%E3%80%81%E5%88%86%E5%8C%BA%E6%98%AF%E4%BB%80%E4%B9%88%E5%85%B3%E7%B3%BB">它和主从、分区是什么关系</h2>
+<ul>
+<li><strong>主从复制</strong>：核心是<code>读写分离</code>。主库写，从库读，主要解决<code>读压力</code>和高可用，不解决单主写瓶颈。</li>
+<li><strong>数据分区 / Sharding</strong>：更通用的概念，表示把数据拆到多个分片上。</li>
+<li><strong>分库分表</strong>：数据库场景里的分片落地方式。通常是<code>先按规则路由到某个库</code>，再落到<code>某张表</code>。</li>
+</ul>
+<p>可以把它记成：</p>
+<ul>
+<li><code>主从</code>解决读扩展</li>
+<li><code>分库分表</code>解决写扩展和容量扩展</li>
+</ul>
+<h2 id="%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8">为什么要分库分表</h2>
+<ul>
+<li><strong>单主写扛不住</strong>：写请求都打到一个主库，主从再多也没用。</li>
+<li><strong>单表太大</strong>：索引膨胀，查询和维护成本上升。</li>
+<li><strong>业务隔离需要</strong>：不同业务域独立扩容，减少相互影响。</li>
+</ul>
+<p>但一般不是一上来就做，而是常先经过：</p>
+<ol>
+<li>读写分离</li>
+<li>缓存</li>
+<li>业务拆分</li>
+<li>最后才是分库分表</li>
+</ol>
+<h2 id="%E5%B8%B8%E8%A7%81%E6%8B%86%E6%B3%95">常见拆法</h2>
+<ul>
+<li><strong>垂直拆分</strong>：按业务域拆库，比如用户库、订单库、支付库。主要解决模块隔离和业务独立扩展。</li>
+<li><strong>水平拆分</strong>：同一张表的数据按规则打散到多个库表，比如按 <code>user_id % 8</code>。主要解决容量和写吞吐。</li>
+</ul>
+<p>典型形态：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>业务 -> 路由层 -> 分片 1 (master + replicas)</span></span>
+<span data-line=""><span>               -> 分片 2 (master + replicas)</span></span>
+<span data-line=""><span>               -> 分片 3 (master + replicas)</span></span></code></pre></figure>
+<p>也就是说，很多系统不是“主从”或“分库分表”二选一，而是：</p>
+<ul>
+<li><code>先分片</code></li>
+<li><code>每个分片内部再主从复制</code></li>
+</ul>
+<h2 id="%E5%88%86%E7%89%87%E9%94%AE%E6%80%8E%E4%B9%88%E9%80%89">分片键怎么选</h2>
+<p>分片键决定一条数据落到哪个库表，是分库分表最关键的设计点之一。</p>
+<p>好的分片键通常要满足：</p>
+<ul>
+<li><strong>高基数</strong>：值足够分散，便于均匀打散写流量</li>
+<li><strong>稳定</strong>：创建后基本不变，避免数据搬家</li>
+<li><strong>查询常用</strong>：核心查询最好经常带这个字段，避免广播查询</li>
+<li><strong>贴近事务边界</strong>：一组经常一起读写的数据，尽量落在同一分片</li>
+<li><strong>不易形成热点</strong>：避免超级大客户、热门 key 把单分片打爆</li>
+</ul>
+<p>常见候选：</p>
+<ul>
+<li><code>user_id</code></li>
+<li><code>tenant_id</code></li>
+<li><code>order_id</code></li>
+</ul>
+<p>常见错误：</p>
+<ul>
+<li>按低基数字段分片，如 <code>status</code>、<code>gender</code></li>
+<li>按时间直接分片，导致新写集中到当天分片</li>
+<li>只考虑写均衡，不考虑查询路由</li>
+</ul>
+<h2 id="%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8%E5%90%8E%E7%9A%84%E5%85%B8%E5%9E%8B%E4%BB%A3%E4%BB%B7">分库分表后的典型代价</h2>
+<h3 id="1.%20%E8%B7%A8%E5%BA%93%E4%BA%8B%E5%8A%A1%E5%8F%98%E5%A4%8D%E6%9D%82">1. 跨库事务变复杂</h3>
+<p>单库里一个事务就能完成的多步更新，拆分后可能变成跨分片事务。</p>
+<p>常见后果：</p>
+<ul>
+<li>本地事务不够用</li>
+<li>需要分布式事务，复杂且成本高</li>
+<li>或改成最终一致性，比如消息队列 + 补偿</li>
+</ul>
+<h3 id="2.%20Join%20%E5%8F%98%E9%9A%BE">2. Join 变难</h3>
+<p>如果关联表不在同一分片：</p>
+<ul>
+<li>跨库 Join 很难做或代价很高</li>
+<li>往往需要应用层拼装</li>
+<li>或通过字段冗余减少 Join</li>
+</ul>
+<h3 id="3.%20%E5%85%A8%E5%B1%80%E5%88%86%E9%A1%B5%E5%92%8C%E6%8E%92%E5%BA%8F%E5%8F%98%E9%9A%BE">3. 全局分页和排序变难</h3>
+<p><code>order by ... limit ...</code> 在单表里很自然；分表后通常要：</p>
+<ul>
+<li>每个分片先查一部分</li>
+<li>再在应用层归并排序</li>
+<li>最后取全局前 N 条</li>
+</ul>
+<h3 id="4.%20%E5%85%A8%E5%B1%80%E5%94%AF%E4%B8%80%E5%92%8C%20ID%20%E7%94%9F%E6%88%90%E5%8F%98%E9%9A%BE">4. 全局唯一和 ID 生成变难</h3>
+<p>单库自增主键不再天然适用，通常要引入：</p>
+<ul>
+<li>雪花算法</li>
+<li>号段模式</li>
+<li>UUID</li>
+</ul>
+<p>同时，唯一索引也往往只能保证<code>分片内唯一</code>，不再天然保证<code>全局唯一</code>。</p>
+<h3 id="5.%20%E6%89%A9%E5%AE%B9%E5%92%8C%E5%86%8D%E5%B9%B3%E8%A1%A1%E9%BA%BB%E7%83%A6">5. 扩容和再平衡麻烦</h3>
+<p>如果早期规则是 <code>user_id % 4</code>，后面扩成 8 个分片，就会涉及：</p>
+<ul>
+<li>路由规则变化</li>
+<li>历史数据迁移</li>
+<li>双写、校验、切流</li>
+</ul>
+<p>所以分片规则一旦落地，后面很难随意改。</p>
+<h3 id="6.%20%E7%83%AD%E7%82%B9%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%80%BE%E6%96%9C">6. 热点与数据倾斜</h3>
+<p>就算总体看分布均匀，也可能因为个别大客户或热门 key 导致：</p>
+<ul>
+<li>某个分片特别热</li>
+<li>其他分片相对空闲</li>
+</ul>
+<p>这类问题本质上是<code>逻辑均匀</code>不等于<code>流量均匀</code>。</p>
+<h2 id="%E5%AE%83%E9%80%82%E5%90%88%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88%EF%BC%8C%E4%B8%8D%E9%80%82%E5%90%88%E8%A7%A3%E5%86%B3%E4%BB%80%E4%B9%88">它适合解决什么，不适合解决什么</h2>
+<p>适合：</p>
+<ul>
+<li>单主写吞吐不够</li>
+<li>单表规模过大</li>
+<li>明确知道主要访问模式，可以稳定选出分片键</li>
+</ul>
+<p>不适合：</p>
+<ul>
+<li>查询模式还不稳定</li>
+<li>业务还在快速变化</li>
+<li>当前瓶颈其实是读、慢 SQL、索引设计或缓存缺失</li>
+</ul>
+<p>如果瓶颈还没定位清楚，先做分库分表，常常只是把一个单机问题升级成分布式问题。</p>
+<h2 id="%E5%92%8C%E6%95%B0%E6%8D%AE%E5%88%86%E5%8C%BA%E9%82%A3%E7%AF%87%E7%9A%84%E5%88%86%E5%B7%A5">和数据分区那篇的分工</h2>
+<ul>
+<li><a href="/notes/1493117956-IYPB">CS++数据分区</a> 偏<code>通用分区原理</code>：range、hash、热点、rebalancing、二级索引</li>
+<li>本文偏<code>数据库工程实践</code>：主从 vs 分库分表、垂直/水平拆分、分片键、事务/Join/分页/全局 ID</li>
+</ul>
+<p>一句话总结：</p>
+<blockquote>
+<p>分库分表不是“把表拆开”这么简单，而是在用更高的系统复杂度，去换更高的写吞吐和更大的数据规模。</p>
+</blockquote></article></main></body></html>

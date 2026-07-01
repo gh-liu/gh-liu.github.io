@@ -1,0 +1,37 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>abstraction</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="abstraction">abstraction</h1>
+<p>S 什么场景
+C 什么冲突
+Q 什么问题
+A 回答问题</p>
+<h2 id="%E8%83%BD%E5%8A%9B%E4%B8%8E%E6%80%A7%E8%B4%A8%E4%B9%8B%E9%97%B4%E7%9A%84%E4%BA%A4%E6%8D%A2">能力与性质之间的交换</h2>
+<blockquote>
+<p><a href="https://www.tedinski.com/2018/01/30/the-one-ring-problem-abstraction-and-power.html">https://www.tedinski.com/2018/01/30/the-one-ring-problem-abstraction-and-power.html</a></p>
+</blockquote>
+<p>越通用、越强、越抽象，则越失去其可分析的性质。</p>
+<p>Ted Kaminski 的核心论点：抽象设计是一个<strong>双向取舍</strong>——你不可能在不牺牲性质的情况下增加能力，也不可能在不牺牲能力的情况下增加性质。</p>
+<ul>
+<li><strong>全能的抽象是无意义的</strong>（你只是给"东西"换了个名字），<strong>高度约束的抽象只能是少数几种东西</strong>。设计就是找到中间的那个点。</li>
+<li>抽象有内外两面。<code>id :: a -> a</code> 外部可以传入任何类型，但内部被持有为抽象——正因为内部什么都不知道，反而获得了性质：这个签名只有唯一实现（parametricity）。给 <code>inc</code> 从 <code>Integer -> Integer</code> 放宽到 <code>Num a => a -> a</code>，能力增加了（能处理浮点数），但性质减少了（不再知道是整数，可能效率更低）。</li>
+<li><strong>常见错误是单向思考</strong>：看到设计做不到 X，就想"修复"它、让它更强大——却忘了这必然让它更无意义。C++/Scala 就是这种"不断增加能力"的产物。</li>
+<li>插件系统的反直觉：插件能做任何事 → 你对插件一无所知 → 真正被约束的是宿主应用（不能破坏插件兼容性）。Python 2→3 迁移困难、Vim/Emacs 无法重构核心，都是同一个问题。</li>
+<li>DSL/配置文件的教训：声明式 → 意外图灵完备，是"追求能力"的典型路径。更好的做法是<strong>分离声明与自动化</strong>——用代码生成声明式配置（如 Kubernetes 的声明式 YAML + 编程生成），而不是让配置本身变成代码。</li>
+</ul>
+<h2 id="%E6%B3%84%E6%BC%8F%E7%9A%84%E6%8A%BD%E8%B1%A1%E6%B3%95%E5%88%99%20The%20Law%20of%20Leaky%20Abstractions">泄漏的抽象法则 The Law of Leaky Abstractions</h2>
+<blockquote>
+<p><a href="https://www.joelonsoftware.com/2002/11/11/the-law-of-leaky-abstractions">https://www.joelonsoftware.com/2002/11/11/the-law-of-leaky-abstractions</a></p>
+</blockquote>
+<p>Joel Spolsky 提出的法则：<strong>All non-trivial abstractions, to some degree, are leaky.</strong>（所有非平凡的抽象，在某种程度上都是泄漏的。）</p>
+<p>核心论点：</p>
+<ul>
+<li>抽象是对底层复杂事物的简化。TCP 建立在不可靠的 IP 之上，提供"可靠传输"的抽象——但当网线断了、网络拥堵时，这个抽象就泄漏了，你不得不面对底层现实。</li>
+<li>泄漏无处不在：
+<ul>
+<li>二维数组的遍历方向影响 page fault 频率（虚拟内存的抽象泄漏）</li>
+<li>逻辑等价的 SQL 查询性能可能差千倍（声明式查询的抽象泄漏）</li>
+<li>NFS 远程文件"像本地文件一样"——直到网络断开</li>
+<li>C++ string 类无法让你写 <code>"foo" + "bar"</code>（字符串抽象泄漏）</li>
+</ul>
+</li>
+<li>后果：<strong>抽象节省了工作时间，但没有节省学习时间</strong>（abstractions save us time working, but they don't save us time learning）。你必须先学会手动做事，再用工具提效。当抽象泄漏时，只有理解底层的人才能解决问题。</li>
+<li>悖论：工具和抽象层次越来越高，但成为熟练程序员反而越来越难——因为你既要掌握高层工具，又要理解它们下面的所有层次。</li>
+</ul></article></main></body></html>

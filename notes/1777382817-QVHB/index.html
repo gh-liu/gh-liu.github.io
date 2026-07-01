@@ -1,0 +1,150 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>系统设计范式</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E7%B3%BB%E7%BB%9F%E8%AE%BE%E8%AE%A1%E8%8C%83%E5%BC%8F">系统设计范式</h1>
+<p>系统设计范式不是固定答案，而是一组可复用的思考模板。更实用的做法不是上来背组件，而是先问 6 个问题，再进入对应模式。</p>
+<h2 id="%E6%80%BB%E8%A7%88">总览</h2>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>系统设计范式</span></span>
+<span data-line=""><span>├── 1. 数据如何被保存与访问？</span></span>
+<span data-line=""><span>│   ├── 数据密集系统</span></span>
+<span data-line=""><span>│   ├── 数据检索系统</span></span>
+<span data-line=""><span>│   └── 派生数据系统</span></span>
+<span data-line=""><span>├── 2. 任务如何被执行？</span></span>
+<span data-line=""><span>│   ├── 同步请求响应</span></span>
+<span data-line=""><span>│   └── 异步处理系统</span></span>
+<span data-line=""><span>├── 3. 用户如何实时交互？</span></span>
+<span data-line=""><span>│   └── 即时通讯模式</span></span>
+<span data-line=""><span>├── 4. 状态如何保持正确？</span></span>
+<span data-line=""><span>│   ├── 内部一致性</span></span>
+<span data-line=""><span>│   └── 外部一致性</span></span>
+<span data-line=""><span>├── 5. 系统如何组织代码和边界？</span></span>
+<span data-line=""><span>│   └── 分层架构</span></span>
+<span data-line=""><span>└── 6. 系统如何部署、伸缩和运维？</span></span>
+<span data-line=""><span>    └── 云原生架构</span></span></code></pre></figure>
+<h2 id="1.%20%E6%95%B0%E6%8D%AE%E5%A6%82%E4%BD%95%E8%A2%AB%E4%BF%9D%E5%AD%98%E4%B8%8E%E8%AE%BF%E9%97%AE%EF%BC%9F">1. 数据如何被保存与访问？</h2>
+<h3 id="%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E7%B3%BB%E7%BB%9F">数据密集系统</h3>
+<blockquote>
+<p>数据密集系统 = 围绕“状态”的存储、流动、复制、查询和一致性设计</p>
+</blockquote>
+<p>S 数据量大，核心问题是存得下、查得快、扩得动，典型如订单、账户、Feed、日志。
+C 数据增长、热点、事务范围、冷热分布会同时拉扯容量、延迟和一致性。
+Q 数据按什么维度增长？主查询路径是什么？热点在哪？哪些字段必须强一致？
+A 常见答案是分库分表、读写分离、缓存、冷热分离、<a href="/notes/1779331750-ELEY">CDC</a>，同步区分 OLTP 与 OLAP。</p>
+<h3 id="%E6%95%B0%E6%8D%AE%E6%A3%80%E7%B4%A2%E7%B3%BB%E7%BB%9F">数据检索系统</h3>
+<blockquote>
+<p>数据检索系统 = 为了“找得快、找得准、排得好”而专门设计的数据访问系统。</p>
+</blockquote>
+<p>S 用户不是按主键查，而是按关键词、过滤、排序、聚合查，典型如商品、文档、日志搜索。
+C 查询能力越强，索引构建和主库同步成本越高，实时性和相关性也会冲突。
+Q 是关键词、模糊、聚合还是向量搜索？可接受多大索引延迟？排序依据是什么？
+A 常见答案是主库存权威数据，搜索引擎存检索视图，经 <a href="/notes/1779331750-ELEY">CDC</a>/事件构建索引，并在读路径补详情和权限校验。</p>
+<h3 id="%E6%B4%BE%E7%94%9F%E6%95%B0%E6%8D%AE%E7%B3%BB%E7%BB%9F">派生数据系统</h3>
+<blockquote>
+<p>派生数据系统 = 从一个权威事实源，通过日志 / 事件流，构建多个面向查询或业务的读模型。</p>
+</blockquote>
+<p>S 派生数据系统从主数据加工出索引、报表、榜单、特征、物化视图。
+C 主数据一变，派生数据就可能落后；下游越多，重建、回放、校验就越重要。
+Q 变更从哪里捕获？允许多大延迟？是否支持回放、重建、修复？谁是权威源？
+A 常见答案是主库 + <a href="/notes/1779331750-ELEY">CDC</a>/事件流 + 增量计算 + 定期校验，明确对外语义是最终一致。</p>
+<h2 id="2.%20%E4%BB%BB%E5%8A%A1%E5%A6%82%E4%BD%95%E8%A2%AB%E6%89%A7%E8%A1%8C%EF%BC%9F">2. 任务如何被执行？</h2>
+<h3 id="%E5%90%8C%E6%AD%A5%E8%AF%B7%E6%B1%82%E5%93%8D%E5%BA%94">同步请求响应</h3>
+<p>S 用户发起请求后必须立刻得到明确结果，典型如登录、查详情、余额查询。
+C 调用链越长，尾延迟和失败率越高，但用户又不能接受“稍后再看”。
+Q 哪些步骤必须在响应前完成？延迟目标是多少？超时后是失败、降级还是处理中？
+A 常见答案是缩短主链路，只保留必要事务，其余步骤异步化或降级。</p>
+<h3 id="%E5%BC%82%E6%AD%A5%E5%A4%84%E7%90%86%E7%B3%BB%E7%BB%9F">异步处理系统</h3>
+<blockquote>
+<p>用消息 / 任务队列把“必须立刻完成的事”和“可以稍后完成的事”拆开</p>
+</blockquote>
+<p>S 用户不必等待全部流程完成，典型如通知、积分、履约、转码、批处理。
+C 上游想快返回，下游又必须可靠完成，于是会遇到重复、乱序、堆积、丢失风险。
+Q 哪些步骤可异步？是否要求顺序？如何重试、幂等、补偿、死信？用户怎么感知结果？
+A 常见答案是业务落库后通过 Outbox/MQ 驱动后台 Worker，配合幂等、重试、死信和补偿。</p>
+<h2 id="3.%20%E7%94%A8%E6%88%B7%E5%A6%82%E4%BD%95%E5%AE%9E%E6%97%B6%E4%BA%A4%E4%BA%92%EF%BC%9F">3. 用户如何实时交互？</h2>
+<h3 id="%E5%8D%B3%E6%97%B6%E9%80%9A%E8%AE%AF%E6%A8%A1%E5%BC%8F">即时通讯模式</h3>
+<blockquote>
+<p>即时通讯模式 = 围绕“实时连接 + 消息投递 + 状态同步”设计系统。</p>
+</blockquote>
+<p>S 用户需要低延迟实时交互，典型如单聊、群聊、客服会话、弹幕。
+C 消息既要快，又要支持断线重连、离线补拉、多端同步和大群扩散。
+Q 要保证哪种顺序？离线消息如何补拉？大群用写扩散还是读扩散？ACK 怎么设计？
+A 常见答案是长连接接入、消息先持久化后投递、会话内排序、ACK 补拉、按群规模选择扩散策略。</p>
+<h2 id="4.%20%E7%8A%B6%E6%80%81%E5%A6%82%E4%BD%95%E4%BF%9D%E6%8C%81%E6%AD%A3%E7%A1%AE%EF%BC%9F">4. 状态如何保持正确？</h2>
+<h3 id="%E5%86%85%E9%83%A8%E4%B8%80%E8%87%B4%E6%80%A7">内部一致性</h3>
+<blockquote>
+<p>内部一致性关心“系统内部有没有矛盾”</p>
+</blockquote>
+<p>S 内部一致性关注系统内部多表、缓存、索引、读库、派生库是否一致。
+C 一边追求性能和可扩展，一边又不希望缓存、索引、主库彼此打架。
+Q 哪些字段必须强一致？缓存怎么更新？谁是权威源？不一致怎么修复？
+A 常见答案是单库事务保局部强一致，Cache-aside、<a href="/notes/1779331750-ELEY">CDC</a>、版本号和校验任务保全局最终一致。</p>
+<h3 id="%E5%A4%96%E9%83%A8%E4%B8%80%E8%87%B4%E6%80%A7">外部一致性</h3>
+<blockquote>
+<p>外部一致性关心“系统对外承诺有没有兑现”</p>
+</blockquote>
+<p>S 外部一致性关注本系统和支付、物流、短信、第三方平台之间是否对得上。
+C 本地事务覆盖不了外部调用，超时不等于失败，重试又可能造成重复副作用。
+Q 外部接口是否支持幂等键和查询？超时后如何判定？是否需要对账和补偿？
+A 常见答案是本地先落状态，外部请求带幂等键，回调与主动查询统一走状态机，并用对账兜底。</p>
+<h2 id="5.%20%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E7%BB%84%E7%BB%87%E4%BB%A3%E7%A0%81%E5%92%8C%E8%BE%B9%E7%95%8C%EF%BC%9F">5. 系统如何组织代码和边界？</h2>
+<h3 id="%E5%88%86%E5%B1%82%E6%9E%B6%E6%9E%84">分层架构</h3>
+<blockquote>
+<p>分层架构 = 用清晰的职责边界，把业务规则、应用编排、技术细节隔离开。</p>
+</blockquote>
+<p>S 业务复杂后，需要明确代码边界，避免规则散落在 Controller、DAO、脚本和定时任务里。
+C 分层太少会耦合，分层太多会样板化，真正难的是把规则和基础设施分开。
+Q 事务边界在哪？哪些能力属于同一领域？领域模型和持久化模型是否拆开？
+A 常见答案是按 Controller、Application、Domain、Repository/Gateway 分层，让编排、规则、存储各司其职。</p>
+<h2 id="6.%20%E7%B3%BB%E7%BB%9F%E5%A6%82%E4%BD%95%E9%83%A8%E7%BD%B2%E3%80%81%E4%BC%B8%E7%BC%A9%E5%92%8C%E8%BF%90%E7%BB%B4%EF%BC%9F">6. 系统如何部署、伸缩和运维？</h2>
+<h3 id="%E4%BA%91%E5%8E%9F%E7%94%9F%E6%9E%B6%E6%9E%84">云原生架构</h3>
+<blockquote>
+<p>云原生架构 = 把系统设计成适合自动部署、自动伸缩、自动恢复、可观测的服务集合。</p>
+</blockquote>
+<p>S 系统上线后要面对发布、扩缩容、故障隔离、观测、容灾等问题。
+C 实例会频繁变化，服务想弹性就得无状态，但系统一多，发布和排障复杂度会陡增。
+Q 状态放哪？如何扩缩容？如何发布回滚？如何做日志、指标、Trace、告警和容灾？
+A 常见答案是容器化 + 无状态服务 + 自动扩缩容 + 灰度发布 + 可观测性 + 多 AZ/备份恢复。</p>
+<h2 id="%E9%80%9F%E6%9F%A5%E8%A1%A8">速查表</h2>
+<table>
+<thead>
+<tr>
+<th>你首先在想什么</th>
+<th>优先想到的范式</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据太多，单库扛不住，查询路径复杂</td>
+<td>数据密集系统</td>
+</tr>
+<tr>
+<td>需要关键词搜索、过滤、相关性排序</td>
+<td>数据检索系统</td>
+</tr>
+<tr>
+<td>主库数据要同步成索引、报表、榜单、特征</td>
+<td>派生数据系统</td>
+</tr>
+<tr>
+<td>同步链路太长，下游太慢</td>
+<td>异步处理系统</td>
+</tr>
+<tr>
+<td>用户必须立刻拿到明确结果</td>
+<td>同步请求响应</td>
+</tr>
+<tr>
+<td>长连接、在线投递、离线补拉</td>
+<td>即时通讯模式</td>
+</tr>
+<tr>
+<td>多表、缓存、外部平台之间容易状态打架</td>
+<td>内部一致性 / 外部一致性</td>
+</tr>
+<tr>
+<td>代码边界混乱、规则散落</td>
+<td>分层架构</td>
+</tr>
+<tr>
+<td>需要弹性扩缩容、自动发布、容灾和观测</td>
+<td>云原生架构</td>
+</tr>
+</tbody>
+</table></article></main></body></html>

@@ -1,0 +1,63 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>zig-no-hidden-control-flow</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="zig%3A%20no%20hidden%20control%20flow">zig: no hidden control flow</h1>
+<ul>
+<li>编译期 hidden：
+<ul>
+<li>类型推导、泛型实例化、trait 解析、隐式转换、宏展开、编译器优化。</li>
+</ul>
+</li>
+<li>运行时 hidden：
+<ul>
+<li>内存分配、资源释放、异常跳转、动态分发、装箱、GC、调度、锁、IO。</li>
+</ul>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Hidden flow 类型</th>
+<th>其他语言常见形式</th>
+<th>Zig 的做法</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>隐藏错误跳转</td>
+<td>exception</td>
+<td><code>try</code> / <code>catch</code> 显式</td>
+</tr>
+<tr>
+<td>隐藏分配</td>
+<td>append/new/string concat</td>
+<td>传 <code>allocator</code></td>
+</tr>
+<tr>
+<td>隐藏释放</td>
+<td>GC / destructor</td>
+<td><code>defer</code> + 显式 cleanup</td>
+</tr>
+<tr>
+<td>隐藏动态分发</td>
+<td>interface / virtual method</td>
+<td>手写 vtable 或 <code>anytype</code> 静态分发</td>
+</tr>
+<tr>
+<td>隐藏类型擦除</td>
+<td><code>any</code> / <code>Object</code> / interface boxing</td>
+<td><code>*anyopaque</code> 显式</td>
+</tr>
+<tr>
+<td>隐藏用户代码</td>
+<td>operator overloading / copy ctor</td>
+<td>不支持这类魔法</td>
+</tr>
+<tr>
+<td>隐藏 runtime</td>
+<td>GC / green thread / async runtime</td>
+<td>runtime 尽量显式</td>
+</tr>
+</tbody>
+</table>
+<h1 id="links">links</h1>
+<ul>
+<li><a href="https://ziggit.dev/t/what-does-zig-mean-by-no-hidden-control-flow/3618">https://ziggit.dev/t/what-does-zig-mean-by-no-hidden-control-flow/3618</a></li>
+</ul></article></main></body></html>

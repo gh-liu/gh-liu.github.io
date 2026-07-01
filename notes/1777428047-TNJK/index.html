@@ -1,0 +1,73 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>gpu</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="gpu">gpu</h1>
+<blockquote>
+<p><a href="https://blog.codingconfessions.com/p/gpu-computing">https://blog.codingconfessions.com/p/gpu-computing</a></p>
+</blockquote>
+<p>GPU 不是<code>更快的 CPU</code>，而是<code>为高并行吞吐设计的另一种机器</code>。</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>CPU</th>
+<th>GPU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>优化目标</td>
+<td>低延迟</td>
+<td>高吞吐</td>
+</tr>
+<tr>
+<td>擅长</td>
+<td>分支复杂、顺序逻辑、通用任务</td>
+<td>大规模并行、矩阵/向量计算</td>
+</tr>
+<tr>
+<td>硬件重点</td>
+<td>cache、control、branch prediction</td>
+<td>大量 ALU / cores</td>
+</tr>
+<tr>
+<td>类比</td>
+<td>一个强专家</td>
+<td>一大群工人</td>
+</tr>
+</tbody>
+</table>
+<h2 id="%E4%B8%BA%E4%BB%80%E4%B9%88%20GPU%20%E4%BC%9A%E5%BF%AB">为什么 GPU 会快</h2>
+<p>前提不是<code>单个核心更强</code>，而是<code>同一时刻能让更多简单计算一起做</code>。</p>
+<ol>
+<li>CPU 把很多晶体管花在控制逻辑上，比如乱序执行、分支预测、超大缓存。</li>
+<li>GPU 把更多面积花在算术单元上，减少<code>为单线程服务</code>的豪华配置。</li>
+<li>如果一个任务能拆成海量、相似、彼此独立的小计算，GPU 就能把这些计算铺开并行执行。</li>
+</ol>
+<p>所以 GPU 的优势本质上是：</p>
+<p><code>牺牲单任务灵活性，换取海量任务总吞吐。</code></p>
+<h2 id="GPU%20%E7%9A%84%E4%BB%A3%E4%BB%B7">GPU 的代价</h2>
+<p>GPU 并不擅长所有问题。它通常会在下面几种情况下吃亏：</p>
+<ol>
+<li>分支很多。
+同一批线程如果走不同路径，会互相等待，降低并行效率。</li>
+<li>数据依赖强。
+上一步没算完，下一步就不能开始，这类串行链条很难喂饱 GPU。</li>
+<li>数据量太小。
+把数据搬到 GPU、启动 kernel 都有成本，小任务常常不划算。</li>
+<li>内存访问不规律。
+线程读写地址太散，会让带宽利用率变差。</li>
+</ol>
+<h2 id="%E4%B8%80%E4%B8%AA%E6%9B%B4%E5%87%86%E7%A1%AE%E7%9A%84%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B">一个更准确的心智模型</h2>
+<ul>
+<li>CPU: 追求<code>把一个任务尽快做完</code>。</li>
+<li>GPU: 追求<code>单位时间内把尽可能多的任务做完</code>。</li>
+</ul>
+<p>所以判断一个任务适不适合 GPU，不要先问<code>它算得多不多</code>，而要先问：</p>
+<p><code>它能不能被拆成很多份、并且每一份都差不多、能同时做？</code></p>
+<h2 id="%E5%85%B8%E5%9E%8B%E9%80%82%E7%94%A8%E5%9C%BA%E6%99%AF">典型适用场景</h2>
+<ul>
+<li>矩阵乘法</li>
+<li>向量运算</li>
+<li>图像处理</li>
+<li>深度学习训练与推理</li>
+<li>大规模数值模拟</li>
+</ul>
+<p>这些任务的共同点不是<code>高级</code>，而是<code>重复、规则、可并行</code>。</p></article></main></body></html>

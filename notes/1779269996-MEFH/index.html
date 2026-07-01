@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>cqrs</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="CQRS%3A%20Command%20Query%20Responsibility%20Segregation">CQRS: Command Query Responsibility Segregation</h1>
+<p>CQRS = 把<code>写模型</code>和<code>读模型</code>分开</p>
+<blockquote>
+<p>CQRS 的本质不是<code>读写分库</code>，而是承认读和写的建模目标不同，所以分别建模；读侧是写侧事实的派生视图。</p>
+</blockquote>
+<p>写优化表示负责：接收命令、校验业务规则、维护领域状态</p>
+<p>读优化表示负责：面向查询、报表、页面展示、搜索条件，提前组织好数据</p>
+<blockquote>
+<p>读模型不是主数据源，而是从写模型/事件/变更日志派生出来的投影</p>
+</blockquote>
+<pre><code>写模型 / 事实源
+   ↓     事件 / CDC / 日志
+读模型 / 投影 / 索引 / 宽表 / 缓存
+   ↓
+查询 API / 页面 / 报表
+</code></pre>
+<p>写模型关注：</p>
+<ul>
+<li>业务行为是否合法</li>
+<li>状态转换是否正确</li>
+<li>不变量是否被保护</li>
+<li>事务边界在哪里</li>
+</ul>
+<p>读模型关注：</p>
+<ul>
+<li>查得快不快</li>
+<li>页面是否好展示</li>
+<li>是否少 join</li>
+<li>是否可以预聚合</li>
+<li>是否可以缓存</li>
+</ul></article></main></body></html>

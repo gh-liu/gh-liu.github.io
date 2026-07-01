@@ -1,0 +1,136 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>ip</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="ip">ip</h1>
+<p><code>ip</code> 是 Linux 中查看和管理网络配置的核心命令，常用来统一替代旧的 <code>ifconfig</code>、<code>route</code>、<code>arp</code>。</p>
+<h2 id="ip%20%E5%AD%90%E5%91%BD%E4%BB%A4%E5%92%8C%E7%BD%91%E7%BB%9C%E5%88%86%E5%B1%82"><code>ip</code> 子命令和网络分层</h2>
+<p><code>ip</code> 的子命令不是严格按 OSI 分层设计的，但可以这样理解：</p>
+<table>
+<thead>
+<tr>
+<th>子命令</th>
+<th>对应概念</th>
+<th>更接近哪层</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ip link</code></td>
+<td>网络接口、MAC、MTU、接口状态</td>
+<td>二层（兼带一点一层状态）</td>
+<td>查看/操作网卡和链路状态</td>
+</tr>
+<tr>
+<td><code>ip neigh</code></td>
+<td>邻居表、ARP/NDP</td>
+<td>二层和三层之间</td>
+<td>查看 IP 到 MAC 的映射</td>
+</tr>
+<tr>
+<td><code>ip addr</code></td>
+<td>本机 IP 地址、子网前缀</td>
+<td>三层</td>
+<td>查看/配置网卡上的 IP 地址</td>
+</tr>
+<tr>
+<td><code>ip route</code></td>
+<td>路由表、下一跳、默认网关</td>
+<td>三层</td>
+<td>查看/配置数据包该往哪走</td>
+</tr>
+</tbody>
+</table>
+<p>可以记成一句话：</p>
+<ul>
+<li><code>link</code>：我有哪些口</li>
+<li><code>addr</code>：我是谁</li>
+<li><code>route</code>：我要往哪走</li>
+<li><code>neigh</code>：下一跳是谁的 MAC</li>
+</ul>
+<h2 id="ip%20link"><code>ip link</code></h2>
+<p>用于查看和操作网络接口。</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> link</span></span>
+<span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> link</span><span style="color:#A3BE8C"> show</span></span>
+<span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> link</span><span style="color:#A3BE8C"> set</span><span style="color:#A3BE8C"> eth0</span><span style="color:#A3BE8C"> up</span></span>
+<span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> link</span><span style="color:#A3BE8C"> set</span><span style="color:#A3BE8C"> eth0</span><span style="color:#A3BE8C"> down</span></span></code></pre></figure>
+<p>它回答的问题是：</p>
+<ul>
+<li>机器上有哪些网卡？</li>
+<li>网卡是否启用？</li>
+<li>MAC 地址是什么？</li>
+<li>链路是否正常？</li>
+</ul>
+<h2 id="ip%20neigh"><code>ip neigh</code></h2>
+<p>用于查看邻居表，也就是 IP 到 MAC 的解析结果。</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> neigh</span></span>
+<span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> neigh</span><span style="color:#A3BE8C"> show</span></span>
+<span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> neigh</span><span style="color:#A3BE8C"> flush</span><span style="color:#A3BE8C"> dev</span><span style="color:#A3BE8C"> eth0</span></span></code></pre></figure>
+<p>它回答的问题是：</p>
+<ul>
+<li>某个 IP 对应的 MAC 地址是什么？</li>
+<li>ARP/NDP 解析是否正常？</li>
+</ul>
+<h2 id="ip%20addr"><code>ip addr</code></h2>
+<p>用于查看和配置接口上的 IP 地址。</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> addr</span></span>
+<span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> addr</span><span style="color:#A3BE8C"> show</span><span style="color:#A3BE8C"> dev</span><span style="color:#A3BE8C"> eth0</span></span>
+<span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> addr</span><span style="color:#A3BE8C"> add</span><span style="color:#A3BE8C"> 192.168.1.10/24</span><span style="color:#A3BE8C"> dev</span><span style="color:#A3BE8C"> eth0</span></span>
+<span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> addr</span><span style="color:#A3BE8C"> del</span><span style="color:#A3BE8C"> 192.168.1.10/24</span><span style="color:#A3BE8C"> dev</span><span style="color:#A3BE8C"> eth0</span></span></code></pre></figure>
+<p>它回答的问题是：</p>
+<ul>
+<li>这块网卡的 IP 是什么？</li>
+<li>它属于哪个子网？</li>
+</ul>
+<h2 id="ip%20route"><code>ip route</code></h2>
+<p>用于查看和配置路由表。</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> route</span></span>
+<span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> route</span><span style="color:#A3BE8C"> show</span></span>
+<span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> route</span><span style="color:#A3BE8C"> get</span><span style="color:#B48EAD"> 8.8.8.8</span></span>
+<span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> route</span><span style="color:#A3BE8C"> add</span><span style="color:#A3BE8C"> default</span><span style="color:#A3BE8C"> via</span><span style="color:#B48EAD"> 192.168.1.1</span></span></code></pre></figure>
+<p>它回答的问题是：</p>
+<ul>
+<li>发往某个目标 IP 的包会从哪个接口出去？</li>
+<li>下一跳是谁？</li>
+<li>默认网关是谁？</li>
+</ul>
+<h2 id="ip%20rule%20%E5%92%8C%20ip%20route%20%E7%9A%84%E5%85%B3%E7%B3%BB"><code>ip rule</code> 和 <code>ip route</code> 的关系</h2>
+<p><code>ip rule</code> 也和路由有关，但它管理的不是某张路由表里的具体路由，而是“什么包去查哪张路由表”。</p>
+<ul>
+<li><code>ip rule</code>：选表</li>
+<li><code>ip route</code>：填表</li>
+</ul>
+<p>可以理解成这样一条链路：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>packet</span></span>
+<span data-line=""><span>  |</span></span>
+<span data-line=""><span>  v</span></span>
+<span data-line=""><span>ip rule</span></span>
+<span data-line=""><span>  |</span></span>
+<span data-line=""><span>  v</span></span>
+<span data-line=""><span>routing table</span></span>
+<span data-line=""><span>  |</span></span>
+<span data-line=""><span>  v</span></span>
+<span data-line=""><span>ip route</span></span>
+<span data-line=""><span>  |</span></span>
+<span data-line=""><span>  v</span></span>
+<span data-line=""><span>next hop / dev</span></span></code></pre></figure>
+<p>它的含义是：</p>
+<ul>
+<li>包先匹配 <code>ip rule</code></li>
+<li><code>rule</code> 决定去查哪张 <code>routing table</code></li>
+<li>那张表里的内容由 <code>ip route</code> 管理</li>
+<li>最后得到下一跳或出口网卡</li>
+</ul>
+<p>例如：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> rule</span><span style="color:#A3BE8C"> add</span><span style="color:#A3BE8C"> from</span><span style="color:#B48EAD"> 10.0.0.2</span><span style="color:#A3BE8C"> lookup</span><span style="color:#B48EAD"> 100</span></span>
+<span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> route</span><span style="color:#A3BE8C"> add</span><span style="color:#A3BE8C"> default</span><span style="color:#A3BE8C"> via</span><span style="color:#B48EAD"> 10.0.0.1</span><span style="color:#A3BE8C"> dev</span><span style="color:#A3BE8C"> eth0</span><span style="color:#A3BE8C"> table</span><span style="color:#B48EAD"> 100</span></span></code></pre></figure>
+<p>表示：</p>
+<ul>
+<li>源地址是 <code>10.0.0.2</code> 的包，去查 <code>100</code> 号路由表</li>
+<li><code>100</code> 号路由表中，默认路由走 <code>10.0.0.1</code>，从 <code>eth0</code> 发出</li>
+</ul>
+<p>所以不能说 "<code>ip route</code> 指定 <code>rule</code>"，更准确的说法是：</p>
+<ul>
+<li><code>ip rule</code> 引导流量去查某张表</li>
+<li><code>ip route</code> 往那张表里写具体规则</li>
+</ul>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88"># 查看某个路由表</span></span>
+<span data-line=""><span style="color:#88C0D0">ip</span><span style="color:#A3BE8C"> route</span><span style="color:#A3BE8C"> show</span><span style="color:#A3BE8C"> table</span><span style="color:#A3BE8C"> main</span></span>
+<span data-line=""><span style="color:#616E88"># ip route 默认看 main 表</span></span></code></pre></figure></article></main></body></html>

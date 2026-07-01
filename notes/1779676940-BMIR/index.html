@@ -1,0 +1,12 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>数据平面控制平面</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E6%95%B0%E6%8D%AE%E5%B9%B3%E9%9D%A2%2F%E6%8E%A7%E5%88%B6%E5%B9%B3%E9%9D%A2">数据平面/控制平面</h1>
+<p>S：系统既要<code>全局决策</code>，又要<code>高频执行</code>。
+C：若每次请求都重新决策，路径变慢且耦合。
+Q：如何兼顾灵活性与性能？
+A：控制平面先形成规则，数据平面按最短路径执行；高频路径不反复做全局决策。</p>
+<h2 id="%E9%80%82%E5%90%88%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E7%B3%BB%E7%BB%9F">适合数据密集系统</h2>
+<p>特别适合数据密集系统，因为数据密集系统往往同时有两类复杂度：</p>
+<ol>
+<li>海量数据的读写、复制、传输</li>
+<li>数据位置、副本、路由、成员、策略等元数据管理</li>
+</ol>
+<p>控制面 / 数据面分离，本质上就是把这两类复杂度拆开。</p></article></main></body></html>

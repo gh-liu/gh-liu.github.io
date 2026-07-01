@@ -1,0 +1,72 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>系统核心抽象</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E7%B3%BB%E7%BB%9F%E6%A0%B8%E5%BF%83%E6%8A%BD%E8%B1%A1">系统核心抽象</h1>
+<blockquote>
+<p>系统的核心抽象是什么？这个抽象组织了什么结构？它把什么复杂问题转化成了什么更可控的问题？</p>
+</blockquote>
+<ul>
+<li>第一问：核心抽象是什么？这个系统希望你用什么东西来理解世界</li>
+<li>第二问：这个抽象提供了什么结构？抽象不是空的概念，它会带来结构，可以推理出其提供的能力。</li>
+<li>第三问：它把问题 Y 转换成了问题 Z？最关键的工程思维：好的抽象会把一个难问题，转换成一个更结构化、更可控的问题。</li>
+</ul>
+<p>用某个抽象承载复杂性，并把复杂性放到一个可管理的位置。</p>
+<table>
+<thead>
+<tr>
+<th>系统</th>
+<th>核心抽象</th>
+<th>把什么问题转成什么问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Redis</td>
+<td>内存中的数据结构服务器</td>
+<td>把高性能状态访问问题，转成操作合适数据结构的问题</td>
+</tr>
+<tr>
+<td>MySQL</td>
+<td>关系模型 + 事务 + 索引</td>
+<td>把业务数据一致性问题，转成表、约束、事务、查询优化问题</td>
+</tr>
+<tr>
+<td>MongoDB</td>
+<td>文档 / 聚合根</td>
+<td>把对象聚合读写问题，转成文档建模和访问路径设计问题</td>
+</tr>
+<tr>
+<td>Kafka</td>
+<td>分布式日志 / 事件流</td>
+<td>把系统间状态同步问题，转成追加、排序、复制、消费日志的问题</td>
+</tr>
+<tr>
+<td>etcd</td>
+<td>一致性的 KV 状态机</td>
+<td>把分布式协调问题，转成对小规模关键状态的线性一致读写问题</td>
+</tr>
+<tr>
+<td>Docker</td>
+<td>镜像 + 容器</td>
+<td>把环境一致性问题，转成打包、分发、运行隔离的问题</td>
+</tr>
+<tr>
+<td>Kubernetes</td>
+<td>声明式资源 + 控制器</td>
+<td>把运维操作问题，转成声明期望状态与持续调谐的问题</td>
+</tr>
+</tbody>
+</table>
+<h1 id="%E7%B3%BB%E7%BB%9F%E5%AD%A6%E4%B9%A0%E6%A1%86%E6%9E%B6">系统学习框架</h1>
+<blockquote>
+<p>工程学习的关键，是看清一个系统用什么抽象承载复杂性，又把问题转换成了什么形式。</p>
+</blockquote>
+<ol>
+<li>它解决的原始复杂问题是什么？</li>
+<li>它提出的核心抽象是什么？</li>
+<li>这个抽象内部有什么结构？</li>
+<li>这个结构天然支持哪些能力？</li>
+<li>它把问题 Y 转换成了什么问题 Z？</li>
+<li>它把复杂性藏在哪里了？</li>
+<li>它暴露给使用者的 trade-off 是什么？</li>
+<li>它最适合和最不适合的场景是什么？</li>
+</ol>
+<p>注意点6，抽象不是消灭复杂性，而是重新分配复杂性。
+它让我不用操心什么？又让我必须操心什么？</p></article></main></body></html>

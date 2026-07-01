@@ -1,0 +1,87 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>grpc</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="grpc">grpc</h1>
+<blockquote>
+<p>gRPC = HTTP/2 + Protobuf + IDL/codegen 的工程化 RPC 方案，目标是在跨进程/跨机器调用里，同时拿到类型约束、性能和流式能力。</p>
+</blockquote>
+<p>S 微服务内部经常需要<code>低延迟</code>、<code>跨语言</code>地调用<code>远程</code>接口。
+C 远程调用想像本地函数一样清晰，但必须处理网络、性能、类型和协议演进问题。
+Q 如何让服务间调用同时具备<code>强类型</code>、跨语言、高性能和<code>流式</code>能力？
+A <strong>gRPC</strong> 用 HTTP/2 + Protobuf + <code>.proto</code> codegen，把远程调用组织成工程化 RPC。</p>
+<h2 id="%E6%A0%B8%E5%BF%83%E7%BB%84%E6%88%90">核心组成</h2>
+<ul>
+<li><strong>RPC</strong>：让远程调用尽量接近本地函数调用</li>
+<li><strong>HTTP/2</strong>：提供多路复用、二进制分帧、Header 压缩、长连接</li>
+<li><strong>Protobuf</strong>：紧凑的二进制编码 + 明确的 schema</li>
+<li><strong>IDL</strong>：用 <code>.proto</code> 统一定义消息结构和服务接口</li>
+<li><strong>Codegen</strong>：自动生成<code>客户端</code>和<code>服务端</code>骨架代码</li>
+</ul>
+<h2 id="%E6%9C%80%E5%B0%8F%E4%BE%8B%E5%AD%90">最小例子</h2>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="proto" data-theme="nord"><code data-language="proto" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">service</span><span style="color:#8FBCBB"> UserService</span><span style="color:#D8DEE9FF"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">  rpc</span><span style="color:#88C0D0"> GetUser</span><span style="color:#D8DEE9FF">(</span><span style="color:#8FBCBB">GetUserRequest</span><span style="color:#D8DEE9FF">) </span><span style="color:#81A1C1">returns</span><span style="color:#D8DEE9FF"> (</span><span style="color:#8FBCBB">User</span><span style="color:#D8DEE9FF">)</span><span style="color:#81A1C1">;</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">}</span></span></code></pre></figure>
+<p>调用流程大致是：</p>
+<ol>
+<li>IDL：定义 <code>.proto</code></li>
+<li>Codegen：生成代码</li>
+<li>服务端实现接口</li>
+<li>客户端像调用本地方法一样发起 RPC</li>
+<li>底层由 gRPC 负责序列化、传输、超时、状态码等细节</li>
+</ol>
+<p>生成代码通常包含三类东西：</p>
+<ul>
+<li><strong>client stub</strong>：给客户端调用，负责发请求和收响应</li>
+<li><strong>server skeleton/interface</strong>：给服务端实现，并注册到 gRPC server</li>
+<li><strong>message types</strong>：请求和响应的数据结构，两端共用</li>
+</ul>
+<h2 id="%E5%9B%9B%E7%A7%8D%E8%B0%83%E7%94%A8%E6%A8%A1%E5%BC%8F">四种调用模式</h2>
+<ol>
+<li><strong>Unary RPC</strong>：请求一次，返回一次；最像普通函数调用</li>
+<li><strong>Server Streaming</strong>：客户端发一个请求，服务端持续返回多条消息</li>
+<li><strong>Client Streaming</strong>：客户端持续发多条消息，服务端最后汇总返回一次</li>
+<li><strong>Bidirectional Streaming</strong>：双方都可以持续发送消息，互不阻塞</li>
+</ol>
+<p>这也是 gRPC 相比很多 REST 风格接口更强的地方：它天然适合<strong>流式</strong>通信。</p>
+<h2 id="%E5%9C%BA%E6%99%AF">场景</h2>
+<p>适合：</p>
+<ul>
+<li><code>微服务内部</code>调用</li>
+<li><code>多语言</code>后端协作</li>
+<li>对<code>性能</code>、带宽、延迟较敏感的系统</li>
+<li>需要稳定 schema 和代码生成的团队</li>
+<li>需要 <code>streaming</code> 的场景</li>
+</ul>
+<p>不适合：</p>
+<ul>
+<li>面向第三方开放的公共 API：很多场景 REST/JSON 更通用，调试门槛更低</li>
+<li>浏览器直接调用：浏览器对原生 gRPC 支持有限，通常需要 <code>gRPC-Web</code></li>
+<li>只需要很简单 CRUD 接口的系统：引入 proto、codegen、网关可能反而增加复杂度</li>
+</ul>
+<h2 id="%E5%92%8C%20REST%2FHTTP%20API%20%E7%9A%84%E5%85%B3%E7%B3%BB">和 REST/HTTP API 的关系</h2>
+<p>不是<code>谁替代谁</code>，而是边界不同：</p>
+<ul>
+<li><strong>外部 API</strong>：常用 REST/JSON，<code>兼容性和可调试性</code>更重要</li>
+<li><strong>内部服务通信</strong>：常用 gRPC，<code>性能、schema</code>、生成代码更重要</li>
+</ul>
+<p>很多系统最终是：</p>
+<ul>
+<li>对外暴露 REST/HTTP API</li>
+<li>内部服务之间使用 gRPC</li>
+</ul>
+<h2 id="%E4%B8%BA%E4%BB%80%E4%B9%88%20gRPC%20%E5%B8%B8%E5%B8%B8%E6%9B%B4%E5%BF%AB">为什么 gRPC 常常更快</h2>
+<ul>
+<li>Protobuf 是二进制格式，比 JSON 更紧凑</li>
+<li>HTTP/2 支持<strong>单连接多路复用</strong>，减少连接成本</li>
+<li>代码生成减少了手写编解码和胶水代码</li>
+<li>强 schema 让接口更稳定，也更适合机器处理</li>
+</ul>
+<p>所以它常见于<strong>服务间内部通信</strong>，而不是<code>给人直接调试</code>的开放 API。</p>
+<h2 id="%E9%9C%80%E8%A6%81%E8%AE%B0%E4%BD%8F%E7%9A%84%E4%BB%A3%E4%BB%B7">需要记住的代价</h2>
+<ul>
+<li>远程调用不是本地调用：要显式处理超时、取消、重试、幂等性</li>
+<li>schema 演进要守兼容规则：字段编号不能乱改</li>
+<li>调试比 JSON 接口更<code>黑盒</code>，需要专门工具</li>
+<li>HTTP/2 和连接管理也会带来运维复杂度</li>
+</ul>
+<h1 id="links">links</h1>
+<ol>
+<li><a href="https://sushantdhiman.dev/understanding-grpc-architecture-in-simple-terms/">https://sushantdhiman.dev/understanding-grpc-architecture-in-simple-terms/</a></li>
+</ol></article></main></body></html>

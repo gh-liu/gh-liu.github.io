@@ -1,0 +1,31 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>数据库</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E6%95%B0%E6%8D%AE%E5%BA%93">数据库</h1>
+<p>数据库问题通常分 4 类：</p>
+<ol>
+<li>
+<p>查询慢
+→ 索引 / SQL 优化 / 缓存 / 读副本</p>
+</li>
+<li>
+<p>读压力大
+→ 缓存 / 读写分离 / CDN / 搜索引擎</p>
+</li>
+<li>
+<p>写压力大
+→ 分片 / 异步化 / 批量写 / 消息队列</p>
+</li>
+<li>
+<p>数据量太大
+→ 分区 / 分片 / 归档 / 冷热分离</p>
+</li>
+</ol>
+<blockquote>
+<p>数据库扩展：Indexing / Replication / Partitioning / Sharding</p>
+</blockquote>
+<p>Indexing：
+让单机查询更快。
+Replication：
+复制多份，扩读和容灾。
+Partitioning：
+把大表在一个数据库系统内部拆小。
+Sharding：
+把数据拆到多个数据库实例，扩写和扩容量。</p></article></main></body></html>

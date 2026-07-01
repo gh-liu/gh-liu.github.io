@@ -1,0 +1,176 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: defer</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Go%3A%20defer">Go: defer</h1>
+<p><code>defer</code> 用来<code>登记一个在当前函数退出前执行的调用</code>。</p>
+<p>它通常和 <a href="/notes/1777362880-NBNJ">panic</a> / <a href="/notes/1777362862-SUVV">recover</a> 一起理解：<code>defer</code> 决定了清理逻辑在正常返回和异常展开时都能被执行。</p>
+<h2 id="defer%20%E6%98%AF%E4%BB%80%E4%B9%88">defer 是什么</h2>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">defer</span><span style="color:#88C0D0"> f</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">x</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> y</span><span style="color:#ECEFF4">)</span></span></code></pre></figure>
+<p>语义上不是<code>现在执行</code>，而是：</p>
+<ol>
+<li>先计算调用表达式需要的值</li>
+<li>把这次调用登记到当前函数的 defer 栈里</li>
+<li>等当前函数返回时再执行</li>
+</ol>
+<p>所以：</p>
+<ul>
+<li><code>defer</code> 绑定的是<code>当前函数</code></li>
+<li>不是绑定当前代码块</li>
+<li>不是绑定调用者</li>
+</ul>
+<h2 id="%E4%BB%80%E4%B9%88%E6%97%B6%E5%80%99%E6%89%A7%E8%A1%8C">什么时候执行</h2>
+<p>当前函数退出时执行，包括两种退出路径：</p>
+<ol>
+<li>正常 <code>return</code></li>
+<li>因 <a href="/notes/1777362880-NBNJ">panic</a> 开始栈展开</li>
+</ol>
+<p>并且多个 <code>defer</code> 按 <code>LIFO</code> 执行：后注册，先执行。</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> f</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#D8DEE9"> fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Println</span><span style="color:#ECEFF4">(</span><span style="color:#B48EAD">1</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#D8DEE9"> fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Println</span><span style="color:#ECEFF4">(</span><span style="color:#B48EAD">2</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#D8DEE9"> fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Println</span><span style="color:#ECEFF4">(</span><span style="color:#B48EAD">3</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88">// 输出：</span></span>
+<span data-line=""><span style="color:#616E88">// 3</span></span>
+<span data-line=""><span style="color:#616E88">// 2</span></span>
+<span data-line=""><span style="color:#616E88">// 1</span></span></code></pre></figure>
+<h2 id="%E5%8F%82%E6%95%B0%E6%B1%82%E5%80%BC%E6%97%B6%E6%9C%BA">参数求值时机</h2>
+<p>这是 <code>defer</code> 最容易搞错的一点：</p>
+<ul>
+<li><code>defer</code> 的<code>调用</code>延后执行</li>
+<li>但<code>实参求值</code>发生在 defer 语句出现的那一刻</li>
+</ul>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> f</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	x</span><span style="color:#81A1C1"> :=</span><span style="color:#B48EAD"> 1</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#D8DEE9"> fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Println</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">x</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#D8DEE9">	x</span><span style="color:#81A1C1"> =</span><span style="color:#B48EAD"> 2</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88">// 输出：1</span></span></code></pre></figure>
+<p>因为登记 defer 时，<code>x</code> 的值已经被算成 <code>1</code> 了。</p>
+<p>如果想在真正执行 defer 时再读取变量，通常要用闭包：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> f</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	x</span><span style="color:#81A1C1"> :=</span><span style="color:#B48EAD"> 1</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">		fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Println</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">x</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}()</span></span>
+<span data-line=""><span style="color:#D8DEE9">	x</span><span style="color:#81A1C1"> =</span><span style="color:#B48EAD"> 2</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88">// 输出：2</span></span></code></pre></figure>
+<h2 id="defer%20%E5%92%8C%20return%20%E7%9A%84%E5%85%B3%E7%B3%BB">defer 和 return 的关系</h2>
+<p><code>return</code> 不是<code>立刻离开函数</code>，而是大致经历：</p>
+<ol>
+<li>先计算返回值</li>
+<li>再执行 defer</li>
+<li>最后真正返回给调用者</li>
+</ol>
+<p>这也是为什么 <code>defer</code> 能修改命名返回值。</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> f</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">x</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">		x</span><span style="color:#81A1C1">++</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}()</span></span>
+<span data-line=""><span style="color:#81A1C1">	return</span><span style="color:#B48EAD"> 1</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88">// 返回 2</span></span></code></pre></figure>
+<p>过程可以理解成：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9">x</span><span style="color:#81A1C1"> =</span><span style="color:#B48EAD"> 1</span></span>
+<span data-line=""><span style="color:#616E88">// 执行 defer: x++</span></span>
+<span data-line=""><span style="color:#81A1C1">return</span><span style="color:#D8DEE9"> x</span></span></code></pre></figure>
+<p>命名返回值和非命名返回值的差别要特别注意：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> f</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">err</span><span style="color:#81A1C1"> error</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	err</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> err1</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">		err</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> err2</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}()</span></span>
+<span data-line=""><span style="color:#81A1C1">	return</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p>这里 <code>err</code> 是命名返回值，<code>defer</code> 修改的是返回槽本身，所以最终返回 <code>err2</code>。</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> g</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1"> error</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	err</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> err1</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">		err</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> err2</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}()</span></span>
+<span data-line=""><span style="color:#81A1C1">	return</span><span style="color:#D8DEE9"> err</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p>这里 <code>return err</code> 时，返回值已经先被拷贝到返回槽里；<code>defer</code> 修改的只是局部变量 <code>err</code>，最终仍然返回 <code>err1</code>。</p>
+<h2 id="defer%20%E5%92%8C%20panic%2Frecover">defer 和 panic/recover</h2>
+<p><a href="/notes/1777362880-NBNJ">panic</a> 发生后，runtime 会沿当前 goroutine 的调用栈展开，并逐层执行 defer。</p>
+<p><a href="/notes/1777362862-SUVV">recover</a> 之所以能工作，就是因为它运行在这些 defer 里。</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> f</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> r</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> recover</span><span style="color:#ECEFF4">()</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9"> r</span><span style="color:#81A1C1"> !=</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">			fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Println</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">recovered:</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> r</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">		}</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}()</span></span>
+<span data-line=""><span style="color:#88C0D0">	panic</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">boom</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p>所以：</p>
+<ul>
+<li><code>defer</code> 是 panic 时的清理钩子</li>
+<li><code>defer</code> 也是 recover 的承载位置</li>
+</ul>
+<h2 id="%E5%B8%B8%E8%A7%81%E7%94%A8%E9%80%94">常见用途</h2>
+<ol>
+<li>资源释放：<code>defer file.Close()</code></li>
+<li>解锁：<code>defer mu.Unlock()</code></li>
+<li>结束 tracing / profiling：<code>defer task.End()</code></li>
+<li>统计耗时 / 记录日志</li>
+<li>在 goroutine / handler 边界 recover</li>
+</ol>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9">f</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> err</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> os</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Open</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">name</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">if</span><span style="color:#D8DEE9"> err</span><span style="color:#81A1C1"> !=</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">	return</span><span style="color:#D8DEE9"> err</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span>
+<span data-line=""><span style="color:#81A1C1">defer</span><span style="color:#D8DEE9"> f</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Close</span><span style="color:#ECEFF4">()</span></span></code></pre></figure>
+<h2 id="%E5%B8%B8%E8%A7%81%E5%9D%91">常见坑</h2>
+<h3 id="%E5%BE%AA%E7%8E%AF%E9%87%8C%20defer">循环里 defer</h3>
+<p><code>defer</code> 绑定函数，不是绑定循环迭代。</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">for</span><span style="color:#D8DEE9"> _</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> name</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> range</span><span style="color:#D8DEE9"> names</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	f</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> _</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> os</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Open</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">name</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#D8DEE9"> f</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Close</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p>这不会在每轮循环结束就关闭文件，而是要等整个函数返回才统一关闭。</p>
+<p>如果循环很多次，可能拖太久甚至耗尽 fd。</p>
+<p>更稳妥的方式：</p>
+<ul>
+<li>显式 <code>Close()</code></li>
+<li>或把单次迭代提到一个小函数里</li>
+</ul>
+<h3 id="%E9%97%AD%E5%8C%85%E6%8D%95%E8%8E%B7%E5%8F%98%E9%87%8F">闭包捕获变量</h3>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">for</span><span style="color:#D8DEE9"> _</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> v</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> range</span><span style="color:#D8DEE9"> xs</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">		fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Println</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">v</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}()</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p>这里要非常清楚你是想要：</p>
+<ul>
+<li>defer 时立即冻结参数</li>
+<li>还是执行 defer 时再读变量</li>
+</ul>
+<p>闭包捕获的是变量，不是变量当时的值。</p>
+<h3 id="%E8%AF%AF%E4%BB%A5%E4%B8%BA%20defer%20%E5%BE%88%E9%9B%B6%E6%88%90%E6%9C%AC">误以为 defer 很<code>零成本</code></h3>
+<p>现代 Go 对 defer 做了很多优化，但它仍然不是免费。</p>
+<p>经验上：</p>
+<ul>
+<li>绝大多数业务代码优先写清楚</li>
+<li>极热路径里再考虑是否要手工展开</li>
+</ul>
+<h2 id="runtime%20%E8%A7%86%E8%A7%92">runtime 视角</h2>
+<p>从 runtime 结构看，goroutine (<code>g</code>) 上挂着 <code>_defer</code> 链。</p>
+<p>也就是说，<code>defer</code> 不是语法糖到源码级展开完就结束；runtime 需要知道当前 goroutine 挂了哪些延迟调用，才能在：</p>
+<ul>
+<li>正常返回时执行</li>
+<li>panic 展开时执行</li>
+<li>traceback / 栈复制等场景中维护一致性</li>
+</ul>
+<p>你在 <a href="/notes/1770786730-PFOI">goroutine</a> 里能看到：</p>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9">_panic</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9">_panic</span><span style="color:#616E88"> // innermost panic</span></span>
+<span data-line=""><span style="color:#D8DEE9">_defer</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9">_defer</span><span style="color:#616E88"> // innermost defer</span></span></code></pre></figure>
+<h2 id="%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5">最佳实践</h2>
+<ol>
+<li><code>Open/Lock/Start</code> 之后，尽快写下对应的 <code>defer Close/Unlock/Stop</code></li>
+<li>先判断错误，再 <code>defer</code> 清理，不要对 nil 资源 defer 方法调用</li>
+<li>需要修改返回值时，优先显式说明，避免把 defer 写得太隐晦</li>
+<li>循环里的 <code>defer</code> 要小心资源生命周期</li>
+<li>热路径先测再优化，不要凭感觉去掉 defer</li>
+</ol></article></main></body></html>

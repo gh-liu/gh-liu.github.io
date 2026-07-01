@@ -1,0 +1,39 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: web-framework</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Go%3A%20web%20framework">Go: web framework</h1>
+<blockquote>
+<p><a href="https://blog.jetbrains.com/go/2026/04/28/popular-golang-web-frameworks">https://blog.jetbrains.com/go/2026/04/28/popular-golang-web-frameworks</a></p>
+</blockquote>
+<ol>
+<li>标准库</li>
+</ol>
+<ul>
+<li>提供了 HTTP server、handler、middleware 组合、路由等能力</li>
+<li>缺点：业务复杂后，路由、中间件、参数绑定、错误处理等样板代码会变多</li>
+</ul>
+<ol start="2">
+<li>chi</li>
+</ol>
+<ul>
+<li>使用标准的 http.Handler / http.HandlerFunc 风格，middleware 兼容性好，外部依赖少</li>
+</ul>
+<ol start="3">
+<li>gin</li>
+</ol>
+<ul>
+<li>最流行、上手快、社区最大</li>
+</ul>
+<ol start="4">
+<li>echo</li>
+</ol>
+<ul>
+<li>和 Gin 类似，也是基于 net/http，但它的 handler 返回 error</li>
+</ul>
+<ol start="5">
+<li>fiber</li>
+</ol>
+<ul>
+<li>不是基于 net/http，而是基于 fasthttp</li>
+<li>性能很强，但和 Go 标准 Web 生态兼容性更弱</li>
+</ul>
+<h2 id="gin%20vs.%20echo">gin vs. echo</h2>
+<p>Gin：Context 驱动
+Echo：Error-return 驱动</p></article></main></body></html>

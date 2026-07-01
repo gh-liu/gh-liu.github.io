@@ -1,0 +1,35 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>软件工程</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B">软件工程</h1>
+<p>软件工程的目标，就是在现实约束下管理复杂度：对必然复杂度做清晰建模，对偶然复杂度做持续压缩。</p>
+<ul>
+<li>必然复杂度：业务世界本身的复杂度</li>
+<li>偶然复杂度：协作 / 技术 / 实现带来，非业务需求，但是在实现业务的过程种引入的</li>
+</ul>
+<p>软件工程不是消灭复杂度，而是识别、控制与隔离复杂度，并尽可能分摊和降低复杂度带来的成本。</p>
+<h2 id="%E6%96%B9%E5%BC%8F">方式</h2>
+<p>复杂性不能凭空消失，只能被吸收、转移、隔离或自动化。</p>
+<p>命名、隔离、分解、抽象、约束、自动化</p>
+<ul>
+<li>业务
+<ul>
+<li>规则复杂：可以被集中、命名、建模和保护</li>
+<li>变化复杂：隔离变化，把变化限制在局部</li>
+</ul>
+</li>
+<li>偶然
+<ul>
+<li>认知复杂：局部代码局部理解</li>
+<li>协作复杂：用系统边界降低协作成本</li>
+<li>状态复杂：明确状态、状态转移和不变量（让系统在失败、重复、乱序下仍然可恢复）</li>
+<li>数据复杂：区分事实数据和派生数据</li>
+<li>交付复杂：把交付过程工程化、自动化、可回滚</li>
+<li>分布式复杂：承认不可靠，并为不确定性设计</li>
+</ul>
+</li>
+</ul>
+<p>命名：
+隔离：让失败、变化、脏逻辑不扩散。
+分解：把大问题拆成小问题。
+抽象：通过隐藏细节、建立边界、定义接口、压缩认知负担，让人可以局部理解系统。例如模块、函数、类型、协议、服务边界、领域模型，都是抽象。
+约束：用规范、测试、类型、文档减少不确定性。
+自动化：用 CI、部署脚本、格式化、代码生成减少人工复杂度。</p>
+<p>总结：软件工程 = 在约束下管理复杂度；架构 = 决定复杂度应该被放在哪里；抽象 = 用边界和接口压缩复杂度。</p></article></main></body></html>

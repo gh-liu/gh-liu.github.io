@@ -1,0 +1,372 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>law-sofsoftware-engineering</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Laws%20of%20Software%20Engineering">Laws of Software Engineering</h1>
+<blockquote>
+<p><a href="https://lawsofsoftwareengineering.com">https://lawsofsoftwareengineering.com</a></p>
+</blockquote>
+<p>S: 软件工程中存在大量经验法则和定律，散落在各种书籍和文章中。
+C: 不同定律适用于不同层面（架构、团队、质量、决策等），容易混淆或遗漏。
+Q: 如何系统地理解和运用这些软件工程定律？
+A: 按类别梳理，理解每条定律的核心含义，在实际工作中有意识地识别和应用。</p>
+<h2 id="Architecture%20%E6%9E%B6%E6%9E%84">Architecture 架构</h2>
+<table>
+<thead>
+<tr>
+<th>定律</th>
+<th>中文名</th>
+<th>核心含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Conway's Law</strong></td>
+<td>康威定律</td>
+<td>组织的系统设计会映射其沟通结构</td>
+</tr>
+<tr>
+<td><strong>Hyrum's Law</strong></td>
+<td>海勒姆定律</td>
+<td>API 用户足够多时，系统的所有可观测行为都会被依赖</td>
+</tr>
+<tr>
+<td><strong>Gall's Law</strong></td>
+<td>盖尔定律</td>
+<td>能运行的复杂系统必然是从能运行的简单系统演化而来</td>
+</tr>
+<tr>
+<td><strong>Law of Leaky Abstractions</strong></td>
+<td>抽象泄漏定律</td>
+<td>所有非平凡的抽象都会在某种程度上泄漏</td>
+</tr>
+<tr>
+<td><strong>Tesler's Law (Conservation of Complexity)</strong></td>
+<td>泰斯勒定律（复杂度守恒）</td>
+<td>每个应用都有不可消除的固有复杂度，只能转移，不能消除</td>
+</tr>
+<tr>
+<td><strong>CAP Theorem</strong></td>
+<td>CAP 定理</td>
+<td>分布式系统只能同时保证一致性、可用性、分区容错性中的两个</td>
+</tr>
+<tr>
+<td><strong>Second-System Effect</strong></td>
+<td>第二系统效应</td>
+<td>成功的小系统之后，往往是过度工程化的臃肿替代品</td>
+</tr>
+<tr>
+<td><strong>Fallacies of Distributed Computing</strong></td>
+<td>分布式计算谬误</td>
+<td>分布式系统设计者常犯的八个错误假设（网络可靠、零延迟等）</td>
+</tr>
+<tr>
+<td><strong>Law of Unintended Consequences</strong></td>
+<td>意外后果定律</td>
+<td>改变复杂系统时，要预期意外副作用</td>
+</tr>
+<tr>
+<td><strong>Zawinski's Law</strong></td>
+<td>扎温斯基定律</td>
+<td>每个程序都会膨胀到能读邮件为止（功能蔓延）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Design%20%E8%AE%BE%E8%AE%A1">Design 设计</h2>
+<table>
+<thead>
+<tr>
+<th>定律</th>
+<th>中文名</th>
+<th>核心含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>YAGNI</strong></td>
+<td>你不会需要它</td>
+<td>在需要之前不要添加功能</td>
+</tr>
+<tr>
+<td><strong>DRY</strong></td>
+<td>不要重复自己</td>
+<td>每条知识在系统中应有唯一、明确、权威的表示</td>
+</tr>
+<tr>
+<td><strong>KISS</strong></td>
+<td>保持简单</td>
+<td>设计和系统应尽可能简单</td>
+</tr>
+<tr>
+<td><strong>SOLID Principles</strong></td>
+<td>SOLID 原则</td>
+<td>五条提升软件设计质量的指导原则（SRP/OCP/LSP/ISP/DIP）</td>
+</tr>
+<tr>
+<td><strong>Law of Demeter</strong></td>
+<td>迪米特法则</td>
+<td>对象只应与直接朋友交互，不要和陌生人说话</td>
+</tr>
+<tr>
+<td><strong>Principle of Least Astonishment</strong></td>
+<td>最小惊讶原则</td>
+<td>软件的行为应让用户和开发者最少感到意外</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Teams%20%E5%9B%A2%E9%98%9F">Teams 团队</h2>
+<table>
+<thead>
+<tr>
+<th>定律</th>
+<th>中文名</th>
+<th>核心含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Brooks's Law</strong></td>
+<td>布鲁克斯定律</td>
+<td>向延期项目增加人手只会让它更晚交付</td>
+</tr>
+<tr>
+<td><strong>Dunbar's Number</strong></td>
+<td>邓巴数</td>
+<td>一个人能维持的稳定关系上限约为 150 人</td>
+</tr>
+<tr>
+<td><strong>Ringelmann Effect</strong></td>
+<td>林格尔曼效应</td>
+<td>团队规模增大时，个体生产力下降（社会惰化）</td>
+</tr>
+<tr>
+<td><strong>Price's Law</strong></td>
+<td>普莱斯定律</td>
+<td>总参与者的平方根完成了 50% 的工作</td>
+</tr>
+<tr>
+<td><strong>Putt's Law</strong></td>
+<td>帕特定律</td>
+<td>懂技术的人不管理技术，管理技术的人不懂技术</td>
+</tr>
+<tr>
+<td><strong>Peter Principle</strong></td>
+<td>彼得原理</td>
+<td>层级组织中，每个人都会晋升到其不胜任的位置</td>
+</tr>
+<tr>
+<td><strong>Bus Factor</strong></td>
+<td>巴士因子</td>
+<td>最少几个关键成员离开会导致项目陷入困境</td>
+</tr>
+<tr>
+<td><strong>Dilbert Principle</strong></td>
+<td>呆伯特原理</td>
+<td>公司倾向于把不称职的员工提拔到管理层以减少危害</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Planning%20%E8%AE%A1%E5%88%92">Planning 计划</h2>
+<table>
+<thead>
+<tr>
+<th>定律</th>
+<th>中文名</th>
+<th>核心含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Premature Optimization (Knuth)</strong></td>
+<td>过早优化（Knuth）</td>
+<td>过早优化是万恶之源</td>
+</tr>
+<tr>
+<td><strong>Parkinson's Law</strong></td>
+<td>帕金森定律</td>
+<td>工作会膨胀以填满所有可用时间</td>
+</tr>
+<tr>
+<td><strong>Ninety-Ninety Rule</strong></td>
+<td>九十-九十法则</td>
+<td>前 90% 代码花前 90% 时间；剩下 10% 再花 90% 时间</td>
+</tr>
+<tr>
+<td><strong>Hofstadter's Law</strong></td>
+<td>侯世达定律</td>
+<td>事情总比预期花更长时间，即使考虑了 Hofstadter 定律</td>
+</tr>
+<tr>
+<td><strong>Goodhart's Law</strong></td>
+<td>古德哈特定律</td>
+<td>当一个度量变成目标时，它就不再是好的度量</td>
+</tr>
+<tr>
+<td><strong>Gilb's Law</strong></td>
+<td>吉尔布定律</td>
+<td>任何需要量化的东西，都能以某种方式度量，总比不度量好</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Quality%20%E8%B4%A8%E9%87%8F">Quality 质量</h2>
+<table>
+<thead>
+<tr>
+<th>定律</th>
+<th>中文名</th>
+<th>核心含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Boy Scout Rule</strong></td>
+<td>童子军规则</td>
+<td>让代码比你发现时更好</td>
+</tr>
+<tr>
+<td><strong>Murphy's Law</strong></td>
+<td>墨菲定律</td>
+<td>凡是可能出错的，就一定会出错</td>
+</tr>
+<tr>
+<td><strong>Postel's Law (Robustness Principle)</strong></td>
+<td>伯斯塔尔定律（鲁棒性原则）</td>
+<td>发送时保守，接收时宽容</td>
+</tr>
+<tr>
+<td><strong>Broken Windows Theory</strong></td>
+<td>破窗理论</td>
+<td>不要留下"破窗"（坏设计、错误决策、差代码）不修复</td>
+</tr>
+<tr>
+<td><strong>Technical Debt</strong></td>
+<td>技术债务</td>
+<td>技术债务是一切拖慢软件开发速度的东西</td>
+</tr>
+<tr>
+<td><strong>Linus's Law</strong></td>
+<td>林纳斯定律</td>
+<td>眼睛足够多，所有 bug 都是浅显的</td>
+</tr>
+<tr>
+<td><strong>Kernighan's Law</strong></td>
+<td>柯尼汉定律</td>
+<td>调试的难度是编写代码的两倍</td>
+</tr>
+<tr>
+<td><strong>Testing Pyramid</strong></td>
+<td>测试金字塔</td>
+<td>大量快速单元测试 > 较少集成测试 > 少量 UI 测试</td>
+</tr>
+<tr>
+<td><strong>Pesticide Paradox</strong></td>
+<td>杀虫剂悖论</td>
+<td>反复运行相同测试，效果会递减</td>
+</tr>
+<tr>
+<td><strong>Lehman's Laws of Software Evolution</strong></td>
+<td>雷曼软件演化定律</td>
+<td>反映真实世界的软件必须演化，且演化有可预测的极限</td>
+</tr>
+<tr>
+<td><strong>Sturgeon's Law</strong></td>
+<td>斯特金定律</td>
+<td>任何事物的 90% 都是垃圾</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Scale%20%E8%A7%84%E6%A8%A1">Scale 规模</h2>
+<table>
+<thead>
+<tr>
+<th>定律</th>
+<th>中文名</th>
+<th>核心含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Amdahl's Law</strong></td>
+<td>阿姆达尔定律</td>
+<td>并行化加速受限于不可并行部分的比例</td>
+</tr>
+<tr>
+<td><strong>Gustafson's Law</strong></td>
+<td>古斯塔夫森定律</td>
+<td>通过增大问题规模，可以在并行处理中获得显著加速</td>
+</tr>
+<tr>
+<td><strong>Metcalfe's Law</strong></td>
+<td>梅特卡夫定律</td>
+<td>网络的价值与用户数的平方成正比</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Decisions%20%E5%86%B3%E7%AD%96">Decisions 决策</h2>
+<table>
+<thead>
+<tr>
+<th>定律</th>
+<th>中文名</th>
+<th>核心含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Dunning-Kruger Effect</strong></td>
+<td>达克效应</td>
+<td>对某事了解越少，越容易自信</td>
+</tr>
+<tr>
+<td><strong>Hanlon's Razor</strong></td>
+<td>汉隆剃刀</td>
+<td>能用愚蠢或粗心解释的，不要归因于恶意</td>
+</tr>
+<tr>
+<td><strong>Occam's Razor</strong></td>
+<td>奥卡姆剃刀</td>
+<td>最简单的解释通常最准确</td>
+</tr>
+<tr>
+<td><strong>Sunk Cost Fallacy</strong></td>
+<td>沉没成本谬误</td>
+<td>因已投入的时间/精力而坚持一个错误选择</td>
+</tr>
+<tr>
+<td><strong>The Map Is Not the Territory</strong></td>
+<td>地图非疆域</td>
+<td>对现实的描述不等于现实本身</td>
+</tr>
+<tr>
+<td><strong>Confirmation Bias</strong></td>
+<td>确认偏误</td>
+<td>倾向于偏好支持已有信念的信息</td>
+</tr>
+<tr>
+<td><strong>Hype Cycle &#x26; Amara's Law</strong></td>
+<td>技术成熟度曲线 &#x26; 阿马拉定律</td>
+<td>短期高估技术影响，长期低估技术影响</td>
+</tr>
+<tr>
+<td><strong>Lindy Effect</strong></td>
+<td>林迪效应</td>
+<td>存在越久的东西，越可能继续存在</td>
+</tr>
+<tr>
+<td><strong>First Principles Thinking</strong></td>
+<td>第一性原理</td>
+<td>把复杂问题拆解到最基本的要素，再从头构建</td>
+</tr>
+<tr>
+<td><strong>Inversion</strong></td>
+<td>逆向思维</td>
+<td>通过考虑相反结果并反向推导来解决问题</td>
+</tr>
+<tr>
+<td><strong>Pareto Principle (80/20)</strong></td>
+<td>帕累托法则</td>
+<td>80% 的问题来自 20% 的原因</td>
+</tr>
+<tr>
+<td><strong>Cunningham's Law</strong></td>
+<td>坎宁安定律</td>
+<td>在互联网上获得正确答案的最好方法是发布一个错误答案</td>
+</tr>
+</tbody>
+</table></article></main></body></html>

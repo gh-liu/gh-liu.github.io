@@ -1,0 +1,104 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>数据模型</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E6%95%B0%E6%8D%AE%E6%A8%A1%E5%9E%8B">数据模型</h1>
+<blockquote>
+<p>系统如何理解、组织、约束、查询、演化信息的方式</p>
+</blockquote>
+<p>数据模型是系统对业务世界的压缩表示。
+它决定了哪些事实被保存，哪些关系被显式表达，哪些约束可以被维护，哪些查询会变简单，哪些变化可以被追踪，以及系统未来如何演化。</p>
+<h2 id="%E8%AE%A4%E7%9F%A5%E6%A8%A1%E5%9E%8B">认知模型</h2>
+<ul>
+<li>关系模型视角：世界由实体和关系组成</li>
+<li>文档模型视角：世界由聚合对象组成</li>
+<li>事件模型视角：世界由变化过程组成</li>
+</ul>
+<blockquote>
+<p>同一个业务，可以有多个数据模型，服务于不同的目的</p>
+</blockquote>
+<h2 id="%E6%93%85%E9%95%BF%E3%80%81%E4%B8%8D%E6%93%85%E9%95%BF">擅长、不擅长</h2>
+<p>数据模型提供了一种抽象，将X问题转换为Y问题；
+也是一种取舍，擅长某方面，与不擅长某方面</p>
+<ul>
+<li>关系模型：关系、约束                             -> 强</li>
+<li>文档模型：聚合、嵌套                             -> 灵活</li>
+<li>KV  模型：快速拿值                               -> 快</li>
+<li>图  模型：沿着关系走                             -> 关系遍历</li>
+<li>列式模型：对大量数据的少数字段做扫描、过滤、聚合 -> 大数据</li>
+</ul>
+<h2 id="%E8%AE%BF%E9%97%AE%E8%B7%AF%E5%BE%84">访问路径</h2>
+<p>数据的<code>访问路径</code>决定<code>数据模型</code></p>
+<p>查完整对象 -> 文档模型
+运营分析 -> 列式宽表
+...</p>
+<p>从访问模式开始<code>反推</code>数据模型：</p>
+<ul>
+<li>谁在读？读什么？按什么条件读？读多少？</li>
+<li>延迟要求多少？一致性要求多少？</li>
+<li>数据怎么变化？变化频率多高？</li>
+</ul>
+<h2 id="%E6%8B%86%E5%88%86%E8%AF%BB%E5%86%99%E6%A8%A1%E5%9E%8B">拆分读写模型</h2>
+<p><a href="/notes/1779269996-MEFH">cqrs</a></p>
+<p>一个写模型，派生出多个读模型：</p>
+<ul>
+<li>源数据模型：表达业务事实</li>
+<li>派生数据模型：服务查询场景</li>
+</ul>
+<h2 id="%E5%85%B3%E7%B3%BB%E6%A8%A1%E5%9E%8B">关系模型</h2>
+<blockquote>
+<p>把数据抽象成 relation，然后用代数操作组合</p>
+</blockquote>
+<p>结构化数据 + 约束 + 集合运算 + 查询组合性</p>
+<blockquote>
+<p>通用性</p>
+</blockquote>
+<h2 id="%E6%96%87%E6%A1%A3%E6%A8%A1%E5%9E%8B">文档模型</h2>
+<blockquote>
+<p>把访问边界内聚起来</p>
+</blockquote>
+<blockquote>
+<p>把经常一起访问、一起变化的数据放在一起</p>
+</blockquote>
+<h2 id="%E4%BA%8B%E4%BB%B6%E6%A8%A1%E5%9E%8B">事件模型</h2>
+<blockquote>
+<p>把状态还原成变化历史</p>
+</blockquote>
+<p>日志记录变化，状态是日志折叠后的结果</p>
+<h2 id="%E5%AE%BD%E8%A1%A8%E6%A8%A1%E5%9E%8B">宽表模型</h2>
+<blockquote>
+<p>为查询牺牲规范化</p>
+</blockquote>
+<h2 id="%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%EF%BC%9A%E4%BA%8B%E5%AE%9E%E3%80%81%E7%8A%B6%E6%80%81%E3%80%81%E6%9F%A5%E8%AF%A2%E8%A7%86%E5%9B%BE">数据类型：事实、状态、查询视图</h2>
+<p>事实 Fact：已经发生、不可改变的东西；适合用事件、日志保存。
+状态 State：由事实推导出的当前结果；适合用于业务判断和快速读取。
+视图 View：为了某个查询目的构造出来的投影；适合被重建、缓存、派生。</p>
+<h2 id="%E4%B8%80%E8%87%B4%E6%80%A7">一致性</h2>
+<p>哪些数据必须强一致？
+哪些数据可以最终一致？</p>
+<h2 id="%E6%97%B6%E9%97%B4">时间</h2>
+<blockquote>
+<p>建模的不是“东西”，而是“东西在时间中的变化”。</p>
+</blockquote>
+<h2 id="%E9%A2%86%E5%9F%9F%E8%BE%B9%E7%95%8C">领域边界</h2>
+<blockquote>
+<p>一个大关系模型 -> 多个领域模型 + 事件集成模型 + 查询投影模型</p>
+</blockquote>
+<h2 id="%E5%AF%B9%E5%BA%94%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E">对应存储引擎</h2>
+<blockquote>
+<p>存储引擎不是孤立技术，它服务于某种数据模型和访问模式。</p>
+</blockquote>
+<pre><code>关系模型 + B+Tree
+适合 OLTP、事务、范围查询、索引查询
+
+文档模型 + B-tree/LSM
+适合聚合对象读写、半结构化数据
+
+KV 模型 + Hash/LSM
+适合高速点查、缓存、状态存储
+
+列式模型 + 压缩 + 向量化执行
+适合分析、聚合、扫描
+
+图模型 + 邻接结构
+适合关系遍历
+
+日志模型 + append-only log
+适合事件流、复制、重放、异步集成
+</code></pre></article></main></body></html>

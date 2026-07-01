@@ -1,0 +1,131 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: panic</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Go%3A%20panic">Go: panic</h1>
+<p><code>panic</code> 是 Go 里的<code>程序无法继续按当前控制流执行</code>的信号。</p>
+<p>通常和 <a href="/notes/1777362862-SUVV">recover</a> 一起理解：<code>panic</code> 负责触发栈展开，<code>recover</code> 负责在 <code>defer</code> 中截住这次展开。</p>
+<p>它不是常规错误处理机制；一旦触发，当前函数会停止正常执行，runtime 开始沿调用栈展开，并依次执行已经注册的 <code>defer</code>。</p>
+<h2 id="panic%20%E6%98%AF%E4%BB%80%E4%B9%88">panic 是什么</h2>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> panic</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">v</span><span style="color:#D8DEE9FF"> any</span><span style="color:#ECEFF4">)</span></span></code></pre></figure>
+<ul>
+<li><code>panic</code> 接收任意值 <code>v</code></li>
+<li>可以由代码显式触发：<code>panic(...)</code></li>
+<li>也可以由 runtime 触发，比如数组越界、nil 指针解引用</li>
+<li>如果 panic 一路展开到 goroutine 栈顶仍未被 <code>recover</code>，进程会打印堆栈并退出</li>
+</ul>
+<h2 id="%E4%BD%95%E6%97%B6%E4%BC%9A%20panic">何时会 panic</h2>
+<p>两类：</p>
+<ol>
+<li>显式 <code>panic(...)</code></li>
+<li>runtime panic</li>
+</ol>
+<p>常见 runtime panic：</p>
+<ul>
+<li>数组 / slice 越界</li>
+<li>nil 指针解引用</li>
+<li>向已关闭的 channel 发送</li>
+<li>并发读写普通 map</li>
+<li>类型断言失败：<code>x := i.(T)</code></li>
+</ul>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">panic</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">impossible state</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span></code></pre></figure>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">var</span><span style="color:#D8DEE9"> p</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">User</span></span>
+<span data-line=""><span style="color:#D8DEE9">fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Println</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">p</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">Name</span><span style="color:#ECEFF4">)</span><span style="color:#616E88"> // panic: nil pointer dereference</span></span></code></pre></figure>
+<h2 id="panic%20%E5%8F%91%E7%94%9F%E5%90%8E%E4%BC%9A%E6%80%8E%E6%A0%B7">panic 发生后会怎样</h2>
+<p>核心流程：</p>
+<ol>
+<li>当前函数停止正常执行</li>
+<li>当前函数注册的 <code>defer</code> 按 LIFO 顺序执行</li>
+<li>当前函数返回到调用者，但不是正常返回，而是继续带着 panic 向上展开</li>
+<li>调用栈上的每一层都重复这个过程</li>
+<li>若某层 <code>defer</code> 中成功 <code>recover</code>，展开停止，控制流从该函数返回</li>
+<li>若直到 goroutine 栈顶都没人恢复，程序崩溃</li>
+</ol>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> f</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#D8DEE9"> fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Println</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">f.defer</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#88C0D0">	g</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#D8DEE9">	fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Println</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">unreachable</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> g</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">	defer</span><span style="color:#D8DEE9"> fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Println</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">g.defer</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#88C0D0">	panic</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">boom</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88">// 输出：</span></span>
+<span data-line=""><span style="color:#616E88">// g.defer</span></span>
+<span data-line=""><span style="color:#616E88">// f.defer</span></span>
+<span data-line=""><span style="color:#616E88">// panic: boom</span></span></code></pre></figure>
+<h2 id="panic%20%E5%92%8C%20defer">panic 和 defer</h2>
+<p><code>panic</code> 最重要的配套机制是 <code>defer</code>。</p>
+<ul>
+<li><code>defer</code> 保证清理逻辑仍然执行</li>
+<li>所以即使程序正在异常展开，也可以关闭文件、解锁 mutex、记录日志</li>
+</ul>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9">mu</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Lock</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#81A1C1">defer</span><span style="color:#D8DEE9"> mu</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Unlock</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#88C0D0">panic</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">boom</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span><span style="color:#616E88"> // Unlock 仍会执行</span></span></code></pre></figure>
+<h2 id="how%20to%20read%20panic">how to read panic</h2>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88"># env GOTRACEBACK</span></span>
+<span data-line=""><span style="color:#616E88"># 控制打印的颗粒度</span></span>
+<span data-line=""><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> doc</span><span style="color:#A3BE8C"> runtime</span><span style="color:#81A1C1"> |</span><span style="color:#88C0D0">grep</span><span style="color:#A3BE8C"> GOTRACEBACK</span></span></code></pre></figure>
+<pre><code>panic: &#x3C;panic 值>
+
+goroutine N [状态]:
+&#x3C;包名>.&#x3C;函数名>(&#x3C;参数>)
+    &#x3C;文件路径>:&#x3C;行号> +0x&#x3C;偏移>
+...
+</code></pre>
+<p>+0x&#x3C;偏移> 是相对这个函数起始位置的偏移</p>
+<p>阅读顺序：</p>
+<ol>
+<li>先看第一行 <code>panic: ...</code></li>
+<li>再看最上面的业务栈帧：通常就是直接出错点</li>
+<li>往下看是谁调用了它</li>
+<li>若是 runtime panic，优先看第一个非 runtime / 标准库的业务文件行号</li>
+</ol>
+<h2 id="panic%20%E5%92%8C%20error%20%E7%9A%84%E8%BE%B9%E7%95%8C">panic 和 error 的边界</h2>
+<p>经验上：</p>
+<ul>
+<li><code>error</code>：预期内失败，属于业务控制流的一部分</li>
+<li><code>panic</code>：违反不变量、程序员错误、系统已进入无法继续信任的状态</li>
+</ul>
+<p>适合返回 <code>error</code>：</p>
+<ul>
+<li>文件不存在</li>
+<li>网络超时</li>
+<li>参数非法但属于外部输入</li>
+<li>下游服务失败</li>
+</ul>
+<p>适合 <code>panic</code>：</p>
+<ul>
+<li>明确<code>不应该发生</code>的分支</li>
+<li>初始化阶段发现关键依赖缺失，程序无法启动</li>
+<li>内部状态被破坏，不再满足不变量</li>
+</ul>
+<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> MustParse</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">s</span><span style="color:#81A1C1"> string</span><span style="color:#ECEFF4">)</span><span style="color:#D8DEE9FF"> Config </span><span style="color:#ECEFF4">{</span></span>
+<span data-line=""><span style="color:#D8DEE9">	cfg</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> err</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> Parse</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">s</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> err</span><span style="color:#81A1C1"> !=</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">		panic</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">err</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""><span style="color:#81A1C1">	return</span><span style="color:#D8DEE9"> cfg</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p><code>MustXxx</code> 风格本质上是：把<code>失败</code>升级为<code>程序不应继续</code>。</p>
+<h2 id="runtime%20%E8%A7%86%E8%A7%92">runtime 视角</h2>
+<p>从机制上看，<code>panic</code> 不是 Java 那种<code>语言级异常体系</code>；它更像 runtime 驱动的栈展开流程：</p>
+<ul>
+<li>每个 goroutine 维护自己的调用栈</li>
+<li><code>panic</code> 只影响当前 goroutine</li>
+<li>展开时 runtime 会逐层执行该 goroutine 上的 <code>defer</code></li>
+<li>若无人恢复，runtime 最终打印当前 panic 的信息和堆栈</li>
+</ul>
+<p>所以：</p>
+<ul>
+<li><code>panic</code> 不是跨 goroutine 传播的</li>
+<li>其他 goroutine 不能替你恢复当前 goroutine 的 panic</li>
+</ul>
+<h2 id="%E6%9C%80%E4%BD%B3%E5%AE%9E%E8%B7%B5">最佳实践</h2>
+<ol>
+<li>不要用 <code>panic</code> 代替常规 <code>error</code> 返回</li>
+<li>可以在程序入口、worker 边界、HTTP middleware 边界统一 <code>recover</code></li>
+<li>在 <code>defer</code> 里做资源清理，而不是依赖<code>正常返回</code></li>
+<li>库代码一般不要随意 panic，除非是明确的 programmer error</li>
+<li>看到 panic，先定位第一个业务代码栈帧，不要先钻 runtime 栈</li>
+</ol></article></main></body></html>

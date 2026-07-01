@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>docker</title><link rel="stylesheet" href="/_astro/_id_.B-ZajKVB.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><main class="mx-auto min-h-screen max-w-3xl bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="docker">docker</h1>
+<p>docker 把<code>进程 + 它运行所需的文件系统、依赖、配置和隔离环境</code>打包成一个可分发、可重复运行的单元(即<code>容器</code>container)。</p>
+<ul>
+<li>Image：静态模板，镜像是一个只读的运行环境<code>快照</code></li>
+<li>Container：<code>运行中</code>的进程环境，容器是镜像的一次运行实例</li>
+<li>Dockerfile：构建镜像的<code>声明式</code>配方</li>
+</ul>
+<pre><code>Dockerfile
+   |
+   v
+Image：静态、可分发、只读分层文件系统
+   |
+   v
+Container：Image 的运行实例
+   |
+   v
+Process：真正运行的是宿主机上的 Linux 进程
+</code></pre>
+<p>基于3个linux能力：</p>
+<ul>
+<li>namespace：隔离<code>看见什么</code></li>
+<li>cgroup：限制<code>能用多少</code></li>
+<li>union filesystem：分层文件系统</li>
+</ul>
+<p>所以 Docker container 的本质是：被隔离、被限制、带独立文件系统视图的进程。</p>
+<p>虚拟机的区别：虚拟机抽象的是一台机器，Docker 抽象的是一个应用进程的运行环境。</p></article></main></body></html>
