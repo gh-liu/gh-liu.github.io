@@ -33,12 +33,47 @@
 在某些情况下，选举时票数分裂，以无领导产生为结果，新的term会产生，表示开始新一轮选举；
 term 用作逻辑锁：持续递增，同步高term值的日志，Candidata/Leader回退Follower状态，低term值的Leader表示数据过期</p>
 <p>状态变化：</p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="mermaid" data-theme="nord"><code data-language="mermaid" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9FF">flowchart</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">  Follower --1.timeout, start election--> Candidata</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">  Candidata --2.receive majority votes--> Leader</span></span>
-<span data-line=""> </span>
-<span data-line=""><span style="color:#D8DEE9FF">  Leader --3.discover higher term server --> Follower</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">  Candidata --4.discover current Leader or new term--> Follower</span></span></code></pre></figure>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 417.46 116.9" width="417.46" height="116.9" style="--bg:#2e3440;--fg:#d8dee9;--line:#4c566a;--accent:#88c0d0;--muted:#616e88;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 85%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="5" refX="7" refY="2.5" orient="auto">
+    <polygon points="0 0, 8 2.5, 0 5" fill="var(--_arrow)" stroke="var(--_arrow)" stroke-width="0.75" stroke-linejoin="round" />
+  </marker>
+  <marker id="arrowhead-start" markerWidth="8" markerHeight="5" refX="1" refY="2.5" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.5, 8 5" fill="var(--_arrow)" stroke="var(--_arrow)" stroke-width="0.75" stroke-linejoin="round" />
+  </marker>
+</defs>
+<g class="node" data-id="Follower" data-label="Follower" data-shape="rectangle">
+  <rect x="40" y="40" width="93.82" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="86.91" y="58.45" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">Follower</text>
+</g>
+<g class="node" data-id="Candidata" data-label="Candidata" data-shape="rectangle">
+  <rect x="161.82" y="40" width="101.22999999999999" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="212.435" y="58.45" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">Candidata</text>
+</g>
+<g class="node" data-id="Leader" data-label="Leader" data-shape="rectangle">
+  <rect x="291.04999999999995" y="40" width="86.41" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="334.25499999999994" y="58.45" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">Leader</text>
+</g>
+</svg>
 <p>RPC调用：RequestVote, Append-Entries(复制日志、心跳), 还有一个快照的RPC？</p>
 <h2 id="1.%E9%80%89%E4%B8%BE%E9%A2%86%E5%AF%BC">1.选举领导</h2>
 <p><code>心跳机制</code>触发领导选举</p>
