@@ -1,7 +1,13 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>vim-internal</title><link rel="stylesheet" href="/_astro/global.DIy-TqEI.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><div class="relative mx-auto max-w-4xl"><main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="neovim%20fold%20internal">neovim fold internal</h1><div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"><div class="flex flex-wrap items-center gap-2"><span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">2026-03-19</span><span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">2026-03-19 14:28:12</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">CS</a><a href="/tags/CLI" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">CLI</a></div></div>
+<!DOCTYPE html><html lang="zh-CN"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>vim-internal</title><link rel="stylesheet" href="/_astro/_id_.DEc5GA6n.css"></head> <body class="bg-slate-50 text-slate-900 antialiased"> <div class="relative mx-auto max-w-4xl"> <main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200">  <article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"> <h1 id="neovim%20fold%20internal">neovim fold internal</h1> <div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"> <div class="flex flex-wrap items-center gap-2"> <span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20"> 2026-03-19 </span> <span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20"> 2026-03-19 14:28:12 </span>  </div> <div class="flex flex-wrap gap-1.5"> <a href="/tags/CS" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline"> CS </a><a href="/tags/CLI" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline"> CLI </a> </div> </div>  
 <p>数据是如何保存的:
 层级的动态数组garray_T</p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1"> typedef</span><span style="color:#81A1C1"> struct</span><span style="color:#ECEFF4"> {</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">c</span><button type="button" class="code-copy-button" data-code=" typedef struct {
+   linenr_T fd_top;      // first line of fold
+   linenr_T fd_len;      // number of lines in fold
+   garray_T fd_nested;   // array of nested folds
+   char fd_flags;        // FD_OPEN, FD_CLOSED, or FD_LEVEL
+   TriState fd_small;    // kTrue/kFalse/kNone for &#x27;foldminlines&#x27;
+ } fold_T;">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1"> typedef</span><span style="color:#81A1C1"> struct</span><span style="color:#ECEFF4"> {</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">   linenr_T fd_top</span><span style="color:#81A1C1">;</span><span style="color:#616E88">      // first line of fold</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">   linenr_T fd_len</span><span style="color:#81A1C1">;</span><span style="color:#616E88">      // number of lines in fold</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">   garray_T fd_nested</span><span style="color:#81A1C1">;</span><span style="color:#616E88">   // array of nested folds</span></span>
@@ -25,7 +31,37 @@ garray_T 的 ga_data 指向结构题fold_T，就是fold的数据，其fd_nested�
 <p>通过递归去调用foldFind，查找哪个fold包含了lnum，定义src/nvim/fold.c:1056</p>
 <p>garray_T 是一个自增长的数组，有指向第一个元素的数据指针，有长度，有底层长度，有元素长度</p>
 <p>元素长度？这个就要看foldFind的实现了，其会获取fold，那肯定知道 garray_T 数据是如何布局的</p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">const</span><span style="color:#D8DEE9FF"> garray_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">gap</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">c</span><button type="button" class="code-copy-button" data-code="const garray_T *gap
+ 
+// 1. 先判断长度，为0则直接返回
+gap->ga_len == 0
+ 
+// 2. 将数据指针，转换成 fold_T 类型
+// NOTE: fp 指向的是一个数组，有多个fold_T
+fold_T *fp = (fold_T *)gap->ga_data;
+ 
+// 3. 执行一个二分搜索
+linenr_T low = 0;
+linenr_T high = gap->ga_len - 1;
+while (low <= high) {
+    linenr_T i = (low + high) / 2;
+    // ...
+    // 1. 如果fold开始行大于lnum，可能在前面的fold中
+    // 缩小到前一半
+    fp[i].fd_top > lnum
+    high = i - 1;
+    // ...
+    // 2. 如果fold开始行+fold的长度，小于或等于lnum，可能在后面的fold中
+    fp[i].fd_top + fp[i].fd_len <= lnum
+    // 缩小到后一半
+    low = i + 1;
+    // 3. 否则就在当前fold中，直接返回
+    *fpp = fp + i;
+    return true;
+}
+// 4. 如果二分搜索结束后，还没有找到
+// 这时候 low 是大于 high 的，直接返回
+return false;">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">const</span><span style="color:#D8DEE9FF"> garray_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">gap</span></span>
 <span data-line=""> </span>
 <span data-line=""><span style="color:#616E88">// 1. 先判断长度，为0则直接返回</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">gap</span><span style="color:#81A1C1">-></span><span style="color:#D8DEE9FF">ga_len </span><span style="color:#81A1C1">==</span><span style="color:#B48EAD"> 0</span></span>
@@ -59,7 +95,29 @@ garray_T 的 ga_data 指向结构题fold_T，就是fold的数据，其fd_nested�
 <p>可知 foldFind 将包含当前 lnum 的fold 保存在了 fp 里
 我们需要遍历 fp 的子fold，看哪个子fold包含了lnum
 我们再看一下 foldLevelWin 函数</p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// NOTE: fd_nested 字段是garray_T类型，保存着子fold</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">c</span><button type="button" class="code-copy-button" data-code="// NOTE: fd_nested 字段是garray_T类型，保存着子fold
+fold_T *fp;
+ 
+ 
+linenr_T lnum_rel = lnum;
+// NOTE: 每次找到包含的fold，就加1，然后遍历子fold，递归直到不满足条件了
+int level = 0;
+ 
+garray_T *gap = &#x26;wp->w_folds;
+while (true) {
+    // 找fold是否包含lnum
+    if (!foldFind(gap, lnum_rel, &#x26;fp)) {
+      break;
+    }
+    // 找到了，那继续子fold吧
+    gap = &#x26;fp->fd_nested;
+    // NOTE: 对于子fold，fd_top是相对父fold的偏移
+    // 所以减去偏移，才是fold真实的开始行
+    lnum_rel -= fp->fd_top;
+    // 既然找到了，那说名在更深的地方了，级别加1
+    level++;
+}
+ ">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// NOTE: fd_nested 字段是garray_T类型，保存着子fold</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">fold_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">fp</span><span style="color:#81A1C1">;</span></span>
 <span data-line=""> </span>
 <span data-line=""> </span>
@@ -86,7 +144,28 @@ garray_T 的 ga_data 指向结构题fold_T，就是fold的数据，其fd_nested�
 <blockquote>
 <p>:fold 命令创建fold</p>
 </blockquote>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 1. 获取范围</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">c</span><button type="button" class="code-copy-button" data-code="// 1. 获取范围
+  pos_T start_rel = start;
+  pos_T end_rel = end;
+ 
+// 2. 如果是 marker 方式，则创建 marker
+// 忽略
+ 
+// 3. 找到插入的位置i，在gap数组中，也就是父fold
+garray_T *gap = &#x26;wp->w_folds;
+int i;
+// 3.1 空fold的情况
+// 3.2 查找包含开始行的fold
+foldFind(gap, start_rel.lnum, &#x26;fp)
+// 判断 fold 是包含目标范围的
+fp->fd_top + fp->fd_len > end_rel.lnum
+ 
+// 4. 新创建一个 fold 数组
+garray_T fold_ga;
+ga_init(&#x26;fold_ga, (int)sizeof(fold_T), 10);
+// TODO src/nvim/fold.c:608
+ 
+ ">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 1. 获取范围</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">  pos_T start_rel </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> start</span><span style="color:#81A1C1">;</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">  pos_T end_rel </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> end</span><span style="color:#81A1C1">;</span></span>
 <span data-line=""> </span>
@@ -118,7 +197,21 @@ garray_T 的 ga_data 指向结构题fold_T，就是fold的数据，其fd_nested�
 <p>树形结构：插入节点？删除节点？修改节点？查找节点？</p>
 <p>gravity: 方向性、优先级</p>
 <p>tree -> node -> n个key(pos)</p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">typedef</span><span style="color:#81A1C1"> struct</span><span style="color:#ECEFF4"> {</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">c</span><button type="button" class="code-copy-button" data-code="typedef struct {
+  MTNode *root;
+  // ...
+} MarkTree;
+ 
+typedef struct mtnode_s MTNode;
+ 
+struct mtnode_s {
+  MTNode *parent;
+  struct mtnode_inner_s s[];
+};
+ 
+struct mtnode_inner_s {
+  MTNode *i_ptr[2 * MT_BRANCH_FACTOR];
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">typedef</span><span style="color:#81A1C1"> struct</span><span style="color:#ECEFF4"> {</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">  MTNode </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">root</span><span style="color:#81A1C1">;</span></span>
 <span data-line=""><span style="color:#616E88">  // ...</span></span>
 <span data-line=""><span style="color:#ECEFF4">}</span><span style="color:#D8DEE9FF"> MarkTree</span><span style="color:#81A1C1">;</span></span>
@@ -138,7 +231,39 @@ garray_T 的 ga_data 指向结构题fold_T，就是fold的数据，其fd_nested�
 marktree_itr_get: 将iter放在指定的位置
 marktree_itr_current: iter当前位置
 marktree_itr_next/prev: iter前后位置</p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 位置</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">c</span><button type="button" class="code-copy-button" data-code="// 位置
+typedef struct {
+  int32_t row;
+  int32_t col;
+} MTPos;
+#define MTPos(r, c) ((MTPos){ .row = (r), .col = (c) })
+ 
+// marktree_itr_get -> marktree_itr_get_ext
+bool marktree_itr_get_ext(MarkTree *b, MTPos p, MarkTreeIter *itr, bool last, bool gravity,
+                          MTPos *oldbase, MetaFilter meta_filter)
+{
+  // 设置迭代器，如果有旧位置，使用旧位置
+  itr->pos = (MTPos){ 0, 0 };
+  itr->x = b->root; // 根节点
+  itr->lvl = 0;
+  if (oldbase) {
+    oldbase[itr->lvl] = itr->pos;
+  }
+  // 开始迭代: 深度优先
+  while (true) {
+    // marktree_getp_aux: 当位置k存在与节点itr-x时，返回其索引；否则返回其应该插入的位置
+    itr->i = marktree_getp_aux(itr->x, k, 0) + 1;
+    // 当前节点level为0则跳出循环
+    if (itr->x->level == 0) {
+      break;
+    }
+    // 修改当前迭代器节点
+    itr->x = itr->x->ptr[itr->i];
+  }
+  // ??
+  return marktree_itr_prev(b, itr);
+}
+ ">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 位置</span></span>
 <span data-line=""><span style="color:#81A1C1">typedef</span><span style="color:#81A1C1"> struct</span><span style="color:#ECEFF4"> {</span></span>
 <span data-line=""><span style="color:#81A1C1">  int32_t</span><span style="color:#D8DEE9FF"> row</span><span style="color:#81A1C1">;</span></span>
 <span data-line=""><span style="color:#81A1C1">  int32_t</span><span style="color:#D8DEE9FF"> col</span><span style="color:#81A1C1">;</span></span>
@@ -172,7 +297,23 @@ marktree_itr_next/prev: iter前后位置</p>
 <span data-line=""><span style="color:#ECEFF4">}</span></span>
 <span data-line=""> </span></code></pre></figure>
 <p>marktree_lookup: 根据ID找</p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// itr 是可选的</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">c</span><button type="button" class="code-copy-button" data-code="// itr 是可选的
+MTKey marktree_lookup(MarkTree *b, uint64_t id, MarkTreeIter *itr)
+{
+  // 根据ID找到节点；节点包含多个MTKey，需要再查找
+  MTNode *n = id2node(b, id);
+ 
+  int i = 0;
+  // 遍历
+  for (i = 0; i < n->n; i++) {
+    // 遍历节点含有的多个MTKey，找到符合的ID
+    if (mt_lookup_key(n->key[i]) == id) {
+      return marktree_itr_set_node(b, itr, n, i);
+    }
+  }
+}
+ 
+MTKey??">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// itr 是可选的</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">MTKey </span><span style="color:#88C0D0">marktree_lookup</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">MarkTree </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">b</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> uint64_t</span><span style="color:#D8DEE9"> id</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> MarkTreeIter </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">itr</span><span style="color:#ECEFF4">)</span></span>
 <span data-line=""><span style="color:#ECEFF4">{</span></span>
 <span data-line=""><span style="color:#616E88">  // 根据ID找到节点；节点包含多个MTKey，需要再查找</span></span>
@@ -190,12 +331,20 @@ marktree_itr_next/prev: iter前后位置</p>
 <span data-line=""> </span>
 <span data-line=""><span style="color:#D8DEE9FF">MTKey</span><span style="color:#81A1C1">??</span></span></code></pre></figure>
 <h2 id="%E6%8F%92%E5%85%A5%EF%BC%9Amarktree_put">插入：marktree_put</h2>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">void</span><span style="color:#88C0D0"> marktree_put</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">MarkTree </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">b</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> MTKey </span><span style="color:#D8DEE9">key</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> int</span><span style="color:#D8DEE9"> end_row</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> int</span><span style="color:#D8DEE9"> end_col</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> bool</span><span style="color:#D8DEE9"> end_right</span><span style="color:#ECEFF4">)</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">c</span><button type="button" class="code-copy-button" data-code="void marktree_put(MarkTree *b, MTKey key, int end_row, int end_col, bool end_right)
+{
+  // 把key放入树b
+  marktree_put_key(b, key);
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">void</span><span style="color:#88C0D0"> marktree_put</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">MarkTree </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">b</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> MTKey </span><span style="color:#D8DEE9">key</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> int</span><span style="color:#D8DEE9"> end_row</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> int</span><span style="color:#D8DEE9"> end_col</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> bool</span><span style="color:#D8DEE9"> end_right</span><span style="color:#ECEFF4">)</span></span>
 <span data-line=""><span style="color:#ECEFF4">{</span></span>
 <span data-line=""><span style="color:#616E88">  // 把key放入树b</span></span>
 <span data-line=""><span style="color:#88C0D0">  marktree_put_key</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">b</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">;</span></span>
 <span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// src/nvim/extmark.c</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">c</span><button type="button" class="code-copy-button" data-code="// src/nvim/extmark.c
+// extmark_set -> marktree_put
+// nvim_buf_set_extmark -> extmark_set
+// buf_set_sign -> extmark_set
+// 主要看看 buf_set_sign??">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// src/nvim/extmark.c</span></span>
 <span data-line=""><span style="color:#616E88">// extmark_set -> marktree_put</span></span>
 <span data-line=""><span style="color:#616E88">// nvim_buf_set_extmark -> extmark_set</span></span>
 <span data-line=""><span style="color:#616E88">// buf_set_sign -> extmark_set</span></span>
@@ -208,7 +357,57 @@ marktree_itr_next/prev: iter前后位置</p>
 <p>数据是树性结构？</p>
 <p>如何增删改查</p>
 <h2 id="f_undotree%20%3A%3A%20%E8%BF%94%E5%9B%9E%E5%BD%93%E5%89%8Dbuffer%E7%9A%84undo%E6%A0%91%E6%95%B0%E6%8D%AE">f_undotree :: 返回当前buffer的undo树数据</h2>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 1. 返回值是一个字典，所以先分配内存空间</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">c</span><button type="button" class="code-copy-button" data-code="// 1. 返回值是一个字典，所以先分配内存空间
+ 
+// 2. 参数是buf，空值时，使用当前buf
+ 
+// 3. NOTE: 往返回的字典里塞数据，数据关联在当前buf上，类型 file_buffer
+// 3.1 含一些undo树的状态信息：当前的节点
+// 3.2 还一个列表，保存undo树的其他节点
+// src/nvim/buffer_defs.h
+typedef struct file_buffer buf_T;
+struct file_buffer {
+  // NOTE: 主要关注这些字段
+  u_header_T *b_u_oldhead;     // pointer to oldest header
+  u_header_T *b_u_newhead;     // pointer to newest header; may not be valid
+                               // if b_u_curhead is not NULL
+  u_header_T *b_u_curhead;     // pointer to current header
+ 
+ 
+  // undo数据库是一个列表，持续加入中
+  // 如果为true，表示已经加入到undo树了？
+  bool b_u_synced;             // entry lists are synced
+};
+ 
+// 4. NOTE: 主要的数据结构:
+// src/nvim/undo_defs.h
+typedef struct u_header u_header_T;
+struct u_header {
+  // NOTE: 主要关注这些字段
+  union {
+    u_header_T *ptr;              ///< pointer to next undo header in list
+    int seq;
+  } uh_next;
+  union {
+    u_header_T *ptr;              ///< pointer to previous header in list
+    int seq;
+  } uh_prev;
+  union {
+    u_header_T *ptr;              ///< pointer to next header for alt. redo
+    int seq;
+  } uh_alt_next;
+  union {
+    u_header_T *ptr;              ///< pointer to previous header for alt. redo
+    int seq;
+  } uh_alt_prev;
+ 
+  // entry 表示undo数据块，先忽略
+  u_entry_T *uh_entry;            ///< pointer to first entry
+};
+ 
+// TODO: 具体 undo 数据块
+typedef struct u_entry u_entry_T;
+struct u_entry {};">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 1. 返回值是一个字典，所以先分配内存空间</span></span>
 <span data-line=""> </span>
 <span data-line=""><span style="color:#616E88">// 2. 参数是buf，空值时，使用当前buf</span></span>
 <span data-line=""> </span>
@@ -280,7 +479,30 @@ uh_alt_next, uh_alt_prev 表示分支：双链表上的节点，共用一份entr
 <li>跳到任意节点：</li>
 </ol>
 <p>跳到任意节点，应该是个遍历，先看一下如何遍历的：对应 :undo 命令</p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// src/nvim/ex_docmd.c</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">c</span><button type="button" class="code-copy-button" data-code="// src/nvim/ex_docmd.c
+static void ex_undo(exarg_T *eap)
+{
+      u_undo(1);                    // :undo
+}
+ 
+// src/nvim/undo.c
+void u_undo(int count)
+{
+    u_doit(count, false, true);
+}
+static void u_doit(int startcount, bool quiet, bool do_buf_event)
+{
+  int count = startcount;
+  // NOTE: 逐步回退到某个点：可以理解为叶子节点，向上逐步回到某个祖宗节点
+  while (count--) {
+    if (undo_undoes) {} else {
+      // 执行文本变更，先忽略
+      u_undoredo(false, do_buf_event);
+      // NOTE: uh_prev 前一个节点，重设当前节点
+      curbuf->b_u_curhead = curbuf->b_u_curhead->uh_prev.ptr;
+    }
+  }
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// src/nvim/ex_docmd.c</span></span>
 <span data-line=""><span style="color:#81A1C1">static</span><span style="color:#81A1C1"> void</span><span style="color:#88C0D0"> ex_undo</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">exarg_T </span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9">eap</span><span style="color:#ECEFF4">)</span></span>
 <span data-line=""><span style="color:#ECEFF4">{</span></span>
 <span data-line=""><span style="color:#88C0D0">      u_undo</span><span style="color:#ECEFF4">(</span><span style="color:#B48EAD">1</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1">;</span><span style="color:#616E88">                    // :undo</span></span>
@@ -306,7 +528,51 @@ uh_alt_next, uh_alt_prev 表示分支：双链表上的节点，共用一份entr
 <span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
 <p>回退节点就是跳到任意节点的一个变体：跳回最近一个节点</p>
 <p>ok，现在来看一下插入，可能有产生新分支的情况，通过当前节点的uh_next来判断，如果有说明需要产生新分支？</p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// src/nvim/undo.c</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">c</span><button type="button" class="code-copy-button" data-code="// src/nvim/undo.c
+// 保存 top 到 bot 之间的修改
+int u_save(linenr_T top, linenr_T bot)
+{
+  return u_save_buf(curbuf, top, bot);
+}
+int u_save_buf(buf_T *buf, linenr_T top, linenr_T bot)
+{
+  return u_savecommon(buf, top, bot, 0, false);
+}
+int u_savecommon(buf_T *buf, linenr_T top, linenr_T bot, linenr_T newbot, bool reload)
+{
+  if (buf->b_u_synced) {
+    // 创建一个新节点
+    u_header_T *uhp;
+ 
+    // 保存当前节点
+    u_header_T *old_curhead = buf->b_u_curhead;
+ 
+    // 原节点之前插入新节点: 产生新分支？
+    // 处理 uh_alt_next/uh_alt_prev
+    uhp->uh_alt_next.ptr = old_curhead;
+    uhp->uh_alt_prev.ptr = old_curhead->uh_alt_prev.ptr;
+    uhp->uh_alt_prev.ptr->uh_alt_next.ptr = uhp;
+    old_curhead->uh_alt_prev.ptr = uhp;
+    // uh_prev/uh_next
+    // 原节点之后插入新节点
+    // FIX: 插入操作似乎不完全？
+    buf->b_u_newhead = old_curhead->uh_next.ptr; // 暂存原节点下一节点
+    uhp->uh_prev.ptr = NULL;
+    uhp->uh_next.ptr = buf->b_u_newhead; // 新节点下一节点指向原节点下一节点
+    buf->b_u_newhead->uh_prev.ptr = uhp; // 新节点下一节点的前节点，指向当前节点
+    buf->b_u_newhead = uhp;
+ 
+    // 处理序列号加
+    uhp->uh_seq = ++buf->b_u_seq_last; 
+    buf->b_u_seq_cur = uhp->uh_seq;
+    // undo块数据，先忽略
+    uhp->uh_entry = NULL;
+    // 设置为最新节点
+    buf->b_u_newhead = uhp; 
+ 
+  }
+}
+ ">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="c" data-theme="nord"><code data-language="c" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// src/nvim/undo.c</span></span>
 <span data-line=""><span style="color:#616E88">// 保存 top 到 bot 之间的修改</span></span>
 <span data-line=""><span style="color:#81A1C1">int</span><span style="color:#88C0D0"> u_save</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">linenr_T </span><span style="color:#D8DEE9">top</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> linenr_T </span><span style="color:#D8DEE9">bot</span><span style="color:#ECEFF4">)</span></span>
 <span data-line=""><span style="color:#ECEFF4">{</span></span>
@@ -350,4 +616,4 @@ uh_alt_next, uh_alt_prev 表示分支：双链表上的节点，共用一份entr
 <span data-line=""> </span>
 <span data-line=""><span style="color:#ECEFF4">  }</span></span>
 <span data-line=""><span style="color:#ECEFF4">}</span></span>
-<span data-line=""> </span></code></pre></figure></article></main><aside class="fixed left-[calc(50%+28rem)] top-8 hidden w-40 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="neovim%20fold%20internal" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#neovim%20fold%20internal">neovim fold internal</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">neovim fold internal</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="f_foldlevel%20%3A%3A%20%E6%90%9C%E7%B4%A2" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#f_foldlevel%20%3A%3A%20%E6%90%9C%E7%B4%A2">f_foldlevel :: 搜索</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">f_foldlevel :: 搜索</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="foldCreate%20%3A%3A%20%E5%A2%9E%E5%8A%A0" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#foldCreate%20%3A%3A%20%E5%A2%9E%E5%8A%A0">foldCreate :: 增加</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">foldCreate :: 增加</span></li><li class="group relative"><a data-toc-link data-heading-id="neovim%20marktree%20internal" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#neovim%20marktree%20internal">neovim marktree internal</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">neovim marktree internal</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%9F%A5%E6%89%BE%EF%BC%9A%20marktree_lookup" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%9F%A5%E6%89%BE%EF%BC%9A%20marktree_lookup">查找： marktree_lookup</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">查找： marktree_lookup</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%8F%92%E5%85%A5%EF%BC%9Amarktree_put" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%8F%92%E5%85%A5%EF%BC%9Amarktree_put">插入：marktree_put</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">插入：marktree_put</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%88%A0%E9%99%A4%3A%20marktree_del_itr" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E5%88%A0%E9%99%A4%3A%20marktree_del_itr">删除: marktree_del_itr</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">删除: marktree_del_itr</span></li><li class="group relative"><a data-toc-link data-heading-id="neovim%20undo%20internal" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#neovim%20undo%20internal">neovim undo internal</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">neovim undo internal</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="f_undotree%20%3A%3A%20%E8%BF%94%E5%9B%9E%E5%BD%93%E5%89%8Dbuffer%E7%9A%84undo%E6%A0%91%E6%95%B0%E6%8D%AE" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#f_undotree%20%3A%3A%20%E8%BF%94%E5%9B%9E%E5%BD%93%E5%89%8Dbuffer%E7%9A%84undo%E6%A0%91%E6%95%B0%E6%8D%AE">f_undotree :: 返回当前buffer的undo树数据</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">f_undotree :: 返回当前buffer的undo树数据</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%9D%A5%E5%87%A0%E4%B8%AA%E6%93%8D%E4%BD%9C%E7%9C%8B%E4%B8%80%E4%B8%8B" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%9D%A5%E5%87%A0%E4%B8%AA%E6%93%8D%E4%BD%9C%E7%9C%8B%E4%B8%80%E4%B8%8B">来几个操作看一下</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">来几个操作看一下</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`text-blue-600`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});</script></div></body></html>
+<span data-line=""> </span></code></pre></figure> </article>  </main> <aside class="fixed left-[calc(50%+28rem)] top-8 hidden w-40 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="neovim%20fold%20internal" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#neovim%20fold%20internal">neovim fold internal</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">neovim fold internal</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="f_foldlevel%20%3A%3A%20%E6%90%9C%E7%B4%A2" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#f_foldlevel%20%3A%3A%20%E6%90%9C%E7%B4%A2">f_foldlevel :: 搜索</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">f_foldlevel :: 搜索</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="foldCreate%20%3A%3A%20%E5%A2%9E%E5%8A%A0" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#foldCreate%20%3A%3A%20%E5%A2%9E%E5%8A%A0">foldCreate :: 增加</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">foldCreate :: 增加</span></li><li class="group relative"><a data-toc-link data-heading-id="neovim%20marktree%20internal" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#neovim%20marktree%20internal">neovim marktree internal</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">neovim marktree internal</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%9F%A5%E6%89%BE%EF%BC%9A%20marktree_lookup" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%9F%A5%E6%89%BE%EF%BC%9A%20marktree_lookup">查找： marktree_lookup</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">查找： marktree_lookup</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%8F%92%E5%85%A5%EF%BC%9Amarktree_put" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%8F%92%E5%85%A5%EF%BC%9Amarktree_put">插入：marktree_put</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">插入：marktree_put</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%88%A0%E9%99%A4%3A%20marktree_del_itr" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E5%88%A0%E9%99%A4%3A%20marktree_del_itr">删除: marktree_del_itr</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">删除: marktree_del_itr</span></li><li class="group relative"><a data-toc-link data-heading-id="neovim%20undo%20internal" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#neovim%20undo%20internal">neovim undo internal</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">neovim undo internal</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="f_undotree%20%3A%3A%20%E8%BF%94%E5%9B%9E%E5%BD%93%E5%89%8Dbuffer%E7%9A%84undo%E6%A0%91%E6%95%B0%E6%8D%AE" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#f_undotree%20%3A%3A%20%E8%BF%94%E5%9B%9E%E5%BD%93%E5%89%8Dbuffer%E7%9A%84undo%E6%A0%91%E6%95%B0%E6%8D%AE">f_undotree :: 返回当前buffer的undo树数据</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">f_undotree :: 返回当前buffer的undo树数据</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%9D%A5%E5%87%A0%E4%B8%AA%E6%93%8D%E4%BD%9C%E7%9C%8B%E4%B8%80%E4%B8%8B" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%9D%A5%E5%87%A0%E4%B8%AA%E6%93%8D%E4%BD%9C%E7%9C%8B%E4%B8%80%E4%B8%8B">来几个操作看一下</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">来几个操作看一下</span></li></ol></div></nav></aside><script type="module">const s=Array.from(document.querySelectorAll("h1[id], h2[id], h3[id]")),i=Array.from(document.querySelectorAll("[data-toc-link]")),c=()=>{const o=(s.findLast(t=>t.getBoundingClientRect().top<=120)??s[0])?.id??"";i.forEach(t=>{const e=t.dataset.headingId===o;t.classList.toggle("font-medium",e),t.classList.toggle("text-blue-600",e),t.classList.toggle("opacity-100",e),t.classList.toggle("opacity-40",!e)})};c();window.addEventListener("scroll",c,{passive:!0});</script> </div> <script type="module">document.querySelectorAll(".code-copy-button").forEach(e=>{e.addEventListener("click",async()=>{const t=e.dataset.code??"";await navigator.clipboard.writeText(t),e.textContent="Copied",window.setTimeout(()=>{e.textContent="Copy"},1200)})});</script> </body> </html>

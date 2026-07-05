@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: goroutine 协程</title><link rel="stylesheet" href="/_astro/global.DIy-TqEI.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><div class="relative mx-auto max-w-4xl"><main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="goroutine%20%E5%8D%8F%E7%A8%8B">goroutine 协程</h1><div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"><div class="flex flex-wrap items-center gap-2"><span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">2026-02-11</span><span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">2026-04-28 16:42:06</span><a href="#backlinks" class="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20 hover:bg-blue-100 no-underline">4 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/GO" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">GO</a><a href="/tags/CS" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">CS</a></div></div>
+<!DOCTYPE html><html lang="zh-CN"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: goroutine 协程</title><link rel="stylesheet" href="/_astro/_id_.DEc5GA6n.css"></head> <body class="bg-slate-50 text-slate-900 antialiased"> <div class="relative mx-auto max-w-4xl"> <main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200">  <article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"> <h1 id="goroutine%20%E5%8D%8F%E7%A8%8B">goroutine 协程</h1> <div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"> <div class="flex flex-wrap items-center gap-2"> <span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20"> 2026-02-11 </span> <span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20"> 2026-04-28 16:42:06 </span> <a href="#backlinks" class="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20 hover:bg-blue-100 no-underline"> 4 引用
+</a> </div> <div class="flex flex-wrap gap-1.5"> <a href="/tags/GO" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline"> GO </a><a href="/tags/CS" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline"> CS </a> </div> </div>  
 <p>执行任务单位(用户态轻量线程)，由<code>runtime</code>进行调度</p>
 <ol>
 <li>有自己的栈，比较轻量（2kb）</li>
@@ -43,7 +44,49 @@
 <blockquote>
 <p>定义：包含栈、调度信息、状态等</p>
 </blockquote>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""> </span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code=" 
+// g 的定义
+type g struct {
+	// 1. 栈相关：执行现场
+	// stack 表示栈内存
+	stack stack
+	// 用于检查是否栈增长
+	stackguard0 uintptr
+	// 强制走 morestack?
+	stackguard1 uintptr
+ 
+	// 2. 调度相关(M 现场切换)
+	// m 表示当前绑定的操作系统线程
+	m *m // current m; offset known to arm liblink
+	// sched 用于保存G的执行现场，用于挂起/恢复这个g
+	sched gobuf
+	// g 的状态
+	atomicstatus atomic.Uint32
+	// 调度队列里的下一个g（空间局部性）
+	schedlink guintptr
+ 
+	// 3. 阻塞相关
+	waitsince  int64      // approx time when the g become blocked
+	waitreason waitReason // if status==Gwaiting
+	waiting    *sudog     // sudog structures this g is waiting on (that have a valid elem ptr); in lock order
+ 
+	// 4. 异常相关
+	_panic *_panic // innermost panic - offset known to liblink
+	_defer *_defer // innermost defer
+ 
+	// 5. 抢占相关
+	preempt       bool // preemption signal, duplicates stackguard0 = stackpreempt
+	preemptStop   bool // transition to _Gpreempted on preemption; otherwise, just deschedule
+	preemptShrink bool // shrink stack at synchronous safe point
+ 
+	// 6. 系统调用相关
+	syscallsp uintptr // if status==Gsyscall, syscallsp = sched.sp to use during gc
+	syscallpc uintptr // if status==Gsyscall, syscallpc = sched.pc to use during gc
+	syscallbp uintptr // if status==Gsyscall, syscallbp = sched.bp to use in fpTraceback
+	stktopsp  uintptr // expected sp at top of stack, to check in traceback
+ 
+	// 其他字段...
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""> </span>
 <span data-line=""><span style="color:#616E88">// g 的定义</span></span>
 <span data-line=""><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> g </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
 <span data-line=""><span style="color:#616E88">	// 1. 栈相关：执行现场</span></span>
@@ -92,7 +135,64 @@
 <p>创建 runtime.newproc -> newproc1</p>
 </blockquote>
 <p>NOTE: newproc1 会在<a href="/notes/1770123039-URZR#systemstack">系统栈上被调用</a></p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 创建一个g</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="// 创建一个g
+func newproc(fn *funcval) {
+	// 1. 获取当前g
+	gp := getg()
+	pc := sys.GetCallerPC()
+	// 2. 在系统栈（非goroutine栈）上执行
+	systemstack(func() {
+		// 3. 创建新的g
+		newg := newproc1(fn, gp, pc, false, waitReasonZero)
+ 
+		// 4. 获取当前p
+		pp := getg().m.p.ptr()
+		// 5. 把g放入队列（可能是p的本地队列，也可能是全局队列）
+		runqput(pp, newg, true)
+ 
+		if mainStarted {
+			wakep()
+		}
+	})
+}
+ 
+func newproc1(fn *funcval, callergp *g, callerpc uintptr, parked bool, waitreason waitReason) *g {
+	// 1. 获取m和p
+	// 从p获取一个新 g 或分配一个新 g
+	mp := acquirem() // disable preemption because we hold M and P in local vars.
+	pp := mp.p.ptr()
+	newg := gfget(pp)
+	if newg == nil {
+		newg = malg(stackMin)
+		casgstatus(newg, _Gidle, _Gdead)
+		allgadd(newg) // publishes with a g->status of Gdead so GC scanner doesn&#x27;t look at uninitialized stack.
+	}
+ 
+	// 2. 栈顶预留多4个指针的空间，然后对齐
+	// 4个指针用于：伪造的调用帧（含返回到 goexit 的约定
+	totalSize := uintptr(4*goarch.PtrSize + sys.MinFrameSize) // extra space in case of reads slightly beyond frame
+	totalSize = alignUp(totalSize, sys.StackAlign)
+	sp := newg.stack.hi - totalSize
+ 
+	// 3. 调度上下文
+	memclrNoHeapPointers(unsafe.Pointer(&#x26;newg.sched), unsafe.Sizeof(newg.sched))
+	newg.sched.sp = sp
+	newg.stktopsp = sp
+	// 设成&#x22;从 goexit 里某条指令之后，对应Nop?&#x22;开始（这样 traceback 会把 goexit 当成调用者）
+	newg.sched.pc = abi.FuncPCABI0(goexit) + sys.PCQuantum // +PCQuantum so that previous instruction is in same function
+	newg.sched.g = guintptr(unsafe.Pointer(newg))
+	// 栈顶减一个指针，把pc放进去，然后把fn作为新pc
+	// 和上面一起等价于：模拟「goexit 里已经执行了 CALL fn」，现在正要执行 fn 的第一条指令
+	gostartcallfn(&#x26;newg.sched, fn)
+	// 4.  记&#x22;谁创建的&#x22;、启动地址
+	newg.parentGoid = callergp.goid
+	newg.gopc = callerpc
+	newg.ancestors = saveAncestors(callergp)
+	newg.startpc = fn.fn
+ 
+	// ....
+	return newg
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 创建一个g</span></span>
 <span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> newproc</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">fn</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">funcval</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
 <span data-line=""><span style="color:#616E88">	// 1. 获取当前g</span></span>
 <span data-line=""><span style="color:#D8DEE9">	gp</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> getg</span><span style="color:#ECEFF4">()</span></span>
@@ -158,7 +258,12 @@
 <blockquote>
 <p>g 状态从 _Grunnable -> _Grunning</p>
 </blockquote>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 在当前 M（OS 线程）上执行指定的 goroutine gp，且该函数不会返回（执行权会切换到 gp）</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="// 在当前 M（OS 线程）上执行指定的 goroutine gp，且该函数不会返回（执行权会切换到 gp）
+func execute(gp *g, inheritTime bool) {
+	// ...
+	// 最终调用 gogo，执行权切换到了gp
+	gogo(&#x26;gp.sched)
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 在当前 M（OS 线程）上执行指定的 goroutine gp，且该函数不会返回（执行权会切换到 gp）</span></span>
 <span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> execute</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">gp</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">g</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> inheritTime</span><span style="color:#81A1C1"> bool</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
 <span data-line=""><span style="color:#616E88">	// ...</span></span>
 <span data-line=""><span style="color:#616E88">	// 最终调用 gogo，执行权切换到了gp</span></span>
@@ -167,7 +272,39 @@
 <blockquote>
 <p>gogo 把执行流从"调度器"切到某个 goroutine 之前保存的现场（栈、寄存器、PC）</p>
 </blockquote>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="asm" data-theme="nord"><code data-language="asm" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9FF">// func gogo(buf *gobuf)</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">asm</span><button type="button" class="code-copy-button" data-code="// func gogo(buf *gobuf)
+// restore state from Gobuf; longjmp
+TEXT runtime·gogo(SB), NOSPLIT, $0-8
+	MOVQ	buf+0(FP), BX		// gobuf
+	// 要恢复的 goroutine，放DX
+	MOVQ	gobuf_g(BX), DX
+	// 读 *g 
+	// 0(DX) 是 *DX，即读取 g 结构体的第一个字段
+	// 这里主要是空指针检查：如果 DX == nil，访问 0(DX) 会触发段错误，从而快速失败
+	MOVQ	0(DX), CX		// make sure g != nil
+	JMP	gogo<>(SB)
+ 
+TEXT gogo<>(SB), NOSPLIT, $0
+	// 取线程本地存储
+	// CX = TLS 地址（宏展开为 MOVQ TLS, CX）
+	get_tls(CX)
+	// TLS 里的 current g 设为要执行的 goroutine
+	// g(CX) 是宏，展开为 0(CX)，表示 TLS 结构体中偏移 0 的字段（g 字段）
+	// 把 DX（g 指针）写入 TLS 的 g 字段
+	MOVQ	DX, g(CX)
+	// 在 amd64 上 R14 固定表示“当前 g”
+	MOVQ	DX, R14		// set the g register
+	// 恢复栈和帧
+	MOVQ	gobuf_sp(BX), SP	// restore SP
+	MOVQ	gobuf_ctxt(BX), DX
+	MOVQ	gobuf_bp(BX), BP
+	// 清空 gobuf 里已恢复的字段，避免被 GC 误认为仍被引用
+	MOVQ	$0, gobuf_sp(BX)	// clear to help garbage collector
+	MOVQ	$0, gobuf_ctxt(BX)
+	MOVQ	$0, gobuf_bp(BX)
+	// 跳转到 goroutine
+	MOVQ	gobuf_pc(BX), BX
+	JMP	BX">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="asm" data-theme="nord"><code data-language="asm" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9FF">// func gogo(buf *gobuf)</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">// restore state from Gobuf</span><span style="color:#616E88">; longjmp</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">TEXT runtime·gogo(SB), </span><span style="color:#81A1C1">NOSPLIT</span><span style="color:#D8DEE9FF">, </span><span style="color:#B48EAD">$0</span><span style="color:#D8DEE9FF">-</span><span style="color:#B48EAD">8</span></span>
 <span data-line=""><span style="color:#81A1C1">	MOVQ</span><span style="color:#D8DEE9FF">	buf+</span><span style="color:#B48EAD">0</span><span style="color:#D8DEE9FF">(FP), </span><span style="color:#81A1C1">BX</span><span style="color:#D8DEE9FF">		// gobuf</span></span>
@@ -207,7 +344,8 @@
 <blockquote>
 <p>g 状态从 Grunning → _Gwaiting</p>
 </blockquote>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 把当前 goroutine 挂起，并在系统栈上执行 unlockf；unlockf 返回 false 时 goroutine 会恢复</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="// 把当前 goroutine 挂起，并在系统栈上执行 unlockf；unlockf 返回 false 时 goroutine 会恢复
+func gopark(unlockf func(*g, unsafe.Pointer) bool, lock unsafe.Pointer, reason waitReason, traceReason traceBlockReason, traceskip int) ">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 把当前 goroutine 挂起，并在系统栈上执行 unlockf；unlockf 返回 false 时 goroutine 会恢复</span></span>
 <span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> gopark</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">unlockf</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">g</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> bool</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> lock</span><span style="color:#D8DEE9FF"> unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> reason</span><span style="color:#D8DEE9FF"> waitReason</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> traceReason</span><span style="color:#D8DEE9FF"> traceBlockReason</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> traceskip</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span><span style="color:#D8DEE9FF"> </span></span></code></pre></figure>
 <h2 id="goready">goready</h2>
 <blockquote>
@@ -216,14 +354,23 @@
 <blockquote>
 <p>g 状态从 _Gwaiting → _Grunnable</p>
 </blockquote>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 把已经 park 的 goroutine 标记为“可运行”并放进调度队列，让其可以被再次调度执行</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="// 把已经 park 的 goroutine 标记为“可运行”并放进调度队列，让其可以被再次调度执行
+func goready(gp *g, traceskip int)">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 把已经 park 的 goroutine 标记为“可运行”并放进调度队列，让其可以被再次调度执行</span></span>
 <span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> goready</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">gp</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">g</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> traceskip</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span></span></code></pre></figure>
 <h2 id="goexit">goexit</h2>
 <p><code>goexit</code>是：每个 goroutine 的调用栈最顶上的<code>返回桩</code>（return stub）</p>
 <p>创建新 g 的时候，会构建伪调用帧(入口函数是由 goexit 调用)，在g结束的时候，返回到goexit，而goexit最终会调用 <a href="/notes/1770123039-URZR">schedule</a> 进行调度</p>
 <p>goexit -> goexit1 ->  goexit0 -> schedule</p>
 <p>为什么要这么设计？见<a href="/notes/1770123039-YYVW#traceback">栈回溯</a></p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="asm" data-theme="nord"><code data-language="asm" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9FF">// The top-most function running on a goroutine</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">asm</span><button type="button" class="code-copy-button" data-code="// The top-most function running on a goroutine
+// returns to goexit+PCQuantum.
+TEXT runtime·goexit(SB),NOSPLIT|TOPFRAME|NOFRAME,$0-0
+	// NOTE: 第一行这里会变成对goroutine的调用
+	BYTE	$0x90	// NOP		
+	CALL	runtime·goexit1(SB)	// does not return
+	// traceback from goexit1 must hit code range of goexit
+	BYTE	$0x90	// NOP
+ ">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="asm" data-theme="nord"><code data-language="asm" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9FF">// The top-most function running on a goroutine</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">// returns to goexit+PCQuantum.</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">TEXT runtime·goexit(SB),</span><span style="color:#81A1C1">NOSPLIT</span><span style="color:#D8DEE9FF">|TOPFRAME|NOFRAME,</span><span style="color:#B48EAD">$0</span><span style="color:#D8DEE9FF">-</span><span style="color:#B48EAD">0</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">	// </span><span style="color:#88C0D0">NOTE</span><span style="color:#ECEFF4">:</span><span style="color:#D8DEE9FF"> 第一行这里会变成对goroutine的调用</span></span>
@@ -231,4 +378,4 @@
 <span data-line=""><span style="color:#81A1C1">	CALL</span><span style="color:#D8DEE9FF">	runtime·goexit1(SB)	// does </span><span style="color:#81A1C1">not</span><span style="color:#D8DEE9FF"> return</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">	// traceback from goexit1 must hit code range of goexit</span></span>
 <span data-line=""><span style="color:#81A1C1">	BYTE</span><span style="color:#D8DEE9FF">	$0x90	// </span><span style="color:#81A1C1">NOP</span></span>
-<span data-line=""> </span></code></pre></figure></article><aside id="backlinks" class="mt-12 border-t border-slate-200 pt-8"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">被 4 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1770123038-CJXA" class="text-blue-600 underline-offset-4 hover:underline">Go: channel 通道</a></li><li><a href="/notes/1773500934-CYOX" class="text-blue-600 underline-offset-4 hover:underline">Go: concurrency pattern</a></li><li><a href="/notes/1777363730-XJFB" class="text-blue-600 underline-offset-4 hover:underline">Go: defer</a></li><li><a href="/notes/1770123039-YYVW" class="text-blue-600 underline-offset-4 hover:underline">Go: Stack</a></li></ul></aside></main><aside class="fixed left-[calc(50%+28rem)] top-8 hidden w-40 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="goroutine%20%E5%8D%8F%E7%A8%8B" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#goroutine%20%E5%8D%8F%E7%A8%8B">goroutine 协程</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">goroutine 协程</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F">生命周期</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">生命周期</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="g%20%E5%AE%9A%E4%B9%89" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#g%20%E5%AE%9A%E4%B9%89">g 定义</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">g 定义</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="newproc" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#newproc">newproc</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">newproc</span></li><li class="group relative"><a data-toc-link data-heading-id="%E7%89%B9%E6%AE%8A%E5%87%BD%E6%95%B0" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E7%89%B9%E6%AE%8A%E5%87%BD%E6%95%B0">特殊函数</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">特殊函数</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="execute" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#execute">execute</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">execute</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="gopark" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#gopark">gopark</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">gopark</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="goready" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#goready">goready</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">goready</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="goexit" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#goexit">goexit</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">goexit</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`text-blue-600`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});</script></div></body></html>
+<span data-line=""> </span></code></pre></figure> </article> <aside id="backlinks" class="mt-12 border-t border-slate-200 pt-8"> <h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">被 4 篇笔记引用</h2> <ul class="space-y-2"> <li> <a href="/notes/1770123038-CJXA" class="text-blue-600 underline-offset-4 hover:underline"> Go: channel 通道 </a> </li><li> <a href="/notes/1773500934-CYOX" class="text-blue-600 underline-offset-4 hover:underline"> Go: concurrency pattern </a> </li><li> <a href="/notes/1777363730-XJFB" class="text-blue-600 underline-offset-4 hover:underline"> Go: defer </a> </li><li> <a href="/notes/1770123039-YYVW" class="text-blue-600 underline-offset-4 hover:underline"> Go: Stack </a> </li> </ul> </aside> </main> <aside class="fixed left-[calc(50%+28rem)] top-8 hidden w-40 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="goroutine%20%E5%8D%8F%E7%A8%8B" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#goroutine%20%E5%8D%8F%E7%A8%8B">goroutine 协程</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">goroutine 协程</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F">生命周期</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">生命周期</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="g%20%E5%AE%9A%E4%B9%89" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#g%20%E5%AE%9A%E4%B9%89">g 定义</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">g 定义</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="newproc" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#newproc">newproc</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">newproc</span></li><li class="group relative"><a data-toc-link data-heading-id="%E7%89%B9%E6%AE%8A%E5%87%BD%E6%95%B0" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E7%89%B9%E6%AE%8A%E5%87%BD%E6%95%B0">特殊函数</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">特殊函数</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="execute" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#execute">execute</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">execute</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="gopark" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#gopark">gopark</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">gopark</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="goready" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#goready">goready</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">goready</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="goexit" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#goexit">goexit</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">goexit</span></li></ol></div></nav></aside><script type="module">const s=Array.from(document.querySelectorAll("h1[id], h2[id], h3[id]")),i=Array.from(document.querySelectorAll("[data-toc-link]")),c=()=>{const o=(s.findLast(t=>t.getBoundingClientRect().top<=120)??s[0])?.id??"";i.forEach(t=>{const e=t.dataset.headingId===o;t.classList.toggle("font-medium",e),t.classList.toggle("text-blue-600",e),t.classList.toggle("opacity-100",e),t.classList.toggle("opacity-40",!e)})};c();window.addEventListener("scroll",c,{passive:!0});</script> </div> <script type="module">document.querySelectorAll(".code-copy-button").forEach(e=>{e.addEventListener("click",async()=>{const t=e.dataset.code??"";await navigator.clipboard.writeText(t),e.textContent="Copied",window.setTimeout(()=>{e.textContent="Copy"},1200)})});</script> </body> </html>

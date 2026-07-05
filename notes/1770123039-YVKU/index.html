@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: profile</title><link rel="stylesheet" href="/_astro/global.DIy-TqEI.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><div class="relative mx-auto max-w-4xl"><main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"><div class="flex flex-wrap items-center gap-2"><span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">2026-02-05</span><span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">2026-03-06 14:56:13</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">CS</a><a href="/tags/GO" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">GO</a></div></div><blockquote>
+<!DOCTYPE html><html lang="zh-CN"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: profile</title><link rel="stylesheet" href="/_astro/_id_.DEc5GA6n.css"></head> <body class="bg-slate-50 text-slate-900 antialiased"> <div class="relative mx-auto max-w-4xl"> <main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200">  <article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100">  <div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"> <div class="flex flex-wrap items-center gap-2"> <span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20"> 2026-02-05 </span> <span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20"> 2026-03-06 14:56:13 </span>  </div> <div class="flex flex-wrap gap-1.5"> <a href="/tags/CS" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline"> CS </a><a href="/tags/GO" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline"> GO </a> </div> </div>  <blockquote>
 <p><a href="https://fulmenflux.co/blog/go/complete-guide-to-profile-golang-services-in-production/">https://fulmenflux.co/blog/go/complete-guide-to-profile-golang-services-in-production/</a></p>
 </blockquote>
 <p><a href="https://mp.weixin.qq.com/s?__biz=MzUxMDI4MDc1NA==&#x26;mid=2247488702&#x26;idx=1&#x26;sn=b941ddb5473e8f6b85cd970e81225347&#x26;chksm=f90401e3ce7388f50f390eb4dfd887481a7866cb50011802d1916ec644c3ba5485ea0e423036&#x26;scene=21#wechat_redirect">https://mp.weixin.qq.com/s?__biz=MzUxMDI4MDc1NA==&#x26;mid=2247488702&#x26;idx=1&#x26;sn=b941ddb5473e8f6b85cd970e81225347&#x26;chksm=f90401e3ce7388f50f390eb4dfd887481a7866cb50011802d1916ec644c3ba5485ea0e423036&#x26;scene=21#wechat_redirect</a></p>
@@ -26,7 +26,23 @@ Often these profiles represents data collected through statistical sampling of a
 <p><a href="https://github.com/bradfitz/talk-yapc-asia-2015/blob/master/talk.md">https://github.com/bradfitz/talk-yapc-asia-2015/blob/master/talk.md</a></p>
 <h3 id="get%20started">get started</h3>
 <p><a href="https://github.com/google/pprof">pprof</a> is a tool for visualization and analysis of profiling data.</p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="https://github.com/google/pprof/blob/master/doc/README.md#graphical-reports" data-theme="nord"><code data-language="https://github.com/google/pprof/blob/master/doc/README.md#graphical-reports" data-theme="nord" style="display: grid;"><span data-line=""><span>Usage Modes: </span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">https://github.com/google/pprof/blob/master/doc/README.md#graphical-reports</span><button type="button" class="code-copy-button" data-code="Usage Modes: 
+1. Report generation: Text/Graphical reports
+2. Interactive terminal use
+3. Web interface
+ 
+flat: the value of the location itself.
+cum: the value of the location plus all its descendants.
+ 
+Interpreting the Callgraph:
+Node Color:
+Node Font Size:
+Edge Weight:
+Edge Color:
+Dashed Edges: 
+Solid Edges: 
+&#x22;(inline)&#x22; Edge Marker:
+ ">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="https://github.com/google/pprof/blob/master/doc/README.md#graphical-reports" data-theme="nord"><code data-language="https://github.com/google/pprof/blob/master/doc/README.md#graphical-reports" data-theme="nord" style="display: grid;"><span data-line=""><span>Usage Modes: </span></span>
 <span data-line=""><span>1. Report generation: Text/Graphical reports</span></span>
 <span data-line=""><span>2. Interactive terminal use</span></span>
 <span data-line=""><span>3. Web interface</span></span>
@@ -48,7 +64,14 @@ Often these profiles represents data collected through statistical sampling of a
 <li>profiling</li>
 <li>visualization and analysis</li>
 </ol>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88"># 模拟压测</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#d9b400" d="M29.4 27.6H2.5V4.5h26.9Zm-25.9-1h24.9V5.5H3.5Z"/><path fill="#d9b400" d="m6.077 19.316l-.555-.832l4.844-3.229l-4.887-4.071l.641-.768l5.915 4.928zM12.7 18.2h7.8v1h-7.8zM2.5 5.5h26.9v1.9H2.5z"/></svg>bash</span><button type="button" class="code-copy-button" data-code="# 模拟压测
+wrk -c 100 -d 30s -t 4 http://127.0.0.1:9088/apm/alarm/templates
+# profiling and analysis
+go tool pprof &#x22;http://127.0.0.1:6060/debug/pprof/profile?seconds=20&#x22;
+# profiling
+curl -v &#x22;http://127.0.0.1:6060/debug/pprof/profile?seconds=10&#x22;
+# analysis
+go tool pprof -http=&#x22;HOSTIP:8000&#x22; ./cpu.prof">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88"># 模拟压测</span></span>
 <span data-line=""><span style="color:#88C0D0">wrk</span><span style="color:#A3BE8C"> -c</span><span style="color:#B48EAD"> 100</span><span style="color:#A3BE8C"> -d</span><span style="color:#A3BE8C"> 30s</span><span style="color:#A3BE8C"> -t</span><span style="color:#B48EAD"> 4</span><span style="color:#A3BE8C"> http://127.0.0.1:9088/apm/alarm/templates</span></span>
 <span data-line=""><span style="color:#616E88"># profiling and analysis</span></span>
 <span data-line=""><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> pprof</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">http://127.0.0.1:6060/debug/pprof/profile?seconds=20</span><span style="color:#ECEFF4">"</span></span>
@@ -65,7 +88,24 @@ import _ "net/http/pprof"
 curl localhost:$PORT/debug/pprof/$PROFILE_TYPE</p>
 <p><a href="https://pkg.go.dev/runtime">https://pkg.go.dev/runtime</a>
 <a href="https://pkg.go.dev/runtime/pprof">https://pkg.go.dev/runtime/pprof</a></p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">package</span><span style="color:#D8DEE9FF"> main</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="package main
+ 
+import (
+	&#x22;os&#x22;
+	&#x22;runtime/pprof&#x22;
+)
+ 
+func main() {
+	f, perr := os.Create(&#x22;cpu.pprof&#x22;)
+	if perr != nil {
+		l.Fatal(perr)
+	}
+	pprof.StartCPUProfile(f)
+	defer pprof.StopCPUProfile()
+	
+	// your go code
+    // ...
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">package</span><span style="color:#D8DEE9FF"> main</span></span>
 <span data-line=""> </span>
 <span data-line=""><span style="color:#81A1C1">import</span><span style="color:#ECEFF4"> (</span></span>
 <span data-line=""><span style="color:#ECEFF4">	"</span><span style="color:#A3BE8C">os</span><span style="color:#ECEFF4">"</span></span>
@@ -83,11 +123,12 @@ curl localhost:$PORT/debug/pprof/$PROFILE_TYPE</p>
 <span data-line=""><span style="color:#616E88">	// your go code</span></span>
 <span data-line=""><span style="color:#616E88">    // ...</span></span>
 <span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88"># go tool pprof -http=&#x3C;port> &#x3C;profiling file></span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#d9b400" d="M29.4 27.6H2.5V4.5h26.9Zm-25.9-1h24.9V5.5H3.5Z"/><path fill="#d9b400" d="m6.077 19.316l-.555-.832l4.844-3.229l-4.887-4.071l.641-.768l5.915 4.928zM12.7 18.2h7.8v1h-7.8zM2.5 5.5h26.9v1.9H2.5z"/></svg>bash</span><button type="button" class="code-copy-button" data-code="# go tool pprof -http=<port> <profiling file>
+go tool pprof -http=&#x22;:8000&#x22; ./cpu.pprof">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88"># go tool pprof -http=&#x3C;port> &#x3C;profiling file></span></span>
 <span data-line=""><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> pprof</span><span style="color:#A3BE8C"> -http=</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">:8000</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C"> ./cpu.pprof</span></span></code></pre></figure>
 <p>select "flame graph" from the VIEW menus in the site header.</p>
 <p>cli interactive mode:</p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> pprof</span><span style="color:#A3BE8C"> cpu.pprof</span></span></code></pre></figure>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#d9b400" d="M29.4 27.6H2.5V4.5h26.9Zm-25.9-1h24.9V5.5H3.5Z"/><path fill="#d9b400" d="m6.077 19.316l-.555-.832l4.844-3.229l-4.887-4.071l.641-.768l5.915 4.928zM12.7 18.2h7.8v1h-7.8zM2.5 5.5h26.9v1.9H2.5z"/></svg>bash</span><button type="button" class="code-copy-button" data-code="go tool pprof cpu.pprof">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> tool</span><span style="color:#A3BE8C"> pprof</span><span style="color:#A3BE8C"> cpu.pprof</span></span></code></pre></figure>
 <p>see commands use help.</p>
 <p><a href="https://github.com/pkg/profile">https://github.com/pkg/profile</a></p>
 <h4 id="visualization%20and%20analysis">visualization and analysis</h4>
@@ -102,7 +143,9 @@ curl localhost:$PORT/debug/pprof/$PROFILE_TYPE</p>
 <p><a href="https://cloud.tencent.com/developer/article/1656810">https://cloud.tencent.com/developer/article/1656810</a></p>
 <p><a href="https://www.speedscope.app/">https://www.speedscope.app/</a></p>
 <p>generate Flame graphs in go: <a href="https://github.com/uber-archive/go-torch">https://github.com/uber-archive/go-torch</a></p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>每一列代表一个调用栈，每一个格子代表一个函数</span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="每一列代表一个调用栈，每一个格子代表一个函数
+纵轴展示了栈的深度，按照调用关系从下到上排列，最顶上格子代表采样时，正在占用 cpu 的函数。
+横轴格子的宽度代表其在采样中出现频率，所以一个格子的宽度越大，说明它是瓶颈原因的可能性就越大。">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>每一列代表一个调用栈，每一个格子代表一个函数</span></span>
 <span data-line=""><span>纵轴展示了栈的深度，按照调用关系从下到上排列，最顶上格子代表采样时，正在占用 cpu 的函数。</span></span>
 <span data-line=""><span>横轴格子的宽度代表其在采样中出现频率，所以一个格子的宽度越大，说明它是瓶颈原因的可能性就越大。</span></span></code></pre></figure>
 <h2 id="urls">urls</h2>
@@ -112,7 +155,33 @@ curl localhost:$PORT/debug/pprof/$PROFILE_TYPE</p>
 <a href="https://rakyll.org/custom-profiles/">https://rakyll.org/custom-profiles/</a>
 <a href="https://rakyll.org/mutexprofile/">https://rakyll.org/mutexprofile/</a></p>
 <p><a href="https://hackernoon.com/go-the-complete-guide-to-profiling-your-code-h51r3waz">https://hackernoon.com/go-the-complete-guide-to-profiling-your-code-h51r3waz</a></p>
-<figure data-rehype-pretty-code-figure=""><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>## </span></span>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="## 
+Difference Between Flat And Cumulative
+func A() {
+   B()             // takes 1s
+   DO STH DIRECTLY // takes 4s
+   C()             // takes 6s
+}
+the flat time of function A is 4s and the cum is 11s.
+ 
+Difference Between Allocations And Heap Profile
+Allocations profile will start pprof in a mode which displays the total number of allocated objects since the program began which includes garbage collected ones as well.
+Heap profile will start in a mode that displays number of live allocated objects which does not include garbage collected bytes.
+inuse_space: amount of memory allocated and not released yet (heap)
+inuse_objects: amount of objects allocated and not released yet (heap)
+alloc_space: total amount of memory allocated (regardless of released)
+alloc_objects: total amount of objects allocated (regardless of released)
+ 
+ 
+## How does a profiler work?
+CPU Profiler:
+The Go CPU profiler uses a SIGPROF signal to record code execution statistics. Once the signal got registered, it will deliver every specified time interval.
+On every invocation signal, the handler will trace back the execution by unwinding it from the current PC value. This will generate a stack trace and increment its hit count.
+ 
+Memory Profiler:
+The memory profiler samples heap allocations.
+Recording all allocation and unwinding thestack trace would be expensive, therefore a sampling technique is used.
+The sampling rate defines the mean of exponential distribution . The default value is 512 KB which is specified by the runtime.MemProfileRate. ">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>## </span></span>
 <span data-line=""><span>Difference Between Flat And Cumulative</span></span>
 <span data-line=""><span>func A() {</span></span>
 <span data-line=""><span>   B()             // takes 1s</span></span>
@@ -161,4 +230,4 @@ Regions are sections in the code you want to collect tracing data for.
 A region starts and ends in the same goroutine.
 A task, on the other hand, is more of a logical group to categorize related regions together.
 A task can end in a different goroutine than the goroutine it started at.</p>
-<p><a href="https://zhuanlan.zhihu.com/p/410590497">https://zhuanlan.zhihu.com/p/410590497</a></p></article></main><aside class="fixed left-[calc(50%+28rem)] top-8 hidden w-40 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative pl-4"><a data-toc-link data-heading-id="Go%3A%20profiling%20%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Go%3A%20profiling%20%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90">Go: profiling 性能分析</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Go: profiling 性能分析</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="what%20is%20profile" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#what%20is%20profile">what is profile</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">what is profile</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="get%20started" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#get%20started">get started</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">get started</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="urls" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#urls">urls</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">urls</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="go-tool-trace" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#go-tool-trace">go-tool-trace</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">go-tool-trace</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`text-blue-600`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});</script></div></body></html>
+<p><a href="https://zhuanlan.zhihu.com/p/410590497">https://zhuanlan.zhihu.com/p/410590497</a></p> </article>  </main> <aside class="fixed left-[calc(50%+28rem)] top-8 hidden w-40 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative pl-4"><a data-toc-link data-heading-id="Go%3A%20profiling%20%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Go%3A%20profiling%20%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90">Go: profiling 性能分析</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Go: profiling 性能分析</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="what%20is%20profile" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#what%20is%20profile">what is profile</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">what is profile</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="get%20started" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#get%20started">get started</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">get started</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="urls" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#urls">urls</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">urls</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="go-tool-trace" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#go-tool-trace">go-tool-trace</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">go-tool-trace</span></li></ol></div></nav></aside><script type="module">const s=Array.from(document.querySelectorAll("h1[id], h2[id], h3[id]")),i=Array.from(document.querySelectorAll("[data-toc-link]")),c=()=>{const o=(s.findLast(t=>t.getBoundingClientRect().top<=120)??s[0])?.id??"";i.forEach(t=>{const e=t.dataset.headingId===o;t.classList.toggle("font-medium",e),t.classList.toggle("text-blue-600",e),t.classList.toggle("opacity-100",e),t.classList.toggle("opacity-40",!e)})};c();window.addEventListener("scroll",c,{passive:!0});</script> </div> <script type="module">document.querySelectorAll(".code-copy-button").forEach(e=>{e.addEventListener("click",async()=>{const t=e.dataset.code??"";await navigator.clipboard.writeText(t),e.textContent="Copied",window.setTimeout(()=>{e.textContent="Copy"},1200)})});</script> </body> </html>
