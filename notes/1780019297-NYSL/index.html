@@ -2,7 +2,7 @@
 <p>S：K8s 应用通常包含多种资源（多份 YAML），不同环境有差异（资源结构相同，但有一些<code>配置不同</code>）
 C：手写和复制配置易漂移，升级回滚难追踪（涉及多份资源变更，缺少整体概念），无法复用
 Q：如何把应用交付变成一个交付单元，安装、升级、回滚（可模板化、参数化、版本化、复用...）
-A：Helm 用 Chart 模板化资源（Kubernetes 应用），用 Values 注入环境配置，并以 Release 记录安装、升级、回滚</p>
+A：Helm 用 Chart 模板化资源（<a href="/notes/1773900574-DBDO">k8s</a>应用），用 Values 注入环境配置，并以 Release 记录安装、升级、回滚</p>
 <blockquote>
 <p>把 Kubernetes YAML 资源集合，抽象成可参数化、可复用、可版本化的应用包，并通过 release 管理应用的安装、升级与回滚。</p>
 </blockquote>
