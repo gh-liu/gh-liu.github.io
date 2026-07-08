@@ -368,8 +368,8 @@ func NewServer(handler http.Handler) *Server {}
 <p>为 HTTP Client 单次请求提供阶段性埋点
 httptrace.ClientTrace 是一个方法集结构体，用户自定义相关阶段的方法</p>
 </blockquote>
-<p>通过<code>httptrace.WithClientTrace</code>把<code>httptrace.ClientTrace</code>挂到 Request.Context；
-通过<code>httptrace.ContextClientTrace</code>从ctx中取出<code>httptrace.ClientTrace</code>，调用相关tracing方法</p>
+<p>通过<code>httptrace.WithClientTrace</code>把<code>httptrace.ClientTrace</code>挂到 Request.Context；</p>
+<p>通过<code>httptrace.ContextClientTrace</code>从ctx中取出<code>httptrace.ClientTrace</code>，调用相关tracing方法</p>
 <h1 id="%E7%9C%8B%20http%20%E5%8C%85%E8%AE%BE%E8%AE%A1">看 http 包设计</h1>
 <p>优点：少量抽象，覆盖很大问题空间</p>
 <ul>
