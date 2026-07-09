@@ -52,8 +52,15 @@
 <li>作为泛型约束，限制类型参数的类型集合</li>
 </ul>
 <blockquote>
-<p>接口值可以保存具体类型的信息（编译期会生成对应的类型元数据），可以被<a href="/notes/1772088520-YWRS">反射</a>提供的API获取并使用</p>
+<p>接口值可以保存具体类型的信息（编译期/链接期会把用到的类型描述符放进二进制），可以被<a href="/notes/1772088520-YWRS">反射</a>提供的API获取并使用</p>
 </blockquote>
+<p>类型元数据（如 <code>abi.Type</code>/<code>rtype</code>、方法表等）由编译器为程序中需要的类型生成，并由链接器保留到最终二进制中。
+运行时做的是：当具体值被装箱成接口值时，把<strong>指向这份类型元数据的指针</strong>和<strong>指向数据的指针</strong>一起放进接口值里。</p>
+<ul>
+<li>对 <code>interface{}</code> / <code>any</code>：接口值第一字就是具体类型的类型指针，第二字是数据指针。</li>
+<li>对非空接口：接口值第一字是 <code>itab</code> 指针，<code>itab</code> 关联“接口类型 + 具体类型”，其中也能到达具体类型元数据和方法入口；第二字是数据指针。</li>
+<li><code>reflect.TypeOf(x)</code> / <code>reflect.ValueOf(x)</code> 接收 <code>any</code>，调用前普通值会先转换成 <code>interface{}</code>：这一步只是把已有类型元数据指针装进接口值；<code>reflect</code> 再在运行时拆开接口值读取它，不会临时生成类型元数据。</li>
+</ul>
 <h2 id="%E8%BF%90%E8%A1%8C%E6%97%B6%E8%A1%A8%E7%A4%BA">运行时表示</h2>
 <p>接口值由<strong>两个字</strong>组成：</p>
 <pre><code>┌─────────────────┬─────────────────┐
