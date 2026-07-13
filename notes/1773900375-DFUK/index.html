@@ -1,75 +1,63 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>mysql</title><link rel="stylesheet" href="/_astro/global.CvXiHfEq.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><div class="relative mx-auto max-w-4xl"><main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="MySQL">MySQL</h1><div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"><div class="flex flex-wrap items-center gap-2"><span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">2024-04-29</span><span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">2026-07-13</span><a href="#backlinks" class="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20 hover:bg-blue-100 no-underline">1 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">CS</a><a href="/tags/INFRA" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">INFRA</a></div></div><p class="mt-[-1.25rem] text-lg text-slate-500">关系型数据库</p>
 <ul>
-<li>S 业务系统需要保存和修改结构化当前状态</li>
+<li>S 业务系统需要保存和修改<code>结构化</code>当前状态</li>
 <li>C 状态管理会遇到并发、故障、复杂查询、数据增长、一致性冲突</li>
 <li>Q 如何让业务状态可查询、可修改、可约束、可恢复、可并发？</li>
 <li>A 用<code>关系表 + SQL + 索引 + 事务 + 日志 + 复制</code></li>
 </ul>
-<h2 id="1%E3%80%81%E5%85%B3%E7%B3%BB%E8%A1%A8%20%2B%20SQL%20%E2%80%94%E2%80%94%20%E6%95%B0%E6%8D%AE%E6%80%8E%E4%B9%88%E7%BB%84%E7%BB%87%E5%92%8C%E6%9F%A5%E8%AF%A2">1、关系表 + SQL —— 数据怎么组织和查询</h2>
+<h2 id="%E6%95%B0%E6%8D%AE%E6%80%8E%E4%B9%88%E7%BB%84%E7%BB%87%E5%92%8C%E6%9F%A5%E8%AF%A2">数据怎么组织和查询</h2>
+<blockquote>
+<p>关系表 + SQL</p>
+</blockquote>
 <h3 id="1.%20SQL%20%E6%89%A7%E8%A1%8C%E6%B5%81%E6%B0%B4%E7%BA%BF">1. SQL 执行流水线</h3>
 <ul>
-<li>连接器 → 分析器 → 优化器 → 执行器 → 存储引擎（InnoDB）</li>
-<li><strong>连接器</strong>：你是谁？有什么权限？<strong>分析器</strong>：SQL 合不合法？<strong>优化器</strong>：怎么执行最快？<strong>执行器</strong>：按计划调引擎接口</li>
-<li>存储引擎是插件式的，默认且最重要的是 <code>InnoDB</code></li>
+<li>连接器 → 分析器 → 优化器 → 执行器 → 存储引擎（InnoDB）
+<ul>
+<li><strong>连接器</strong>：你是谁？有什么权限？</li>
+<li><strong>分析器</strong>：SQL 合不合法？</li>
+<li><strong>优化器</strong>：怎么执行最快？得到执行计划</li>
+<li><strong>执行器</strong>：按计划调引擎接口</li>
+<li><strong>存储引擎</strong>是插件式的，默认且最重要的是 <code>InnoDB</code></li>
+</ul>
+</li>
 </ul>
 <h3 id="2.%20%E5%AD%98%E5%82%A8%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%94%BE%E5%9C%A8%E5%93%AA%EF%BC%9F">2. 存储：数据放在哪？</h3>
 <ul>
-<li>按 <code>表空间 → 段 → 区 → 页 → 行</code> 的层级组织。<strong>页</strong>（默认 16KB）是磁盘与内存交互的基本单位</li>
-<li>MySQL 不是一行一行读磁盘的，而是<strong>一页一页</strong>读的；性能核心指标是<strong>读了多少页</strong>，而非多少行</li>
-<li>InnoDB 在内存中维护 <strong>Buffer Pool</strong> 缓存热点页，避免每次都访问磁盘</li>
+<li>按 <code>表空间 → 段 → 区 → 页 → 行</code> 的层级组织。
+<ul>
+<li><strong>页</strong>（默认 16KB）是磁盘与内存交互的基本单位</li>
 </ul>
-<h4 id="2.1%20%E5%86%85%E5%AD%98%E7%BB%93%E6%9E%84">2.1 内存结构</h4>
-<table>
-<thead>
-<tr>
-<th>结构</th>
-<th>作用</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Buffer Pool</td>
-<td>缓存数据页，减少磁盘 IO</td>
-</tr>
-<tr>
-<td>Change Buffer</td>
-<td>缓存二级索引变更，减少随机写</td>
-</tr>
-<tr>
-<td>Adaptive Hash Index</td>
-<td>对热点访问做自适应哈希加速</td>
-</tr>
-<tr>
-<td>Log Buffer</td>
-<td>缓存 redo log</td>
-</tr>
-</tbody>
-</table>
-<h4 id="2.2%20%E7%A3%81%E7%9B%98%E7%BB%93%E6%9E%84">2.2 磁盘结构</h4>
+</li>
+<li>MySQL 不是一行一行读磁盘的，而是<strong>一页一页</strong>读的；性能核心指标是<strong>读了多少页</strong>，而非多少行</li>
+<li>InnoDB 在内存中维护 <strong>Buffer Pool</strong> 缓存热点页，避免每次都访问磁盘（缓存数据页，减少磁盘 IO）</li>
+</ul>
+<h4 id="2.1%20%E7%A3%81%E7%9B%98%E7%BB%93%E6%9E%84">2.1 磁盘结构</h4>
 <ul>
 <li>系统表空间、独立表空间 <code>*.ibd</code>、undo 表空间、redo log 文件、临时表空间</li>
 <li><strong>双写缓冲</strong>（doublewrite）：先把页写到双写区域再写到真正位置，避免写一半宕机导致页损坏</li>
 </ul>
-<h4 id="2.3%20%E9%A1%B5%E5%86%85%E9%83%A8%E7%BB%93%E6%9E%84">2.3 页内部结构</h4>
+<h4 id="2.2%20%E9%A1%B5%E5%86%85%E9%83%A8%E7%BB%93%E6%9E%84">2.2 页内部结构</h4>
 <ul>
 <li>文件头/尾（页类型、校验、前后页指针）→ 页头（槽数、记录数、空闲空间）→ 用户记录（数据行，链表串联）→ 页目录（分组建槽，二分查找）</li>
 <li>页满了要分裂 → 随机主键频繁触发页分裂；页内链表 → 插入删除不需要移动数据</li>
 </ul>
-<h4 id="2.4%20%E8%A1%8C%E6%A0%BC%E5%BC%8F">2.4 行格式</h4>
+<h4 id="2.3%20%E8%A1%8C%E6%A0%BC%E5%BC%8F">2.3 行格式</h4>
 <ul>
 <li>常见格式：<code>Compact</code>、<code>Redundant</code>、<code>Dynamic</code>（默认）、<code>Compressed</code></li>
 <li>每行除用户列外有三个隐藏列：<code>DB_ROW_ID</code>（无主键时自动生成）、<code>DB_TRX_ID</code>（事务 ID，MVCC 用）、<code>DB_ROLL_PTR</code>（指向 undo log，回滚 + MVCC 用）</li>
 <li><strong>行溢出</strong>：<code>TEXT/BLOB/大 VARCHAR</code> 超过页大小时，行内保留部分数据 + 指向溢出页的指针</li>
 </ul>
-<hr>
-<h2 id="2%E3%80%81%E7%B4%A2%E5%BC%95%20%E2%80%94%E2%80%94%20%E6%9F%A5%E8%AF%A2%E6%80%8E%E4%B9%88%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D">2、索引 —— 查询怎么快速定位</h2>
+<h2 id="%E6%9F%A5%E8%AF%A2%E6%80%8E%E4%B9%88%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D">查询怎么快速定位</h2>
+<blockquote>
+<p>索引</p>
+</blockquote>
 <h3 id="1.%20%E7%B4%A2%E5%BC%95%EF%BC%9A%E6%80%8E%E4%B9%88%E5%BF%AB%E9%80%9F%E6%89%BE%E5%88%B0%E6%95%B0%E6%8D%AE%EF%BC%9F">1. 索引：怎么快速找到数据？</h3>
 <ul>
 <li><strong>B+ 树索引</strong>：扇出大、树矮（通常 2~4 层）、叶子串链表支持范围查询。哈希只能等值查询不支持范围；二叉树类树太高 IO 多</li>
 <li><strong>聚簇索引</strong>：叶子存整行数据，通常就是主键索引，一张表只有一个</li>
 <li><strong>二级索引</strong>：叶子存索引列 + 主键值，查整行要<strong>回表</strong>到聚簇索引再查一次</li>
 </ul>
-<h4 id="1.1%20%E7%B4%A2%E5%BC%95%E4%BD%BF%E7%94%A8%E5%8E%9F%E5%88%99">1.1 索引使用原则</h4>
+<p><strong>索引使用原则</strong></p>
 <ul>
 <li><strong>最左前缀</strong>：联合索引 <code>(a, b, c)</code> 只能按 a → ab → abc 的顺序利用；遇到范围查询后后续列通常难继续充分利用</li>
 <li><strong>覆盖索引</strong>优于回表；联合索引通常优于多个单列索引的 index merge</li>
@@ -81,7 +69,7 @@
 <li>"用了索引"不等于快——回表太多可能还不如全表扫描；统计信息不准时执行计划可能变差</li>
 <li>排查慢 SQL 第一步：<code>EXPLAIN</code> 看执行计划</li>
 </ul>
-<h4 id="2.1%20%E5%8D%95%E8%A1%A8%E8%AE%BF%E9%97%AE%E6%96%B9%E5%BC%8F%EF%BC%88%E4%BB%8E%E5%A5%BD%E5%88%B0%E5%9D%8F%EF%BC%89">2.1 单表访问方式（从好到坏）</h4>
+<p><strong>单表访问方式（从好到坏）</strong>：</p>
 <table>
 <thead>
 <tr>
@@ -112,19 +100,25 @@
 </tr>
 </tbody>
 </table>
-<h4 id="2.2%20%E5%A4%9A%E8%A1%A8%E8%BF%9E%E6%8E%A5">2.2 多表连接</h4>
+<p><strong>多表连接</strong>：</p>
 <ul>
-<li>选一个<strong>驱动表</strong>，用驱动表结果去匹配<strong>被驱动表</strong>；优化关键：驱动表尽量小、被驱动表有索引、连接顺序由优化器按成本选择</li>
+<li>选一个<strong>驱动表</strong>，用驱动表结果去匹配<strong>被驱动表</strong>；
+<ul>
+<li>优化关键：驱动表尽量小、被驱动表有索引、连接顺序由优化器按成本选择</li>
 </ul>
-<hr>
-<h2 id="3%E3%80%81%E4%BA%8B%E5%8A%A1%20%E2%80%94%E2%80%94%20%E5%B9%B6%E5%8F%91%E8%AF%BB%E5%86%99%E6%80%8E%E4%B9%88%E4%BF%9D%E8%AF%81%E6%AD%A3%E7%A1%AE">3、事务 —— 并发读写怎么保证正确</h2>
+</li>
+</ul>
+<h2 id="%E5%B9%B6%E5%8F%91%E8%AF%BB%E5%86%99%E6%80%8E%E4%B9%88%E4%BF%9D%E8%AF%81%E6%AD%A3%E7%A1%AE">并发读写怎么保证正确</h2>
+<blockquote>
+<p>事务</p>
+</blockquote>
 <h3 id="1.%20%E4%BA%8B%E5%8A%A1%EF%BC%9A%E5%A4%9A%E4%BA%BA%E5%90%8C%E6%97%B6%E8%AF%BB%E5%86%99%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F">1. 事务：多人同时读写怎么办？</h3>
 <ul>
 <li><strong>ACID</strong>：原子（全做或全不做）、一致（数据始终合法）、隔离（事务互不干扰）、持久（提交不丢失）</li>
 <li>隔离级别从松到严：<code>Read Uncommitted → Read Committed → Repeatable Read → Serializable</code>。InnoDB 默认 <code>Repeatable Read</code></li>
 <li><strong>MVCC</strong>：每行数据保留多个版本，普通 SELECT 读"某个时间点可见的版本"而非当前最新物理值，读不需要加锁，读写不互斥</li>
 </ul>
-<h4 id="1.1%20%E7%89%88%E6%9C%AC%E9%93%BE%E4%B8%8E%20Read%20View">1.1 版本链与 Read View</h4>
+<p><strong>版本链与 Read View</strong></p>
 <ul>
 <li>每行的 <code>DB_TRX_ID</code> 记录最近修改的事务 ID，<code>DB_ROLL_PTR</code> 指向 undo log 旧版本，多次修改形成<strong>版本链</strong></li>
 <li>事务做一致性读时生成 <strong>Read View</strong>（当前活跃事务 ID 列表、最小活跃事务 ID、下一个待分配事务 ID），沿版本链找第一个可见版本返回</li>
@@ -135,12 +129,12 @@
 <li>锁是分层的：全局锁 > 表级锁 > <strong>行级锁</strong>（最常接触）；行锁不是按物理行号加锁，而是<strong>锁索引记录</strong></li>
 <li>间隙锁锁住两条记录之间的"空隙"，防止别人插入新行（防幻读）；死锁是常见现象，InnoDB 会检测并回滚一个事务</li>
 </ul>
-<h4 id="2.1%20%E8%A1%A8%E7%BA%A7%E9%94%81">2.1 表级锁</h4>
+<p><strong>表级锁</strong></p>
 <ul>
 <li><strong>MDL（元数据锁）</strong>：防止"查表"和"改表结构"互相冲突</li>
 <li><strong>意向锁</strong>：加行锁前先加意向锁，告诉系统"表中某些行将被锁"</li>
 </ul>
-<h4 id="2.2%20%E8%A1%8C%E7%BA%A7%E9%94%81%E7%B1%BB%E5%9E%8B">2.2 行级锁类型</h4>
+<p><strong>行级锁类型</strong></p>
 <table>
 <thead>
 <tr>
@@ -178,8 +172,10 @@
 </tbody>
 </table>
 <p><code>Next-Key Lock = Record Lock + Gap Lock</code>，是 RR 下<strong>部分解决幻读</strong>的关键。降低死锁概率：固定访问顺序、走索引缩小锁范围、最易冲突操作放事务最后。</p>
-<hr>
-<h2 id="4%E3%80%81%E6%97%A5%E5%BF%97%20%E2%80%94%E2%80%94%20%E6%95%85%E9%9A%9C%E5%90%8E%E6%95%B0%E6%8D%AE%E6%80%8E%E4%B9%88%E6%81%A2%E5%A4%8D">4、日志 —— 故障后数据怎么恢复</h2>
+<h2 id="%E6%95%85%E9%9A%9C%E5%90%8E%E6%95%B0%E6%8D%AE%E6%80%8E%E4%B9%88%E6%81%A2%E5%A4%8D">故障后数据怎么恢复</h2>
+<blockquote>
+<p>日志</p>
+</blockquote>
 <table>
 <thead>
 <tr>
@@ -211,6 +207,7 @@
 <li><strong>undo log</strong>：记录修改前的旧值，用于回滚和构造 MVCC 版本链。删除通常先打 <code>delete mark</code>，由 purge 线程异步清理</li>
 <li><strong>binlog</strong>：逻辑日志，记录"这条语句/这个事务做了什么"，用于主从复制、数据归档、时间点恢复</li>
 </ul>
+<p>内存 Log Buffer：缓存 redo log</p>
 <h4 id="%E4%B8%A4%E9%98%B6%E6%AE%B5%E6%8F%90%E4%BA%A4">两阶段提交</h4>
 <p>redo log 和 binlog 分属不同层，只写一个没写另一个主从数据就不一致。两阶段提交保证一致：</p>
 <pre><code>1. redo log 写入 prepare
@@ -218,8 +215,10 @@
 3. redo log 标记 commit
 </code></pre>
 <p>崩溃恢复判断：redo prepare + binlog 完整 → 提交；否则 → 回滚。</p>
-<hr>
-<h2 id="5%E3%80%81Schema%20%E8%AE%BE%E8%AE%A1%20%E2%80%94%E2%80%94%20%E8%A1%A8%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1%E4%B8%8D%E5%9F%8B%E5%9D%91">5、Schema 设计 —— 表怎么设计不埋坑</h2>
+<h2 id="%E8%A1%A8%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1%E4%B8%8D%E5%9F%8B%E5%9D%91">表怎么设计不埋坑</h2>
+<blockquote>
+<p>Schema 设计</p>
+</blockquote>
 <h3 id="1.%20%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E9%80%89%E6%8B%A9">1. 数据类型选择</h3>
 <p>够用的前提下，<strong>越小越好、越简单越好、避免 NULL</strong>。</p>
 <table>
@@ -300,7 +299,7 @@
 </tr>
 </tbody>
 </table>
-<h3 id="4.%20Online%20DDL">4. Online DDL</h3>
+<h3 id="4.%20Online%20DDL%EF%BC%88%E6%95%B0%E6%8D%AE%E5%AE%9A%E4%B9%89%E9%A2%84%E8%A7%88%EF%BC%89">4. Online DDL（数据定义预览）</h3>
 <table>
 <thead>
 <tr>
@@ -328,8 +327,10 @@
 </tbody>
 </table>
 <p>大表变更建议：优先 <code>INSTANT</code>；不支持则用 <code>gh-ost</code>（基于 binlog 的无触发器方案）。</p>
-<hr>
-<h2 id="6%E3%80%81%E5%A4%8D%E5%88%B6%20%E2%80%94%E2%80%94%20%E5%8D%95%E7%82%B9%E6%95%85%E9%9A%9C%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%A2%9E%E9%95%BF%E6%80%8E%E4%B9%88%E7%A0%B4">6、复制 —— 单点故障与数据增长怎么破</h2>
+<h2 id="%E5%8D%95%E7%82%B9%E6%95%85%E9%9A%9C%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%A2%9E%E9%95%BF%E6%80%8E%E4%B9%88%E7%A0%B4">单点故障与数据增长怎么破</h2>
+<blockquote>
+<p>复制</p>
+</blockquote>
 <h3 id="1.%20%E5%A4%8D%E5%88%B6">1. 复制</h3>
 <p>主库写 binlog，从库拉取并重放。</p>
 <table>
@@ -372,7 +373,6 @@
 </ul>
 <h3 id="3.%20%E7%9B%91%E6%8E%A7%E4%B8%8E%E6%8E%92%E6%9F%A5">3. 监控与排查</h3>
 <p>关键指标：QPS/TPS、慢查询数、线程连接数、Buffer Pool 命中率（&#x3C; 99% 需关注）、复制延迟（<code>Seconds_Behind_Master</code> > 1s 需排查）。慢查询排查流程和 EXPLAIN 字段见 @CS_CLI++mysql.md。</p>
-<hr>
 <h2 id="links">links</h2>
 <ol>
 <li><a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-storage-engine.html">https://dev.mysql.com/doc/refman/5.7/en/innodb-storage-engine.html</a></li>
@@ -382,4 +382,4 @@
 <li><a href="https://dev.mysql.com/doc/refman/5.7/en/innodb-undo-logs.html">https://dev.mysql.com/doc/refman/5.7/en/innodb-undo-logs.html</a></li>
 <li><a href="https://tech.meituan.com/2014/06/30/mysql-index.html">https://tech.meituan.com/2014/06/30/mysql-index.html</a></li>
 </ol></article><aside id="backlinks" class="mt-12 border-t border-slate-200 pt-8"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">被 1 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1777278000-HDCC" class="text-blue-600 underline-offset-4 hover:underline">后端存储实战课</a></li></ul></aside><section id="comments" class="mt-12 border-t border-slate-200 pt-8"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">评论</h2><script src="https://giscus.app/client.js" data-repo="gh-liu/gh-liu.github.io" data-repo-id="R_kgDOKwsMLg" data-category="General" data-category-id="DIC_kwDOKwsMLs4DAjRD" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="zh-CN" crossorigin="anonymous" async>
-  </script></section></main><aside class="fixed left-[calc(50%+28rem)] top-8 hidden w-40 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="MySQL" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#MySQL">MySQL</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">MySQL</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="1%E3%80%81%E5%85%B3%E7%B3%BB%E8%A1%A8%20%2B%20SQL%20%E2%80%94%E2%80%94%20%E6%95%B0%E6%8D%AE%E6%80%8E%E4%B9%88%E7%BB%84%E7%BB%87%E5%92%8C%E6%9F%A5%E8%AF%A2" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#1%E3%80%81%E5%85%B3%E7%B3%BB%E8%A1%A8%20%2B%20SQL%20%E2%80%94%E2%80%94%20%E6%95%B0%E6%8D%AE%E6%80%8E%E4%B9%88%E7%BB%84%E7%BB%87%E5%92%8C%E6%9F%A5%E8%AF%A2">1、关系表 + SQL —— 数据怎么组织和查询</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">1、关系表 + SQL —— 数据怎么组织和查询</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20SQL%20%E6%89%A7%E8%A1%8C%E6%B5%81%E6%B0%B4%E7%BA%BF" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#1.%20SQL%20%E6%89%A7%E8%A1%8C%E6%B5%81%E6%B0%B4%E7%BA%BF">1. SQL 执行流水线</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">1. SQL 执行流水线</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E5%AD%98%E5%82%A8%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%94%BE%E5%9C%A8%E5%93%AA%EF%BC%9F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#2.%20%E5%AD%98%E5%82%A8%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%94%BE%E5%9C%A8%E5%93%AA%EF%BC%9F">2. 存储：数据放在哪？</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">2. 存储：数据放在哪？</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="2%E3%80%81%E7%B4%A2%E5%BC%95%20%E2%80%94%E2%80%94%20%E6%9F%A5%E8%AF%A2%E6%80%8E%E4%B9%88%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#2%E3%80%81%E7%B4%A2%E5%BC%95%20%E2%80%94%E2%80%94%20%E6%9F%A5%E8%AF%A2%E6%80%8E%E4%B9%88%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D">2、索引 —— 查询怎么快速定位</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">2、索引 —— 查询怎么快速定位</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20%E7%B4%A2%E5%BC%95%EF%BC%9A%E6%80%8E%E4%B9%88%E5%BF%AB%E9%80%9F%E6%89%BE%E5%88%B0%E6%95%B0%E6%8D%AE%EF%BC%9F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#1.%20%E7%B4%A2%E5%BC%95%EF%BC%9A%E6%80%8E%E4%B9%88%E5%BF%AB%E9%80%9F%E6%89%BE%E5%88%B0%E6%95%B0%E6%8D%AE%EF%BC%9F">1. 索引：怎么快速找到数据？</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">1. 索引：怎么快速找到数据？</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E4%BC%98%E5%8C%96%E5%99%A8%EF%BC%9A%E6%9C%89%E5%A4%9A%E6%9D%A1%E8%B7%AF%E6%97%B6%E8%B5%B0%E5%93%AA%E6%9D%A1%EF%BC%9F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#2.%20%E4%BC%98%E5%8C%96%E5%99%A8%EF%BC%9A%E6%9C%89%E5%A4%9A%E6%9D%A1%E8%B7%AF%E6%97%B6%E8%B5%B0%E5%93%AA%E6%9D%A1%EF%BC%9F">2. 优化器：有多条路时走哪条？</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">2. 优化器：有多条路时走哪条？</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="3%E3%80%81%E4%BA%8B%E5%8A%A1%20%E2%80%94%E2%80%94%20%E5%B9%B6%E5%8F%91%E8%AF%BB%E5%86%99%E6%80%8E%E4%B9%88%E4%BF%9D%E8%AF%81%E6%AD%A3%E7%A1%AE" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#3%E3%80%81%E4%BA%8B%E5%8A%A1%20%E2%80%94%E2%80%94%20%E5%B9%B6%E5%8F%91%E8%AF%BB%E5%86%99%E6%80%8E%E4%B9%88%E4%BF%9D%E8%AF%81%E6%AD%A3%E7%A1%AE">3、事务 —— 并发读写怎么保证正确</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">3、事务 —— 并发读写怎么保证正确</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20%E4%BA%8B%E5%8A%A1%EF%BC%9A%E5%A4%9A%E4%BA%BA%E5%90%8C%E6%97%B6%E8%AF%BB%E5%86%99%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#1.%20%E4%BA%8B%E5%8A%A1%EF%BC%9A%E5%A4%9A%E4%BA%BA%E5%90%8C%E6%97%B6%E8%AF%BB%E5%86%99%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F">1. 事务：多人同时读写怎么办？</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">1. 事务：多人同时读写怎么办？</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E9%94%81%EF%BC%9A%E5%86%99%E5%86%B2%E7%AA%81%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%EF%BC%9F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#2.%20%E9%94%81%EF%BC%9A%E5%86%99%E5%86%B2%E7%AA%81%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%EF%BC%9F">2. 锁：写冲突怎么解决？</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">2. 锁：写冲突怎么解决？</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="4%E3%80%81%E6%97%A5%E5%BF%97%20%E2%80%94%E2%80%94%20%E6%95%85%E9%9A%9C%E5%90%8E%E6%95%B0%E6%8D%AE%E6%80%8E%E4%B9%88%E6%81%A2%E5%A4%8D" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#4%E3%80%81%E6%97%A5%E5%BF%97%20%E2%80%94%E2%80%94%20%E6%95%85%E9%9A%9C%E5%90%8E%E6%95%B0%E6%8D%AE%E6%80%8E%E4%B9%88%E6%81%A2%E5%A4%8D">4、日志 —— 故障后数据怎么恢复</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">4、日志 —— 故障后数据怎么恢复</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="5%E3%80%81Schema%20%E8%AE%BE%E8%AE%A1%20%E2%80%94%E2%80%94%20%E8%A1%A8%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1%E4%B8%8D%E5%9F%8B%E5%9D%91" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#5%E3%80%81Schema%20%E8%AE%BE%E8%AE%A1%20%E2%80%94%E2%80%94%20%E8%A1%A8%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1%E4%B8%8D%E5%9F%8B%E5%9D%91">5、Schema 设计 —— 表怎么设计不埋坑</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">5、Schema 设计 —— 表怎么设计不埋坑</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E9%80%89%E6%8B%A9" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#1.%20%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E9%80%89%E6%8B%A9">1. 数据类型选择</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">1. 数据类型选择</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E8%8C%83%E5%BC%8F%E4%B8%8E%E5%8F%8D%E8%8C%83%E5%BC%8F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#2.%20%E8%8C%83%E5%BC%8F%E4%B8%8E%E5%8F%8D%E8%8C%83%E5%BC%8F">2. 范式与反范式</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">2. 范式与反范式</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="3.%20%E4%B8%BB%E9%94%AE%E8%AE%BE%E8%AE%A1" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#3.%20%E4%B8%BB%E9%94%AE%E8%AE%BE%E8%AE%A1">3. 主键设计</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">3. 主键设计</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="4.%20Online%20DDL" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#4.%20Online%20DDL">4. Online DDL</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">4. Online DDL</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="6%E3%80%81%E5%A4%8D%E5%88%B6%20%E2%80%94%E2%80%94%20%E5%8D%95%E7%82%B9%E6%95%85%E9%9A%9C%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%A2%9E%E9%95%BF%E6%80%8E%E4%B9%88%E7%A0%B4" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#6%E3%80%81%E5%A4%8D%E5%88%B6%20%E2%80%94%E2%80%94%20%E5%8D%95%E7%82%B9%E6%95%85%E9%9A%9C%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%A2%9E%E9%95%BF%E6%80%8E%E4%B9%88%E7%A0%B4">6、复制 —— 单点故障与数据增长怎么破</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">6、复制 —— 单点故障与数据增长怎么破</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20%E5%A4%8D%E5%88%B6" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#1.%20%E5%A4%8D%E5%88%B6">1. 复制</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">1. 复制</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E4%B8%8E%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#2.%20%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E4%B8%8E%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8">2. 读写分离与分库分表</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">2. 读写分离与分库分表</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="3.%20%E7%9B%91%E6%8E%A7%E4%B8%8E%E6%8E%92%E6%9F%A5" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#3.%20%E7%9B%91%E6%8E%A7%E4%B8%8E%E6%8E%92%E6%9F%A5">3. 监控与排查</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">3. 监控与排查</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#links">links</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`text-blue-600`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});</script></div><script type="module">document.querySelectorAll(`.code-copy-button`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.dataset.code??``;await navigator.clipboard.writeText(t),e.textContent=`Copied`,window.setTimeout(()=>{e.textContent=`Copy`},1200)})});</script></body></html>
+  </script></section></main><aside class="fixed left-[calc(50%+28rem)] top-8 hidden w-40 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="MySQL" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#MySQL">MySQL</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">MySQL</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%95%B0%E6%8D%AE%E6%80%8E%E4%B9%88%E7%BB%84%E7%BB%87%E5%92%8C%E6%9F%A5%E8%AF%A2" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%95%B0%E6%8D%AE%E6%80%8E%E4%B9%88%E7%BB%84%E7%BB%87%E5%92%8C%E6%9F%A5%E8%AF%A2">数据怎么组织和查询</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">数据怎么组织和查询</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20SQL%20%E6%89%A7%E8%A1%8C%E6%B5%81%E6%B0%B4%E7%BA%BF" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#1.%20SQL%20%E6%89%A7%E8%A1%8C%E6%B5%81%E6%B0%B4%E7%BA%BF">1. SQL 执行流水线</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">1. SQL 执行流水线</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E5%AD%98%E5%82%A8%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%94%BE%E5%9C%A8%E5%93%AA%EF%BC%9F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#2.%20%E5%AD%98%E5%82%A8%EF%BC%9A%E6%95%B0%E6%8D%AE%E6%94%BE%E5%9C%A8%E5%93%AA%EF%BC%9F">2. 存储：数据放在哪？</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">2. 存储：数据放在哪？</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%9F%A5%E8%AF%A2%E6%80%8E%E4%B9%88%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%9F%A5%E8%AF%A2%E6%80%8E%E4%B9%88%E5%BF%AB%E9%80%9F%E5%AE%9A%E4%BD%8D">查询怎么快速定位</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">查询怎么快速定位</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20%E7%B4%A2%E5%BC%95%EF%BC%9A%E6%80%8E%E4%B9%88%E5%BF%AB%E9%80%9F%E6%89%BE%E5%88%B0%E6%95%B0%E6%8D%AE%EF%BC%9F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#1.%20%E7%B4%A2%E5%BC%95%EF%BC%9A%E6%80%8E%E4%B9%88%E5%BF%AB%E9%80%9F%E6%89%BE%E5%88%B0%E6%95%B0%E6%8D%AE%EF%BC%9F">1. 索引：怎么快速找到数据？</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">1. 索引：怎么快速找到数据？</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E4%BC%98%E5%8C%96%E5%99%A8%EF%BC%9A%E6%9C%89%E5%A4%9A%E6%9D%A1%E8%B7%AF%E6%97%B6%E8%B5%B0%E5%93%AA%E6%9D%A1%EF%BC%9F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#2.%20%E4%BC%98%E5%8C%96%E5%99%A8%EF%BC%9A%E6%9C%89%E5%A4%9A%E6%9D%A1%E8%B7%AF%E6%97%B6%E8%B5%B0%E5%93%AA%E6%9D%A1%EF%BC%9F">2. 优化器：有多条路时走哪条？</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">2. 优化器：有多条路时走哪条？</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%B9%B6%E5%8F%91%E8%AF%BB%E5%86%99%E6%80%8E%E4%B9%88%E4%BF%9D%E8%AF%81%E6%AD%A3%E7%A1%AE" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E5%B9%B6%E5%8F%91%E8%AF%BB%E5%86%99%E6%80%8E%E4%B9%88%E4%BF%9D%E8%AF%81%E6%AD%A3%E7%A1%AE">并发读写怎么保证正确</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">并发读写怎么保证正确</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20%E4%BA%8B%E5%8A%A1%EF%BC%9A%E5%A4%9A%E4%BA%BA%E5%90%8C%E6%97%B6%E8%AF%BB%E5%86%99%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#1.%20%E4%BA%8B%E5%8A%A1%EF%BC%9A%E5%A4%9A%E4%BA%BA%E5%90%8C%E6%97%B6%E8%AF%BB%E5%86%99%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F">1. 事务：多人同时读写怎么办？</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">1. 事务：多人同时读写怎么办？</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E9%94%81%EF%BC%9A%E5%86%99%E5%86%B2%E7%AA%81%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%EF%BC%9F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#2.%20%E9%94%81%EF%BC%9A%E5%86%99%E5%86%B2%E7%AA%81%E6%80%8E%E4%B9%88%E8%A7%A3%E5%86%B3%EF%BC%9F">2. 锁：写冲突怎么解决？</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">2. 锁：写冲突怎么解决？</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%95%85%E9%9A%9C%E5%90%8E%E6%95%B0%E6%8D%AE%E6%80%8E%E4%B9%88%E6%81%A2%E5%A4%8D" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%95%85%E9%9A%9C%E5%90%8E%E6%95%B0%E6%8D%AE%E6%80%8E%E4%B9%88%E6%81%A2%E5%A4%8D">故障后数据怎么恢复</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">故障后数据怎么恢复</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E8%A1%A8%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1%E4%B8%8D%E5%9F%8B%E5%9D%91" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E8%A1%A8%E6%80%8E%E4%B9%88%E8%AE%BE%E8%AE%A1%E4%B8%8D%E5%9F%8B%E5%9D%91">表怎么设计不埋坑</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">表怎么设计不埋坑</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E9%80%89%E6%8B%A9" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#1.%20%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B%E9%80%89%E6%8B%A9">1. 数据类型选择</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">1. 数据类型选择</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E8%8C%83%E5%BC%8F%E4%B8%8E%E5%8F%8D%E8%8C%83%E5%BC%8F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#2.%20%E8%8C%83%E5%BC%8F%E4%B8%8E%E5%8F%8D%E8%8C%83%E5%BC%8F">2. 范式与反范式</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">2. 范式与反范式</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="3.%20%E4%B8%BB%E9%94%AE%E8%AE%BE%E8%AE%A1" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#3.%20%E4%B8%BB%E9%94%AE%E8%AE%BE%E8%AE%A1">3. 主键设计</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">3. 主键设计</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="4.%20Online%20DDL%EF%BC%88%E6%95%B0%E6%8D%AE%E5%AE%9A%E4%B9%89%E9%A2%84%E8%A7%88%EF%BC%89" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#4.%20Online%20DDL%EF%BC%88%E6%95%B0%E6%8D%AE%E5%AE%9A%E4%B9%89%E9%A2%84%E8%A7%88%EF%BC%89">4. Online DDL（数据定义预览）</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">4. Online DDL（数据定义预览）</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%8D%95%E7%82%B9%E6%95%85%E9%9A%9C%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%A2%9E%E9%95%BF%E6%80%8E%E4%B9%88%E7%A0%B4" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E5%8D%95%E7%82%B9%E6%95%85%E9%9A%9C%E4%B8%8E%E6%95%B0%E6%8D%AE%E5%A2%9E%E9%95%BF%E6%80%8E%E4%B9%88%E7%A0%B4">单点故障与数据增长怎么破</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">单点故障与数据增长怎么破</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20%E5%A4%8D%E5%88%B6" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#1.%20%E5%A4%8D%E5%88%B6">1. 复制</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">1. 复制</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E4%B8%8E%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#2.%20%E8%AF%BB%E5%86%99%E5%88%86%E7%A6%BB%E4%B8%8E%E5%88%86%E5%BA%93%E5%88%86%E8%A1%A8">2. 读写分离与分库分表</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">2. 读写分离与分库分表</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="3.%20%E7%9B%91%E6%8E%A7%E4%B8%8E%E6%8E%92%E6%9F%A5" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#3.%20%E7%9B%91%E6%8E%A7%E4%B8%8E%E6%8E%92%E6%9F%A5">3. 监控与排查</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">3. 监控与排查</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#links">links</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`text-blue-600`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});</script></div><script type="module">document.querySelectorAll(`.code-copy-button`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.dataset.code??``;await navigator.clipboard.writeText(t),e.textContent=`Copied`,window.setTimeout(()=>{e.textContent=`Copy`},1200)})});</script></body></html>
