@@ -1,15 +1,68 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>如何设计一个数据系统</title><link rel="stylesheet" href="/_astro/global.fKoVbtIo.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><div class="relative mx-auto max-w-4xl"><main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E6%95%B0%E6%8D%AE%E7%B3%BB%E7%BB%9F">如何设计一个数据系统</h1><div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"><div class="flex flex-wrap items-center gap-2"><span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">2026-05-06</span><span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">2026-07-15</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">CS</a></div></div>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>如何设计一个数据系统</title><link rel="stylesheet" href="/_astro/global.DPP36ctb.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><div class="relative mx-auto max-w-4xl"><main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E4%B8%80%E4%B8%AA%E6%95%B0%E6%8D%AE%E7%B3%BB%E7%BB%9F">如何设计一个数据系统</h1><div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"><div class="flex flex-wrap items-center gap-2"><span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">2025-06-06</span><span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">2026-07-15</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">CS</a></div></div>
 <blockquote>
 <p>在给定 <strong>Workload</strong> 下，选择一组 <strong>数据模型 + 执行结构 + 分布式策略</strong>，在 <strong>正确性 / 性能 / 灵活性</strong> 之间做权衡，以逼近 <strong>可靠性 / 可扩展性 / 可维护性</strong> 的目标。</p>
 </blockquote>
 <p>整个框架的四个层次：</p>
-<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">diagram</span><button type="button" class="code-copy-button" data-code="╭────────────╮  约束  ╭────────────╮  驱动  ╭────────────╮  暴露  ╭─────────────────╮
-│  目标 Why  │ ──────▶│  Workload  │ ──────▶│  手段 How  │ ──────▶│  权衡 Tradeoff  │
-╰────────────╯        ╰────────────╯        ╰────────────╯        ╰─────────────────╯
- 可靠/扩展/维护          面对什么            模型+执行+分布         正确/性能/灵活">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="diagram" data-theme="nord"><code data-language="diagram" data-theme="nord" style="display: grid;"><span data-line=""><span>╭────────────╮  约束  ╭────────────╮  驱动  ╭────────────╮  暴露  ╭─────────────────╮</span></span>
-<span data-line=""><span>│  目标 Why  │ ──────▶│  Workload  │ ──────▶│  手段 How  │ ──────▶│  权衡 Tradeoff  │</span></span>
-<span data-line=""><span>╰────────────╯        ╰────────────╯        ╰────────────╯        ╰─────────────────╯</span></span>
-<span data-line=""><span> 可靠/扩展/维护          面对什么            模型+执行+分布         正确/性能/灵活</span></span></code></pre></figure>
+<svg class="mx-auto block h-auto max-w-full" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 386.48699999999997 576.5" width="386.48699999999997" height="576.5" style="--bg:#2e3440;--fg:#d8dee9;--line:#4c566a;--accent:#88c0d0;--muted:#616e88;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 85%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="5" refX="7" refY="2.5" orient="auto">
+    <polygon points="0 0, 8 2.5, 0 5" fill="var(--_arrow)" stroke="var(--_arrow)" stroke-width="0.75" stroke-linejoin="round" />
+  </marker>
+  <marker id="arrowhead-start" markerWidth="8" markerHeight="5" refX="1" refY="2.5" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.5, 8 5" fill="var(--_arrow)" stroke="var(--_arrow)" stroke-width="0.75" stroke-linejoin="round" />
+  </marker>
+</defs>
+<polyline class="edge" data-from="why" data-to="workload" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="约束" points="193.24349999999998,76.9 193.24349999999998,193.2" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="workload" data-to="how" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="驱动" points="193.24349999999998,230.10000000000002 193.24349999999998,346.40000000000003" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<polyline class="edge" data-from="how" data-to="tradeoff" data-style="solid" data-arrow-start="false" data-arrow-end="true" data-label="暴露" points="193.24349999999998,383.3 193.24349999999998,499.6000000000001" fill="none" stroke="var(--_line)" stroke-width="1" marker-end="url(#arrowhead)" />
+<g class="edge-label" data-from="why" data-to="workload" data-label="约束">
+  <rect x="172.24349999999998" y="119.9" width="41.41" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="192.94849999999997" y="135.05" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">约束</text>
+</g>
+<g class="edge-label" data-from="workload" data-to="how" data-label="驱动">
+  <rect x="172.24349999999998" y="273.1" width="41.41" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="192.94849999999997" y="288.25" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">驱动</text>
+</g>
+<g class="edge-label" data-from="how" data-to="tradeoff" data-label="暴露">
+  <rect x="172.24349999999998" y="426.30000000000007" width="41.41" height="30.3" rx="2" ry="2" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="1" />
+  <text x="192.94849999999997" y="441.45000000000005" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-sec)" dy="3.8499999999999996">暴露</text>
+</g>
+<g class="node" data-id="why" data-label="目标 Why(可靠/扩展/维护)" data-shape="rectangle">
+  <rect x="91.49949999999998" y="40" width="203.488" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="193.24349999999998" y="58.45" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">目标 Why(可靠/扩展/维护)</text>
+</g>
+<g class="node" data-id="workload" data-label="工作负载 Workload(面对什么)" data-shape="rectangle">
+  <rect x="79.6435" y="193.2" width="227.19999999999996" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="193.24349999999998" y="211.64999999999998" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">工作负载 Workload(面对什么)</text>
+</g>
+<g class="node" data-id="how" data-label="手段 How(数据模型/执行路径/分布式策略)" data-shape="rectangle">
+  <rect x="40" y="346.40000000000003" width="306.48699999999997" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="193.24349999999998" y="364.85" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">手段 How(数据模型/执行路径/分布式策略)</text>
+</g>
+<g class="node" data-id="tradeoff" data-label="权衡 Tradeoff(正确/性能/灵活)" data-shape="rectangle">
+  <rect x="79.273" y="499.6000000000001" width="227.94099999999997" height="36.900000000000006" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+  <text x="193.24349999999998" y="518.0500000000001" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)" dy="4.55">权衡 Tradeoff(正确/性能/灵活)</text>
+</g>
+</svg>
 <ul>
 <li><strong>目标</strong>（Why）= 可靠性 / 可扩展性 / 可维护性</li>
 <li><strong>Workload</strong>（What kind）= 读写形态 / 数据分布 / 体量 / SLO / 容忍度</li>
@@ -77,23 +130,12 @@
 </table>
 <h2 id="%E5%9B%9B%E5%B1%82%E6%89%8B%E6%AE%B5%EF%BC%88%E6%80%8E%E4%B9%88%E5%81%9A%EF%BC%89">四层手段（怎么做）</h2>
 <p>把手段堆成列表会丢掉"谁服务于谁"，按<strong>职责分层</strong>才能看清依赖关系：上层定义"做什么"，下层支撑"怎么做到"。</p>
-<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">diagram</span><button type="button" class="code-copy-button" data-code="╭─────────────────────────────────────────────╮
-│ ① 抽象层  数据模型 + 查询语言               │  → 决定&#x22;怎么用&#x22;
-├─────────────────────────────────────────────┤
-│ ② 执行层  存储结构 + 索引 / 访问路径        │  → 决定&#x22;多快&#x22;
-├─────────────────────────────────────────────┤
-│ ③ 分布层  复制 + 分区                       │  → 决定&#x22;多大 &#x26; 多稳&#x22;
-├─────────────────────────────────────────────┤
-│ ④ 演化层  编码格式 + schema 演进            │  → 决定&#x22;能不能活久&#x22;
-╰─────────────────────────────────────────────╯">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="diagram" data-theme="nord"><code data-language="diagram" data-theme="nord" style="display: grid;"><span data-line=""><span>╭─────────────────────────────────────────────╮</span></span>
-<span data-line=""><span>│ ① 抽象层  数据模型 + 查询语言               │  → 决定"怎么用"</span></span>
-<span data-line=""><span>├─────────────────────────────────────────────┤</span></span>
-<span data-line=""><span>│ ② 执行层  存储结构 + 索引 / 访问路径        │  → 决定"多快"</span></span>
-<span data-line=""><span>├─────────────────────────────────────────────┤</span></span>
-<span data-line=""><span>│ ③ 分布层  复制 + 分区                       │  → 决定"多大 &#x26; 多稳"</span></span>
-<span data-line=""><span>├─────────────────────────────────────────────┤</span></span>
-<span data-line=""><span>│ ④ 演化层  编码格式 + schema 演进            │  → 决定"能不能活久"</span></span>
-<span data-line=""><span>╰─────────────────────────────────────────────╯</span></span></code></pre></figure>
+<ol>
+<li>抽象层: 数据模型 + 查询语言         →  决定"怎么用"</li>
+<li>执行层: 存储结构 + 索引 / 访问路径  →  决定"多快"</li>
+<li>分布层: 复制 + 分区                 →  决定"多大 &#x26; 多稳"</li>
+<li>演化层: 编码格式 + schema 演进      →  决定"能不能活久"</li>
+</ol>
 <h3 id="1.%20%E6%8A%BD%E8%B1%A1%E5%B1%82%EF%BC%88%E5%AF%B9%E7%94%A8%E6%88%B7%E6%9A%B4%E9%9C%B2%EF%BC%89%E2%80%94%E2%80%94%20%E5%86%B3%E5%AE%9A%22%E6%80%8E%E4%B9%88%E7%94%A8%22">1. 抽象层（对用户暴露）—— 决定"怎么用"</h3>
 <ul>
 <li><strong>数据模型</strong>：关系 / 文档 / 图 / KV / 列族 / 时序。</li>
