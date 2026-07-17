@@ -1,8 +1,92 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: Garbage Collection 垃圾回收</title><link rel="stylesheet" href="/_astro/global.DPP36ctb.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><div class="relative mx-auto max-w-4xl"><main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"><div class="flex flex-wrap items-center gap-2"><span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">2026-02-10</span><span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">2026-03-24</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">CS</a><a href="/tags/GO" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">GO</a></div></div><h2 id="Step%201%3A%20%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%20GC">Step 1: 为什么需要 GC</h2>
-<p>Go 程序运行时，通过逃逸分析决定对象分配在栈还是堆上。栈上的对象随函数返回自动回收，但堆上的对象生命周期不确定——当没有任何引用指向它时，它就成了垃圾，需要被回收。这就是 GC 的职责。</p>
-<p><strong>Per-P allocation</strong>: Memory allocated through size-isolated regions in each P, minimizing lock contention and fragmentation</p>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: 内存回收 Garbage Collection</title><link rel="stylesheet" href="/_astro/global.DPP36ctb.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><div class="relative mx-auto max-w-4xl"><main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Go%3A%20%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6%20Garbage%20Collection">Go: 内存回收 Garbage Collection</h1><div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"><div class="flex flex-wrap items-center gap-2"><span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">2026-02-10</span><span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">2026-07-17</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">CS</a><a href="/tags/GO" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">GO</a></div></div><p class="mt-[-1.25rem] text-lg text-slate-500">内存回收</p>
+<p>Go 程序运行时，通过逃逸分析决定对象分配在栈还是堆上。栈上的对象随函数返回自动回收，但堆上的对象生命周期不确定——当没有任何引用指向它时，它就成了垃圾，需要被GC回收。</p>
 <p>Go uses concurrent tri-color mark-and-sweep garbage collection with write barriers. The collector is non-generational and non-compacting.</p>
-<h2 id="Step%202%3A%20Mark-and-Sweep%20%E7%AE%97%E6%B3%95">Step 2: Mark-and-Sweep 算法</h2>
+<p><strong>Per-P allocation</strong>: Memory allocated through size-isolated regions in each P, minimizing lock contention and fragmentation</p>
+<h2 id="GC%20Cycle%20%E5%85%A8%E6%99%AF">GC Cycle 全景</h2>
+<p>一个完整的 GC cycle 分为四个阶段：</p>
+<pre class="mermaid mx-auto block h-auto max-w-full">sequenceDiagram
+    participant App as Mutator
+    participant GC as GC Controller
+    participant Heap as Heap/Span
+
+    GC->>App: Suspend all goroutines
+    Note over App,GC: Phase 1: Sweep Termination (STW)
+    GC->>Heap: Finish remaining unswept spans
+
+    Note over App,GC: Phase 2: Mark Setup (same STW)
+    GC->>GC: Set _GCmark and enable write barrier
+    GC->>GC: Enable assists and queue root jobs
+    GC-->>App: Resume
+
+    Note over App,GC: Phase 2: Concurrent Mark
+    par Mark workers
+        GC->>Heap: Scan roots
+        GC->>Heap: Trace gray objects
+        GC->>Heap: Blacken reachable objects
+    and Mutator execution
+        App->>Heap: Allocate black objects
+        App->>GC: Mutator assists marking
+        App->>GC: Write barrier shades old/new pointers
+    end
+
+    GC->>App: Stop The World
+    Note over App,GC: Phase 3: Mark Termination (STW)
+    GC->>GC: Set _GCmarktermination (barrier stays on)
+    GC->>GC: Disable workers and assists
+    GC->>Heap: Final mark and flush caches
+
+    Note over App,GC: Phase 4: Sweep Setup (same STW)
+    GC->>GC: Set _GCoff and disable write barrier
+    GC->>Heap: Initialize sweep state
+    GC-->>App: Resume
+
+    Note over App,GC: Phase 4: Concurrent Sweep
+    par Background sweep
+        GC->>Heap: Sweep dead spans
+        GC->>Heap: Lazy sweep on demand
+    and Application
+        App->>App: Continue execution
+    end
+</pre>
+<h3 id="Phase%201%3A%20Sweep%20Termination">Phase 1: Sweep Termination</h3>
+<ul>
+<li><strong>STW</strong>: All P's reach GC safe point</li>
+<li>Sweep any remaining unswept spans (only if GC was forced before expected time)</li>
+</ul>
+<h3 id="Phase%202%3A%20Mark%20Phase">Phase 2: Mark Phase</h3>
+<ul>
+<li><strong>STW Preparation</strong>: 与 Sweep Termination 共用同一次 STW；开启写屏障、启用 assist、入队根标记任务</li>
+<li><strong>Concurrent Marking</strong>: 扫描 roots、执行三色标记；新分配对象直接标黑，指针写入由写屏障处理</li>
+<li><strong>Termination Detection</strong>: gcMarkDone 检测所有灰色对象已处理完毕</li>
+</ul>
+<h3 id="Phase%203%3A%20Mark%20Termination">Phase 3: Mark Termination</h3>
+<ul>
+<li><strong>STW</strong>: All P's reach safe point</li>
+<li>Set gcphase to _GCmarktermination; write barrier remains enabled</li>
+<li>Disable workers and assists, then finish marking and housekeeping</li>
+</ul>
+<h3 id="Phase%204%3A%20Sweep%20Phase">Phase 4: Sweep Phase</h3>
+<ul>
+<li><strong>STW Preparation</strong>: 切换到 _GCoff、关闭写屏障并初始化 sweep state；与 Mark Termination 共用同一次 STW</li>
+<li><strong>Concurrent Sweeping</strong>: 后台清扫，并在分配路径上按需清扫 span</li>
+</ul>
+<h3 id="Next%20Cycle%20Trigger%20(GOGC)">Next Cycle Trigger (GOGC)</h3>
+<p>Triggered when allocated memory reaches a threshold relative to live memory:</p>
+<ul>
+<li>Controlled by GOGC environment variable (default 100)</li>
+<li>Example: If GOGC=100 and live heap is 4M, next GC triggers at 8M</li>
+</ul>
+<h3 id="Pacing%20Algorithm">Pacing Algorithm</h3>
+<p><strong>Goal</strong>: Keep heap size near target while minimizing pause time</p>
+<p><strong>Mechanism</strong>:</p>
+<ul>
+<li>Feedback loop: Gather info about running application</li>
+<li>Stress metric: How fast application allocates heap memory</li>
+<li>Before each collection: Estimate time to finish collection</li>
+<li>Adjust marking pace and assist requirements dynamically</li>
+</ul>
+<p><strong>Tuning</strong>: Controlled implicitly via GOGC and allocation patterns</p>
+<h2 id="Mark-and-Sweep%20%E7%AE%97%E6%B3%95">Mark-and-Sweep 算法</h2>
 <p>GC 的核心思路分两步：</p>
 <ol>
 <li><strong>标记（Mark）</strong>：从根对象出发，遍历所有可达对象，标记为"存活"</li>
@@ -10,31 +94,7 @@
 </ol>
 <p>最朴素的实现需要暂停整个程序（Stop-The-World），但 Go 追求低延迟，因此将大部分 GC 工作做成<strong>并发</strong>的——GC 线程与应用线程（mutator）同时运行。</p>
 <p>并发带来一个问题：在标记过程中，mutator 可能修改指针关系，导致存活对象被误判为垃圾。Go 通过**写屏障（Write Barrier）**解决这个问题。</p>
-<h3 id="Write%20Barrier%20%E5%86%99%E5%B1%8F%E9%9A%9C">Write Barrier 写屏障</h3>
-<p><strong>Purpose</strong>: Prevent black objects from pointing directly to white objects</p>
-<p><strong>Implementation</strong>:</p>
-<ul>
-<li>Inserted at compile time</li>
-<li>When pointer assignment occurs, write barrier records the store</li>
-<li>Marks/rescans affected objects as needed</li>
-</ul>
-<p><strong>Enables</strong> concurrent marking without additional STW pauses</p>
-<p>但写屏障的开启/关闭本身需要所有 P 处于一致状态，这就引出了 STW 和 safepoint。</p>
-<h3 id="STW%20%E4%B8%8E%20Safepoint">STW 与 Safepoint</h3>
-<p>虽然 Go GC 是并发的，但仍需要短暂的 STW 来保证一致性。STW 出现在两个关键时刻：</p>
-<ol>
-<li><strong>Mark 开始时</strong>：开启写屏障、启用 mutator assist、入队根标记任务。此时需要所有 P 处于一致状态</li>
-<li><strong>Mark 结束时</strong>：确认所有标记工作完成，关闭 worker 和 assist，执行清理（flush mcache 等）</li>
-</ol>
-<p>STW pauses are kept short — typically sub-millisecond. All P's must reach a GC safe point before STW can proceed.</p>
-<p><strong>Safepoint</strong>: 有配套 stack map / liveness 信息的可暂停点</p>
-<p><strong>编译期</strong>：编译器在特定位置（函数调用点、循环回边等）生成 <strong>stack map / liveness 信息</strong>，记录哪些寄存器/栈槽持有活跃指针。这些位置就是 safepoint。</p>
-<p><strong>运行时</strong>：当 GC 需要 STW 时，向所有 goroutine 发出抢占请求，每个 goroutine 运行到下一个 safepoint 时暂停。此时 runtime 可以用编译期生成的 stack map 精确扫描栈上的指针根。</p>
-<p>STW 的本质就是「等所有 P/goroutine 停在 safepoint 上」。没有 stack map 的位置不能暂停，否则 GC 无法区分栈上的整数和指针。</p>
-<blockquote>
-<p>Go 1.14+ 引入了<strong>异步抢占</strong>（signal-based preemption），即使没有函数调用的紧密循环也能被打断到 safepoint。</p>
-</blockquote>
-<h2 id="Step%203%3A%20%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0%EF%BC%88Tri-Color%20Marking%EF%BC%89%E2%80%94%E2%80%94%20%E4%BB%8E%E6%A0%B9%E5%AF%B9%E8%B1%A1%E5%BC%80%E5%A7%8B%E6%89%AB%E6%8F%8F">Step 3: 三色标记（Tri-Color Marking）—— 从根对象开始扫描</h2>
+<h3 id="%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0%EF%BC%88Tri-Color%20Marking%EF%BC%89%E2%80%94%E2%80%94%20%E4%BB%8E%E6%A0%B9%E5%AF%B9%E8%B1%A1%E5%BC%80%E5%A7%8B%E6%89%AB%E6%8F%8F">三色标记（Tri-Color Marking）—— 从根对象开始扫描</h3>
 <p>标记阶段使用三色抽象来追踪对象状态：</p>
 <p><strong>Colors</strong>:</p>
 <ul>
@@ -50,6 +110,9 @@
 <li>Repeat until no gray objects remain</li>
 <li>All remaining white objects are garbage</li>
 </ol>
+<blockquote>
+<p>本质上是一次对“堆对象为节点、指针为边”的图进行的“洪泛式”遍历（graph flood），但这种遍历完全没有考虑被处理对象在内存中的物理位置。结果是标记阶段的空间局部性和时间局部性都很差——测算显示，垃圾回收器平均有约 85% 的时间花在核心的“扫描循环”上，而这一循环中又有超过 35% 的 CPU 周期仅仅耗费在等待内存访问上。</p>
+</blockquote>
 <h3 id="%E5%B9%B6%E5%8F%91%E6%A0%87%E8%AE%B0%E7%9A%84%E7%BB%86%E8%8A%82">并发标记的细节</h3>
 <p>标记分为 STW 准备和并发执行两部分：</p>
 <p><strong>Preparation</strong> (STW):</p>
@@ -88,7 +151,7 @@
 <li>Assist work includes marking and sweeping</li>
 <li>Amount of assist per allocation determined by pacing algorithm</li>
 </ul>
-<h2 id="Step%204%3A%20%E6%B8%85%E9%99%A4%EF%BC%88Sweep%EF%BC%89">Step 4: 清除（Sweep）</h2>
+<h3 id="Step%204%3A%20%E6%B8%85%E9%99%A4%EF%BC%88Sweep%EF%BC%89">Step 4: 清除（Sweep）</h3>
 <p>标记完成后，所有 white 对象都是垃圾。清除阶段回收这些对象的内存。</p>
 <p><strong>Preparation</strong>:</p>
 <ul>
@@ -123,52 +186,30 @@
 <li>At next GC start, any remaining unswept spans are forcefully swept</li>
 </ul>
 <p><strong>Critical invariant</strong>: No operations on unswept spans (would corrupt GC bitmap)</p>
-<h2 id="Step%205%3A%20GC%20Cycle%20%E5%85%A8%E6%99%AF">Step 5: GC Cycle 全景</h2>
-<p>一个完整的 GC cycle 分为四个阶段：</p>
-<pre><code>Phase 1          Phase 2                    Phase 3          Phase 4
-Sweep Term.      Mark Phase                 Mark Term.       Sweep Phase
-|── STW ──|── STW ──|── Concurrent ──|── STW ──|──── Concurrent ────|
-  清扫残留    开写屏障    三色标记并发执行  关写屏障       并发清除
-              入队根任务                    flush mcache    懒清扫 span
-</code></pre>
-<h3 id="Phase%201%3A%20Sweep%20Termination">Phase 1: Sweep Termination</h3>
+<h2 id="Write%20Barrier%20%E5%86%99%E5%B1%8F%E9%9A%9C">Write Barrier 写屏障</h2>
+<p><strong>Purpose</strong>: Prevent black objects from pointing directly to white objects</p>
+<p><strong>Implementation</strong>:</p>
 <ul>
-<li><strong>STW</strong>: All P's reach GC safe point</li>
-<li>Sweep any remaining unswept spans (only if GC was forced before expected time)</li>
+<li>Inserted at compile time</li>
+<li>When pointer assignment occurs, write barrier records the store</li>
+<li>Marks/rescans affected objects as needed</li>
 </ul>
-<h3 id="Phase%202%3A%20Mark%20Phase">Phase 2: Mark Phase</h3>
-<ul>
-<li><strong>STW Preparation</strong>: 开启写屏障、启用 assist、入队根标记任务</li>
-<li><strong>Concurrent Marking</strong>: 三色标记并发执行</li>
-<li><strong>Termination Detection</strong>: gcMarkDone 检测所有灰色对象已处理完毕</li>
-</ul>
-<h3 id="Phase%203%3A%20Mark%20Termination">Phase 3: Mark Termination</h3>
-<ul>
-<li><strong>STW</strong>: All P's reach safe point</li>
-<li>Set gcphase to _GCmarktermination</li>
-<li>Disable workers and assists</li>
-<li>Housekeeping (flush mcaches, etc.)</li>
-</ul>
-<h3 id="Phase%204%3A%20Sweep%20Phase">Phase 4: Sweep Phase</h3>
-<ul>
-<li><strong>Concurrent Sweeping</strong>: 懒清扫，按需回收 span</li>
-</ul>
-<h3 id="Next%20Cycle%20Trigger%20(GOGC)">Next Cycle Trigger (GOGC)</h3>
-<p>Triggered when allocated memory reaches a threshold relative to live memory:</p>
-<ul>
-<li>Controlled by GOGC environment variable (default 100)</li>
-<li>Example: If GOGC=100 and live heap is 4M, next GC triggers at 8M</li>
-</ul>
-<h3 id="Pacing%20Algorithm">Pacing Algorithm</h3>
-<p><strong>Goal</strong>: Keep heap size near target while minimizing pause time</p>
-<p><strong>Mechanism</strong>:</p>
-<ul>
-<li>Feedback loop: Gather info about running application</li>
-<li>Stress metric: How fast application allocates heap memory</li>
-<li>Before each collection: Estimate time to finish collection</li>
-<li>Adjust marking pace and assist requirements dynamically</li>
-</ul>
-<p><strong>Tuning</strong>: Controlled implicitly via GOGC and allocation patterns</p>
+<p><strong>Enables</strong> concurrent marking without additional STW pauses</p>
+<p>但写屏障的开启/关闭本身需要所有 P 处于一致状态，这就引出了 STW 和 safepoint。</p>
+<h2 id="STW%20%E4%B8%8E%20Safepoint">STW 与 Safepoint</h2>
+<p>虽然 Go GC 是并发的，但仍需要短暂的 STW 来保证一致性。STW 出现在两个关键时刻：</p>
+<ol>
+<li><strong>Mark 开始时</strong>：开启写屏障、启用 mutator assist、入队根标记任务。此时需要所有 P 处于一致状态</li>
+<li><strong>Mark 结束时</strong>：确认所有标记工作完成，关闭 worker 和 assist，执行清理（flush mcache 等）</li>
+</ol>
+<p>STW pauses are kept short — typically sub-millisecond. All P's must reach a GC safe point before STW can proceed.</p>
+<p><strong>Safepoint</strong>: 有配套 stack map / liveness 信息的可暂停点</p>
+<p><strong>编译期</strong>：编译器在特定位置（函数调用点、循环回边等）生成 <strong>stack map / liveness 信息</strong>，记录哪些寄存器/栈槽持有活跃指针。这些位置就是 safepoint。</p>
+<p><strong>运行时</strong>：当 GC 需要 STW 时，向所有 goroutine 发出抢占请求，每个 goroutine 运行到下一个 safepoint 时暂停。此时 runtime 可以用编译期生成的 stack map 精确扫描栈上的指针根。</p>
+<p>STW 的本质就是「等所有 P/goroutine 停在 safepoint 上」。没有 stack map 的位置不能暂停，否则 GC 无法区分栈上的整数和指针。</p>
+<blockquote>
+<p>Go 1.14+ 引入了<strong>异步抢占</strong>（signal-based preemption），即使没有函数调用的紧密循环也能被打断到 safepoint。</p>
+</blockquote>
 <h2 id="GC%20Observability">GC Observability</h2>
 <h3 id="GC%20Trace">GC Trace</h3>
 <p>Enable with: <code>GODEBUG=gctrace=1 go run main.go</code></p>
@@ -294,6 +335,7 @@ func gcStart(trigger gcTrigger) {}">Copy</button></figcaption><pre style="backgr
 <span data-line=""><span style="color:#616E88">// Start GC with specified trigger type</span></span>
 <span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> gcStart</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">trigger</span><span style="color:#D8DEE9FF"> gcTrigger</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {}</span></span></code></pre></figure>
 <h2 id="Advanced%20Features%3A%20Cleanups%20and%20Weak%20Pointers%20(Go%201.24%2B)">Advanced Features: Cleanups and Weak Pointers (Go 1.24+)</h2>
+<p>Use cleanups and weak pointers only for clear-cut scenarios (cache deduplication, resource management), not as general solutions. Most code benefits from these features indirectly.</p>
 <h3 id="runtime.AddCleanup">runtime.AddCleanup</h3>
 <p>Function signature: <code>runtime.AddCleanup(obj any, cleanup func(arg), arg)</code></p>
 <p><strong>Purpose</strong>: Queue a cleanup function to run when object becomes unreachable (improved finalizer)</p>
@@ -469,10 +511,10 @@ func NewCachedMemoryMappedFile(filename string) (*MemoryMappedFile, error) {
 </ul>
 </li>
 </ol>
-<h2 id="Guidance">Guidance</h2>
-<p>These are low-level advanced features. Reference the <a href="https://go.dev/doc/gc-guide">GC Guide</a> for detailed semantics and testing. Use cleanups and weak pointers only for clear-cut scenarios (cache deduplication, resource management), not as general solutions. Most code benefits from these features indirectly.</p>
-<h2 id="References">References</h2>
-<ul>
+<h2 id="greentea%20(Go%201.25%2B)">greentea (Go 1.25+)</h2>
+<p>Green Tea 的思路是把扫描的粒度从“单个对象”提升到“一大块连续内存区域”：共享工作队列跟踪的是这些粗粒度的内存块，而块内待扫描的具体对象则记录在块自身当中。这样一来，当一个内存块在队列中等待被扫描时，往往会持续累积更多待扫描对象，从而在真正被处理时能够一次性、连续地完成扫描，显著改善缓存命中率。</p>
+<h2 id="links">links</h2>
+<ol>
 <li><a href="https://making.pusher.com/golangs-real-time-gc-in-theory-and-practice/">https://making.pusher.com/golangs-real-time-gc-in-theory-and-practice/</a></li>
 <li><a href="https://studygolang.com/articles/23364">https://studygolang.com/articles/23364</a></li>
 <li><a href="https://juejin.cn/post/6844903940186701831">https://juejin.cn/post/6844903940186701831</a></li>
@@ -484,5 +526,5 @@ func NewCachedMemoryMappedFile(filename string) (*MemoryMappedFile, error) {
 <li><a href="https://github.com/golang/proposal/blob/master/design/14951-soft-heap-limit.md">https://github.com/golang/proposal/blob/master/design/14951-soft-heap-limit.md</a></li>
 <li><a href="https://go.dev/blog/cleanups-and-weak">https://go.dev/blog/cleanups-and-weak</a></li>
 <li><a href="https://go.dev/doc/gc-guide">https://go.dev/doc/gc-guide</a></li>
-</ul></article><section id="comments" class="mt-12 border-t border-slate-200 pt-8"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">评论</h2><script src="https://giscus.app/client.js" data-repo="gh-liu/gh-liu.github.io" data-repo-id="R_kgDOKwsMLg" data-category="General" data-category-id="DIC_kwDOKwsMLs4DAjRD" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="zh-CN" crossorigin="anonymous" async>
-  </script></section></main><aside class="fixed left-[calc(50%+28rem)] top-8 hidden w-40 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative pl-4"><a data-toc-link data-heading-id="Step%201%3A%20%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%20GC" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Step%201%3A%20%E4%B8%BA%E4%BB%80%E4%B9%88%E9%9C%80%E8%A6%81%20GC">Step 1: 为什么需要 GC</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Step 1: 为什么需要 GC</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Step%202%3A%20Mark-and-Sweep%20%E7%AE%97%E6%B3%95" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Step%202%3A%20Mark-and-Sweep%20%E7%AE%97%E6%B3%95">Step 2: Mark-and-Sweep 算法</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Step 2: Mark-and-Sweep 算法</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Write%20Barrier%20%E5%86%99%E5%B1%8F%E9%9A%9C" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Write%20Barrier%20%E5%86%99%E5%B1%8F%E9%9A%9C">Write Barrier 写屏障</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Write Barrier 写屏障</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="STW%20%E4%B8%8E%20Safepoint" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#STW%20%E4%B8%8E%20Safepoint">STW 与 Safepoint</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">STW 与 Safepoint</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Step%203%3A%20%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0%EF%BC%88Tri-Color%20Marking%EF%BC%89%E2%80%94%E2%80%94%20%E4%BB%8E%E6%A0%B9%E5%AF%B9%E8%B1%A1%E5%BC%80%E5%A7%8B%E6%89%AB%E6%8F%8F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Step%203%3A%20%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0%EF%BC%88Tri-Color%20Marking%EF%BC%89%E2%80%94%E2%80%94%20%E4%BB%8E%E6%A0%B9%E5%AF%B9%E8%B1%A1%E5%BC%80%E5%A7%8B%E6%89%AB%E6%8F%8F">Step 3: 三色标记（Tri-Color Marking）—— 从根对象开始扫描</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Step 3: 三色标记（Tri-Color Marking）—— 从根对象开始扫描</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%B9%B6%E5%8F%91%E6%A0%87%E8%AE%B0%E7%9A%84%E7%BB%86%E8%8A%82" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E5%B9%B6%E5%8F%91%E6%A0%87%E8%AE%B0%E7%9A%84%E7%BB%86%E8%8A%82">并发标记的细节</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">并发标记的细节</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Large%20Object%20Optimization" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Large%20Object%20Optimization">Large Object Optimization</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Large Object Optimization</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Mutator%20Assist" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Mutator%20Assist">Mutator Assist</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Mutator Assist</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Step%204%3A%20%E6%B8%85%E9%99%A4%EF%BC%88Sweep%EF%BC%89" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Step%204%3A%20%E6%B8%85%E9%99%A4%EF%BC%88Sweep%EF%BC%89">Step 4: 清除（Sweep）</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Step 4: 清除（Sweep）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Concurrent%20Sweep%20Details" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Concurrent%20Sweep%20Details">Concurrent Sweep Details</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Concurrent Sweep Details</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Step%205%3A%20GC%20Cycle%20%E5%85%A8%E6%99%AF" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Step%205%3A%20GC%20Cycle%20%E5%85%A8%E6%99%AF">Step 5: GC Cycle 全景</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Step 5: GC Cycle 全景</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Phase%201%3A%20Sweep%20Termination" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Phase%201%3A%20Sweep%20Termination">Phase 1: Sweep Termination</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Phase 1: Sweep Termination</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Phase%202%3A%20Mark%20Phase" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Phase%202%3A%20Mark%20Phase">Phase 2: Mark Phase</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Phase 2: Mark Phase</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Phase%203%3A%20Mark%20Termination" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Phase%203%3A%20Mark%20Termination">Phase 3: Mark Termination</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Phase 3: Mark Termination</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Phase%204%3A%20Sweep%20Phase" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Phase%204%3A%20Sweep%20Phase">Phase 4: Sweep Phase</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Phase 4: Sweep Phase</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Next%20Cycle%20Trigger%20(GOGC)" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Next%20Cycle%20Trigger%20(GOGC)">Next Cycle Trigger (GOGC)</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Next Cycle Trigger (GOGC)</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Pacing%20Algorithm" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Pacing%20Algorithm">Pacing Algorithm</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Pacing Algorithm</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="GC%20Observability" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#GC%20Observability">GC Observability</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">GC Observability</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="GC%20Trace" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#GC%20Trace">GC Trace</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">GC Trace</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Pacing%20Trace" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Pacing%20Trace">Pacing Trace</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Pacing Trace</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Forced%20Collection%20%26%20Helper%20Functions" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Forced%20Collection%20%26%20Helper%20Functions">Forced Collection &amp;#x26; Helper Functions</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Forced Collection &amp;#x26; Helper Functions</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Advanced%20Features%3A%20Cleanups%20and%20Weak%20Pointers%20(Go%201.24%2B)" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Advanced%20Features%3A%20Cleanups%20and%20Weak%20Pointers%20(Go%201.24%2B)">Advanced Features: Cleanups and Weak Pointers (Go 1.24+)</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Advanced Features: Cleanups and Weak Pointers (Go 1.24+)</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="runtime.AddCleanup" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#runtime.AddCleanup">runtime.AddCleanup</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">runtime.AddCleanup</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="weak.Pointer" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#weak.Pointer">weak.Pointer</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">weak.Pointer</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Combined%20Usage" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Combined%20Usage">Combined Usage</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Combined Usage</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Caveats" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Caveats">Caveats</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Caveats</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Guidance" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Guidance">Guidance</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Guidance</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="References" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#References">References</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">References</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`text-blue-600`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});</script></div><script type="module">document.querySelectorAll(`.code-copy-button`).forEach(e=>{e.addEventListener(`click`,async()=>{let t=e.dataset.code??``;await navigator.clipboard.writeText(t),e.textContent=`Copied`,window.setTimeout(()=>{e.textContent=`Copy`},1200)})});</script></body></html>
+</ol></article><section id="comments" class="mt-12 border-t border-slate-200 pt-8"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">评论</h2><script src="https://giscus.app/client.js" data-repo="gh-liu/gh-liu.github.io" data-repo-id="R_kgDOKwsMLg" data-category="General" data-category-id="DIC_kwDOKwsMLs4DAjRD" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="zh-CN" crossorigin="anonymous" async>
+  </script></section></main><aside class="fixed left-[calc(50%+28rem)] top-8 hidden w-40 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="Go%3A%20%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6%20Garbage%20Collection" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Go%3A%20%E5%86%85%E5%AD%98%E5%9B%9E%E6%94%B6%20Garbage%20Collection">Go: 内存回收 Garbage Collection</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Go: 内存回收 Garbage Collection</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="GC%20Cycle%20%E5%85%A8%E6%99%AF" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#GC%20Cycle%20%E5%85%A8%E6%99%AF">GC Cycle 全景</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">GC Cycle 全景</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Phase%201%3A%20Sweep%20Termination" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Phase%201%3A%20Sweep%20Termination">Phase 1: Sweep Termination</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Phase 1: Sweep Termination</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Phase%202%3A%20Mark%20Phase" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Phase%202%3A%20Mark%20Phase">Phase 2: Mark Phase</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Phase 2: Mark Phase</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Phase%203%3A%20Mark%20Termination" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Phase%203%3A%20Mark%20Termination">Phase 3: Mark Termination</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Phase 3: Mark Termination</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Phase%204%3A%20Sweep%20Phase" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Phase%204%3A%20Sweep%20Phase">Phase 4: Sweep Phase</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Phase 4: Sweep Phase</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Next%20Cycle%20Trigger%20(GOGC)" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Next%20Cycle%20Trigger%20(GOGC)">Next Cycle Trigger (GOGC)</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Next Cycle Trigger (GOGC)</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Pacing%20Algorithm" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Pacing%20Algorithm">Pacing Algorithm</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Pacing Algorithm</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Mark-and-Sweep%20%E7%AE%97%E6%B3%95" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Mark-and-Sweep%20%E7%AE%97%E6%B3%95">Mark-and-Sweep 算法</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Mark-and-Sweep 算法</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0%EF%BC%88Tri-Color%20Marking%EF%BC%89%E2%80%94%E2%80%94%20%E4%BB%8E%E6%A0%B9%E5%AF%B9%E8%B1%A1%E5%BC%80%E5%A7%8B%E6%89%AB%E6%8F%8F" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E4%B8%89%E8%89%B2%E6%A0%87%E8%AE%B0%EF%BC%88Tri-Color%20Marking%EF%BC%89%E2%80%94%E2%80%94%20%E4%BB%8E%E6%A0%B9%E5%AF%B9%E8%B1%A1%E5%BC%80%E5%A7%8B%E6%89%AB%E6%8F%8F">三色标记（Tri-Color Marking）—— 从根对象开始扫描</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">三色标记（Tri-Color Marking）—— 从根对象开始扫描</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%B9%B6%E5%8F%91%E6%A0%87%E8%AE%B0%E7%9A%84%E7%BB%86%E8%8A%82" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E5%B9%B6%E5%8F%91%E6%A0%87%E8%AE%B0%E7%9A%84%E7%BB%86%E8%8A%82">并发标记的细节</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">并发标记的细节</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Large%20Object%20Optimization" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Large%20Object%20Optimization">Large Object Optimization</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Large Object Optimization</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Mutator%20Assist" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Mutator%20Assist">Mutator Assist</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Mutator Assist</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Step%204%3A%20%E6%B8%85%E9%99%A4%EF%BC%88Sweep%EF%BC%89" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Step%204%3A%20%E6%B8%85%E9%99%A4%EF%BC%88Sweep%EF%BC%89">Step 4: 清除（Sweep）</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Step 4: 清除（Sweep）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Concurrent%20Sweep%20Details" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Concurrent%20Sweep%20Details">Concurrent Sweep Details</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Concurrent Sweep Details</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Write%20Barrier%20%E5%86%99%E5%B1%8F%E9%9A%9C" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Write%20Barrier%20%E5%86%99%E5%B1%8F%E9%9A%9C">Write Barrier 写屏障</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Write Barrier 写屏障</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="STW%20%E4%B8%8E%20Safepoint" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#STW%20%E4%B8%8E%20Safepoint">STW 与 Safepoint</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">STW 与 Safepoint</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="GC%20Observability" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#GC%20Observability">GC Observability</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">GC Observability</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="GC%20Trace" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#GC%20Trace">GC Trace</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">GC Trace</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Pacing%20Trace" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Pacing%20Trace">Pacing Trace</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Pacing Trace</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Forced%20Collection%20%26%20Helper%20Functions" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Forced%20Collection%20%26%20Helper%20Functions">Forced Collection &amp;#x26; Helper Functions</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Forced Collection &amp;#x26; Helper Functions</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Advanced%20Features%3A%20Cleanups%20and%20Weak%20Pointers%20(Go%201.24%2B)" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Advanced%20Features%3A%20Cleanups%20and%20Weak%20Pointers%20(Go%201.24%2B)">Advanced Features: Cleanups and Weak Pointers (Go 1.24+)</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Advanced Features: Cleanups and Weak Pointers (Go 1.24+)</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="runtime.AddCleanup" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#runtime.AddCleanup">runtime.AddCleanup</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">runtime.AddCleanup</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="weak.Pointer" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#weak.Pointer">weak.Pointer</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">weak.Pointer</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Combined%20Usage" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Combined%20Usage">Combined Usage</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Combined Usage</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Caveats" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#Caveats">Caveats</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">Caveats</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="greentea%20(Go%201.25%2B)" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#greentea%20(Go%201.25%2B)">greentea (Go 1.25+)</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">greentea (Go 1.25+)</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#links">links</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`text-blue-600`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.CaMEAfIU.js"></script></body></html>
