@@ -1,47 +1,96 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>操作系统导论</title><link rel="stylesheet" href="/_astro/global.DPP36ctb.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><div class="relative mx-auto max-w-4xl"><main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AF%BC%E8%AE%BA">读书笔记：操作系统导论</h1><div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"><div class="flex flex-wrap items-center gap-2"><span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">2026-03-25</span><span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">2026-03-25</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">BN</a></div></div>
-<blockquote>
-<p>Operating Systems: Three Easy Pieces</p>
-</blockquote>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读书笔记：操作系统导论</title><link rel="stylesheet" href="/_astro/global.DPP36ctb.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><div class="relative mx-auto max-w-4xl"><main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AF%BC%E8%AE%BA">读书笔记：操作系统导论</h1><div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"><div class="flex flex-wrap items-center gap-2"><span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">2022-03-23</span><span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">2026-07-17</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">BN</a></div></div><p class="mt-[-1.25rem] text-lg text-slate-500">Operating Systems: Three Easy Pieces</p>
 <blockquote>
 <p><a href="https://book.douban.com/subject/33463930/">https://book.douban.com/subject/33463930/</a></p>
 </blockquote>
 <ul>
-<li>是什么（What）— 一本从机制到策略讲解操作系统核心问题的入门书，主线是三个主题：虚拟化（CPU/内存）、并发（线程/同步）、持久化（文件系统/磁盘）</li>
-<li>为什么（Why）— 操作系统把硬件细节藏在 API 背后，但性能、隔离性、崩溃恢复、死锁、调度延迟这些真实问题都来自 OS 的设计权衡；不懂 OS，很多程序行为只能“碰运气”</li>
-<li>怎么做（How）— 围绕“抽象 + 机制 + 策略”学习：先理解进程、地址空间、文件这些抽象，再理解调度、分页、锁、日志等机制，最后比较不同策略的代价和适用边界</li>
+<li>是什么（What）
+<ul>
+<li>一本从<code>机制到策略</code>讲解操作系统<code>核心问题</code>的入门书，主线是三个主题：虚拟化（CPU/内存）、并发（线程/同步）、持久化（文件系统/磁盘）</li>
+</ul>
+</li>
+<li>为什么（Why）
+<ul>
+<li>操作系统把硬件细节藏在 API 背后，但性能、隔离性、崩溃恢复、死锁、调度延迟这些真实问题都来自 <code>OS 的设计权衡</code>；不懂 OS，很多程序行为只能碰运气</li>
+</ul>
+</li>
+<li>怎么做（How）
+<ul>
+<li>围绕<code>抽象 + 机制 + 策略</code>学习：先理解进程、地址空间、文件这些抽象，再理解调度、分页、锁、日志等机制，最后比较不同策略的代价和适用边界</li>
+</ul>
+</li>
 </ul>
 <h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
 <blockquote>
-<p>操作系统的本质不是“提供一堆系统调用”，而是以一组精心设计的抽象和机制，把一台复杂、有限、会出故障的物理机器，变成一个看起来更简单、更安全、更可共享的计算环境。
-它一边做资源虚拟化，一边做隔离与协调，还要在性能、公平性、可靠性之间持续权衡。</p>
+<p>操作系统的本质不是<code>提供一堆系统调用</code>，而是以一组精心设计的抽象和机制，把一台复杂、有限、会出故障的物理机器，变成一个看起来更简单、更安全、更可共享的计算环境。</p>
+</blockquote>
+<blockquote>
+<p>一边做资源虚拟化，一边做隔离与协调，还要在性能、公平性、可靠性之间持续权衡。</p>
 </blockquote>
 <ul>
-<li>OS 首先是资源管理者：CPU、内存、磁盘、网络都必须被多个程序安全共享。</li>
-<li>OS 也是抽象层：进程让我们觉得自己独占 CPU，虚拟内存让每个进程像拥有连续且私有的地址空间，文件系统让持久化存储看起来像层级化命名空间。</li>
-<li>学习操作系统不能只背概念，更要区分机制（mechanism）和策略（policy）。机制回答“能不能做到”，策略回答“该怎么选”。</li>
+<li>OS 首先是资源管理者：
+<ul>
+<li>CPU、内存、磁盘、网络都必须被多个程序安全共享。</li>
+</ul>
+</li>
+<li>OS 也是抽象层：
+<ul>
+<li>进程让我们觉得自己独占 CPU，虚拟内存让每个进程像拥有连续且私有的地址空间，文件系统让持久化存储看起来像层级化命名空间。</li>
+</ul>
+</li>
+<li>学习操作系统不能只背概念，更要区分<code>机制</code>（mechanism）和<code>策略</code>（policy）：
+<ul>
+<li>机制回答<code>能不能做到</code>，策略回答<code>该怎么选</code>。</li>
+</ul>
+</li>
 <li>很多系统设计问题都没有绝对最优解，只能在吞吐、延迟、公平、复杂度、可靠性之间做权衡。</li>
 <li>操作系统最值得学的，不只是知识点本身，而是它提供了一套分析复杂系统的通用框架：抽象、隔离、并发控制、失败恢复、性能评估。</li>
 </ul>
 <h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
 <ol>
-<li><strong>虚拟化是 OS 的第一性原理</strong>：单核 CPU 通过时分复用“假装”同时运行多个程序，内存通过地址转换“假装”每个进程都有独立空间，文件系统通过命名和权限“假装”数据天然有序且可长期保存。</li>
-<li><strong>抽象从来不是免费的</strong>：进程切换有上下文切换成本，虚拟内存有页表与 TLB 开销，文件系统有缓存一致性和崩溃恢复问题。抽象简化了编程模型，但把复杂度移到了 OS 内部。</li>
-<li><strong>机制与策略必须分开看</strong>：例如调度器的上下文切换是机制，而时间片长短、优先级、MLFQ 规则是策略。工程上常见的问题不是“没有机制”，而是策略不匹配工作负载。</li>
-<li><strong>并发的难点不是“同时运行”，而是“正确协调”</strong>：线程让程序更高效地利用 CPU 和 I/O，但共享状态会引入竞态条件、死锁、饥饿等问题；同步原语的职责是约束交错执行。</li>
-<li><strong>内存管理的核心不是分配，而是隔离、复用与局部性</strong>：分页解决了外部碎片和保护问题，但真正决定性能的往往是局部性、缺页率和替换策略，而不是抽象本身多优雅。</li>
-<li><strong>持久化系统的难点在“故障时仍然正确”</strong>：磁盘会慢、缓存会乱序、写入会部分完成，所以文件系统设计必须考虑日志、检查点、崩溃一致性，而不是只考虑正常路径。</li>
-<li><strong>间接层是系统设计中的万能工具</strong>：页表、inode、文件描述符、虚拟地址、调度队列，本质上都是通过间接层换取灵活性、共享能力和演进空间。</li>
-<li><strong>评估系统不能脱离工作负载</strong>：任何调度算法、缓存策略、置换策略，看起来“聪明”与否，都要放回具体 workload、指标和约束下讨论。</li>
-<li><strong>操作系统训练的是“面向现实约束设计”的能力</strong>：硬件有限、程序会出错、请求会冲突、故障一定发生，系统设计必须从这些不完美条件出发。</li>
+<li>虚拟化是 OS 的第一性原理：</li>
 </ol>
-<h2 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h2>
-<ol>
-<li>写一个最小 shell，亲手练习 <code>fork/exec/wait</code>，把“进程”从概念变成可操作模型。</li>
-<li>用一个小实验分别观察 CPU 密集型和 I/O 密集型任务在不同调度策略下的表现，建立对吞吐、响应时间、公平性的直觉。</li>
-<li>手动画出虚拟地址到物理地址的转换过程，把页表、TLB、缺页中断串成完整链路。</li>
-<li>遇到线程 bug 时，不只盯着业务代码，也主动检查共享状态、锁粒度、锁顺序和条件变量使用方式。</li>
-<li>以后设计缓存、任务队列、限流或重试机制时，刻意套用 OS 的视角思考：资源是谁的、如何隔离、谁来仲裁、失败后怎么恢复。</li>
-<li>找机会做一次文件系统或数据库 WAL 的源码阅读，把“崩溃一致性”从书本概念映射到真实工程实现。</li>
+<ul>
+<li>单核 CPU 通过时分复用<code>假装</code>同时运行多个程序，内存通过地址转换<code>假装</code>每个进程都有独立空间，文件系统通过命名和权限<code>假装</code>数据天然有序且可长期保存。</li>
+</ul>
+<ol start="2">
+<li>抽象从来不是免费的：</li>
+</ol>
+<ul>
+<li>进程切换有<code>上下文切换成本</code>，虚拟内存有<code>页表与 TLB 开销</code>，文件系统有<code>缓存一致性和崩溃恢复</code>问题。抽象简化了编程模型，但把复杂度移到了 OS 内部。</li>
+</ul>
+<ol start="3">
+<li>机制与策略必须分开看：</li>
+</ol>
+<ul>
+<li>例如调度器的上下文切换是机制，而时间片长短、优先级、MLFQ 规则是策略。工程上常见的问题不是<code>没有机制</code>，而是<code>策略不匹配工作负载</code>。</li>
+</ul>
+<ol start="4">
+<li>并发的难点不是<code>同时运行</code>，而是<code>正确协调</code>：</li>
+</ol>
+<ul>
+<li>线程让程序更高效地利用 CPU 和 I/O，但共享状态会引入竞态条件、死锁、饥饿等问题；同步原语的职责是约束交错执行。</li>
+</ul>
+<ol start="5">
+<li>内存管理的核心不是分配，而是隔离、复用与局部性：</li>
+</ol>
+<ul>
+<li>分页解决了外部碎片和保护问题，但真正决定性能的往往是局部性、缺页率和替换策略，而不是抽象本身多优雅。</li>
+</ul>
+<ol start="6">
+<li>持久化系统的难点在<code>故障时仍然正确</code>：</li>
+</ol>
+<ul>
+<li>磁盘会慢、缓存会乱序、写入会部分完成，所以文件系统设计必须考虑日志、检查点、崩溃一致性，而不是只考虑正常路径。</li>
+</ul>
+<ol start="7">
+<li><code>间接层</code>是系统设计中的万能工具：</li>
+</ol>
+<ul>
+<li>页表、inode、文件描述符、虚拟地址、调度队列，本质上都是通过间接层换取灵活性、共享能力和演进空间。</li>
+</ul>
+<ol start="8">
+<li>评估系统不能脱离工作负载：任何调度算法、缓存策略、置换策略，看起来<code>聪明</code>与否，都要放回具体 workload、指标和约束下讨论。</li>
+<li>操作系统训练的是<code>面向现实约束设计</code>的能力：硬件有限、程序会出错、请求会冲突、故障一定发生，系统设计必须从这些不完美条件出发。</li>
 </ol>
 <h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
 <ol>
@@ -51,4 +100,4 @@
 <li>Persistence is easy in the normal case, hard in the crash case.</li>
 <li>Separate mechanism from policy.</li>
 </ol></article><section id="comments" class="mt-12 border-t border-slate-200 pt-8"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">评论</h2><script src="https://giscus.app/client.js" data-repo="gh-liu/gh-liu.github.io" data-repo-id="R_kgDOKwsMLg" data-category="General" data-category-id="DIC_kwDOKwsMLs4DAjRD" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="zh-CN" crossorigin="anonymous" async>
-  </script></section></main><aside class="fixed left-[calc(50%+28rem)] top-8 hidden w-40 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AF%BC%E8%AE%BA" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AF%BC%E8%AE%BA">读书笔记：操作系统导论</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">读书笔记：操作系统导论</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">行动：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">金句：</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`text-blue-600`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.CaMEAfIU.js"></script></body></html>
+  </script></section></main><aside class="fixed left-[calc(50%+28rem)] top-8 hidden w-40 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AF%BC%E8%AE%BA" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E5%AF%BC%E8%AE%BA">读书笔记：操作系统导论</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">读书笔记：操作系统导论</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">金句：</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`text-blue-600`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.CaMEAfIU.js"></script></body></html>
