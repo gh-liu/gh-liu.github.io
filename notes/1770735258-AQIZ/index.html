@@ -512,6 +512,7 @@ func NewCachedMemoryMappedFile(filename string) (*MemoryMappedFile, error) {
 </li>
 </ol>
 <h2 id="greentea%20(Go%201.25%2B)">greentea (Go 1.25+)</h2>
+<p><a href="https://go.dev/blog/greenteagc">https://go.dev/blog/greenteagc</a></p>
 <p>Green Tea 的思路是把扫描的粒度从“单个对象”提升到“一大块连续内存区域”：共享工作队列跟踪的是这些粗粒度的内存块，而块内待扫描的具体对象则记录在块自身当中。这样一来，当一个内存块在队列中等待被扫描时，往往会持续累积更多待扫描对象，从而在真正被处理时能够一次性、连续地完成扫描，显著改善缓存命中率。</p>
 <h2 id="links">links</h2>
 <ol>
