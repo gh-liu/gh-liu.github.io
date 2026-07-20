@@ -22,9 +22,7 @@
 </li>
 </ul>
 <h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
-<blockquote>
 <p>操作系统的本质不是<code>提供一堆系统调用</code>，而是以一组精心设计的抽象和机制，把一台复杂、有限、会出故障的物理机器，变成一个看起来更简单、更安全、更可共享的计算环境。</p>
-</blockquote>
 <blockquote>
 <p>一边做资源虚拟化，一边做隔离与协调，还要在性能、公平性、可靠性之间持续权衡。</p>
 </blockquote>
@@ -44,7 +42,7 @@
 <li>机制回答<code>能不能做到</code>，策略回答<code>该怎么选</code>。</li>
 </ul>
 </li>
-<li>很多系统设计问题都没有绝对最优解，只能在吞吐、延迟、公平、复杂度、可靠性之间做权衡。</li>
+<li>很多系统设计问题都没有绝对最优解，只能在吞吐、延迟、公平、复杂度、可靠性之间做<code>权衡</code>。</li>
 <li>操作系统最值得学的，不只是知识点本身，而是它提供了一套分析复杂系统的通用框架：抽象、隔离、并发控制、失败恢复、性能评估。</li>
 </ul>
 <h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
@@ -64,7 +62,7 @@
 <li>机制与策略必须分开看：</li>
 </ol>
 <ul>
-<li>例如调度器的上下文切换是机制，而时间片长短、优先级、MLFQ 规则是策略。工程上常见的问题不是<code>没有机制</code>，而是<code>策略不匹配工作负载</code>。</li>
+<li>例如调度器的上下文切换是<code>机制</code>，而时间片长短、优先级、MLFQ 规则是<code>策略</code>。工程上常见的问题不是<code>没有机制</code>，而是<code>策略不匹配工作负载</code>。</li>
 </ul>
 <ol start="4">
 <li>并发的难点不是<code>同时运行</code>，而是<code>正确协调</code>：</li>
@@ -96,7 +94,6 @@
 </ol>
 <h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
 <ol>
-<li>操作系统最重要的工作，是把复杂硬件变成可管理、可共享、可依赖的抽象。</li>
 <li>Virtualization lets one physical resource look like many.</li>
 <li>Concurrency is not just about speed; it is about coordination.</li>
 <li>Persistence is easy in the normal case, hard in the crash case.</li>
