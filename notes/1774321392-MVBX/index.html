@@ -5,7 +5,7 @@
 <ul>
 <li>是什么（What）：
 <ul>
-<li>数据密集型系统设计围绕<code>可靠</code>性、<code>可扩展</code>性、<code>可维护</code>性三个支柱，通过对存储、复制、分区、一致性等通用问题的深度理解</li>
+<li>数据密集型系统设计围绕<code>可靠</code>性、<code>可扩展</code>性、<code>可维护</code>性三个支柱，通过对存储、分区、复制、一致性等通用问题的深度理解</li>
 <li><code>可靠性</code>：出问题时，系统尽量保持正确</li>
 <li><code>可拓展性</code>：负载上升时，系统继续保持工作</li>
 <li><code>可维护性</code>：系统未来被人稳定的理解、修改、运营</li>
@@ -13,59 +13,63 @@
 </li>
 <li>为什么（Why）：
 <ul>
-<li>不同数据库、消息队列、流处理系统看似差异大，但解决的其实是同一套问题；先懂原理再选技术</li>
+<li>不同数据库、消息队列、流处理系统看似差异大，但解决的其实是同一套问题；需要先懂其原理再选技术</li>
 </ul>
 </li>
 <li>怎么做（How）：
 <ul>
-<li>学习数据模型、存储引擎、复制机制、分区策略、一致性权衡、事务设计、流处理思维</li>
-<li>系统设计 = 在故障、增长、复杂性面前，持续做权衡。几个问题：提高什么？牺牲什么？解决当前还是未来的问题？</li>
+<li>学习数据模型、存储引擎、分区策略、复制机制、一致性权衡、事务设计、流处理思维</li>
+<li>系统设计 = 在故障、增长、复杂性面前，持续做权衡。几个问题：提高了什么？牺牲了什么？解决了当前还是未来的问题？</li>
 </ul>
 </li>
 </ul>
 <h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
 <blockquote>
-<p>这本书不是教你选某个具体数据库，而是教你理解数据系统背后的通用问题：如何在正确性、可扩展性、可维护性之间做权衡。
-无论是关系型数据库、NoSQL、消息队列、流处理还是分布式系统，本质上都在回答同一组问题：数据如何存、如何同步、如何容错、如何在规模扩大后仍然可靠运行。</p>
+<p>这本书不是教你选某个具体数据库，而是教你理解数据系统背后的通用问题：如何在可靠性、可扩展性、可维护性之间做权衡。</p>
+</blockquote>
+<blockquote>
+<p>无论是关系型数据库、NoSQL、消息队列、流处理还是分布式系统，本质上都在回答同一组问题：数据如何存、如何同步、如何容错、如何在规模扩大后仍然可靠运行。</p>
 </blockquote>
 <ul>
-<li>数据密集型应用的核心目标，不只是<code>能跑</code>，而是能在数据量增长、并发增加、机器故障、需求变化时继续稳定工作。</li>
-<li>系统设计没有银弹，重点不是追求<code>最先进架构</code>，而是理解每种方案解决什么问题、付出什么代价。</li>
-<li>可扩展性关注负载增长后系统是否还能承受；可维护性关注系统是否易于理解、修改和运维；可靠性关注系统在异常条件下是否仍能正确提供服务。</li>
-<li>数据模型会反向塑造应用能力。关系模型、文档模型、图模型各自适合不同问题域，选型应围绕访问模式和业务关系展开，而不是围绕流行度展开。</li>
-<li>分布式系统的难点主要来自复制、分区和一致性。只要跨机器协作，就必须面对延迟、故障、时钟不准和脑裂等现实约束。</li>
-<li>事务的价值在于帮应用管理复杂性。即使底层实现并不完美，事务依然是隔离故障、控制并发错误的重要抽象。</li>
-<li>流处理与批处理不是对立面，而是两种处理数据的思维方式：一个强调持续到来的事件流，一个强调对静态数据集的系统性重算。</li>
+<li>数据密集型应用的核心目标，不只是<code>能跑</code>，而是能在机器故障、数据量增长、并发增加、需求变化时继续稳定工作
+<ul>
+<li>可靠性关注系统在异常条件下是否仍能正确提供服务</li>
+<li>可扩展性关注负载增长后系统是否还能承受</li>
+<li>可维护性关注系统是否易于理解、修改和运维</li>
+</ul>
+</li>
+<li>系统设计没有银弹，重点不是追求<code>最先进架构</code>，而是理解每种方案解决什么问题、付出什么代价</li>
+<li>数据模型会反向塑造应用能力。关系模型、文档模型、图模型各自适合不同问题域，选型应围绕<code>访问模式</code>和<code>业务关系</code>展开，而不是围绕流行度展开</li>
+<li>分布式系统的难点主要来自分区、复制和一致性。只要跨机器协作，就必须面对延迟、故障、时钟不准和脑裂等现实约束</li>
+<li>事务的价值在于帮应用管理复杂性。即使底层实现并不完美，事务依然是隔离故障、控制并发错误的重要抽象</li>
+<li>流处理与批处理不是对立面，而是两种处理数据的思维方式：一个强调持续到来的事件流，一个强调对静态数据集的系统性重算</li>
 </ul>
 <h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
-<blockquote>
-<p>尾部延迟放大：一个链路越长，局部的小概率慢，就越容易被放大成整体的大概率慢</p>
-</blockquote>
 <ol>
-<li>很多工程问题不是<code>技术不够新</code>，而是没有先定义清楚自己要优化的目标。先问读写模式、延迟要求、一致性要求、故障模型，再谈技术选型。</li>
-<li>一致性从来不是免费能力。只要想要更强的一致性，就要支付更高的延迟、可用性或系统复杂度成本。</li>
-<li>把<code>数据库</code>看成单点能力是片面的。真实系统通常由数据库、缓存、索引、消息队列、搜索系统、流处理系统共同组成。</li>
-<li>复制提升读性能和容错，但也引入复制延迟、冲突处理和故障切换复杂度，收益与代价必须一起看。</li>
-<li>分区解决的是规模问题，不直接解决一致性问题。系统一旦分片，跨分区事务、热点、重平衡都会变成新问题。</li>
-<li>事件流是一等公民。日志不仅是调试工具，也可以成为系统集成、数据回放、审计和异步解耦的基础设施。</li>
-<li>好的系统设计不是把复杂性消灭掉，而是把复杂性放到最合适、最可控的位置。</li>
+<li>很多工程问题不是<code>技术不够新</code>，而是没有先定义清楚自己要优化的目标：先问读写模式、延迟要求、一致性要求、故障模型，再谈技术选型</li>
+<li>一致性从来不是免费能力。只要想要更强的一致性，就要支付更高的延迟、可用性或系统复杂度成本</li>
+<li>把<code>数据库</code>看成单点能力是片面的。真实系统通常由数据库、缓存、索引、消息队列、搜索系统、流处理系统共同组成</li>
+<li>复制提升读性能和容错，但也引入复制延迟、冲突处理和故障切换复杂度，收益与代价必须一起看</li>
+<li>分区解决的是规模问题，不直接解决一致性问题。系统一旦分片，跨分区事务、热点、重平衡都会变成新问题</li>
+<li>事件流是一等公民。日志不仅是调试工具，也可以成为系统集成、数据回放、审计和异步解耦的基础设施</li>
+<li>好的系统设计不是把复杂性消灭掉，而是把复杂性放到最合适、最可控的位置</li>
 </ol>
 <h3 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h3>
 <ol>
-<li>以后评估存储方案时，先写清楚业务访问模式：读多写多、点查范围查、是否需要关联、是否需要全文检索。</li>
-<li>做架构设计时，把<code>可靠性、可扩展性、可维护性</code>作为固定检查项，而不是只讨论吞吐和 QPS。</li>
-<li>遇到缓存、主从、消息队列、异步任务时，主动补问数据一致性边界：允许延迟多久、失败后如何补偿、是否可重放。</li>
-<li>对跨服务流程，优先设计幂等、可重试、可观测，而不是默认网络和下游永远可靠。</li>
-<li>对需要长期演进的系统，优先选择便于理解和维护的方案，避免为了理论上的极致性能引入过高复杂度。</li>
-<li>学习新中间件时，不只看<code>怎么用</code>，还要追问其数据模型、复制机制、故障恢复方式和一致性语义。</li>
+<li>以后评估存储方案时，先写清楚业务访问模式：读多写多、点查范围查、是否需要关联、是否需要全文检索</li>
+<li>遇到缓存、主从、消息队列、异步任务时，主动补问数据一致性边界：允许延迟多久、失败后如何补偿、是否可重放</li>
+<li>做架构设计时，把<code>可靠性、可扩展性、可维护性</code>作为固定检查项，而不是只讨论吞吐和 QPS</li>
+<li>对跨服务流程，优先设计幂等、可重试、可观测，而不是默认网络和下游永远可靠</li>
+<li>对需要长期演进的系统，优先选择便于理解和维护的方案，避免为了理论上的极致性能引入过高复杂度</li>
+<li>学习新中间件时，不只看<code>怎么用</code>，还要追问其数据模型、复制机制、故障恢复方式和一致性语义</li>
 </ol>
 <h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
 <ol>
-<li>"Reliability means making systems work correctly, even when faults occur." — Martin Kleppmann</li>
-<li>"An architecture that scales well for a particular application is built around assumptions of which operations will be common and which will be rare." — Martin Kleppmann</li>
-<li>"Transactions are an abstraction layer that allows an application to pretend that certain concurrency problems and certain kinds of hardware and software faults don't exist." — Martin Kleppmann</li>
-<li>"Data models are perhaps the most important part of developing software, because they have such a profound effect: not only on how the software is written, but also on how we think about the problem that we are solving." — Martin Kleppmann</li>
-<li>"If you are not sure whether a fault is transient or permanent, you can simply always retry — and abort if the retries don't succeed." — Martin Kleppmann</li>
+<li>Reliability means making systems work correctly, even when faults occur.</li>
+<li>An architecture that scales well for a particular application is built around assumptions of which operations will be common and which will be rare.</li>
+<li>Transactions are an abstraction layer that allows an application to pretend that certain concurrency problems and certain kinds of hardware and software faults don't exist.</li>
+<li>Data models are perhaps the most important part of developing software, because they have such a profound effect: not only on how the software is written, but also on how we think about the problem that we are solving.</li>
+<li>If you are not sure whether a fault is transient or permanent, you can simply always retry — and abort if the retries don't succeed.</li>
 </ol>
 <h2 id="links">links</h2>
 <ol>
