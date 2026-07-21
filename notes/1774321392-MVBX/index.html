@@ -1,28 +1,36 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>设计数据密集型应用</title><link rel="stylesheet" href="/_astro/global.Dp1CKXGC.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><div class="relative mx-auto max-w-4xl"><main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8">读书笔记：设计数据密集型应用</h1><div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"><div class="flex flex-wrap items-center gap-2"><span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">2026-03-24</span><span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">2026-04-10</span><a href="#backlinks" class="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20 hover:bg-blue-100 no-underline">2 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">BN</a></div></div>
-<blockquote>
-<p>Designing Data-Intensive Applications</p>
-</blockquote>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>设计数据密集型应用</title><link rel="stylesheet" href="/_astro/global.Dp1CKXGC.css"></head><body class="bg-slate-50 text-slate-900 antialiased"><div class="relative mx-auto max-w-4xl"><main class="min-h-screen w-full bg-white px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border lg:border-slate-200"><article class="prose prose-slate max-w-none prose-a:text-blue-600 prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8">读书笔记：设计数据密集型应用</h1><div class="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm text-slate-500"><div class="flex flex-wrap items-center gap-2"><span class="rounded-md bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700 ring-1 ring-inset ring-emerald-600/20">2023-03-06</span><span class="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-inset ring-amber-600/20">2026-07-21</span><a href="#backlinks" class="rounded-md bg-blue-50 px-2 py-0.5 text-xs font-medium text-blue-600 ring-1 ring-inset ring-blue-600/20 hover:bg-blue-100 no-underline">2 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="rounded-full border border-slate-200 bg-slate-50 px-2.5 py-0.5 text-xs text-slate-500 hover:border-blue-300 hover:text-blue-600 no-underline">BN</a></div></div><p class="mt-[-1.25rem] text-lg text-slate-500">Designing Data-Intensive Applications</p>
 <blockquote>
 <p><a href="https://book.douban.com/subject/26197294/">https://book.douban.com/subject/26197294/</a></p>
 </blockquote>
 <ul>
-<li>是什么（What）— 数据密集型系统设计围绕<code>可靠</code>性、<code>可扩展</code>性、<code>可维护</code>性三个支柱，通过对存储、复制、分区、一致性等通用问题的深度理解</li>
-<li>为什么（Why）— 不同数据库、消息队列、流处理系统看似差异大，但解决的其实是同一套问题；先懂原理再选技术</li>
-<li>怎么做（How）— 学习数据模型、存储引擎、复制机制、分区策略、一致性权衡、事务设计、流处理思维</li>
+<li>是什么（What）：
+<ul>
+<li>数据密集型系统设计围绕<code>可靠</code>性、<code>可扩展</code>性、<code>可维护</code>性三个支柱，通过对存储、复制、分区、一致性等通用问题的深度理解</li>
+<li><code>可靠性</code>：出问题时，系统尽量保持正确</li>
+<li><code>可拓展性</code>：负载上升时，系统继续保持工作</li>
+<li><code>可维护性</code>：系统未来被人稳定的理解、修改、运营</li>
 </ul>
-<p>可靠：出问题时，系统尽量保持正确。
-可拓展：负载上升时，系统继续保持工作。
-可维护：系统未来被人稳定的理解、修改、运营。</p>
-<p>尾部延迟放大：一个链路越长，局部的小概率慢，就越容易被放大成整体的大概率慢</p>
-<p>系统设计 = 在故障、增长、复杂性面前，持续做权衡；
-提高什么？牺牲什么？解决当前还是未来的问题？</p>
+</li>
+<li>为什么（Why）：
+<ul>
+<li>不同数据库、消息队列、流处理系统看似差异大，但解决的其实是同一套问题；先懂原理再选技术</li>
+</ul>
+</li>
+<li>怎么做（How）：
+<ul>
+<li>学习数据模型、存储引擎、复制机制、分区策略、一致性权衡、事务设计、流处理思维</li>
+<li>系统设计 = 在故障、增长、复杂性面前，持续做权衡。几个问题：提高什么？牺牲什么？解决当前还是未来的问题？</li>
+</ul>
+</li>
+</ul>
 <h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
 <blockquote>
-<p>这本书不是教你选某个具体数据库，而是教你理解数据系统背后的通用问题：如何在正确性、可扩展性、可维护性之间做权衡。无论是关系型数据库、NoSQL、消息队列、流处理还是分布式系统，本质上都在回答同一组问题：数据如何存、如何同步、如何容错、如何在规模扩大后仍然可靠运行。</p>
+<p>这本书不是教你选某个具体数据库，而是教你理解数据系统背后的通用问题：如何在正确性、可扩展性、可维护性之间做权衡。
+无论是关系型数据库、NoSQL、消息队列、流处理还是分布式系统，本质上都在回答同一组问题：数据如何存、如何同步、如何容错、如何在规模扩大后仍然可靠运行。</p>
 </blockquote>
 <ul>
-<li>数据密集型应用的核心目标，不只是“能跑”，而是能在数据量增长、并发增加、机器故障、需求变化时继续稳定工作。</li>
-<li>系统设计没有银弹，重点不是追求“最先进架构”，而是理解每种方案解决什么问题、付出什么代价。</li>
+<li>数据密集型应用的核心目标，不只是<code>能跑</code>，而是能在数据量增长、并发增加、机器故障、需求变化时继续稳定工作。</li>
+<li>系统设计没有银弹，重点不是追求<code>最先进架构</code>，而是理解每种方案解决什么问题、付出什么代价。</li>
 <li>可扩展性关注负载增长后系统是否还能承受；可维护性关注系统是否易于理解、修改和运维；可靠性关注系统在异常条件下是否仍能正确提供服务。</li>
 <li>数据模型会反向塑造应用能力。关系模型、文档模型、图模型各自适合不同问题域，选型应围绕访问模式和业务关系展开，而不是围绕流行度展开。</li>
 <li>分布式系统的难点主要来自复制、分区和一致性。只要跨机器协作，就必须面对延迟、故障、时钟不准和脑裂等现实约束。</li>
@@ -30,23 +38,26 @@
 <li>流处理与批处理不是对立面，而是两种处理数据的思维方式：一个强调持续到来的事件流，一个强调对静态数据集的系统性重算。</li>
 </ul>
 <h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
+<blockquote>
+<p>尾部延迟放大：一个链路越长，局部的小概率慢，就越容易被放大成整体的大概率慢</p>
+</blockquote>
 <ol>
-<li>很多工程问题不是“技术不够新”，而是没有先定义清楚自己要优化的目标。先问读写模式、延迟要求、一致性要求、故障模型，再谈技术选型。</li>
+<li>很多工程问题不是<code>技术不够新</code>，而是没有先定义清楚自己要优化的目标。先问读写模式、延迟要求、一致性要求、故障模型，再谈技术选型。</li>
 <li>一致性从来不是免费能力。只要想要更强的一致性，就要支付更高的延迟、可用性或系统复杂度成本。</li>
-<li>把“数据库”看成单点能力是片面的。真实系统通常由数据库、缓存、索引、消息队列、搜索系统、流处理系统共同组成。</li>
+<li>把<code>数据库</code>看成单点能力是片面的。真实系统通常由数据库、缓存、索引、消息队列、搜索系统、流处理系统共同组成。</li>
 <li>复制提升读性能和容错，但也引入复制延迟、冲突处理和故障切换复杂度，收益与代价必须一起看。</li>
 <li>分区解决的是规模问题，不直接解决一致性问题。系统一旦分片，跨分区事务、热点、重平衡都会变成新问题。</li>
 <li>事件流是一等公民。日志不仅是调试工具，也可以成为系统集成、数据回放、审计和异步解耦的基础设施。</li>
 <li>好的系统设计不是把复杂性消灭掉，而是把复杂性放到最合适、最可控的位置。</li>
 </ol>
-<h2 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h2>
+<h3 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h3>
 <ol>
 <li>以后评估存储方案时，先写清楚业务访问模式：读多写多、点查范围查、是否需要关联、是否需要全文检索。</li>
-<li>做架构设计时，把“可靠性、可扩展性、可维护性”作为固定检查项，而不是只讨论吞吐和 QPS。</li>
+<li>做架构设计时，把<code>可靠性、可扩展性、可维护性</code>作为固定检查项，而不是只讨论吞吐和 QPS。</li>
 <li>遇到缓存、主从、消息队列、异步任务时，主动补问数据一致性边界：允许延迟多久、失败后如何补偿、是否可重放。</li>
 <li>对跨服务流程，优先设计幂等、可重试、可观测，而不是默认网络和下游永远可靠。</li>
 <li>对需要长期演进的系统，优先选择便于理解和维护的方案，避免为了理论上的极致性能引入过高复杂度。</li>
-<li>学习新中间件时，不只看“怎么用”，还要追问其数据模型、复制机制、故障恢复方式和一致性语义。</li>
+<li>学习新中间件时，不只看<code>怎么用</code>，还要追问其数据模型、复制机制、故障恢复方式和一致性语义。</li>
 </ol>
 <h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
 <ol>
@@ -62,4 +73,4 @@
 <li><a href="https://timilearning.com/tags/ddia/">https://timilearning.com/tags/ddia/</a></li>
 <li><a href="https://ddia.vonng.com/toc/">https://ddia.vonng.com/toc/</a></li>
 </ol></article><aside id="backlinks" class="mt-12 border-t border-slate-200 pt-8"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">被 2 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1777278000-HDCC" class="text-blue-600 underline-offset-4 hover:underline">后端存储实战课</a></li><li><a href="/notes/1777275219-HBXT" class="text-blue-600 underline-offset-4 hover:underline">高并发系统实战课</a></li></ul></aside><section id="comments" class="mt-12 border-t border-slate-200 pt-8"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">评论</h2><script src="https://giscus.app/client.js" data-repo="gh-liu/gh-liu.github.io" data-repo-id="R_kgDOKwsMLg" data-category="General" data-category-id="DIC_kwDOKwsMLs4DAjRD" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="zh-CN" crossorigin="anonymous" async>
-  </script></section></main><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="fixed left-[calc(50%+28rem-2.5rem)] top-8 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:text-blue-600 hover:border-blue-300 lg:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside class="toc fixed left-[calc(50%+28rem)] top-8 hidden w-60 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-4 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8">读书笔记：设计数据密集型应用</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">读书笔记：设计数据密集型应用</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">行动：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">金句：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#links">links</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`text-blue-600`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=`note-toc-hidden`;if(r&&i){let e=e=>{r.style.display=e?`none`:``,i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`text-blue-600`,!e),i.classList.toggle(`border-blue-300`,!e),i.classList.toggle(`text-slate-600`,e),i.classList.toggle(`border-slate-200`,e)};e(localStorage.getItem(a)===`1`),i.addEventListener(`click`,()=>{let t=r.style.display!==`none`;localStorage.setItem(a,t?`1`:`0`),e(t)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.CaMEAfIU.js"></script></body></html>
+  </script></section></main><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="fixed left-[calc(50%+28rem-2.5rem)] top-8 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:text-blue-600 hover:border-blue-300 lg:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside class="toc fixed left-[calc(50%+28rem)] top-8 hidden w-60 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-4 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E5%AF%86%E9%9B%86%E5%9E%8B%E5%BA%94%E7%94%A8">读书笔记：设计数据密集型应用</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">读书笔记：设计数据密集型应用</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">行动：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">金句：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#links">links</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`text-blue-600`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=`note-toc-hidden`;if(r&&i){let e=e=>{r.style.display=e?`none`:``,i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`text-blue-600`,!e),i.classList.toggle(`border-blue-300`,!e),i.classList.toggle(`text-slate-600`,e),i.classList.toggle(`border-slate-200`,e)};e(localStorage.getItem(a)===`1`),i.addEventListener(`click`,()=>{let t=r.style.display!==`none`;localStorage.setItem(a,t?`1`:`0`),e(t)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.CaMEAfIU.js"></script></body></html>
