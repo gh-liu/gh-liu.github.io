@@ -19,51 +19,48 @@
 </ul>
 </li>
 </ul>
-<p>DDD 更像一种"先理解业务，再组织软件"的思考方式：</p>
-<ul>
-<li>如果团队讨论里的"订单""客户""库存"每个人理解都不一样，再好的架构分层也只是把混乱包装得更整齐。</li>
-<li>如果一个概念在销售、履约、结算三个场景里的含义本来就不同，就不该强迫它们共享同一个统一模型。</li>
-<li>如果最关键的业务能力没有被单独识别出来，团队就会把精力平均撒在所有模块上，最后核心竞争力和边角功能投入一样多。</li>
-</ul>
 <h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
 <blockquote>
-<p>DDD 的核心不是追求一套固定架构，而是在复杂业务中先把模型讲清楚，再让模型持续影响沟通、代码和系统边界。它真正想解决的，是业务概念混乱、术语不统一、上下文边界不清导致的认知复杂度。</p>
+<p>DDD 的核心不是追求一套固定架构，而是在复杂业务中先把领域模型讲清楚，再让领域模型持续影响沟通、代码和系统边界。
+DDD 更像一种"先理解业务，再组织软件"的思考方式。它真正想解决的，是业务概念混乱、术语不统一、上下文边界不清导致的认知复杂度。</p>
 </blockquote>
-<p>这套方法最关键的抓手有三个：</p>
-<ul>
-<li>第一，识别 <code>Core Domain</code>，把最高设计成本投入最有业务价值、最复杂的部分；</li>
-<li>第二，建立 <code>Ubiquitous Language</code>，让业务术语在讨论、文档、接口和代码中保持一致；</li>
-<li>第三，划分 <code>Bounded Context</code>，接受同一概念在不同场景下可以有不同含义，在边界内求一致，在边界间做协作。</li>
-</ul>
-<p>DDD 不等于微服务，也不只是 <code>Entity</code>、<code>Value Object</code>、<code>Aggregate</code>、<code>Repository</code> 这些战术工具。
-<code>战术</code>设计解决的是局部实现问题，<code>战略</code>设计中的上下文划分才更决定整体成败。
-业务简单时没必要重度使用 DDD；但当系统复杂度主要来自业务而非技术时，DDD 往往是更有效的解法。</p>
+<p>这套方法最关键的三点：</p>
+<ol>
+<li>识别核心领域 <code>Core Domain</code>，把最高设计成本投入最有业务价值、最复杂的部分</li>
+<li>建立统一语言 <code>Ubiquitous Language</code>，让业务术语在讨论、文档、接口和代码中保持一致</li>
+<li>划分限界上下文 <code>Bounded Context</code>，接受同一概念在不同场景下可以有不同含义，在边界内求一致，在边界间做协作</li>
+</ol>
 <h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
 <ol>
-<li>软件最难处理的复杂度，很多时候不是技术复杂，而是认知复杂。</li>
-<li>模型如果没有进入代码，就还不算真正成立。</li>
-<li>统一语言不是沟通技巧，而是模型本身的一部分。</li>
-<li>一个大系统不需要只有一个统一模型，关键是每个 <code>Bounded Context</code> 内部保持一致。</li>
-<li>微服务不是 DDD 的起点，边界清晰才是。</li>
-<li>战略设计通常比战术设计更影响系统长期质量。</li>
-<li>好模型不是一次设计出来的，而是在和领域专家持续对话中不断演化出来的。</li>
+<li>软件最难处理的复杂度，很多时候不是技术复杂，而是认知复杂</li>
+<li>领域模型如果没有进入代码，就还不算真正成立</li>
+<li>统一语言不是沟通技巧，而是模型本身的一部分</li>
+<li>一个大系统不需要只有一个统一模型，关键是每个 <code>Bounded Context</code> 内部保持一致</li>
+<li>微服务不是 DDD 的起点，边界清晰才是：业务简单时没必要重度使用 DDD；但当系统复杂度主要来自业务而非技术时，DDD 往往是更有效的解法</li>
+<li>战略设计通常比战术设计更影响系统长期质量：<code>战术</code>设计解决的是局部实现问题，<code>战略</code>设计中的上下文划分才更决定整体成败</li>
+<li>好模型不是一次设计出来的，而是在和领域专家持续对话中不断演化出来的</li>
 </ol>
 <h3 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h3>
 <ol>
-<li>先问<code>核心领域</code>是什么，不要默认所有模块同等重要。</li>
-<li>先<code>统一术语</code>，再讨论实现，否则设计很容易建立在错位理解上。</li>
-<li>先划<code>边界上下文</code>，再决定模块、服务和接口如何拆分。</li>
-<li>区分 <code>Entity</code> 和 <code>Value Object</code>，避免无意义的"身份化设计"。</li>
-<li>用<code>聚合</code>定义<code>一致性</code>边界，而不是机械映射数据库关系。</li>
-<li>面对遗留系统或外部系统，用<code>防腐层ACL</code>保护内部模型。</li>
-<li>持续检查代码是否真的表达了业务模型，而不只是技术分层的堆叠。</li>
+<li>先问<code>核心领域</code>是什么，不要默认所有模块同等重要</li>
+<li>先<code>统一术语</code>，再讨论实现，否则设计很容易建立在错位理解上</li>
+<li>先划<code>边界上下文</code>，再决定模块、服务和接口如何拆分</li>
+<li>区分 <code>Entity</code> 和 <code>Value Object</code>，避免无意义的"身份化设计"</li>
+<li>用<code>聚合</code>定义<code>一致性</code>边界，而不是机械映射数据库关系</li>
+<li>面对遗留系统或外部系统，用<code>防腐层ACL</code>保护内部模型</li>
+<li>持续检查代码是否真的表达了业务模型，而不只是技术分层的堆叠</li>
 </ol>
 <h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
 <ol>
-<li>"The heart of software is its ability to solve domain-related problems for its user." — Eric Evans</li>
-<li>"When we set out to write software, we never know enough." — Eric Evans</li>
-<li>"Use the model as the backbone of a language. Commit the team to exercising that language relentlessly in all communication within the team and in the code." — Eric Evans</li>
-<li>"A model is a selectively simplified and consciously structured form of knowledge." — Eric Evans</li>
-<li>"Software design is a constant battle with complexity." — Eric Evans</li>
+<li>The heart of software is its ability to solve domain-related problems for its user.</li>
+<li>Use the model as the backbone of a language. Commit the team to exercising that language relentlessly in all communication within the team and in the code.</li>
+<li>A model is a selectively simplified and consciously structured form of knowledge.</li>
+<li>Software design is a constant battle with complexity.</li>
+</ol>
+<h2 id="links">links</h2>
+<ol>
+<li><a href="https://martinfowler.com/bliki/DomainDrivenDesign.html">https://martinfowler.com/bliki/DomainDrivenDesign.html</a></li>
+<li><a href="https://learn.microsoft.com/en-us/archive/msdn-magazine/2009/february/best-practice-an-introduction-to-domain-driven-design">https://learn.microsoft.com/en-us/archive/msdn-magazine/2009/february/best-practice-an-introduction-to-domain-driven-design</a></li>
+<li><a href="https://blog.bytebytego.com/p/domain-driven-design-ddd-demystified">https://blog.bytebytego.com/p/domain-driven-design-ddd-demystified</a></li>
 </ol></article><aside id="backlinks" class="mt-12 border-t border-slate-200 pt-8"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">被 1 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1774538458-NRHO" class="text-blue-600 underline-offset-4 hover:underline">*-Driven 方法论不能替代经验</a></li></ul></aside><section id="comments" class="mt-12 border-t border-slate-200 pt-8"><h2 class="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-500">评论</h2><script src="https://giscus.app/client.js" data-repo="gh-liu/gh-liu.github.io" data-repo-id="R_kgDOKwsMLg" data-category="General" data-category-id="DIC_kwDOKwsMLs4DAjRD" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="zh-CN" crossorigin="anonymous" async>
-  </script></section></main><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="fixed left-[calc(50%+28rem-2.5rem)] top-8 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:text-blue-600 hover:border-blue-300 lg:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside class="toc fixed left-[calc(50%+28rem)] top-8 hidden w-60 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-4 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1">读书笔记：领域驱动设计</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">读书笔记：领域驱动设计</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">行动：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">金句：</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`text-blue-600`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=`note-toc-hidden`;if(r&&i){let e=e=>{r.style.display=e?`none`:``,i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`text-blue-600`,!e),i.classList.toggle(`border-blue-300`,!e),i.classList.toggle(`text-slate-600`,e),i.classList.toggle(`border-slate-200`,e)};e(localStorage.getItem(a)===`1`),i.addEventListener(`click`,()=>{let t=r.style.display!==`none`;localStorage.setItem(a,t?`1`:`0`),e(t)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.CaMEAfIU.js"></script></body></html>
+  </script></section></main><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="fixed left-[calc(50%+28rem-2.5rem)] top-8 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-600 shadow-sm transition hover:text-blue-600 hover:border-blue-300 lg:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside class="toc fixed left-[calc(50%+28rem)] top-8 hidden w-60 lg:block"><nav class="max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border border-slate-200 bg-white/80 p-4 text-sm shadow-sm backdrop-blur"><h2 class="mb-4 text-xs font-semibold uppercase tracking-wide text-slate-500">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E9%A2%86%E5%9F%9F%E9%A9%B1%E5%8A%A8%E8%AE%BE%E8%AE%A1">读书笔记：领域驱动设计</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">读书笔记：领域驱动设计</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">行动：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">金句：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="block truncate text-slate-600 opacity-40 transition hover:text-blue-600 hover:opacity-100" href="#links">links</a><span class="pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md bg-slate-800 px-2 py-1 text-xs text-white shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`text-blue-600`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=`note-toc-hidden`;if(r&&i){let e=e=>{r.style.display=e?`none`:``,i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`text-blue-600`,!e),i.classList.toggle(`border-blue-300`,!e),i.classList.toggle(`text-slate-600`,e),i.classList.toggle(`border-slate-200`,e)};e(localStorage.getItem(a)===`1`),i.addEventListener(`click`,()=>{let t=r.style.display!==`none`;localStorage.setItem(a,t?`1`:`0`),e(t)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.CaMEAfIU.js"></script></body></html>
