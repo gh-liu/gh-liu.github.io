@@ -1,46 +1,106 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>DOD</title><link rel="stylesheet" href="/_astro/global.CeYziE32.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9ADOD">读书笔记：DOD</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-03-30</span><span class="meta-pill meta-pill-updated rounded-md px-2 py-0.5 text-xs font-medium">2026-03-30</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BN</a></div></div>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读书笔记：Data-Oriented Design</title><link rel="stylesheet" href="/_astro/global.CeYziE32.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9AData-Oriented%20Design">读书笔记：Data-Oriented Design</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-03-30</span><span class="meta-pill meta-pill-updated rounded-md px-2 py-0.5 text-xs font-medium">2026-07-23</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BN</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">Data-Oriented Design</p>
 <blockquote>
-<p><a href="https://www.dataorienteddesign.com/dodbook/">https://www.dataorienteddesign.com/dodbook/</a></p>
+<p><a href="https://www.dataorienteddesign.com/dodbook">https://www.dataorienteddesign.com/dodbook</a></p>
 </blockquote>
 <ul>
-<li>What: 一种以数据的真实特征（类型、数量、频率、形状、概率）和目标硬件约束为出发点来设计数据布局与变换的软件方法论。</li>
-<li>Why: OOP 把问题域概念编码进数据结构，导致数据与含义耦合——缓存不友好、难以并行、需求变更时牵一发动全身；DOD 将数据与含义解耦，让布局服务于硬件、变换服务于当前需求。</li>
-<li>How: 把数据从对象图中剥离、用关系模型范式化为线性表、按访问模式拆分 hot/cold、用"存在即处理"替代分支、用组件管理器替代实例更新——始终针对具体数据的具体特征做设计，拒绝通用化框架。</li>
+<li>是什么（What）：
+<ul>
+<li>一种以<code>数据的真实特征</code>（类型、数量、频率、形状、概率）和<code>目标硬件约束</code>为出发点来设计<code>数据布局与变换</code>的软件方法论</li>
+</ul>
+</li>
+<li>为什么（Why）：
+<ul>
+<li>OOP 把问题域概念编码进数据结构，导致数据与含义耦合（缓存不友好、难以并行、需求变更时牵一发动全身）</li>
+<li>DOD 将数据与含义解耦，让布局服务于硬件、变换服务于当前需求</li>
+</ul>
+</li>
+<li>怎么做（How）：
+<ul>
+<li>把数据从对象图中剥离、用关系模型范式化为线性表、按访问模式拆分 hot/cold、用"存在即处理"替代分支、用组件管理器替代实例更新</li>
+<li>始终针对具体数据的具体特征做设计，拒绝通用化框架</li>
+</ul>
+</li>
 </ul>
 <h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
 <blockquote>
-<p>软件设计应以<strong>数据的布局与变换</strong>为中心，而非以问题域的对象建模为中心。理解数据的类型、数量、频率、形状和概率，结合目标硬件特性来组织数据和编写变换，才能获得高性能、易维护、可演进的系统。</p>
+<p>软件设计应以数据的布局与变换为中心，而非以问题域的对象建模为中心
+理解数据的类型、数量、频率、形状和概率，结合目标硬件特性来组织数据和编写变换，才能获得高性能、易维护、可演进的系统</p>
 </blockquote>
 <p>两大基本原则：</p>
 <ol>
-<li><strong>数据不是问题域（Data is not the problem domain）</strong>——数据本身没有意义，意义是我们赋予的。不要把问题域的概念硬编码进数据结构，否则你会得到 "你想要一根香蕉，结果拿到了拿着香蕉的大猩猩和整个丛林"。</li>
-<li><strong>数据即类型、频率、数量、形状和概率（Data is the type, frequency, quantity, shape, and probability）</strong>——DOD 不只是关于 cache miss，更关于<strong>真实运行时数据的统计特征</strong>。用真实数据的模式驱动算法选择，而非用抽象的泛化方案猜测未来。</li>
+<li>数据不是问题域（Data is not the problem domain）</li>
 </ol>
+<ul>
+<li>数据本身没有意义，意义是我们赋予的。不要把问题域的概念硬编码进数据结构，否则你会得到 "你想要一根香蕉，结果拿到了拿着香蕉的大猩猩和整个丛林"</li>
+</ul>
+<ol start="2">
+<li>数据即类型、频率、数量、形状和概率（Data is the type, frequency, quantity, shape, and probability）</li>
+</ol>
+<ul>
+<li>DOD 不只是关于 cache miss，更关于真实运行时数据的统计特征。用真实数据的模式驱动算法选择，而非用抽象的泛化方案猜测未来</li>
+</ul>
 <h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
 <ol>
-<li><strong>关系模型是整理游戏数据的利器</strong>——把复杂的对象图/层级结构做数据库式的范式化（1NF→BCNF），消除 NULL、消除重复、消除多值字段，你会得到干净的线性数组，天然适合批量处理和缓存友好。</li>
-<li><strong>组件化 → 管理器驱动 → 实体消失</strong>——从单体 Player 类拆出组件，再让管理器按组件类型批量更新，最终实体只是组件的组合，不再需要一个 "Player class"。这打开了并行处理的大门。</li>
-<li><strong>层级细节度（Hierarchical LOD）不只是图形概念</strong>——可以用在 AI、游戏逻辑、甚至 UI 上。核心度量不是距离，而是<strong>玩家感知占比</strong>。"Collective lodding" 让一万架飞机可以只用几个 wave 实体表示，直到靠近才展开。</li>
-<li><strong>JIT Memento</strong>——用确定性种子（如位置坐标、车牌号）生成伪随机细节，不存储却可重复还原。无内存开销，无生命周期管理。</li>
-<li><strong>存在即处理（Existential Processing）</strong>——用数据的<strong>存在与否</strong>代替 bool/enum 分支。把 <code>if (isAlive)</code> 变成 "alive 表里有这条数据"，消除分支、简化调试、天然并行。</li>
-<li><strong>帮助编译器</strong>——减少内存依赖链（避免指针追踪）、利用 cache line 剩余空间缓存常见查询结果、注意 aliasing/false sharing/分支预测，都是低成本高回报的实践。</li>
-<li><strong>OOP 最大的问题是应对变化</strong>——OOP 擅长处理底层实现变更，但面对<strong>需求/设计层面的变化</strong>（频率更高、影响更大）时非常脆弱，因为它把数据和含义绑定在了一起。DOD 把数据和含义解耦，重构变得廉价甚至不需要。</li>
+<li>关系模型是整理游戏数据的利器</li>
 </ol>
-<h2 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h2>
+<ul>
+<li>把复杂的对象图/层级结构做数据库式的范式化（1NF→BCNF），消除 NULL、消除重复、消除多值字段，你会得到干净的线性数组，天然适合批量处理和缓存友好</li>
+</ul>
+<ol start="2">
+<li>组件化 → 管理器驱动 → 实体消失</li>
+</ol>
+<ul>
+<li>从单体 Player 类拆出组件，再让管理器按组件类型批量更新，最终实体只是组件的组合，不再需要一个 "Player class"。这打开了并行处理的大门</li>
+</ul>
+<ol start="3">
+<li>层级细节度（Hierarchical LOD）不只是图形概念</li>
+</ol>
+<ul>
+<li>可以用在 AI、游戏逻辑、甚至 UI 上。核心度量不是距离，而是玩家感知占比。"Collective lodding" 让一万架飞机可以只用几个 wave 实体表示，直到靠近才展开</li>
+</ul>
+<ol start="4">
+<li>JIT Memento</li>
+</ol>
+<ul>
+<li>用确定性种子（如位置坐标、车牌号）生成伪随机细节，不存储却可重复还原。无内存开销，无生命周期管理</li>
+</ul>
+<ol start="5">
+<li>存在即处理（Existential Processing）</li>
+</ol>
+<ul>
+<li>用数据的存在与否代替 bool/enum 分支。把 <code>if (isAlive)</code> 变成 "alive 表里有这条数据"，消除分支、简化调试、天然并行</li>
+</ul>
+<ol start="6">
+<li>帮助编译器</li>
+</ol>
+<ul>
+<li>减少内存依赖链（避免指针追踪）、利用 cache line 剩余空间缓存常见查询结果、注意 aliasing/false sharing/分支预测，都是低成本高回报的实践</li>
+</ul>
+<ol start="7">
+<li>OOP 最大的问题是应对变化</li>
+</ol>
+<ul>
+<li>OOP 擅长处理底层实现变更，但面对需求/设计层面的变化（频率更高、影响更大）时非常脆弱，因为它把数据和含义绑定在了一起。DOD 把数据和含义解耦，重构变得廉价甚至不需要</li>
+</ul>
+<h3 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h3>
 <ol>
-<li>审视当前项目中的 "God Class"（如 Player/Entity），尝试用组件拆分 + 管理器批量更新的模式重构。</li>
-<li>对热路径数据做范式化分析：哪些字段总一起读？哪些只写不读？按 hot/cold 拆分结构体。</li>
-<li>遇到 <code>if (hasX)</code> 式分支时，思考能否用 "存在即处理" 替代——把数据放进对应的表，不在表里就是没有。</li>
-<li>在需要大量同类实体的场景（粒子、NPC、库存物品），用 collective lodding 思维：<strong>位置拥有小麦，而非小麦拥有位置</strong>；用数量而非实例。</li>
+<li>审视当前项目中的 "God Class"（如 Player/Entity），尝试用组件拆分 + 管理器批量更新的模式重构</li>
+<li>对热路径数据做范式化分析：哪些字段总一起读？哪些只写不读？按 hot/cold 拆分结构体</li>
+<li>遇到 <code>if (hasX)</code> 式分支时，思考能否用 "存在即处理" 替代(把数据放进对应的表，不在表里就是没有)</li>
+<li>在需要大量同类实体的场景（粒子、NPC、库存物品），用 collective lodding 思维：位置拥有小麦，而非小麦拥有位置；用数量而非实例</li>
 </ol>
 <h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
 <ol>
-<li>"Data is all we have. Data is what we need to transform in order to create a user experience."</li>
-<li>"You wanted a banana but what you got was a gorilla holding the banana and the entire jungle." —— Joe Armstrong</li>
-<li>"Data-oriented design is the practice of designing software by developing transformations for well-formed data where the criteria for well-formed is guided by the target hardware."</li>
-<li>"The wheat doesn't have positions. The positions have wheat."</li>
-<li>"Future-proof systems rarely are."</li>
-<li>"Level of detail should be defined by how the player perceives a thing, at the range it is at."</li>
-<li>"If state is a function of other state, then it's less prone to inconsistency."</li>
+<li>Data is all we have. Data is what we need to transform in order to create a user experience.</li>
+<li>You wanted a banana but what you got was a gorilla holding the banana and the entire jungle.</li>
+<li>Data-oriented design is the practice of designing software by developing transformations for well-formed data where the criteria for well-formed is guided by the target hardware.</li>
+<li>The wheat doesn't have positions. The positions have wheat.</li>
+<li>Future-proof systems rarely are.</li>
+<li>Level of detail should be defined by how the player perceives a thing, at the range it is at.</li>
+<li>If state is a function of other state, then it's less prone to inconsistency.</li>
+</ol>
+<h2 id="links">links</h2>
+<ol>
+<li><a href="https://www.youtube.com/watch?v=IroPQ150F6c">https://www.youtube.com/watch?v=IroPQ150F6c</a></li>
 </ol></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><script src="https://giscus.app/client.js" data-repo="gh-liu/gh-liu.github.io" data-repo-id="R_kgDOKwsMLg" data-category="General" data-category-id="DIC_kwDOKwsMLs4DAjRD" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="zh-CN" crossorigin="anonymous" async>
-  </script></section></main><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-8 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition lg:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside class="toc fixed left-[calc(50%+28rem)] top-8 hidden w-60 lg:block"><nav class="toc-panel max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur"><h2 class="toc-title mb-4 text-xs font-semibold uppercase tracking-wide">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9ADOD" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9ADOD">读书笔记：DOD</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读书笔记：DOD</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">行动：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">金句：</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=`note-toc-hidden`;if(r&&i){let e=e=>{r.style.display=e?`none`:``,i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(a)===`1`),i.addEventListener(`click`,()=>{let t=r.style.display!==`none`;localStorage.setItem(a,t?`1`:`0`),e(t)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.CaMEAfIU.js"></script></body></html>
+  </script></section></main><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-8 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition lg:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside class="toc fixed left-[calc(50%+28rem)] top-8 hidden w-60 lg:block"><nav class="toc-panel max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur"><h2 class="toc-title mb-4 text-xs font-semibold uppercase tracking-wide">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9AData-Oriented%20Design" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9AData-Oriented%20Design">读书笔记：Data-Oriented Design</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读书笔记：Data-Oriented Design</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">行动：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">金句：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=`note-toc-hidden`;if(r&&i){let e=e=>{r.style.display=e?`none`:``,i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(a)===`1`),i.addEventListener(`click`,()=>{let t=r.style.display!==`none`;localStorage.setItem(a,t?`1`:`0`),e(t)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.CaMEAfIU.js"></script></body></html>
