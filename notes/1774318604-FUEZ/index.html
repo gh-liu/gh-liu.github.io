@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读书笔记：测试驱动开发</title><link rel="stylesheet" href="/_astro/global.CeYziE32.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%B5%8B%E8%AF%95%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91">读书笔记：测试驱动开发</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2021-07-24</span><span class="meta-pill meta-pill-updated rounded-md px-2 py-0.5 text-xs font-medium">2026-07-22</span><a href="#backlinks" class="meta-pill meta-pill-backlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">1 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BN</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">Test-Driven Development: By Example</p>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读书笔记：测试驱动开发</title><link rel="stylesheet" href="/_astro/global.CeYziE32.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%B5%8B%E8%AF%95%E9%A9%B1%E5%8A%A8%E5%BC%80%E5%8F%91">读书笔记：测试驱动开发</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2021-07-24</span><span class="meta-pill meta-pill-updated rounded-md px-2 py-0.5 text-xs font-medium">2026-07-23</span><a href="#backlinks" class="meta-pill meta-pill-backlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">1 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BN</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">Test-Driven Development: By Example</p>
 <blockquote>
 <p><a href="https://book.douban.com/subject/25735501">https://book.douban.com/subject/25735501</a></p>
 </blockquote>
@@ -6,35 +6,42 @@
 <ul>
 <li>是什么（What）：
 <ul>
-<li>测试驱动开发是一种以测试为牵引的开发方法：先写一个失败的测试，再写最少代码让它通过，最后重构代码。它的核心不是<code>补测试</code>，而是用测试驱动设计。</li>
+<li>测试驱动开发是一种以测试先行的开发方法：先写一个失败的测试，再写最少代码让它通过，最后重构代码（补测试，调整代码交替进行）</li>
+<li>核心不是<code>补测试</code>，而是用测试驱动设计</li>
 </ul>
 </li>
 <li>为什么（Why）：
 <ul>
-<li>它的价值在于把需求澄清、接口设计、回归验证和代码重构压缩进一个短反馈循环里，降低返工成本。测试先行会迫使开发者先想清楚代码该对外表现什么行为，以及设计是否过于复杂。</li>
+<li>其价值在于把需求澄清、接口设计、回归验证和代码重构压缩进一个<code>短反馈循环</code>里</li>
+<li>测试先行会迫使开发者先想清楚代码该对外表现什么行为，以及设计是否过于复杂</li>
 </ul>
 </li>
-<li>怎么做（How）
+<li>怎么做（How）：实践上遵循<code>红灯-绿灯-重构</code>的小步节奏：
 <ul>
-<li>实践上遵循<code>红灯-绿灯-重构</code>的小步节奏：先定义一个函数或功能入口，不急着展开实现；再根据当前最先想到的输入输出补一个测试，让它先失败；然后只补足能让这条测试通过的最少实现；接着继续补下一个测试、继续修正实现，如此循环推进。该做的是围绕行为写清晰、可维护的测试；不该做的是一开始就把细节铺满，或把测试写成实现细节的镜像。</li>
+<li>先定义一个函数或功能入口，不急着展开实现</li>
+<li>再根据当前最先想到的输入输出补一个测试，让它先失败</li>
+<li>然后只补足能让这条测试通过的最少实现</li>
+<li>接着继续补下一个测试、继续修正实现，如此循环推进</li>
+<li>该做：围绕行为写清晰、可维护的测试</li>
+<li>不该做：一开始就把细节铺满，或把测试写成实现细节的镜像</li>
 </ul>
 </li>
 </ul>
 <h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
 <ol>
-<li>测试不只是验收工具，更是设计工具。先写测试会逼着自己先从使用者视角思考接口，从而减少<code>代码能跑但不好用</code>的设计。</li>
-<li>好的开发节奏不是一次写对，而是快速暴露错误、快速修正。TDD 提醒我把<code>大块实现</code>拆成可验证的小步前进。</li>
-<li>重构之所以敢做，是因为有测试兜底。测试的真正价值不止在发现 bug，更在于降低持续演进代码的心理成本和实际风险。</li>
+<li>测试不只是验收工具，更是设计工具：先写测试会逼着自己先从使用者视角思考接口，从而减少<code>代码能跑但不好用</code>的设计</li>
+<li>好的开发节奏不是一次写对，而是快速暴露错误、快速修正。TDD 提醒开发人员把<code>大块实现</code>拆成可验证的小步前进</li>
+<li>重构之所以敢做，是因为有测试兜底。测试的真正价值不止在发现 bug，更在于降低持续演进代码的心理成本和实际风险</li>
 </ol>
 <h3 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h3>
 <ol>
-<li>之后写新功能时，先尝试为核心行为补一个失败测试，再开始实现，至少在小模块里刻意练习 <code>红灯-绿灯-重构</code>。</li>
-<li>回顾近期写过的代码，挑一个最容易失控的模块，用<code>先写测试再重构</code>的方式重做一次，体会测试如何影响设计。</li>
-<li>写测试时优先描述外部行为和边界条件，避免让测试绑定过多实现细节，降低后续重构阻力。</li>
+<li>写新功能时，先尝试为核心行为补一个失败测试，再开始实现，至少在小模块里刻意练习 <code>红灯-绿灯-重构</code></li>
+<li>回顾近期写过的代码，挑一个最容易失控的模块，用<code>先写测试再重构</code>的方式重做一次，体会测试如何影响设计</li>
+<li>写测试时优先描述<code>外部行为</code>和<code>边界条件</code>，避免让测试绑定过多实现细节，降低后续重构阻力</li>
 </ol>
 <h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
 <ol>
-<li>Clean code that works — is the goal of Test-Driven Development.</li>
+<li>Clean code that works is the goal of Test-Driven Development.</li>
 <li>Test-driven development is a way of managing fear during programming.</li>
 <li>Write a failing automated test before you write any code.</li>
 </ol>
