@@ -1,45 +1,108 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>修改代码的艺术</title><link rel="stylesheet" href="/_astro/global.MhECkUxA.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E4%BF%AE%E6%94%B9%E4%BB%A3%E7%A0%81%E7%9A%84%E8%89%BA%E6%9C%AF">读书笔记：修改代码的艺术</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-04-09</span><span class="meta-pill meta-pill-updated rounded-md px-2 py-0.5 text-xs font-medium">2026-04-09</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BN</a></div></div>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读书笔记：修改代码的艺术</title><link rel="stylesheet" href="/_astro/global.MhECkUxA.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E4%BF%AE%E6%94%B9%E4%BB%A3%E7%A0%81%E7%9A%84%E8%89%BA%E6%9C%AF">读书笔记：修改代码的艺术</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2022-12-09</span><span class="meta-pill meta-pill-updated rounded-md px-2 py-0.5 text-xs font-medium">2026-07-24</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BN</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">Working Effectively with Legacy Code</p>
 <blockquote>
-<p>Working Effectively with Legacy Code</p>
+<p><a href="https://book.douban.com/subject/2248759/">https://book.douban.com/subject/2248759/</a></p>
 </blockquote>
-<blockquote>
-<p><a href="https://book.douban.com/subject/1428943/">https://book.douban.com/subject/1428943/</a></p>
-</blockquote>
-<p>一句话：教你如何在没有测试的遗留代码中安全地打破依赖、补上测试、自信地修改——而不是推倒重写。</p>
 <ul>
-<li>是什么（What）— 遗留代码 = 没有测试的代码；缝（Seam）= 不改源码就能替换行为的位置，本质是代码中的可替换点（而非分隔点）；特征测试 = 锁定现有行为而非期望行为的测试</li>
-<li>为什么（Why）— 重写风险高、成本大，渐进式改造才是现实选择；没有测试就无法自信修改，而依赖是写不了测试的根本原因</li>
-<li>怎么做（How）— 找接缝 → 打破依赖（提取接口/子类化重写/参数化构造函数）→ 写特征测试锁定行为 → 小步修改；用草稿重构理解代码，用影响草图控制波及范围</li>
+<li>是什么（What）：
+<ul>
+<li>遗留代码 = 没有测试的代码</li>
+<li>缝（Seam）= 不改源码就能替换行为的位置，本质是代码中的可替换点（而非分隔点）</li>
+<li>特征测试 = 锁定现有行为而非期望行为的测试</li>
 </ul>
+</li>
+<li>为什么（Why）：
+<ul>
+<li>重写风险高、成本大，渐进式改造才是现实选择</li>
+<li>没有测试就无法自信修改，而依赖是写不了测试的根本原因</li>
+</ul>
+</li>
+<li>怎么做（How）：
+<ul>
+<li>找接缝 → 打破依赖（提取接口/子类化重写/参数化构造函数）→ 写特征测试锁定行为 → 小步修改</li>
+<li>用草稿重构理解代码，用影响草图控制波及范围</li>
+</ul>
+</li>
+</ul>
+<p>如何在没有测试的遗留代码中安全地打破依赖、补上测试、自信地修改，而不是推倒重写。</p>
 <h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
-<blockquote>
-<p>遗留代码 = 没有测试的代码。修改遗留代码的核心循环是：<strong>找到变更点 → 找到测试点 → 打破依赖 → 写测试 → 修改</strong>。安全地修改代码的前提不是"理解全部"，而是"能用测试保护你要动的那一小块"。</p>
-</blockquote>
-<blockquote>
-<p>遗留代码 = 没有测试的代码（没有测试就不敢改）。解法是逐步增加测试：找到缝（代码中已有的、不修改源码就能替换行为的位置）→ 制造缝（通过最小的结构性重构如提取接口来创造可替换点）→ 使用缝（注入测试替身，开始写测试）。测试什么？用特征测试记录当前行为——不需要完全理解代码，先把"它现在是怎样的"锁定下来，然后在这个安全网上增量覆盖修改后的新行为。</p>
-</blockquote>
+<ol>
+<li>修改遗留代码（没有测试的代码）的核心循环是：找到变更点 → 找到测试点 → 打破依赖 → 写测试 → 修改</li>
+</ol>
+<ul>
+<li>找到缝（代码中已有的、不修改源码就能替换行为的位置）</li>
+<li>制造缝（通过最小的结构性重构如提取接口来创造可替换点）</li>
+<li>使用缝（注入测试替身，开始写测试）</li>
+<li>逐步增加测试</li>
+</ul>
+<ol start="2">
+<li>安全地修改代码的前提不是"理解全部"，而是"能用测试保护你要动的那一小块"</li>
+</ol>
+<ul>
+<li>用特征测试记录当前行为，不需要完全理解代码，先把"它现在是怎样的"锁定下来，然后在这个安全网之上增量覆盖修改后的新行为</li>
+</ul>
 <h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
 <ol>
-<li><strong>遗留代码的定义与心态</strong>（What/Why）— 遗留代码不是"老代码"，而是"没有测试覆盖、无法自信修改的代码"。这个定义把问题从"代码年龄"转移到"可修改性"，改变了我们对待旧代码的态度：不是重写，而是逐步驯化。</li>
-<li><strong>接缝（Seam）是打破依赖的关键抽象</strong>（What/How）— 接缝是程序中"不用修改源码就能改变行为"的位置。三种接缝：预处理接缝、链接接缝、对象接缝。找到接缝就能注入测试替身，让不可测代码变得可测。这是全书最核心的技术概念。</li>
-<li><strong>"先写测试再改代码"的悖论与破解</strong>（Why/How）— 要安全修改代码需要测试，但要写测试又需要先修改代码（打破依赖）。解法：允许做最小的、保守的结构性重构（如提取接口、参数化构造函数）来引入接缝，这些重构风险极低，可以不需要测试保护。</li>
-<li><strong>Characterization Test（特征测试）</strong>（How）— 不是验证"代码应该怎样"，而是记录"代码现在怎样"。先观察当前行为，再把它锁定为测试。这让你在不理解全部逻辑的情况下也能安全修改。</li>
-<li><strong>Scratch Refactoring（草稿重构）</strong>（How）— 当代码太复杂无法理解时，大胆地重构它来理解结构，然后<strong>丢弃所有修改</strong>。目的不是改代码，而是建立理解。这是一种低风险的学习手段。</li>
-<li><strong>修改代码的四个理由</strong>（What）— 添加功能、修复 Bug、改善设计、优化性能。每种理由下变与不变的部分不同，清楚区分能帮助你控制修改范围。</li>
-<li><strong>"编辑并祈祷" vs "覆盖并修改"</strong>（Why）— 前者是没有测试时的常见做法：小心翼翼地改，然后祈祷没出错。后者是用测试覆盖住要改的区域，然后自信地修改。两种方式的心理负担和风险完全不同。</li>
-<li><strong>效果的传播与影响分析</strong>（How）— 修改一个变量/方法后，影响会沿着数据流和调用链传播。画出"影响草图（effect sketch）"能帮你确定最小测试范围，避免"改一处崩十处"。</li>
+<li>遗留代码的定义与心态（What/Why）
+<ul>
+<li>遗留代码不是"老代码"，而是"没有测试覆盖、无法自信修改的代码"。这个定义把问题从"代码年龄"转移到"可修改性"，改变了我们对待旧代码的态度：不是重写，而是逐步驯化</li>
+</ul>
+</li>
+<li>接缝（Seam）是打破依赖的关键抽象（What/How）
+<ul>
+<li>接缝是程序中"不用修改源码就能改变行为"的位置。</li>
+<li>三种接缝：预处理接缝、链接接缝、对象接缝。找到接缝就能注入测试替身，让不可测代码变得可测。这是全书最核心的技术概念</li>
+</ul>
+</li>
+<li>"先写测试再改代码"的悖论与破解（Why/How）
+<ul>
+<li>要安全修改代码需要测试，但要写测试又需要先修改代码（打破依赖）。</li>
+<li>解法：允许做最小的、保守的结构性重构（如提取接口、参数化构造函数）来引入接缝，这些重构风险极低，可以不需要测试保护</li>
+</ul>
+</li>
+<li>Characterization Test（特征测试）（How）
+<ul>
+<li>不是验证"代码应该怎样"，而是记录"代码现在怎样"</li>
+<li>先观察当前行为，再把它锁定为测试。这让你在不理解全部逻辑的情况下也能安全修改</li>
+</ul>
+</li>
+<li>Scratch Refactoring（草稿重构）（How）
+<ul>
+<li>当代码太复杂无法理解时，大胆地重构它来理解结构，然后丢弃所有修改。目的不是改代码，而是建立理解。这是一种低风险的学习手段</li>
+</ul>
+</li>
+<li>修改代码的四个理由（What）
+<ul>
+<li>添加功能、修复 Bug、改善设计、优化性能。每种理由下变与不变的部分不同，清楚区分能帮助你控制修改范围</li>
+</ul>
+</li>
+<li>"编辑并祈祷" vs "覆盖并修改"（Why）
+<ul>
+<li>前者是没有测试时的常见做法：小心翼翼地改，然后祈祷没出错</li>
+<li>后者是用测试覆盖住要改的区域，然后自信地修改</li>
+<li>两种方式的心理负担和风险完全不同</li>
+</ul>
+</li>
+<li>效果的传播与影响分析（How）
+<ul>
+<li>修改一个变量/方法后，影响会沿着数据流和调用链传播。画出"影响草图（effect sketch）"能帮你确定最小测试范围，避免"改一处崩十处"</li>
+</ul>
+</li>
 </ol>
-<h2 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h2>
+<h3 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h3>
 <ol>
-<li>面对遗留代码时，先问"接缝在哪里"，用提取接口、子类化并重写、参数化构造函数等手法打破依赖，再补特征测试</li>
+<li>面对遗留代码时，先问"接缝在哪里"，用提取接口、参数化构造函数等手法打破依赖，再补特征测试</li>
 <li>对看不懂的代码做草稿重构：放心大胆地改，理解后 <code>git checkout</code> 丢掉，再用正式流程修改</li>
 <li>每次修改前画影响草图，明确"我这次改动会波及哪些路径"，用测试覆盖这些路径</li>
 </ol>
 <h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
 <ol>
-<li>"Legacy code is simply code without tests."</li>
-<li>"A seam is a place where you can alter behavior in your program without editing in that place."</li>
-<li>"When we have tests, we can make changes with confidence. Without them, we just don't know."</li>
-<li>"Dependency is one of the most critical problems in software development. Much of the work in getting legacy code under test involves breaking dependencies."</li>
-<li>"Programming is the art of doing one thing at a time."</li>
-</ol></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E4%BF%AE%E6%94%B9%E4%BB%A3%E7%A0%81%E7%9A%84%E8%89%BA%E6%9C%AF" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E4%BF%AE%E6%94%B9%E4%BB%A3%E7%A0%81%E7%9A%84%E8%89%BA%E6%9C%AF">读书笔记：修改代码的艺术</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读书笔记：修改代码的艺术</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">行动：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">金句：</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
+<li>Legacy code is simply code without tests.</li>
+<li>A seam is a place where you can alter behavior in your program without editing in that place.</li>
+<li>When we have tests, we can make changes with confidence. Without them, we just don't know.</li>
+<li>Dependency is one of the most critical problems in software development. Much of the work in getting legacy code under test involves breaking dependencies.</li>
+<li>Programming is the art of doing one thing at a time.</li>
+</ol>
+<h2 id="links">links</h2>
+<ol>
+<li><a href="https://www.oreilly.com/library/view/working-effectively-with/0131177052/">https://www.oreilly.com/library/view/working-effectively-with/0131177052/</a></li>
+</ol></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E4%BF%AE%E6%94%B9%E4%BB%A3%E7%A0%81%E7%9A%84%E8%89%BA%E6%9C%AF" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E4%BF%AE%E6%94%B9%E4%BB%A3%E7%A0%81%E7%9A%84%E8%89%BA%E6%9C%AF">读书笔记：修改代码的艺术</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读书笔记：修改代码的艺术</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">行动：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">金句：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
