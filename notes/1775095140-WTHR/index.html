@@ -5,7 +5,7 @@
 <li>Q: 如何在保持交付速度的同时，让系统具备<code>独立演进</code>和<code>弹性扩展</code>的能力？</li>
 <li>A: 按业务能力<code>拆分</code>为一组小型、自治的服务（微服务），每个服务独立开发、部署、扩展，通过轻量级通信协作</li>
 </ul>
-<p>引出了几个问题：怎么拆？服务之间怎么通信？服务各自的数据如何管理？</p>
+<p>引出了几个问题：怎么拆？如何通信？如何管理数据？如何独立交付和运行？</p>
 <h2 id="%E6%80%8E%E4%B9%88%E6%8B%86">怎么拆</h2>
 <p><strong>核心特征</strong>：</p>
 <table>
@@ -22,11 +22,11 @@
 </tr>
 <tr>
 <td>自治</td>
-<td>独立代码库、独立部署、独立数据存储</td>
+<td>独立开发、测试、部署和回滚</td>
 </tr>
 <tr>
 <td>去中心化治理</td>
-<td>团队可自主选择语言、框架、存储</td>
+<td>团队自治，但遵守统一的交付和安全底线</td>
 </tr>
 <tr>
 <td>可独立替换</td>
@@ -42,9 +42,12 @@
 <ol>
 <li>按业务能力（Business Capability）：订单、支付、库存各自成服务。最常用的是组织架构对齐（康威定律）</li>
 <li>按子域（Subdomain）：用 <a href="/notes/1773468681-NQHZ">领域驱动设计</a> 识别 bounded context，核心域、支撑域、通用域，分别建服务</li>
-<li>Strangler Fig 模式：从单体边缘逐步抽取服务，新功能用新服务，旧功能逐步迁移</li>
+<li>Strangler Fig 模式：从单体边缘逐步抽取服务；迁移期间明确数据的唯一事实来源，避免长期双写</li>
 </ol>
-<h3 id="%E5%8F%AF%E9%9D%A0%E6%80%A7">可靠性</h3>
+<blockquote>
+<p>服务边界的验收标准不是足够小，而是能否独立变更、部署和回滚。若仍需多个服务锁步发布，就是分布式单体。</p>
+</blockquote>
+<h2 id="%E5%8F%AF%E9%9D%A0%E6%80%A7">可靠性</h2>
 <ul>
 <li>调用下游（包括内部服务和第三方 API）：
 <ul>
@@ -107,8 +110,14 @@
 </tbody>
 </table>
 <blockquote>
-<p>优先选异步：降低耦合、提高弹性；只在需要即时响应时才用同步。</p>
+<p>必须立即获得结果时使用同步；允许延迟、需要削峰或一对多通知时使用异步。两者是在选择不同的耦合和失败方式。</p>
 </blockquote>
+<h3 id="%E5%A5%91%E7%BA%A6%E6%BC%94%E8%BF%9B">契约演进</h3>
+<ul>
+<li>API 和事件应隐藏内部数据模型，并保持向后兼容</li>
+<li>使用扩展式变更，确认消费者迁移后再删除旧字段或版本</li>
+<li>用消费者驱动契约测试验证服务能否独立发布</li>
+</ul>
 <h3 id="%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86">服务治理</h3>
 <ul>
 <li>服务发现：Consul / etcd / K8s DNS</li>
@@ -118,32 +127,47 @@
 </ul>
 <h2 id="%E6%9C%8D%E5%8A%A1%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86">服务数据管理</h2>
 <ul>
-<li>每个服务拥有自己的数据库，杜绝直接访问他人数据</li>
+<li>每个服务拥有自己的数据，其他服务只能通过 API 或事件访问；不强制使用独立数据库实例</li>
 <li>跨服务查询：用 API Composition 或 <a href="/notes/1779269996-MEFH">CQRS</a></li>
 <li>分布式事务：
 <ul>
-<li>避免两阶段提交（2PC）：性能差、可用性低</li>
-<li>用 Saga 模式：把事务拆成一系列本地事务 + 补偿操作
+<li>避免两阶段提交（2PC）：性能和可用性代价高</li>
+<li>Saga：用一系列本地事务与补偿操作实现最终一致性，但不提供事务隔离
 <ul>
-<li>编排式（Choreography）：服务间通过事件协调</li>
-<li>指挥式（Orchestration）：由一个协调器统一指挥</li>
+<li>协同式（Choreography）：参与者通过事件协作</li>
+<li>编排式（Orchestration）：由编排器显式驱动流程</li>
+</ul>
+</li>
+<li>补偿不是回滚，而是新的业务操作；它必须可重试、幂等，并允许人工介入</li>
+</ul>
+</li>
+<li>可靠消息：
+<ul>
+<li>Transactional Outbox：在同一本地事务中写业务数据和待发送消息</li>
+<li>幂等消费者：用消息 ID 或业务幂等键处理至少一次投递产生的重复消息</li>
 </ul>
 </li>
 </ul>
-</li>
+<h2 id="%E4%BA%A4%E4%BB%98%E4%B8%8E%E6%B5%8B%E8%AF%95">交付与测试</h2>
+<ul>
+<li>每个服务拥有独立流水线，能够独立构建、测试、部署和回滚</li>
+<li>测试以服务内测试和契约测试为主，只保留少量关键路径的端到端测试</li>
+<li>跨职能团队端到端拥有服务；平台提供部署、可观测性和安全的统一能力</li>
+<li>服务间调用也要验证身份和权限，不默认内部网络可信</li>
 </ul>
 <h2 id="%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7(LTM%3A%20Log%2FTrace%2FMetric)">可观测性(LTM: Log/Trace/Metric)</h2>
 <ul>
 <li>分布式追踪（OpenTelemetry / Jaeger）：跟踪请求在多个服务间的链路。</li>
 <li>集中日志（ELK / Loki）：统一收集、关联日志。</li>
 <li>指标监控（Prometheus + Grafana）：延迟、错误率、吞吐量。</li>
+<li>使用 trace ID、message ID、业务 ID 关联信号，围绕用户旅程定义 SLO 和告警</li>
 </ul>
 <h2 id="%E4%BD%A0%E7%9C%9F%E7%9A%84%E9%9C%80%E8%A6%81%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%90%97%EF%BC%9F">你真的需要微服务吗？</h2>
 <blockquote>
 <p>微服务不是目标，独立交付能力才是目标。如果模块化单体（Modular Monolith）能满足需求，就不需要微服务。</p>
 </blockquote>
 <ul>
-<li>团队 &#x3C; 10 人，单体足够</li>
+<li>团队较小、系统简单，且没有独立交付、扩展或故障隔离需求时，模块化单体成本更低</li>
 <li>领域边界不清晰，过早拆分只会反复重构</li>
 <li>没有自动化基础设施（CI/CD、容器编排、监控），运维成本会吞噬开发效率</li>
 <li>低延迟要求极高的场景（如高频交易），进程间通信开销不可接受</li>
@@ -155,4 +179,4 @@
 <li><a href="https://microservices.io/patterns">https://microservices.io/patterns</a></li>
 <li><a href="https://learn.microsoft.com/zh-cn/azure/architecture/patterns/strangler-fig">https://learn.microsoft.com/zh-cn/azure/architecture/patterns/strangler-fig</a></li>
 </ol></article><aside id="outlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">引用了 2 篇笔记</h2><ul class="space-y-2"><li><a href="/notes/1773468681-NQHZ" class="note-link underline-offset-4 hover:underline">读书笔记：领域驱动设计</a></li><li><a href="/notes/1779269996-MEFH" class="note-link underline-offset-4 hover:underline">cqrs</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><script src="https://giscus.app/client.js" data-repo="gh-liu/gh-liu.github.io" data-repo-id="R_kgDOKwsMLg" data-category="General" data-category-id="DIC_kwDOKwsMLs4DAjRD" data-mapping="pathname" data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="light" data-lang="zh-CN" crossorigin="anonymous" async>
-  </script></section></main><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-8 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition lg:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside class="toc fixed left-[calc(50%+28rem)] top-8 hidden w-60 lg:block"><nav class="toc-panel max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur"><h2 class="toc-title mb-4 text-xs font-semibold uppercase tracking-wide">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E5%BE%AE%E6%9C%8D%E5%8A%A1" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E5%BE%AE%E6%9C%8D%E5%8A%A1">如何设计微服务</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">如何设计微服务</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%80%8E%E4%B9%88%E6%8B%86" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%80%8E%E4%B9%88%E6%8B%86">怎么拆</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">怎么拆</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%8F%AF%E9%9D%A0%E6%80%A7" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7">可靠性</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">可靠性</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E5%A6%82%E4%BD%95%E9%80%9A%E4%BF%A1" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E5%A6%82%E4%BD%95%E9%80%9A%E4%BF%A1">服务之间如何通信</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">服务之间如何通信</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86">服务治理</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">服务治理</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%9C%8D%E5%8A%A1%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%9C%8D%E5%8A%A1%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86">服务数据管理</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">服务数据管理</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7(LTM%3A%20Log%2FTrace%2FMetric)" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7(LTM%3A%20Log%2FTrace%2FMetric)">可观测性(LTM: Log/Trace/Metric)</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">可观测性(LTM: Log/Trace/Metric)</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%BD%A0%E7%9C%9F%E7%9A%84%E9%9C%80%E8%A6%81%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%90%97%EF%BC%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BD%A0%E7%9C%9F%E7%9A%84%E9%9C%80%E8%A6%81%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%90%97%EF%BC%9F">你真的需要微服务吗？</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">你真的需要微服务吗？</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=`note-toc-hidden`;if(r&&i){let e=e=>{r.style.display=e?`none`:``,i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(a)===`1`),i.addEventListener(`click`,()=>{let t=r.style.display!==`none`;localStorage.setItem(a,t?`1`:`0`),e(t)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.CaMEAfIU.js"></script></body></html>
+  </script></section></main><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-8 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition lg:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside class="toc fixed left-[calc(50%+28rem)] top-8 hidden w-60 lg:block"><nav class="toc-panel max-h-[calc(100vh-4rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur"><h2 class="toc-title mb-4 text-xs font-semibold uppercase tracking-wide">目录</h2><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E5%BE%AE%E6%9C%8D%E5%8A%A1" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%A6%82%E4%BD%95%E8%AE%BE%E8%AE%A1%E5%BE%AE%E6%9C%8D%E5%8A%A1">如何设计微服务</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">如何设计微服务</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%80%8E%E4%B9%88%E6%8B%86" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%80%8E%E4%B9%88%E6%8B%86">怎么拆</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">怎么拆</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%8F%AF%E9%9D%A0%E6%80%A7" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7">可靠性</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">可靠性</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E5%A6%82%E4%BD%95%E9%80%9A%E4%BF%A1" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%9C%8D%E5%8A%A1%E4%B9%8B%E9%97%B4%E5%A6%82%E4%BD%95%E9%80%9A%E4%BF%A1">服务之间如何通信</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">服务之间如何通信</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%A5%91%E7%BA%A6%E6%BC%94%E8%BF%9B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%A5%91%E7%BA%A6%E6%BC%94%E8%BF%9B">契约演进</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">契约演进</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%9C%8D%E5%8A%A1%E6%B2%BB%E7%90%86">服务治理</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">服务治理</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%9C%8D%E5%8A%A1%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%9C%8D%E5%8A%A1%E6%95%B0%E6%8D%AE%E7%AE%A1%E7%90%86">服务数据管理</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">服务数据管理</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%BA%A4%E4%BB%98%E4%B8%8E%E6%B5%8B%E8%AF%95" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BA%A4%E4%BB%98%E4%B8%8E%E6%B5%8B%E8%AF%95">交付与测试</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">交付与测试</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7(LTM%3A%20Log%2FTrace%2FMetric)" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8F%AF%E8%A7%82%E6%B5%8B%E6%80%A7(LTM%3A%20Log%2FTrace%2FMetric)">可观测性(LTM: Log/Trace/Metric)</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">可观测性(LTM: Log/Trace/Metric)</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%BD%A0%E7%9C%9F%E7%9A%84%E9%9C%80%E8%A6%81%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%90%97%EF%BC%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BD%A0%E7%9C%9F%E7%9A%84%E9%9C%80%E8%A6%81%E5%BE%AE%E6%9C%8D%E5%8A%A1%E5%90%97%EF%BC%9F">你真的需要微服务吗？</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">你真的需要微服务吗？</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=`note-toc-hidden`;if(r&&i){let e=e=>{r.style.display=e?`none`:``,i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(a)===`1`),i.addEventListener(`click`,()=>{let t=r.style.display!==`none`;localStorage.setItem(a,t?`1`:`0`),e(t)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.CaMEAfIU.js"></script></body></html>
