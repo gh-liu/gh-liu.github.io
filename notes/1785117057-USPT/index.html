@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读博客：Making 768 servers look like 1</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E5%8D%9A%E5%AE%A2%EF%BC%9AMaking%20768%20servers%20look%20like%201">读博客：Making 768 servers look like 1</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-07-27</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-27</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BLN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BLN</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">通过分片、SQL Router 与负载均衡，把数百个数据库节点抽象成一个逻辑数据库。</p>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读博客：Making 768 servers look like 1</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E5%8D%9A%E5%AE%A2%EF%BC%9AMaking%20768%20servers%20look%20like%201">读博客：Making 768 servers look like 1</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-07-27</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-27</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BLN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BLN</a><a href="/tags/system-design" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">system-design</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">通过分片、SQL Router 与负载均衡，把数百个数据库节点抽象成一个逻辑数据库。</p>
 <blockquote>
 <p><a href="https://planetscale.com/blog/making-768-servers-look-like-1">https://planetscale.com/blog/making-768-servers-look-like-1</a></p>
 </blockquote>
@@ -139,29 +139,29 @@
 <h3 id="Router%20%E5%A6%82%E4%BD%95%E7%9F%A5%E9%81%93%E6%95%B0%E6%8D%AE%E5%9C%A8%E5%93%AA%E9%87%8C">Router 如何知道数据在哪里</h3>
 <p>数据库的表结构和访问模式各不相同，因此分布规则不能全部硬编码在 Router 中。Neki 和 Vitess 使用 JSON 元数据描述逻辑表到物理分片的映射，例如：</p>
 <figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#f5de19" d="M4.014 14.976a2.5 2.5 0 0 0 1.567-.518a2.38 2.38 0 0 0 .805-1.358a15.3 15.3 0 0 0 .214-2.944q.012-2.085.075-2.747a5.2 5.2 0 0 1 .418-1.686a3 3 0 0 1 .755-1.018A3.05 3.05 0 0 1 9 4.125A6.8 6.8 0 0 1 10.544 4h.7v1.96h-.387a2.34 2.34 0 0 0-1.723.468a3.4 3.4 0 0 0-.425 2.092a36 36 0 0 1-.137 4.133a4.7 4.7 0 0 1-.768 2.06A4.6 4.6 0 0 1 6.1 16a3.8 3.8 0 0 1 1.992 1.754a8.9 8.9 0 0 1 .618 3.865q0 2.435.05 2.9a1.76 1.76 0 0 0 .504 1.181a2.64 2.64 0 0 0 1.592.337h.387V28h-.7a5.7 5.7 0 0 1-1.773-.2a2.97 2.97 0 0 1-1.324-.93a3.35 3.35 0 0 1-.681-1.63a24 24 0 0 1-.165-3.234a16.5 16.5 0 0 0-.214-3.106a2.4 2.4 0 0 0-.805-1.361a2.5 2.5 0 0 0-1.567-.524Zm23.972 2.035a2.5 2.5 0 0 0-1.567.524a2.4 2.4 0 0 0-.805 1.361a16.5 16.5 0 0 0-.212 3.109a24 24 0 0 1-.169 3.234a3.35 3.35 0 0 1-.681 1.63a2.97 2.97 0 0 1-1.324.93a5.7 5.7 0 0 1-1.773.2h-.7V26.04h.387a2.64 2.64 0 0 0 1.592-.337a1.76 1.76 0 0 0 .506-1.186q.05-.462.05-2.9a8.9 8.9 0 0 1 .618-3.865A3.8 3.8 0 0 1 25.9 16a4.6 4.6 0 0 1-1.7-1.286a4.7 4.7 0 0 1-.768-2.06a36 36 0 0 1-.137-4.133a3.4 3.4 0 0 0-.425-2.092a2.34 2.34 0 0 0-1.723-.468h-.387V4h.7a6.8 6.8 0 0 1 1.54.125a3.05 3.05 0 0 1 1.149.581a3 3 0 0 1 .755 1.018a5.2 5.2 0 0 1 .418 1.686q.062.662.075 2.747a15.3 15.3 0 0 0 .212 2.947a2.38 2.38 0 0 0 .805 1.355a2.5 2.5 0 0 0 1.567.518Z"/></svg>json</span><button type="button" class="code-copy-button" data-code="{
-  &#x22;shard_indexes&#x22;: {
-    &#x22;user_hash&#x22;: {
-      &#x22;type&#x22;: &#x22;hash&#x22;
-    }
-  },
-  &#x22;tables&#x22;: {
-    &#x22;user&#x22;: {
-      &#x22;shard_by&#x22;: &#x22;user_hash&#x22;,
-      &#x22;column&#x22;: &#x22;id&#x22;
-    }
-  }
+       &#x22;shard_indexes&#x22;: {
+              &#x22;user_hash&#x22;: {
+                     &#x22;type&#x22;: &#x22;hash&#x22;
+              }
+       },
+       &#x22;tables&#x22;: {
+              &#x22;user&#x22;: {
+                     &#x22;shard_by&#x22;: &#x22;user_hash&#x22;,
+                     &#x22;column&#x22;: &#x22;id&#x22;
+              }
+       }
 }">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="json" data-theme="nord"><code data-language="json" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#ECEFF4">{</span></span>
-<span data-line=""><span style="color:#ECEFF4">  "</span><span style="color:#8FBCBB">shard_indexes</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#ECEFF4">    "</span><span style="color:#8FBCBB">user_hash</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#ECEFF4">      "</span><span style="color:#8FBCBB">type</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">hash</span><span style="color:#ECEFF4">"</span></span>
-<span data-line=""><span style="color:#ECEFF4">    }</span></span>
-<span data-line=""><span style="color:#ECEFF4">  },</span></span>
-<span data-line=""><span style="color:#ECEFF4">  "</span><span style="color:#8FBCBB">tables</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#ECEFF4">    "</span><span style="color:#8FBCBB">user</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#ECEFF4">      "</span><span style="color:#8FBCBB">shard_by</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">user_hash</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span></span>
-<span data-line=""><span style="color:#ECEFF4">      "</span><span style="color:#8FBCBB">column</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">id</span><span style="color:#ECEFF4">"</span></span>
-<span data-line=""><span style="color:#ECEFF4">    }</span></span>
-<span data-line=""><span style="color:#ECEFF4">  }</span></span>
+<span data-line=""><span style="color:#ECEFF4">       "</span><span style="color:#8FBCBB">shard_indexes</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#ECEFF4">              "</span><span style="color:#8FBCBB">user_hash</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#ECEFF4">                     "</span><span style="color:#8FBCBB">type</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">hash</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""><span style="color:#ECEFF4">              }</span></span>
+<span data-line=""><span style="color:#ECEFF4">       },</span></span>
+<span data-line=""><span style="color:#ECEFF4">       "</span><span style="color:#8FBCBB">tables</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#ECEFF4">              "</span><span style="color:#8FBCBB">user</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#ECEFF4">                     "</span><span style="color:#8FBCBB">shard_by</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">user_hash</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#ECEFF4">                     "</span><span style="color:#8FBCBB">column</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">id</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""><span style="color:#ECEFF4">              }</span></span>
+<span data-line=""><span style="color:#ECEFF4">       }</span></span>
 <span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
 <p>这段配置表达两个事实：<code>user</code> 表以 <code>id</code> 为分片键，并通过 <code>user_hash</code> 计算目标分片。Router 结合这份拓扑元数据和 SQL 中的谓词，决定查询应该发往哪里。</p>
 <p><strong>配置化解决的是“如何把业务数据模型告诉通用 Router”的问题，但配置本身仍是数据库设计的一部分</strong>：分片键选错后，热点、跨片查询和数据迁移成本都不会被 Router 自动消除。</p>
