@@ -1,0 +1,206 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读书笔记：深入理解分布式系统</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F">读书笔记：深入理解分布式系统</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2025-04-27</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-27</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BN</a><a href="/tags/Distributed" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">Distributed</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">分布式系统模型、数据复制、一致性、共识、事务与时间</p>
+<blockquote>
+<p><a href="https://book.douban.com/subject/35794814/">https://book.douban.com/subject/35794814/</a></p>
+</blockquote>
+<ul>
+<li>是什么（What）：
+<ul>
+<li>一套理解分布式系统的基础知识框架：从故障与时间模型出发，连接数据分区、复制、一致性、共识、事务和经典系统设计</li>
+<li>分布式系统不是“许多机器组成的系统”这么简单，而是一组独立节点通过不可靠网络协作，并对外提供某种统一语义的系统</li>
+</ul>
+</li>
+<li>为什么（Why）：
+<ul>
+<li>分布式带来容量、性能、可用性和地理扩展能力，也把网络延迟、部分失效、时钟偏差和并发竞争变成正常情况</li>
+<li>只有先明确系统模型与语义承诺，才能判断一个方案在什么条件下正确，以及用延迟、可用性和复杂度换来了什么</li>
+</ul>
+</li>
+<li>怎么做（How）：
+<ul>
+<li>先定义故障模型、网络模型和时间假设，再选择分区、复制、一致性、共识和事务机制</li>
+<li>用不变量、状态机和消息交互分析协议；分别验证安全性与活性，不用正常路径上的测试代替故障推理</li>
+<li>从 GFS、ZooKeeper、Bigtable、Dynamo、Cassandra、Spanner、MapReduce 和 Flink 等案例中学习机制如何组合</li>
+</ul>
+</li>
+</ul>
+<h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
+<blockquote>
+<p>分布式系统设计的本质，是在无法可靠区分“节点故障、网络故障和响应缓慢”的环境中，仍然对外提供明确且可验证的数据与操作语义。</p>
+</blockquote>
+<blockquote>
+<p>算法和架构都建立在系统模型之上。模型越强，算法越容易；现实越接近异步和部分失效，系统就越需要超时、重试、幂等、仲裁与共识来弥补不确定性。</p>
+</blockquote>
+<ul>
+<li>
+<p>先建模，再讨论正确性</p>
+<ul>
+<li>网络可能丢包、重复、乱序和分区；节点可能崩溃、暂停、遗漏消息，甚至产生任意行为</li>
+<li>同步模型假设处理和通信有已知上界，异步模型不提供时间上界，部分同步模型则允许系统最终进入有界状态</li>
+<li>超时只是故障检测的线索，不是事实：没有收到响应，无法证明对方没有执行请求</li>
+<li>消息传递通常只能直接实现至多一次或至少一次；所谓精确一次，需要去重、幂等、事务或端到端协议共同提供业务效果</li>
+</ul>
+</li>
+<li>
+<p>分区与复制解决不同问题，也制造不同问题</p>
+<ul>
+<li>分区把数据和负载拆到多个节点，解决容量与吞吐问题；范围分区利于区间扫描但容易形成热点，哈希分区更均匀但削弱范围查询</li>
+<li>复制用冗余换取读扩展和容错，却引入副本滞后、写冲突、故障切换和一致性问题</li>
+<li>单主复制简化写入顺序，多主复制支持多地写入但必须解决冲突，无主复制依靠 Quorum 协调读写并修复副本</li>
+<li>分片后的重平衡、热点、路由和跨分片操作，与复制后的选主、追赶和冲突处理一样，都是设计的一部分</li>
+</ul>
+</li>
+<li>
+<p>一致性描述可观察的数据语义，不等于共识，也不等于隔离级别</p>
+<ul>
+<li>线性一致性要求每个操作像在调用瞬间原子生效，并尊重真实时间顺序；顺序一致性只要求所有进程看到相同全序</li>
+<li>因果一致性保留 happened-before 关系，允许并发事件以不同顺序出现；最终一致性只承诺停止写入后副本最终收敛</li>
+<li>读己之写、单调读和一致前缀读等客户端保证，可在弱一致系统中提供更符合用户直觉的体验</li>
+<li>一致性约束多个副本或操作的可见结果；隔离级别约束并发事务互相能观察到什么，两者不能混用</li>
+<li>CAP 讨论网络分区发生时，一致性和可用性无法同时保证；PACELC 进一步提醒，即使没有分区，也要在延迟和一致性之间权衡</li>
+</ul>
+</li>
+<li>
+<p>共识把多个副本变成一台可恢复的确定性状态机</p>
+<ul>
+<li>共识要求节点对同一个值达成不可撤回的决定；安全性要求不能决定冲突值，活性要求最终能够做出决定</li>
+<li>FLP 表明纯异步系统中，只要允许一个节点崩溃，就不存在保证终止的确定性共识算法；工程实现通过超时、领导者和最终同步假设获得活性</li>
+<li>Paxos 通过编号提案和多数派交集保证已选值不会被后续提案覆盖；Multi-Paxos 用稳定领导者把单值共识扩展为复制日志</li>
+<li>Raft 把问题拆成领导者选举、日志复制和成员变更，以任期和日志匹配规则维护状态机安全性</li>
+<li>多数派的关键不只是“票数过半”，而是任意两个多数派必有交集，使新一轮决策能够继承旧一轮已经形成的事实</li>
+<li>共识日志提交不自动等于线性一致服务；客户端去重、线性一致读、成员变更和快照恢复仍需要单独设计</li>
+</ul>
+</li>
+<li>
+<p>分布式事务同时处理原子提交和并发控制</p>
+<ul>
+<li>原子提交回答“所有参与者是否一起提交”，并发控制回答“并发事务如何等价于某个合法执行”；二者是正交问题</li>
+<li>两阶段提交由协调者收集 prepare 结果后统一决定 commit 或 abort，可以保证原子性，但协调者失效时可能阻塞</li>
+<li>2PC 不是共识：它依赖所有参与者对单次事务投票，而共识能在部分节点失效时由多数派持续复制决定</li>
+<li>两阶段锁、乐观并发控制和 MVCC 分别以阻塞、提交时验证和多版本空间处理竞争，选择取决于冲突率、读写比例和隔离需求</li>
+<li>Saga 把长事务拆成一系列本地事务和补偿动作，换取可用性与松耦合，但不提供自动回滚和完整隔离</li>
+<li>Percolator 展示了如何组合 2PC、MVCC 和快照隔离，在分布式存储之上构建跨行事务</li>
+</ul>
+</li>
+<li>
+<p>时间不能直接充当分布式系统中的真相</p>
+<ul>
+<li>墙上时钟可能偏移或回拨，适合表示日期；单调时钟适合测量本机时间间隔，但不能跨机器直接比较</li>
+<li>Lamport 时钟保证若 (a \rightarrow b)，则 (L(a) &#x3C; L(b))，但不能根据时间戳反推出因果关系</li>
+<li>向量时钟能够判断两个事件存在因果关系还是并发关系，代价是元数据随参与节点数量增长</li>
+<li>Chandy–Lamport 分布式快照在系统继续运行时记录一个一致的全局切面，是检查点、故障恢复和流处理精确一次语义的基础</li>
+<li>物理时钟只有连同误差边界一起使用才可信；Spanner 的 TrueTime 正是把不确定性暴露为时间区间，再通过等待换取外部一致性</li>
+</ul>
+</li>
+</ul>
+<h3 id="%E7%AB%A0%E8%8A%82%E8%84%89%E7%BB%9C%EF%BC%9A">章节脉络：</h3>
+<ol>
+<li>认识分布式系统：理解使用多机的收益，以及网络延迟、部分失效和时钟问题为何无法通过普通异常处理消除</li>
+<li>系统模型：用两将军和拜占庭将军问题建立边界，明确链路、节点、时间和消息语义假设</li>
+<li>分布式数据：从分区与复制进入 CAP、一致性模型和事务隔离，厘清最容易混淆的术语</li>
+<li>分布式共识：从 FLP 到 Paxos、Multi-Paxos、Raft 和 PBFT，理解复制状态机如何保持安全并争取活性</li>
+<li>分布式事务：把原子提交与并发控制拆开，再通过 2PC、Saga、MVCC 和 Percolator 看它们如何组合</li>
+<li>时间和事件顺序：区分物理时间与逻辑顺序，用逻辑时钟、向量时钟和分布式快照表达系统历史</li>
+<li>案例研究：观察经典系统如何针对访问模式、故障模型和语义目标选择并组合基础机制</li>
+</ol>
+<h3 id="%E7%BB%8F%E5%85%B8%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E5%8F%96%E8%88%8D%EF%BC%9A">经典系统的设计取舍：</h3>
+<table>
+<thead>
+<tr>
+<th>系统</th>
+<th>核心目标</th>
+<th>关键机制</th>
+<th>主要取舍</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GFS</td>
+<td>大文件顺序读写与高吞吐</td>
+<td>单 Master、Chunk、副本、租约</td>
+<td>不追求通用 POSIX 语义，针对批处理负载优化</td>
+</tr>
+<tr>
+<td>ZooKeeper</td>
+<td>分布式协调与元数据管理</td>
+<td>全序广播、版本化 znode、watch</td>
+<td>用有限数据模型换取一致、有序的协调原语</td>
+</tr>
+<tr>
+<td>Bigtable</td>
+<td>海量结构化数据存储</td>
+<td>Tablet、SSTable、LSM Tree</td>
+<td>围绕稀疏宽表和范围访问优化，而非关系模型</td>
+</tr>
+<tr>
+<td>Dynamo</td>
+<td>高可用键值存储</td>
+<td>一致性哈希、Quorum、向量时钟</td>
+<td>分区时接受冲突与最终一致性，优先保持写可用</td>
+</tr>
+<tr>
+<td>Cassandra</td>
+<td>去中心化宽列存储</td>
+<td>Dynamo 式复制、LSM Tree、可调一致性</td>
+<td>把一致性强度交给具体请求选择</td>
+</tr>
+<tr>
+<td>Spanner</td>
+<td>全球分布式关系数据库</td>
+<td>Paxos、分片、MVCC、TrueTime</td>
+<td>用时间基础设施和提交等待换取外部一致性</td>
+</tr>
+<tr>
+<td>MapReduce / Spark</td>
+<td>大规模批处理</td>
+<td>数据并行、失败重算、内存计算</td>
+<td>用受限计算模型换取调度、扩展与容错能力</td>
+</tr>
+<tr>
+<td>Flink</td>
+<td>有状态流处理</td>
+<td>事件时间、水位线、分布式快照</td>
+<td>用检查点与端到端协议提供一致状态和精确一次效果</td>
+</tr>
+</tbody>
+</table>
+<h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
+<ol>
+<li>协议正确性依赖假设：任何“不会脑裂”“不会丢数据”的结论，都必须补全节点故障、网络分区、持久化和时钟假设</li>
+<li>超时不会消除不确定性：超时后重试意味着原请求可能执行零次、一次或多次，业务接口应携带幂等键并保存去重结果</li>
+<li>安全性和活性要分开分析：系统宁可暂时不可用也不能产生两个领导者的冲突决定，这是共识协议常见的取舍</li>
+<li>多数派交集是 Quorum 的真正力量：它让不同轮次能够传递已确认的信息；只写“W + R > N”而不分析读写与故障流程是不够的</li>
+<li>强语义必须端到端成立：底层日志有序，不代表 API 线性一致；消息只投递一次，也不代表外部副作用只发生一次</li>
+<li>协调应只用于维护真正的不变量：若业务允许交换顺序、合并冲突或补偿，就不必为所有操作支付全局排序成本</li>
+<li>时间戳不是天然顺序：跨机器的 last-write-wins 可能因时钟偏差静默丢数据，必须明确这是业务接受的冲突解决策略</li>
+<li>经典系统不是机制清单：优秀设计从负载和目标出发，主动放弃不需要的通用能力，再组合最少的分布式机制</li>
+</ol>
+<h3 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h3>
+<ol>
+<li>设计分布式协议前固定写出：节点故障类型、网络假设、持久化边界、成员关系，以及安全性和活性目标</li>
+<li>对每个远程写操作检查<code>请求成功但响应丢失</code>场景，明确幂等键、去重状态保存周期和重试上限</li>
+<li>评审复制方案时分别回答：写入何时确认、读哪个副本、领导者如何切换、旧领导者如何隔离、落后副本如何追赶</li>
+<li>选择一致性级别时从业务异常反推：脏读、旧读、丢失更新、重复扣款和顺序颠倒分别是否可接受</li>
+<li>涉及跨分片或跨服务事务时，把原子性、隔离性、可用性和补偿能力分别列出，不用“支持事务”一句话代替</li>
+<li>对使用物理时间排序或生成版本的代码，检查时钟回拨、闰秒、漂移和同时间戳冲突；测量间隔一律使用单调时钟</li>
+<li>阅读或选型一个分布式系统时，用<code>目标 → 系统模型 → 核心不变量 → 机制 → 失败模式 → 代价</code>的顺序拆解</li>
+</ol>
+<h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
+<ol>
+<li>分布式系统最难处理的不是完全失效，而是只有一部分组件失效，且其他节点无法确定发生了什么。</li>
+<li>超时只能让系统停止等待，不能告诉系统之前的操作是否已经发生。</li>
+<li>一致性是对使用者的语义承诺，共识是副本形成共同决定的机制，隔离级别是并发事务之间的可见性规则。</li>
+<li>多数派不是魔法；真正提供安全性的是多数派之间必然相交。</li>
+<li>精确一次通常不是消息系统的单点能力，而是从输入、状态到外部副作用的端到端效果。</li>
+<li>没有脱离系统模型的正确算法，也没有不付出代价的强一致性。</li>
+</ol>
+<h2 id="links">links</h2>
+<ol>
+<li><a href="http://www.broadview.com.cn/book/7175">http://www.broadview.com.cn/book/7175</a></li>
+<li><a href="https://github.com/tangwz/DistSysDeepDive">https://github.com/tangwz/DistSysDeepDive</a></li>
+<li><a href="https://raft.github.io/raft.pdf">https://raft.github.io/raft.pdf</a></li>
+<li><a href="https://lamport.azurewebsites.net/pubs/paxos-simple.pdf">https://lamport.azurewebsites.net/pubs/paxos-simple.pdf</a></li>
+<li><a href="https://research.google/pubs/the-google-file-system/">https://research.google/pubs/the-google-file-system/</a></li>
+<li><a href="https://research.google/pubs/bigtable-a-distributed-storage-system-for-structured-data/">https://research.google/pubs/bigtable-a-distributed-storage-system-for-structured-data/</a></li>
+<li><a href="https://research.google/pubs/dynamo-amazons-highly-available-key-value-store/">https://research.google/pubs/dynamo-amazons-highly-available-key-value-store/</a></li>
+<li><a href="https://research.google/pubs/spanner-googles-globally-distributed-database/">https://research.google/pubs/spanner-googles-globally-distributed-database/</a></li>
+</ol></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%B7%B1%E5%85%A5%E7%90%86%E8%A7%A3%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F">读书笔记：深入理解分布式系统</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读书笔记：深入理解分布式系统</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E7%AB%A0%E8%8A%82%E8%84%89%E7%BB%9C%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%AB%A0%E8%8A%82%E8%84%89%E7%BB%9C%EF%BC%9A">章节脉络：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">章节脉络：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E7%BB%8F%E5%85%B8%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E5%8F%96%E8%88%8D%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%BB%8F%E5%85%B8%E7%B3%BB%E7%BB%9F%E7%9A%84%E8%AE%BE%E8%AE%A1%E5%8F%96%E8%88%8D%EF%BC%9A">经典系统的设计取舍：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">经典系统的设计取舍：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">行动：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">金句：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
