@@ -1,0 +1,157 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>kafka</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="kafka">kafka</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2024-03-19</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-10</span></div><div class="flex flex-wrap gap-1.5"><a href="/series/INFRA 快速入门" class="topic-chip topic-chip-series rounded-full border px-2.5 py-0.5 text-xs no-underline">INFRA 快速入门</a><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/INFRA" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">INFRA</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">分布式事件流平台：把数据的`生产`、`存储`、`消费`解耦，并让数据像日志一样可`回放`、可`复制`、可`扩展`</p>
+<ul>
+<li>S 大规模分布式系统中，各服务之间需要实时传递海量事件/数据（日志、指标、用户行为等），且数据需要被多个下游系统独立消费。</li>
+<li>C 传统点对点通信导致系统紧耦合、难以扩展；同步调用在高峰期造成级联故障；数据一旦消费就丢失，无法回放或审计。</li>
+<li>Q 如何在解耦生产者与消费者的同时，实现高吞吐、可持久化、可回放、可水平扩展的数据传输？</li>
+<li>A Kafka 以<strong>分布式追加写日志</strong>为核心抽象：生产者只管写，消费者按自己的速度读并记录 offset，数据持久化在多副本分区中，可回放、可复制、可水平扩展。</li>
+</ul>
+<blockquote>
+<p>规模系统之间的数据传输：以追加写日志为核心抽象，构建分布式提交日志；消费者只记录自己读到哪儿</p>
+</blockquote>
+<h2 id="%E6%A0%B8%E5%BF%83%E6%8A%BD%E8%B1%A1">核心抽象</h2>
+<ul>
+<li><code>Producer</code> 生产者，负责写消息</li>
+<li><code>Consumer</code> 消费者，负责读消息</li>
+<li><code>Topic</code> 逻辑上的消息分类，表示一类业务日志或事件</li>
+<li><code>Partition</code> 一个 Topic 可以拆成多个分区；它是实际的读写单位
+<ul>
+<li>是扩展性、并行消费、分区内有序的基础</li>
+<li>数据会分布到不同 Broker 上</li>
+</ul>
+</li>
+<li><code>Broker</code> 是 Kafka 集群中的服务器节点，负责保存多个 Partition 副本，并参与副本复制</li>
+<li><code>Offset</code> 分区内消息的编号，消费者用它记录读到哪里</li>
+<li><code>Consumer Group</code> 共同消费一个 Topic 的一组消费者
+<ul>
+<li>一个 Partition 可以被多个<code>消费组</code>消费；但在同一个消费组内，一个 Partition 同一时刻只能分配给<code>一个消费者</code></li>
+<li>消费者组本质上就是<code>一套独立的阅读进度</code></li>
+<li>Kafka 不会因为<code>已消费</code>就立刻删除消息，而是按保留策略保存一段时间</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>数据流角度：Producer 写消息 -> Broker 存储并复制消息（写入leader Partition，其他 Partition 拉取 leader） -> Consumer 消费消息</p>
+</blockquote>
+<h2 id="Partition%20%E6%98%AF%E6%A0%B8%E5%BF%83">Partition 是核心</h2>
+<p><strong>数据组织、拓展性</strong>：</p>
+<ul>
+<li>Partition 决定了 Kafka 的吞吐上限、<code>并行消费</code>能力和水平扩展能力</li>
+<li>分区越多，通常越容易横向扩展，但管理成本和重平衡成本也会上升</li>
+<li>消费者组内的并发上限受 Partition 数限制
+<ul>
+<li>分区数 &#x3C; 消费者数：多出来的消费者会空闲</li>
+<li>分区数 = 消费者数：通常能充分利用组内并发</li>
+<li>分区数 > 消费者数：单个消费者需要处理多个分区</li>
+</ul>
+</li>
+</ul>
+<p><strong>消息顺序性(分区内有序)</strong>：</p>
+<ul>
+<li>Kafka 只保证<code>分区内有序</code></li>
+<li>不保证一个 Topic 的全局有序</li>
+<li>如果业务要求<code>同一类对象的消息有序</code>，通常做法是让同一个 key 始终进入同一个分区</li>
+</ul>
+<p><strong>可靠性(单 leader + followers 拉取)</strong>：</p>
+<ul>
+<li>每个 Partition 可以有多个副本
+<ul>
+<li>Leader：负责对外读写</li>
+<li>Follower：同步 Leader 数据</li>
+</ul>
+</li>
+<li>ISR（In-Sync Replicas）：当前<code>跟得上</code> Leader 的副本集合</li>
+</ul>
+<h2 id="%E7%94%9F%E4%BA%A7%E8%80%85%E8%AE%BE%E8%AE%A1">生产者设计</h2>
+<p>如何稳定高效地发消息？</p>
+<p>分区策略：决定消息写入哪个分区？</p>
+<ul>
+<li>指定 key：同一 key 进入同一分区，适合做局部有序</li>
+<li>轮询：更均匀地打散流量</li>
+<li>自定义：按业务规则路由</li>
+</ul>
+<p>生产者常见关注点：</p>
+<ul>
+<li>幂等性：避免因为重试导致重复写入</li>
+<li>重试：临时失败时自动重发，但要结合幂等性一起看</li>
+</ul>
+<p><strong>可靠性</strong>：</p>
+<ul>
+<li><code>acks</code>：生产者写入确认机制
+<ul>
+<li><code>acks=0</code>：最快，但可能丢</li>
+<li><code>acks=1</code>：Leader 写入成功就返回</li>
+<li><code>acks=all</code> / <code>-1</code>：等待 ISR 中足够副本确认后返回</li>
+</ul>
+</li>
+<li>投递语义：
+<ul>
+<li>at most once：最多一次，可能丢，不重复</li>
+<li>at least once：至少一次，可能重复</li>
+<li>exactly once：恰好一次</li>
+</ul>
+</li>
+</ul>
+<h2 id="%E6%B6%88%E8%B4%B9%E8%80%85%E8%AE%BE%E8%AE%A1">消费者设计</h2>
+<p>Pull 模型：消费者主动拉取数据。</p>
+<p>好处：</p>
+<ul>
+<li>消费速度由消费者自己控制</li>
+<li>更适合批量拉取</li>
+<li>可以回放历史数据
+<ul>
+<li>消费者可以通过指定 offset，重新读取之前已经消费过的消息</li>
+</ul>
+</li>
+</ul>
+<p>消费者需要决定何时提交 offset：</p>
+<ul>
+<li>自动提交：简单，但可能导致重复消费或丢消息窗口变大</li>
+<li>手动提交：更可控，通常在业务处理成功后再提交</li>
+</ul>
+<p>Rebalance：消费者加入、离开、心跳超时时，Kafka 会重新给组内消费者分配分区；期间整个组可能短暂停顿。</p>
+<ul>
+<li>常见触发：消费者崩溃、新消费者加入、处理太慢导致心跳超时</li>
+<li>缓解方式：Cooperative Rebalance（增量再平衡，只迁移受影响分区）、Static Group Membership（固定成员 ID，短暂重启不触发）</li>
+</ul>
+<h2 id="%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%AB%EF%BC%9A%E8%AE%BE%E8%AE%A1%E9%80%89%E6%8B%A9">为什么快：设计选择</h2>
+<ul>
+<li>简单的 append-only 存储模型</li>
+<li>顺序 IO，而不是随机 IO</li>
+<li>零拷贝：减少数据在内核态、用户态之间的复制</li>
+<li>批量处理：批量收发，而不是一条条处理</li>
+<li>Page Cache：充分利用操作系统页缓存
+<ul>
+<li>写路径：Producer -> Broker -> Page Cache（写入内存后较快返回）-> <code>异步</code>刷盘</li>
+<li>读路径：Consumer 拉取时，如果数据还在 Page Cache，可通过零拷贝直接从内存发到网卡</li>
+</ul>
+</li>
+</ul>
+<h2 id="%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98">常见问题</h2>
+<blockquote>
+<p>问题：如何实现 topic 内消息的有序？</p>
+</blockquote>
+<p>单分区内天然有序；如果要保证某类业务消息有序，本质上是分区策略问题，让同一业务 key 始终进入同一分区。</p>
+<blockquote>
+<p>问题：为什么追随者不提供服务？</p>
+</blockquote>
+<p>主要是为了简化一致性模型，保证写后立刻读、单调读等语义更容易成立。</p>
+<blockquote>
+<p>问题：如何实现不丢失数据？</p>
+</blockquote>
+<p>生产者侧通常要求 <code>acks=all</code>；再结合副本机制与消费者正确提交 offset，才能把丢失风险压低。</p>
+<blockquote>
+<p>问题：如何保证消息不被重复消费？</p>
+</blockquote>
+<p>重复通常很难彻底避免，实际做法是<code>让重复无害</code>：</p>
+<ul>
+<li>生产者侧：开启幂等，减少因重试导致的重复发送</li>
+<li>消费者侧：做消费幂等，比如唯一 ID、Redis 近期处理 key、数据库唯一索引等</li>
+</ul>
+<blockquote>
+<p>问题：消息积压怎么处理？生产太快？消费太慢？</p>
+</blockquote>
+<ul>
+<li>增加消费者，但不能超过分区数，否则多出来的消费者会空闲</li>
+<li>如果分区数不够，需要扩分区，再增加消费者</li>
+<li>紧急情况可以起临时消费组把积压数据转储出来，再慢慢处理</li>
+</ul></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="kafka" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#kafka">kafka</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">kafka</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E6%8A%BD%E8%B1%A1" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E6%8A%BD%E8%B1%A1">核心抽象</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心抽象</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Partition%20%E6%98%AF%E6%A0%B8%E5%BF%83" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Partition%20%E6%98%AF%E6%A0%B8%E5%BF%83">Partition 是核心</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Partition 是核心</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%94%9F%E4%BA%A7%E8%80%85%E8%AE%BE%E8%AE%A1" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%94%9F%E4%BA%A7%E8%80%85%E8%AE%BE%E8%AE%A1">生产者设计</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">生产者设计</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%B6%88%E8%B4%B9%E8%80%85%E8%AE%BE%E8%AE%A1" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%B6%88%E8%B4%B9%E8%80%85%E8%AE%BE%E8%AE%A1">消费者设计</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">消费者设计</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%AB%EF%BC%9A%E8%AE%BE%E8%AE%A1%E9%80%89%E6%8B%A9" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BF%AB%EF%BC%9A%E8%AE%BE%E8%AE%A1%E9%80%89%E6%8B%A9">为什么快：设计选择</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">为什么快：设计选择</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98">常见问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">常见问题</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>

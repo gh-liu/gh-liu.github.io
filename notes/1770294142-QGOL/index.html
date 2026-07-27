@@ -1,0 +1,267 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: 测试</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E6%B5%8B%E8%AF%95">测试</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-02-05</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-03-26</span><a href="#backlinks" class="meta-pill meta-pill-backlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">1 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/GO" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">GO</a></div></div>
+<h2 id="go%20test%20%E5%91%BD%E4%BB%A4%E4%B8%8E%E6%A0%87%E5%BF%97">go test 命令与标志</h2>
+<p><strong>用法</strong>：<code>go test [build/test flags] [packages] [flags &#x26; test binary flags]</code></p>
+<ul>
+<li>对指定包做自动化测试，输出每包摘要（<code>ok</code>/<code>FAIL</code> + 耗时），失败时再打详细输出。</li>
+<li>会编译 <code>*_test.go</code>；以 <code>_</code> 或 <code>.</code> 开头的文件被忽略。<code>testdata</code> 目录被忽略，可放测试数据。</li>
+</ul>
+<p><strong>两种模式</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>触发</th>
+<th>缓存</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本地目录</td>
+<td>无包参数（<code>go test</code> / <code>go test -v</code>）</td>
+<td>否</td>
+</tr>
+<tr>
+<td>包列表</td>
+<td>显式包（<code>go test .</code> / <code>./...</code> / <code>math</code>）</td>
+<td>是</td>
+</tr>
+</tbody>
+</table>
+<p><strong>缓存</strong>：仅当仅用可缓存标志时生效（如 <code>-run</code>、<code>-bench</code>、<code>-v</code>、<code>-count</code>、<code>-timeout</code> 等）。禁用缓存常用 <code>-count=1</code>。</p>
+<p><strong>标志</strong>（<a href="https://go.dev/doc/cmd/go#test">go help test</a>、<a href="https://pkg.go.dev/cmd/go#hdr-Testing_flags">go help testflag</a>）：</p>
+<table>
+<thead>
+<tr>
+<th>标志</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>编译与输出</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><code>-c</code></td>
+<td>只编译不运行，生成 <code>pkg.test</code> 二进制</td>
+</tr>
+<tr>
+<td><code>-o file</code></td>
+<td>指定输出二进制路径</td>
+</tr>
+<tr>
+<td><code>-json</code></td>
+<td>输出 JSON 格式（test2json 编码）</td>
+</tr>
+<tr>
+<td><code>-exec xprog</code></td>
+<td>用 xprog 运行二进制（如 <code>ssh remote</code>、<code>qemu-arm</code>）</td>
+</tr>
+<tr>
+<td><code>-args</code></td>
+<td>之后的参数原样传给测试二进制（包列表须在 <code>-args</code> 前）</td>
+</tr>
+<tr>
+<td><strong>运行控制</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><code>-v</code></td>
+<td>详细输出</td>
+</tr>
+<tr>
+<td><code>-short</code></td>
+<td>可配合 <code>testing.Short()</code> 跳过耗时测试</td>
+</tr>
+<tr>
+<td><code>-count n</code></td>
+<td>执行次数；<code>-count=1</code> 可禁用缓存</td>
+</tr>
+<tr>
+<td><code>-timeout d</code></td>
+<td>整个二进制超时 panic，默认 10m，0 禁用</td>
+</tr>
+<tr>
+<td><code>-cpu 1,2,4</code></td>
+<td>按 GOMAXPROCS 组合重复运行</td>
+</tr>
+<tr>
+<td><strong>Test</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><code>-run regexp</code></td>
+<td>只运行匹配的 TestXxx（支持 <code>/</code> 匹配子测试）</td>
+</tr>
+<tr>
+<td><code>-parallel n</code></td>
+<td><code>t.Parallel()</code> 的最大并发数</td>
+</tr>
+<tr>
+<td><strong>Benchmark</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><code>-bench regexp</code></td>
+<td>运行匹配的基准；默认不跑，<code>-bench .</code> 跑全部</td>
+</tr>
+<tr>
+<td><code>-benchtime t</code></td>
+<td>每个基准时长，默认 1s；<code>100x</code> 为固定 100 次</td>
+</tr>
+<tr>
+<td><code>-benchmem</code></td>
+<td>输出内存分配统计</td>
+</tr>
+<tr>
+<td><strong>Fuzz</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><code>-fuzz regexp</code></td>
+<td>对匹配的 FuzzXxx 启用随机输入（默认只跑种子）</td>
+</tr>
+<tr>
+<td><code>-fuzztime t</code></td>
+<td>每个模糊测试时长</td>
+</tr>
+<tr>
+<td><strong>分析</strong></td>
+<td></td>
+</tr>
+<tr>
+<td><code>-cover</code> / <code>-covermode</code> / <code>-coverpkg</code></td>
+<td>覆盖率</td>
+</tr>
+<tr>
+<td><code>-cpuprofile</code> / <code>-memprofile</code></td>
+<td>写出 profile 给 <code>go tool pprof</code></td>
+</tr>
+</tbody>
+</table>
+<p>对 test 二进制可用 <code>test.</code> 前缀，如 <code>pkg.test -test.v -test.cpuprofile=out</code>。</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#d9b400" d="M29.4 27.6H2.5V4.5h26.9Zm-25.9-1h24.9V5.5H3.5Z"/><path fill="#d9b400" d="m6.077 19.316l-.555-.832l4.844-3.229l-4.887-4.071l.641-.768l5.915 4.928zM12.7 18.2h7.8v1h-7.8zM2.5 5.5h26.9v1.9H2.5z"/></svg>bash</span><button type="button" class="code-copy-button" data-code="go test -v -args -x                        # -args 后原样传测试二进制
+pkg.test -test.v -test.cpuprofile=prof.out # 直接跑二进制时用 test. 前缀">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">go</span><span style="color:#A3BE8C"> test</span><span style="color:#A3BE8C"> -v</span><span style="color:#A3BE8C"> -args</span><span style="color:#A3BE8C"> -x</span><span style="color:#616E88">                        # -args 后原样传测试二进制</span></span>
+<span data-line=""><span style="color:#88C0D0">pkg.test</span><span style="color:#A3BE8C"> -test.v</span><span style="color:#A3BE8C"> -test.cpuprofile=prof.out</span><span style="color:#616E88"> # 直接跑二进制时用 test. 前缀</span></span></code></pre></figure>
+<h2 id="Mock%20vs.%20Stub">Mock vs. Stub</h2>
+<p>统称 <strong>Test Double</strong>（测试替身）：Dummy（填参数，从不使用）、Fake（有真实实现但走捷径，如内存数据库）、Stub、Mock。</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><strong>Stub</strong></th>
+<th><strong>Mock</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>本质</td>
+<td>提供<strong>预设数据</strong>，替代真实依赖</td>
+<td>预设<strong>行为期望</strong>，验证交互是否发生</td>
+</tr>
+<tr>
+<td>测试什么</td>
+<td><strong>状态</strong>（断言被测对象的结果）</td>
+<td><strong>行为</strong>（断言依赖是否被正确调用）</td>
+</tr>
+<tr>
+<td>能否让测试失败</td>
+<td>不能，只辅助测试运行</td>
+<td>能，期望不满足则测试失败</td>
+</tr>
+<tr>
+<td>例子</td>
+<td>返回假数据代替数据库查询</td>
+<td>验证邮件发送服务被调用了一次</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="%E6%B5%8B%E8%AF%95%E7%9B%B8%E5%85%B3%E5%BA%93">测试相关库</h2>
+<ul>
+<li><strong>断言</strong>：<a href="https://github.com/stretchr/testify">stretchr/testify</a>（assert、require）</li>
+<li><strong>HTTP</strong>：
+<ul>
+<li><a href="https://pkg.go.dev/net/http/httptest">net/http/httptest</a></li>
+<li>外部 API mock：<a href="https://github.com/h2non/gock">h2non/gock</a></li>
+<li><a href="https://github.com/jarcoal/httpmock">jarcoal/httpmock</a></li>
+</ul>
+</li>
+<li><strong>DB</strong>：
+<ul>
+<li><a href="https://github.com/DATA-DOG/go-sqlmock">DATA-DOG/go-sqlmock</a></li>
+<li><a href="https://github.com/alicebob/miniredis">alicebob/miniredis</a></li>
+</ul>
+</li>
+<li><strong>Mock/Stub</strong>：Mock=接口替换，Stub=函数/占位
+<ul>
+<li><a href="https://www.martinfowler.com/articles/mocksArentStubs.html">Mocks Aren't Stubs</a></li>
+<li><a href="https://github.com/golang/mock">golang/mock</a></li>
+<li><a href="https://github.com/prashantv/gostub">prashantv/gostub</a></li>
+<li><a href="https://github.com/bouk/monkey">bouk/monkey</a>（需 <code>-gcflags=-l</code>，非线程安全）</li>
+<li><a href="https://github.com/agiledragon/gomonkey">agiledragon/gomonkey</a></li>
+</ul>
+</li>
+<li><strong>BDD</strong>：
+<ul>
+<li><a href="https://github.com/smartystreets/goconvey">goconvey</a>（Convey/So、SkipConvey、FocusConvey）</li>
+<li><a href="https://github.com/smartystreets/goconvey/wiki/Assertions">Assertions</a></li>
+<li>Convey() 定义 scope/context，So() 做断言；支持 custom assertions（按指定函数签名实现）</li>
+<li>SkipConvey() 替换 Convey() 跳过整个 scope；SkipSo() 跳过断言；FocusConvey 仅运行标记的 scope</li>
+<li>默认 test fail/panic 停止当前 scope；可传 FailureContinues；Reset() 在同 scope 每个 Convey() 结束后执行</li>
+</ul>
+</li>
+</ul>
+<h2 id="%E6%9B%B4%E5%A5%BD%E7%9A%84%E6%B5%8B%E8%AF%95">更好的测试</h2>
+<ul>
+<li>
+<p><strong>覆盖率</strong>：<code>go test -cover</code>；常见要求约 80%。</p>
+</li>
+<li>
+<p><strong>Stub 场景</strong>：屏蔽（不想引入数据库等重资源）、补齐（依赖的上下游未实现）；gomock 支持对参数、返回值、调用次数、顺序打桩。</p>
+</li>
+<li>
+<p><strong>技巧</strong>：inline 接口（caller 定义接口并注入，便于 mock）；辅助断言（assert/ok/equals）见 <a href="https://github.com/benbjohnson/testing">benbjohnson/testing</a>、<a href="https://zhuanlan.zhihu.com/p/335484135">Go 测试技巧</a>、<a href="https://povilasv.me/go-advanced-testing-tips-tricks/">povilasv</a>。</p>
+</li>
+<li>
+<p><strong>集成测试</strong>：<a href="https://www.ardanlabs.com/blog/2019/03/integration-testing-in-go-executing-tests-with-docker.">Integration testing with Docker</a></p>
+</li>
+<li>
+<p><strong>可测设计</strong>：接口抽象 + 依赖注入（如 <a href="https://github.com/google/wire">google/wire</a>）；SOLID（单一职责、开闭、里式替换、接口隔离、依赖反转）。<a href="https://dave.cheney.net/2019/04/03/absolute-unit-test">Absolute unit test</a>、<a href="https://quii.gitbook.io/learn-go-with-tests/">Learn Go with Tests</a>、<a href="https://github.com/golang/go/wiki/TestComments">TestComments</a>。</p>
+</li>
+</ul>
+<hr>
+<h2 id="%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5">参考链接</h2>
+<p><strong>官方</strong>：</p>
+<ul>
+<li><a href="https://go.dev/doc/cmd/go#test">go help test</a></li>
+<li><a href="https://pkg.go.dev/cmd/go#hdr-Testing_flags">Testing flags</a></li>
+<li><a href="https://pkg.go.dev/cmd/go/internal/test2json">test2json</a>（-json 编码）</li>
+<li><a href="https://go.dev/blog/subtests">Subtests and Sub-benchmarks</a></li>
+<li><a href="https://go.dev/doc/fuzz">go.dev/doc/fuzz</a></li>
+<li><a href="https://go.googlesource.com/proposal/+/master/design/draft-fuzzing.md">draft-fuzzing</a></li>
+<li><a href="https://go.googlesource.com/proposal/+/master/design/14313-benchmark-format.md">design/14313-benchmark-format</a></li>
+<li><a href="https://pkg.go.dev/golang.org/x/perf/cmd">golang.org/x/perf/cmd</a></li>
+</ul>
+<p><strong>Mock/Stub</strong>：</p>
+<ul>
+<li><a href="https://stackoverflow.com/questions/3459287/whats-the-difference-between-a-mock-stub">mock vs stub (SO)</a></li>
+<li><a href="https://www.martinfowler.com/articles/mocksArentStubs.html">Mocks Aren't Stubs</a></li>
+</ul>
+<p><strong>技巧与可测性</strong>：</p>
+<ul>
+<li><a href="https://github.com/benbjohnson/testing">benbjohnson/testing</a></li>
+<li><a href="https://zhuanlan.zhihu.com/p/335484135">Go 测试技巧</a></li>
+<li><a href="https://povilasv.me/go-advanced-testing-tips-tricks/">povilasv</a></li>
+<li><a href="https://github.com/google/wire">wire</a></li>
+<li><a href="https://dave.cheney.net/2019/04/03/absolute-unit-test">Absolute unit test</a></li>
+<li><a href="https://quii.gitbook.io/learn-go-with-tests/">Learn Go with Tests</a></li>
+<li><a href="https://github.com/golang/go/wiki/TestComments">TestComments</a></li>
+<li><a href="https://www.ardanlabs.com/blog/2019/03/integration-testing-in-go-executing-tests-with-docker.">Integration testing with Docker</a></li>
+<li><a href="https://towardsdatascience.com/fuzzing-tests-in-go-96eb08b7694d">Fuzzing in Go</a></li>
+<li><a href="https://www.cnblogs.com/kevinwan/p/16016866.html">最佳实践</a></li>
+</ul>
+<p><strong>演讲</strong>：</p>
+<ul>
+<li><a href="https://github.com/gopherchina/conference/blob/master/2019/1.4%20Testing%3B%20how%2C%20what%2C%20why%20-%20Dave%20.pdf">Testing; how, what, why - Dave (GopherChina 2019)</a></li>
+</ul></article><aside id="backlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">被 1 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1774526383-GQFX" class="note-link underline-offset-4 hover:underline">Go: 标准库 testing</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E6%B5%8B%E8%AF%95" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%B5%8B%E8%AF%95">测试</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">测试</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="go%20test%20%E5%91%BD%E4%BB%A4%E4%B8%8E%E6%A0%87%E5%BF%97" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#go%20test%20%E5%91%BD%E4%BB%A4%E4%B8%8E%E6%A0%87%E5%BF%97">go test 命令与标志</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">go test 命令与标志</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Mock%20vs.%20Stub" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Mock%20vs.%20Stub">Mock vs. Stub</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Mock vs. Stub</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%B5%8B%E8%AF%95%E7%9B%B8%E5%85%B3%E5%BA%93" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%B5%8B%E8%AF%95%E7%9B%B8%E5%85%B3%E5%BA%93">测试相关库</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">测试相关库</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%9B%B4%E5%A5%BD%E7%9A%84%E6%B5%8B%E8%AF%95" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%9B%B4%E5%A5%BD%E7%9A%84%E6%B5%8B%E8%AF%95">更好的测试</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">更好的测试</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8F%82%E8%80%83%E9%93%BE%E6%8E%A5">参考链接</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">参考链接</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>

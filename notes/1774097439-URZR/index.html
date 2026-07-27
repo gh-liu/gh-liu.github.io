@@ -1,0 +1,707 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: schedule</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Go%3A%20schedule">Go: schedule</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-03-21</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-03-22</span><a href="#backlinks" class="meta-pill meta-pill-backlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">1 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/series/Inside Go" class="topic-chip topic-chip-series rounded-full border px-2.5 py-0.5 text-xs no-underline">Inside Go</a><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/GO" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">GO</a></div></div>
+<blockquote>
+<p>Go 语言原生支持并发，开发者可以非常轻松地创建成千上万个 goroutine。但问题是，操作系统能够直接调度的是线程，而不是 goroutine。那么，这么多 goroutine 究竟是如何高效运行起来的？</p>
+</blockquote>
+<p>引出问题：goroutine 如何被调度的？</p>
+<p>想法：为每个 goroutine 分配一个线程，让两者一一对应。这样实现起来似乎最简单，因为操作系统本来就负责线程调度，Go 运行时只需要把 goroutine 交给线程执行即可。
+遇到问题：goroutine 的设计目标是轻量，程序里常常会创建成千上万个 goroutine；而线程是操作系统资源，创建、销毁和切换成本都更高，栈空间占用也更大。如果为每个 goroutine 都分配一个线程，线程数量会迅速膨胀，带来巨大的内存和调度开销，这显然无法支撑 Go 所追求的高并发。</p>
+<p>想法：goroutine 不能简单地与线程一一对应，通过运行时调度器复用到更少的线程上执行
+问题：如何复用到更少的线程上？大量的可运行的goroutine放哪里？</p>
+<p>想法：引入资源P，每个线程想要运行goroutine，必须持有一个P；其次就是每个P有一个本地队列，创建的goroutine放本地队列
+问题：线程阻塞了怎么办？</p>
+<p>想法：底层可以转为非阻塞操作的，只阻塞g，线程运行本地队列的其他g；不能转的，挂起线程，P找一个空闲的线程或创建一个线程，继续执行P上本地队列的g
+问题：P本地队列没有g了怎么办？ 阻塞的g的操作或者挂起线程的操作好了怎么办？无非阻塞操作时就不能调度了吗？</p>
+<p>想法：窃取其他P的
+想法：sysmon 一个用于监控线程，监控阻塞恢复的g或线程
+想法：还是sysmon，监控哪个g长期运行了，设置g的标志位，让其主动让出(协作使)，如果没有主动让出，发送信号，让线程信号处理器，让其让出（抢占式）</p>
+<ul>
+<li><strong>os</strong>: 线程调度</li>
+<li><strong>runtime</strong>: 协程调度</li>
+</ul>
+<h1 id="%E6%B6%89%E5%8F%8A%E7%9A%84%E7%BB%93%E6%9E%84%E4%BD%93%E3%80%81%E5%87%BD%E6%95%B0">涉及的结构体、函数</h1>
+<h2 id="GMP%20%E6%A8%A1%E5%9E%8B">GMP 模型</h2>
+<ul>
+<li><strong>g</strong>: goroutine, user task; 通过 sp, pc, bp 等寄存器切换</li>
+<li><strong>p</strong>: processor，代表调度上下文，数量等于CPU核心数</li>
+<li><strong>m</strong>: machine，OS线程，由syscall.clone创建</li>
+</ul>
+<h3 id="%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3">核心思想</h3>
+<ol>
+<li>复用m、限制同时运行的m为cpu核心数</li>
+<li>m私有可运行的g队列，并且可以从其他m窃取</li>
+<li>没有g的m，短暂自旋</li>
+<li>当线程阻塞时，可以将g与其绑定的上下文p一起转移到其他m，保持在调度中</li>
+<li>go程序启动后，每个cpu逻辑核心分配一个p，每个p分配一个m，m由os scheduler调度</li>
+<li><strong>同步</strong>: g与m绑定，p空出来，新建m，执行p上的本地g队列</li>
+<li><strong>异步</strong>: g由netpoller处理，m和p处理p的本地g队列；完成后g回到p的本地g队列</li>
+</ol>
+<p>限制：先进先出队列；并不保证绝对公平与延迟</p>
+<h2 id="%E7%9B%B8%E5%85%B3%E7%BB%93%E6%9E%84%E4%BD%93">相关结构体</h2>
+<h3 id="g%20-%20Goroutine">g - Goroutine</h3>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="type stack struct {
+	lo uintptr
+	hi uintptr
+}
+ 
+type gobuf struct {
+	sp   uintptr
+	pc   uintptr
+	g    guintptr
+	ctxt unsafe.Pointer
+	ret  uintptr
+	lr   uintptr
+	bp   uintptr
+}
+ 
+type g struct {
+	stack       stack
+	stackguard0 uintptr
+	stackguard1 uintptr
+ 
+	_panic       *_panic
+	_defer       *_defer
+	m            *m
+	sched        gobuf
+	syscallsp    uintptr
+	syscallpc    uintptr
+	stktopsp     uintptr
+	param        unsafe.Pointer
+	atomicstatus uint32
+	stackLock    uint32
+	goid         int64
+	schedlink    guintptr
+	waitsince    int64
+	waitreason   waitReason
+ 
+	preempt          bool
+	preemptStop      bool
+	preemptShrink    bool
+	asyncSafePoint   bool
+	paniconfault     bool
+	gcscandone       bool
+	throwsplit       bool
+	activeStackChans bool
+	parkingOnChan    uint8
+ 
+	raceignore     int8
+	sysblocktraced bool
+	tracking       bool
+	trackingSeq    uint8
+	runnableStamp  int64
+	runnableTime   int64
+	sysexitticks   int64
+	traceseq       uint64
+	tracelastp     puintptr
+	lockedm        muintptr
+	sig            uint32
+	writebuf       []byte
+	sigcode0       uintptr
+	sigcode1       uintptr
+	sigpc          uintptr
+	gopc           uintptr
+	ancestors      *[]ancestorInfo
+	startpc        uintptr
+	racectx        uintptr
+	waiting        *sudog
+	cgoCtxt        []uintptr
+	labels         unsafe.Pointer
+	timer          *timer
+	selectDone     uint32
+ 
+	gcAssistBytes int64
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> stack </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	lo</span><span style="color:#81A1C1"> uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	hi</span><span style="color:#81A1C1"> uintptr</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> gobuf </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sp</span><span style="color:#81A1C1">   uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	pc</span><span style="color:#81A1C1">   uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	g</span><span style="color:#D8DEE9FF">    guintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	ctxt</span><span style="color:#D8DEE9FF"> unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer</span></span>
+<span data-line=""><span style="color:#D8DEE9">	ret</span><span style="color:#81A1C1">  uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	lr</span><span style="color:#81A1C1">   uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	bp</span><span style="color:#81A1C1">   uintptr</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> g </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	stack</span><span style="color:#D8DEE9FF">       stack</span></span>
+<span data-line=""><span style="color:#D8DEE9">	stackguard0</span><span style="color:#81A1C1"> uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	stackguard1</span><span style="color:#81A1C1"> uintptr</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	_panic</span><span style="color:#81A1C1">       *</span><span style="color:#D8DEE9FF">_panic</span></span>
+<span data-line=""><span style="color:#D8DEE9">	_defer</span><span style="color:#81A1C1">       *</span><span style="color:#D8DEE9FF">_defer</span></span>
+<span data-line=""><span style="color:#D8DEE9">	m</span><span style="color:#81A1C1">            *</span><span style="color:#D8DEE9FF">m</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sched</span><span style="color:#D8DEE9FF">        gobuf</span></span>
+<span data-line=""><span style="color:#D8DEE9">	syscallsp</span><span style="color:#81A1C1">    uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	syscallpc</span><span style="color:#81A1C1">    uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	stktopsp</span><span style="color:#81A1C1">     uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	param</span><span style="color:#D8DEE9FF">        unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer</span></span>
+<span data-line=""><span style="color:#D8DEE9">	atomicstatus</span><span style="color:#81A1C1"> uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	stackLock</span><span style="color:#81A1C1">    uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	goid</span><span style="color:#81A1C1">         int64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	schedlink</span><span style="color:#D8DEE9FF">    guintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	waitsince</span><span style="color:#81A1C1">    int64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	waitreason</span><span style="color:#D8DEE9FF">   waitReason</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	preempt</span><span style="color:#81A1C1">          bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	preemptStop</span><span style="color:#81A1C1">      bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	preemptShrink</span><span style="color:#81A1C1">    bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	asyncSafePoint</span><span style="color:#81A1C1">   bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	paniconfault</span><span style="color:#81A1C1">     bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	gcscandone</span><span style="color:#81A1C1">       bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	throwsplit</span><span style="color:#81A1C1">       bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	activeStackChans</span><span style="color:#81A1C1"> bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	parkingOnChan</span><span style="color:#81A1C1">    uint8</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	raceignore</span><span style="color:#81A1C1">     int8</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sysblocktraced</span><span style="color:#81A1C1"> bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	tracking</span><span style="color:#81A1C1">       bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	trackingSeq</span><span style="color:#81A1C1">    uint8</span></span>
+<span data-line=""><span style="color:#D8DEE9">	runnableStamp</span><span style="color:#81A1C1">  int64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	runnableTime</span><span style="color:#81A1C1">   int64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sysexitticks</span><span style="color:#81A1C1">   int64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	traceseq</span><span style="color:#81A1C1">       uint64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	tracelastp</span><span style="color:#D8DEE9FF">     puintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	lockedm</span><span style="color:#D8DEE9FF">        muintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sig</span><span style="color:#81A1C1">            uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	writebuf</span><span style="color:#ECEFF4">       []</span><span style="color:#81A1C1">byte</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sigcode0</span><span style="color:#81A1C1">       uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sigcode1</span><span style="color:#81A1C1">       uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sigpc</span><span style="color:#81A1C1">          uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	gopc</span><span style="color:#81A1C1">           uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	ancestors</span><span style="color:#81A1C1">      *</span><span style="color:#ECEFF4">[]</span><span style="color:#D8DEE9FF">ancestorInfo</span></span>
+<span data-line=""><span style="color:#D8DEE9">	startpc</span><span style="color:#81A1C1">        uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	racectx</span><span style="color:#81A1C1">        uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	waiting</span><span style="color:#81A1C1">        *</span><span style="color:#D8DEE9FF">sudog</span></span>
+<span data-line=""><span style="color:#D8DEE9">	cgoCtxt</span><span style="color:#ECEFF4">        []</span><span style="color:#81A1C1">uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	labels</span><span style="color:#D8DEE9FF">         unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer</span></span>
+<span data-line=""><span style="color:#D8DEE9">	timer</span><span style="color:#81A1C1">          *</span><span style="color:#D8DEE9FF">timer</span></span>
+<span data-line=""><span style="color:#D8DEE9">	selectDone</span><span style="color:#81A1C1">     uint32</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	gcAssistBytes</span><span style="color:#81A1C1"> int64</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<h3 id="sudog%20-%20%E7%AD%89%E5%BE%85%E5%88%97%E8%A1%A8%E4%B8%AD%E7%9A%84%20G">sudog - 等待列表中的 G</h3>
+<p>代表在等待列表里的 g，比如向 channel 发送/接收内容时。需要 sudog 的理由是 g 和同步对象之间的关系是多对多的：一个 g 可能在多个等待队列中，多个 g 也可以等待在同一个同步对象上。</p>
+<p>sudog 从特殊的pool中分配，使用 acquireSudog 和 releaseSudog 来分配和释放。</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="type sudog struct {
+	g    *g
+	next *sudog
+	prev *sudog
+	elem unsafe.Pointer
+ 
+	acquiretime int64
+	releasetime int64
+	ticket      uint32
+ 
+	isSelect bool
+	success  bool
+ 
+	parent   *sudog
+	waitlink *sudog
+	waittail *sudog
+	c        *hchan
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> sudog </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	g</span><span style="color:#81A1C1">    *</span><span style="color:#D8DEE9FF">g</span></span>
+<span data-line=""><span style="color:#D8DEE9">	next</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">sudog</span></span>
+<span data-line=""><span style="color:#D8DEE9">	prev</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">sudog</span></span>
+<span data-line=""><span style="color:#D8DEE9">	elem</span><span style="color:#D8DEE9FF"> unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	acquiretime</span><span style="color:#81A1C1"> int64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	releasetime</span><span style="color:#81A1C1"> int64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	ticket</span><span style="color:#81A1C1">      uint32</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	isSelect</span><span style="color:#81A1C1"> bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	success</span><span style="color:#81A1C1">  bool</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	parent</span><span style="color:#81A1C1">   *</span><span style="color:#D8DEE9FF">sudog</span></span>
+<span data-line=""><span style="color:#D8DEE9">	waitlink</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">sudog</span></span>
+<span data-line=""><span style="color:#D8DEE9">	waittail</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">sudog</span></span>
+<span data-line=""><span style="color:#D8DEE9">	c</span><span style="color:#81A1C1">        *</span><span style="color:#D8DEE9FF">hchan</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<h3 id="m%20-%20OS%20%E7%BA%BF%E7%A8%8B">m - OS 线程</h3>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="type m struct {
+	g0      *g
+	morebuf gobuf
+	divmod  uint32
+	_       uint32
+ 
+	procid       uint64
+	gsignal      *g
+	goSigStack   gsignalStack
+	sigmask      sigset
+	tls          [6]uintptr
+	mstartfn     func()
+	curg         *g
+	cgo_in_range bool
+	cgoCallSema  uint32
+	cgoTraceback func(x int32) string
+	cgoContext   uintptr
+ 
+	lockedg          guintptr
+	lockedExt        uint32
+	lockedInt        uint32
+	lockedRandom     uint64
+	sleep            wakeup
+	resumeTime       int64
+	readyWithinTrace bool
+ 
+	incgo           bool
+	isextra         bool
+	isExtraInC      bool
+	printlock       int8
+	ptrnames        bool
+	preemptoff      string
+	locks           int32
+	dying           int32
+	profilehz       int32
+	spinning        bool
+	blocked         bool
+	newSigstack     bool
+	printlock_count int32
+ 
+	park            note
+	alllink         *m
+	schedlink       muintptr
+	lockedm         muintptr
+	nextp           puintptr
+	needm           bool
+	sigmask         sigset
+	startSig        uint32
+	sig             uint32
+	waitunlockf     func(*g, unsafe.Pointer) bool
+	waitlock        *g
+	waitunlockf_arg unsafe.Pointer
+	paniconfault    bool
+	gcstopwait      int32
+	oscarch         *osArchstruct
+	mOS
+	mTraceback
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> m </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	g0</span><span style="color:#81A1C1">      *</span><span style="color:#D8DEE9FF">g</span></span>
+<span data-line=""><span style="color:#D8DEE9">	morebuf</span><span style="color:#D8DEE9FF"> gobuf</span></span>
+<span data-line=""><span style="color:#D8DEE9">	divmod</span><span style="color:#81A1C1">  uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	_</span><span style="color:#81A1C1">       uint32</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	procid</span><span style="color:#81A1C1">       uint64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	gsignal</span><span style="color:#81A1C1">      *</span><span style="color:#D8DEE9FF">g</span></span>
+<span data-line=""><span style="color:#D8DEE9">	goSigStack</span><span style="color:#D8DEE9FF">   gsignalStack</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sigmask</span><span style="color:#D8DEE9FF">      sigset</span></span>
+<span data-line=""><span style="color:#D8DEE9">	tls</span><span style="color:#ECEFF4">          [</span><span style="color:#B48EAD">6</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1">uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	mstartfn</span><span style="color:#81A1C1">     func</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#D8DEE9">	curg</span><span style="color:#81A1C1">         *</span><span style="color:#D8DEE9FF">g</span></span>
+<span data-line=""><span style="color:#D8DEE9">	cgo_in_range</span><span style="color:#81A1C1"> bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	cgoCallSema</span><span style="color:#81A1C1">  uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	cgoTraceback</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">x</span><span style="color:#81A1C1"> int32</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> string</span></span>
+<span data-line=""><span style="color:#D8DEE9">	cgoContext</span><span style="color:#81A1C1">   uintptr</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	lockedg</span><span style="color:#D8DEE9FF">          guintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	lockedExt</span><span style="color:#81A1C1">        uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	lockedInt</span><span style="color:#81A1C1">        uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	lockedRandom</span><span style="color:#81A1C1">     uint64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sleep</span><span style="color:#D8DEE9FF">            wakeup</span></span>
+<span data-line=""><span style="color:#D8DEE9">	resumeTime</span><span style="color:#81A1C1">       int64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	readyWithinTrace</span><span style="color:#81A1C1"> bool</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	incgo</span><span style="color:#81A1C1">           bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	isextra</span><span style="color:#81A1C1">         bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	isExtraInC</span><span style="color:#81A1C1">      bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	printlock</span><span style="color:#81A1C1">       int8</span></span>
+<span data-line=""><span style="color:#D8DEE9">	ptrnames</span><span style="color:#81A1C1">        bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	preemptoff</span><span style="color:#81A1C1">      string</span></span>
+<span data-line=""><span style="color:#D8DEE9">	locks</span><span style="color:#81A1C1">           int32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	dying</span><span style="color:#81A1C1">           int32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	profilehz</span><span style="color:#81A1C1">       int32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	spinning</span><span style="color:#81A1C1">        bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	blocked</span><span style="color:#81A1C1">         bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	newSigstack</span><span style="color:#81A1C1">     bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	printlock_count</span><span style="color:#81A1C1"> int32</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	park</span><span style="color:#D8DEE9FF">            note</span></span>
+<span data-line=""><span style="color:#D8DEE9">	alllink</span><span style="color:#81A1C1">         *</span><span style="color:#D8DEE9FF">m</span></span>
+<span data-line=""><span style="color:#D8DEE9">	schedlink</span><span style="color:#D8DEE9FF">       muintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	lockedm</span><span style="color:#D8DEE9FF">         muintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	nextp</span><span style="color:#D8DEE9FF">           puintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	needm</span><span style="color:#81A1C1">           bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sigmask</span><span style="color:#D8DEE9FF">         sigset</span></span>
+<span data-line=""><span style="color:#D8DEE9">	startSig</span><span style="color:#81A1C1">        uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sig</span><span style="color:#81A1C1">             uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	waitunlockf</span><span style="color:#81A1C1">     func</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">g</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	waitlock</span><span style="color:#81A1C1">        *</span><span style="color:#D8DEE9FF">g</span></span>
+<span data-line=""><span style="color:#D8DEE9">	waitunlockf_arg</span><span style="color:#D8DEE9FF"> unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Pointer</span></span>
+<span data-line=""><span style="color:#D8DEE9">	paniconfault</span><span style="color:#81A1C1">    bool</span></span>
+<span data-line=""><span style="color:#D8DEE9">	gcstopwait</span><span style="color:#81A1C1">      int32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	oscarch</span><span style="color:#81A1C1">         *</span><span style="color:#D8DEE9FF">osArchstruct</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">	mOS</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">	mTraceback</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<h3 id="p%20-%20Processor">p - Processor</h3>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="type p struct {
+	id          int32
+	status      uint32
+	link        puintptr
+	schedtick   uint32
+	syscalltick uint32
+	sysmontick  uint32
+	m           muintptr
+	mcache      *mcache
+	racectx     uintptr
+ 
+	deferpool   [5][]*_defer
+	deferunpool [5][]*_defer
+ 
+	gcAssistTime     int64
+	gcFractionalTime int64
+ 
+	gcMarkWorkerMode      gcMarkWorkerMode
+	gcMarkWorkerStartTime int64
+ 
+	preempt bool
+ 
+	pads [128 - unsafe.Sizeof(p{})%128]byte
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> p </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	id</span><span style="color:#81A1C1">          int32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	status</span><span style="color:#81A1C1">      uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	link</span><span style="color:#D8DEE9FF">        puintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	schedtick</span><span style="color:#81A1C1">   uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	syscalltick</span><span style="color:#81A1C1"> uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sysmontick</span><span style="color:#81A1C1">  uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	m</span><span style="color:#D8DEE9FF">           muintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	mcache</span><span style="color:#81A1C1">      *</span><span style="color:#D8DEE9FF">mcache</span></span>
+<span data-line=""><span style="color:#D8DEE9">	racectx</span><span style="color:#81A1C1">     uintptr</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	deferpool</span><span style="color:#ECEFF4">   [</span><span style="color:#B48EAD">5</span><span style="color:#ECEFF4">][]</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">_defer</span></span>
+<span data-line=""><span style="color:#D8DEE9">	deferunpool</span><span style="color:#ECEFF4"> [</span><span style="color:#B48EAD">5</span><span style="color:#ECEFF4">][]</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">_defer</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	gcAssistTime</span><span style="color:#81A1C1">     int64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	gcFractionalTime</span><span style="color:#81A1C1"> int64</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	gcMarkWorkerMode</span><span style="color:#D8DEE9FF">      gcMarkWorkerMode</span></span>
+<span data-line=""><span style="color:#D8DEE9">	gcMarkWorkerStartTime</span><span style="color:#81A1C1"> int64</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	preempt</span><span style="color:#81A1C1"> bool</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	pads</span><span style="color:#ECEFF4"> [</span><span style="color:#B48EAD">128</span><span style="color:#81A1C1"> -</span><span style="color:#D8DEE9FF"> unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Sizeof</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">p</span><span style="color:#ECEFF4">{})</span><span style="color:#81A1C1">%</span><span style="color:#B48EAD">128</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1">byte</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<h3 id="schedt%20-%20%E5%85%A8%E5%B1%80%E8%B0%83%E5%BA%A6%E5%99%A8">schedt - 全局调度器</h3>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="type schedt struct {
+	goidgen       uint64
+	lastpoll      uint64
+	poll          uint32
+	pollUntil     uint64
+	startTime     int64
+	now           int64
+	setTimersTick uint32
+ 
+	nmspinning   uint32
+	nmidlelocked uint32
+	mnext        int64
+	mnext        uint64
+	maxmcount    int32
+	nmsys        int32
+	nmfreed      int64
+ 
+	ngsys uint32
+ 
+	pidle      puintptr
+	npidle     uint32
+	nmspinning uint32
+ 
+	runq     gQueue
+	runqsize int32
+ 
+	gFreeStack *g
+	gFreeG     *g
+	gCreate    *g
+ 
+	allglen    uintptr
+	allg       []*g
+	allgM      *g
+	allgs      []*g
+	gcwaiting  uint32
+	stopwait   int32
+	stopnote   note
+	sysmonwait uint32
+	sysmonnote note
+ 
+	safePointFn   func()
+	safePointWait int32
+	safePointNote note
+ 
+	profilehz int32
+ 
+	totalRuntimeLock   uint64
+	totalRuntimeUnlock uint64
+ 
+	procresizetime int64
+	totalBaseTime  uint64
+ 
+	idleTime  uint64
+	totalTime uint64
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> schedt </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	goidgen</span><span style="color:#81A1C1">       uint64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	lastpoll</span><span style="color:#81A1C1">      uint64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	poll</span><span style="color:#81A1C1">          uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	pollUntil</span><span style="color:#81A1C1">     uint64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	startTime</span><span style="color:#81A1C1">     int64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	now</span><span style="color:#81A1C1">           int64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	setTimersTick</span><span style="color:#81A1C1"> uint32</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	nmspinning</span><span style="color:#81A1C1">   uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	nmidlelocked</span><span style="color:#81A1C1"> uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	mnext</span><span style="color:#81A1C1">        int64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	mnext</span><span style="color:#81A1C1">        uint64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	maxmcount</span><span style="color:#81A1C1">    int32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	nmsys</span><span style="color:#81A1C1">        int32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	nmfreed</span><span style="color:#81A1C1">      int64</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	ngsys</span><span style="color:#81A1C1"> uint32</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	pidle</span><span style="color:#D8DEE9FF">      puintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	npidle</span><span style="color:#81A1C1">     uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	nmspinning</span><span style="color:#81A1C1"> uint32</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	runq</span><span style="color:#D8DEE9FF">     gQueue</span></span>
+<span data-line=""><span style="color:#D8DEE9">	runqsize</span><span style="color:#81A1C1"> int32</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	gFreeStack</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">g</span></span>
+<span data-line=""><span style="color:#D8DEE9">	gFreeG</span><span style="color:#81A1C1">     *</span><span style="color:#D8DEE9FF">g</span></span>
+<span data-line=""><span style="color:#D8DEE9">	gCreate</span><span style="color:#81A1C1">    *</span><span style="color:#D8DEE9FF">g</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	allglen</span><span style="color:#81A1C1">    uintptr</span></span>
+<span data-line=""><span style="color:#D8DEE9">	allg</span><span style="color:#ECEFF4">       []</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">g</span></span>
+<span data-line=""><span style="color:#D8DEE9">	allgM</span><span style="color:#81A1C1">      *</span><span style="color:#D8DEE9FF">g</span></span>
+<span data-line=""><span style="color:#D8DEE9">	allgs</span><span style="color:#ECEFF4">      []</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">g</span></span>
+<span data-line=""><span style="color:#D8DEE9">	gcwaiting</span><span style="color:#81A1C1">  uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	stopwait</span><span style="color:#81A1C1">   int32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	stopnote</span><span style="color:#D8DEE9FF">   note</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sysmonwait</span><span style="color:#81A1C1"> uint32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sysmonnote</span><span style="color:#D8DEE9FF"> note</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	safePointFn</span><span style="color:#81A1C1">   func</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#D8DEE9">	safePointWait</span><span style="color:#81A1C1"> int32</span></span>
+<span data-line=""><span style="color:#D8DEE9">	safePointNote</span><span style="color:#D8DEE9FF"> note</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	profilehz</span><span style="color:#81A1C1"> int32</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	totalRuntimeLock</span><span style="color:#81A1C1">   uint64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	totalRuntimeUnlock</span><span style="color:#81A1C1"> uint64</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	procresizetime</span><span style="color:#81A1C1"> int64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	totalBaseTime</span><span style="color:#81A1C1">  uint64</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	idleTime</span><span style="color:#81A1C1">  uint64</span></span>
+<span data-line=""><span style="color:#D8DEE9">	totalTime</span><span style="color:#81A1C1"> uint64</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<h2 id="%E8%B0%83%E5%BA%A6%E6%97%B6%E6%9C%BA">调度时机</h2>
+<p>scheduler调度可能发生在：</p>
+<ul>
+<li><code>go func()</code></li>
+<li>GC</li>
+<li>syscall</li>
+<li>内存同步访问（g阻塞）</li>
+</ul>
+<h2 id="m%20%E5%92%8C%20p%20%E8%A7%A3%E7%BB%91%E5%AE%9A">m 和 p 解绑定</h2>
+<p>进行系统调用时，线程会被阻塞，需要将上下文(p)传递给其他线程继续调度。</p>
+<h1 id="Schedule%20Loop">Schedule Loop</h1>
+<pre><code>schedule() -> execute() -> gogo() -> goroutine 任务 -> goexit() -> goexit1() -> mcall() -> goexit0() -> schedule()
+</code></pre>
+<h2 id="schedule()%20%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3">schedule() 函数详解</h2>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="func schedule() {
+	_g_ := getg()
+	if _g_.m.locks != 0 {
+		throw(&#x22;schedule: holding locks&#x22;)
+	}
+ 
+	if _g_.m.lockedg != 0 {
+		stoplockedm()
+		execute(_g_.m.lockedg.ptr(), false)
+	}
+ 
+	if _g_.m.incgo {
+		throw(&#x22;schedule: in cgo&#x22;)
+	}
+ 
+top:
+	pp := _g_.m.p.ptr()
+	pp.preempt = false
+ 
+	if sched.gcwaiting != 0 {
+		gcstopm()
+		goto top
+	}
+	if pp.runSafePointFn != 0 {
+		runSafePointFn()
+	}
+ 
+	if _g_.m.spinning &#x26;&#x26; (pp.runnext != 0 || pp.runqhead != pp.runqtail) {
+		throw(&#x22;schedule: spinning with local work&#x22;)
+	}
+	checkTimers(pp, 0)
+ 
+	var gp *g
+	var inheritTime bool
+ 
+	tryWakeP := false
+	if trace.enabled || trace.shutdown {
+		gp = traceReader()
+		if gp != nil {
+			casgstatus(gp, _Gwaiting, _Grunnable)
+			traceGoUnpark(gp, 0)
+			tryWakeP = true
+		}
+	}
+	if gp == nil &#x26;&#x26; gcBlackenEnabled != 0 {
+		gp = gcController.findRunnableGCWorker(_g_.m.p.ptr())
+		tryWakeP = tryWakeP || gp != nil
+	}
+	if gp == nil {
+		if _g_.m.p.ptr().schedtick%61 == 0 &#x26;&#x26; sched.runqsize > 0 {
+			lock(&#x26;sched.lock)
+			gp = globrunqget(_g_.m.p.ptr(), 1)
+			unlock(&#x26;sched.lock)
+		}
+	}
+	if gp == nil {
+		gp, inheritTime = runqget(_g_.m.p.ptr())
+	}
+	if gp == nil {
+		gp, inheritTime = findrunnable()
+	}
+ 
+	if _g_.m.spinning {
+		resetspinning()
+	}
+ 
+	if sched.disable.user &#x26;&#x26; !schedEnabled(gp) {
+		lock(&#x26;sched.lock)
+		if schedEnabled(gp) {
+			unlock(&#x26;sched.lock)
+		} else {
+			sched.disable.runnable.pushBack(gp)
+			sched.disable.n++
+			unlock(&#x26;sched.lock)
+			goto top
+		}
+	}
+ 
+	if tryWakeP {
+		wakep()
+	}
+	if gp.lockedm != 0 {
+		startlockedm(gp)
+		goto top
+	}
+ 
+	execute(gp, inheritTime)
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> schedule</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	_g_</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> getg</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> _g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">locks</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">		throw</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">schedule: holding locks</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> _g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">lockedg</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">		stoplockedm</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#88C0D0">		execute</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">_g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">lockedg</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">ptr</span><span style="color:#ECEFF4">(),</span><span style="color:#81A1C1"> false</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> _g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">incgo</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">		throw</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">schedule: in cgo</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">top</span><span style="color:#ECEFF4">:</span></span>
+<span data-line=""><span style="color:#D8DEE9">	pp</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> _g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">p</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">ptr</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#D8DEE9">	pp</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">preempt</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> false</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">gcwaiting</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">		gcstopm</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#81A1C1">		goto</span><span style="color:#D8DEE9"> top</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> pp</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">runSafePointFn</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">		runSafePointFn</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> _g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">spinning</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">pp</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">runnext</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1"> ||</span><span style="color:#D8DEE9"> pp</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">runqhead</span><span style="color:#81A1C1"> !=</span><span style="color:#D8DEE9"> pp</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">runqtail</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">		throw</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">schedule: spinning with local work</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""><span style="color:#88C0D0">	checkTimers</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">pp</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">	var</span><span style="color:#D8DEE9"> gp</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">g</span></span>
+<span data-line=""><span style="color:#81A1C1">	var</span><span style="color:#D8DEE9"> inheritTime</span><span style="color:#81A1C1"> bool</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	tryWakeP</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> false</span></span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> trace</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">enabled</span><span style="color:#81A1C1"> ||</span><span style="color:#D8DEE9"> trace</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">shutdown</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">		gp</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> traceReader</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> gp</span><span style="color:#81A1C1"> !=</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">			casgstatus</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">gp</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> _Gwaiting</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> _Grunnable</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#88C0D0">			traceGoUnpark</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">gp</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#D8DEE9">			tryWakeP</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> true</span></span>
+<span data-line=""><span style="color:#ECEFF4">		}</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> gp</span><span style="color:#81A1C1"> ==</span><span style="color:#81A1C1"> nil</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#D8DEE9"> gcBlackenEnabled</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">		gp</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> gcController</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">findRunnableGCWorker</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">_g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">p</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">ptr</span><span style="color:#ECEFF4">())</span></span>
+<span data-line=""><span style="color:#D8DEE9">		tryWakeP</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> tryWakeP</span><span style="color:#81A1C1"> ||</span><span style="color:#D8DEE9"> gp</span><span style="color:#81A1C1"> !=</span><span style="color:#81A1C1"> nil</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> gp</span><span style="color:#81A1C1"> ==</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">		if</span><span style="color:#D8DEE9"> _g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">p</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">ptr</span><span style="color:#ECEFF4">().</span><span style="color:#D8DEE9">schedtick</span><span style="color:#81A1C1">%</span><span style="color:#B48EAD">61</span><span style="color:#81A1C1"> ==</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#D8DEE9"> sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">runqsize</span><span style="color:#81A1C1"> ></span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">			lock</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">lock</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#D8DEE9">			gp</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> globrunqget</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">_g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">p</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">ptr</span><span style="color:#ECEFF4">(),</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#88C0D0">			unlock</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">lock</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">		}</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> gp</span><span style="color:#81A1C1"> ==</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">		gp</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> inheritTime</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> runqget</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">_g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">p</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">ptr</span><span style="color:#ECEFF4">())</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> gp</span><span style="color:#81A1C1"> ==</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">		gp</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> inheritTime</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> findrunnable</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> _g_</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">m</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">spinning</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">		resetspinning</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">disable</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">user</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#81A1C1"> !</span><span style="color:#88C0D0">schedEnabled</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">gp</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">		lock</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">lock</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">		if</span><span style="color:#88C0D0"> schedEnabled</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">gp</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">			unlock</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">lock</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">		}</span><span style="color:#81A1C1"> else</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">			sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">disable</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">runnable</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">pushBack</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">gp</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#D8DEE9">			sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">disable</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">n</span><span style="color:#81A1C1">++</span></span>
+<span data-line=""><span style="color:#88C0D0">			unlock</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">sched</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">lock</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">			goto</span><span style="color:#D8DEE9"> top</span></span>
+<span data-line=""><span style="color:#ECEFF4">		}</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> tryWakeP</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">		wakep</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> gp</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">lockedm</span><span style="color:#81A1C1"> !=</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#88C0D0">		startlockedm</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">gp</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">		goto</span><span style="color:#D8DEE9"> top</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#88C0D0">	execute</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">gp</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> inheritTime</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<h2 id="execute()%20-%20%E6%89%A7%E8%A1%8C%20Goroutine">execute() - 执行 Goroutine</h2>
+<p>将gp调度运行在当前m上，设置相关状态并最终调用gogo()开始执行。</p>
+<h2 id="gogo()%20-%20%E6%81%A2%E5%A4%8D%20Goroutine%20%E6%89%A7%E8%A1%8C">gogo() - 恢复 Goroutine 执行</h2>
+<p>从gobuf中恢复协程执行状态，并跳转到上一次指令处继续执行。</p>
+<h2 id="Preempt%20Based%20Signal">Preempt Based Signal</h2>
+<p>抢占调度过程：</p>
+<ol>
+<li>sysmon 线程检测到执行时间过长的 goroutine、GC stw 时，向相应的 M 发送 SIGURG 信号</li>
+<li>M 注册的信号处理函数 sighandler 执行</li>
+<li>通过 pushCall 插入 asyncPreempt 函数调用</li>
+<li>执行 asyncPreempt，通过 mcall 切到 g0 栈执行 gopreempt_m</li>
+<li>将当前 goroutine 插入到全局可运行队列</li>
+<li>被抢占的 goroutine 再次调度时，继续原来的执行流</li>
+</ol>
+<h1 id="%E7%89%B9%E6%AE%8A%E5%87%BD%E6%95%B0">特殊函数</h1>
+<h2 id="systemstack">systemstack</h2>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="// 1. 已经在 g0 上或 gsignal 上，不切换栈，直接执行函数后返回
+// 2. 在普通 g（curg）上：切到 g0 → 执行 fn → 切回来
+//   - 为什么要切栈？普通 g 栈很小（默认2KB），可能触发扩容/拷贝，不适合做运行时内部操作
+func systemstack(fn func())">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 1. 已经在 g0 上或 gsignal 上，不切换栈，直接执行函数后返回</span></span>
+<span data-line=""><span style="color:#616E88">// 2. 在普通 g（curg）上：切到 g0 → 执行 fn → 切回来</span></span>
+<span data-line=""><span style="color:#616E88">//   - 为什么要切栈？普通 g 栈很小（默认2KB），可能触发扩容/拷贝，不适合做运行时内部操作</span></span>
+<span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> systemstack</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">fn</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">())</span></span></code></pre></figure></article><aside id="backlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">被 1 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1770786730-PFOI" class="note-link underline-offset-4 hover:underline">Go: goroutine 协程</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="Go%3A%20schedule" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Go%3A%20schedule">Go: schedule</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Go: schedule</span></li><li class="group relative"><a data-toc-link data-heading-id="%E6%B6%89%E5%8F%8A%E7%9A%84%E7%BB%93%E6%9E%84%E4%BD%93%E3%80%81%E5%87%BD%E6%95%B0" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%B6%89%E5%8F%8A%E7%9A%84%E7%BB%93%E6%9E%84%E4%BD%93%E3%80%81%E5%87%BD%E6%95%B0">涉及的结构体、函数</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">涉及的结构体、函数</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="GMP%20%E6%A8%A1%E5%9E%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#GMP%20%E6%A8%A1%E5%9E%8B">GMP 模型</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">GMP 模型</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3">核心思想</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心思想</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%9B%B8%E5%85%B3%E7%BB%93%E6%9E%84%E4%BD%93" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%9B%B8%E5%85%B3%E7%BB%93%E6%9E%84%E4%BD%93">相关结构体</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">相关结构体</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="g%20-%20Goroutine" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#g%20-%20Goroutine">g - Goroutine</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">g - Goroutine</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="sudog%20-%20%E7%AD%89%E5%BE%85%E5%88%97%E8%A1%A8%E4%B8%AD%E7%9A%84%20G" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#sudog%20-%20%E7%AD%89%E5%BE%85%E5%88%97%E8%A1%A8%E4%B8%AD%E7%9A%84%20G">sudog - 等待列表中的 G</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">sudog - 等待列表中的 G</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="m%20-%20OS%20%E7%BA%BF%E7%A8%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#m%20-%20OS%20%E7%BA%BF%E7%A8%8B">m - OS 线程</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">m - OS 线程</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="p%20-%20Processor" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#p%20-%20Processor">p - Processor</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">p - Processor</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="schedt%20-%20%E5%85%A8%E5%B1%80%E8%B0%83%E5%BA%A6%E5%99%A8" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#schedt%20-%20%E5%85%A8%E5%B1%80%E8%B0%83%E5%BA%A6%E5%99%A8">schedt - 全局调度器</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">schedt - 全局调度器</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E8%B0%83%E5%BA%A6%E6%97%B6%E6%9C%BA" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%B0%83%E5%BA%A6%E6%97%B6%E6%9C%BA">调度时机</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">调度时机</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="m%20%E5%92%8C%20p%20%E8%A7%A3%E7%BB%91%E5%AE%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#m%20%E5%92%8C%20p%20%E8%A7%A3%E7%BB%91%E5%AE%9A">m 和 p 解绑定</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">m 和 p 解绑定</span></li><li class="group relative"><a data-toc-link data-heading-id="Schedule%20Loop" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Schedule%20Loop">Schedule Loop</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Schedule Loop</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="schedule()%20%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#schedule()%20%E5%87%BD%E6%95%B0%E8%AF%A6%E8%A7%A3">schedule() 函数详解</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">schedule() 函数详解</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="execute()%20-%20%E6%89%A7%E8%A1%8C%20Goroutine" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#execute()%20-%20%E6%89%A7%E8%A1%8C%20Goroutine">execute() - 执行 Goroutine</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">execute() - 执行 Goroutine</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="gogo()%20-%20%E6%81%A2%E5%A4%8D%20Goroutine%20%E6%89%A7%E8%A1%8C" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#gogo()%20-%20%E6%81%A2%E5%A4%8D%20Goroutine%20%E6%89%A7%E8%A1%8C">gogo() - 恢复 Goroutine 执行</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">gogo() - 恢复 Goroutine 执行</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Preempt%20Based%20Signal" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Preempt%20Based%20Signal">Preempt Based Signal</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Preempt Based Signal</span></li><li class="group relative"><a data-toc-link data-heading-id="%E7%89%B9%E6%AE%8A%E5%87%BD%E6%95%B0" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%89%B9%E6%AE%8A%E5%87%BD%E6%95%B0">特殊函数</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">特殊函数</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="systemstack" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#systemstack">systemstack</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">systemstack</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>

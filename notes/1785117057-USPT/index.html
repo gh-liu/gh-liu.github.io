@@ -1,0 +1,224 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读博客：Making 768 servers look like 1</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E5%8D%9A%E5%AE%A2%EF%BC%9AMaking%20768%20servers%20look%20like%201">读博客：Making 768 servers look like 1</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-07-27</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-27</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BLN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BLN</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">通过分片、SQL Router 与负载均衡，把数百个数据库节点抽象成一个逻辑数据库。</p>
+<blockquote>
+<p><a href="https://planetscale.com/blog/making-768-servers-look-like-1">https://planetscale.com/blog/making-768-servers-look-like-1</a></p>
+</blockquote>
+<ul>
+<li>是什么（What）
+<ul>
+<li>一种分片数据库架构：将数据和查询分散到多个独立主库，再由理解数据拓扑与 SQL 的 Router 对应用隐藏物理分布</li>
+</ul>
+</li>
+<li>为什么（Why）
+<ul>
+<li>单机纵向扩容与只读副本无法突破单主库的写入、存储容量和大库备份瓶颈；分片能并行扩展容量与读写吞吐，但会把复杂度转移到数据库中间层</li>
+</ul>
+</li>
+<li>怎么做（How）
+<ul>
+<li>选择分片键和映射策略，用拓扑元数据描述数据分布；Router 解析并规划 SQL，将请求路由到单个或多个分片并合并结果；再用多个 Router 和可选的 NLB 消除 Router 单点与吞吐瓶颈</li>
+</ul>
+</li>
+</ul>
+<h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
+<blockquote>
+<p>“让 768 台服务器看起来像 1 台”的关键不是消除分布式复杂度，而是建立一个逻辑数据库抽象：应用只面对统一的连接入口和 SQL 接口，Router 则负责承接数据定位、查询分发与结果聚合。</p>
+</blockquote>
+<h3 id="%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E5%81%9A%E5%8D%95%E6%9C%BA%E6%89%A9%E5%AE%B9%E5%92%8C%E5%8F%AA%E8%AF%BB%E5%89%AF%E6%9C%AC%E8%BF%98%E4%B8%8D%E5%A4%9F">为什么只做单机扩容和只读副本还不够</h3>
+<ol>
+<li><strong>写吞吐仍受单个 Primary 限制</strong>：</li>
+</ol>
+<ul>
+<li>常规主从复制只允许 Primary 处理 <code>INSERT</code>、<code>UPDATE</code>、<code>DELETE</code></li>
+<li>提交写入前需要记录 WAL 并刷入持久化存储，Primary 上所有连接仍会竞争共享的写入路径</li>
+<li>增加 Replica 只能分担读请求，不能分担 Primary 的写入压力</li>
+</ul>
+<ol start="2">
+<li><strong>Replica 不增加有效数据容量</strong>：</li>
+</ol>
+<ul>
+<li>每个 Replica 都保存 Primary 的完整数据和索引</li>
+<li>增加副本提高的是读吞吐、可用性和数据耐久性，而不是单个逻辑数据库能够容纳的数据量</li>
+</ul>
+<ol start="3">
+<li><strong>单体大库的备份窗口过长</strong>：</li>
+</ol>
+<ul>
+<li>数据库到对象存储的带宽有限，数 TB 乃至更大的数据库备份可能需要数小时或数天</li>
+<li>备份和恢复耗时会直接影响 RPO、RTO，也让备份校验和故障演练变得昂贵</li>
+</ul>
+<ol start="4">
+<li><strong>纵向扩容存在收益递减</strong>：</li>
+</ol>
+<ul>
+<li>增加 CPU、内存和 I/O 能力是简单且有效的早期方案</li>
+<li>但共享资源竞争和协调开销会使扩展低于线性增长；机器越大，并不意味着数据库吞吐能同比增长</li>
+</ul>
+<h3 id="%E5%88%86%E7%89%87%E5%A6%82%E4%BD%95%E7%AA%81%E7%A0%B4%E8%BF%99%E4%BA%9B%E9%99%90%E5%88%B6">分片如何突破这些限制</h3>
+<p>分片将一个逻辑数据库拆成多个拥有独立 Primary 的物理数据库。每个分片只保存部分数据，也只承担部分查询和写入：</p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>数据分布</th>
+<th>读扩展</th>
+<th>写扩展</th>
+<th>容量扩展</th>
+<th>主要代价</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>纵向扩容</td>
+<td>单份</td>
+<td>有限</td>
+<td>有限</td>
+<td>有限</td>
+<td>成本上升、存在硬件上限</td>
+</tr>
+<tr>
+<td>只读副本</td>
+<td>每个节点保存全量副本</td>
+<td>是</td>
+<td>否</td>
+<td>否</td>
+<td>复制延迟、Primary 仍是瓶颈</td>
+</tr>
+<tr>
+<td>分片</td>
+<td>每个分片保存部分数据</td>
+<td>是</td>
+<td>是</td>
+<td>是</td>
+<td>路由、跨片操作和运维复杂度</td>
+</tr>
+</tbody>
+</table>
+<p>文章用两个规模说明这种拆分：</p>
+<ul>
+<li><code>2 TB</code> 数据可以拆为 4 个分片，每片约 <code>500 GB</code>，理想情况下各承担约四分之一流量</li>
+<li><code>1 PB</code> 数据可以拆为 256 个分片，每片约 <code>4 TB</code>；若每片配置 1 个 Primary 和 2 个 Replica，共需要 <code>256 × 3 = 768</code> 台服务器</li>
+</ul>
+<p>这里的关键变化是：<strong>Replica 在分片内部提供高可用与读扩展，Shard 在分片之间提供写吞吐与数据容量扩展</strong>，两者解决的问题不同，可以组合使用。</p>
+<h3 id="Router%20%E6%98%AF%E9%80%BB%E8%BE%91%E6%95%B0%E6%8D%AE%E5%BA%93%E6%8A%BD%E8%B1%A1%E7%9A%84%E6%A0%B8%E5%BF%83">Router 是逻辑数据库抽象的核心</h3>
+<p>普通 Postgres Proxy（如 PgBouncer）主要负责连接池化、连接复用、排队和故障切换期间的缓冲；分片 Router 除此之外，还必须理解 SQL 和数据拓扑：</p>
+<ol>
+<li><strong>写入路由</strong>：根据表的分片键计算目标分片，将数据写入对应的 Primary</li>
+<li><strong>单分片查询</strong>：从谓词中提取分片键，直接把 SQL 发送到唯一目标分片</li>
+<li><strong>跨分片查询</strong>：找出所有可能包含结果的分片，并行下发查询，在 Router 中聚合结果后返回应用</li>
+<li><strong>连接管理</strong>：复用到各个分片的数据库连接，并在突发流量或故障恢复时排队请求</li>
+</ol>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">diagram</span><button type="button" class="code-copy-button" data-code="                                      ┌───────────────┐
+                                 ┌───▶│ Shard 1       │
+┌────────────┐   ┌──────────┐    │    │ P + replicas  │
+│ App server │──▶│ SQL      │────┤    └───────────────┘
+│            │◀──│ Router   │◀───┤    ┌───────────────┐
+└────────────┘   └──────────┘    ├───▶│ Shard 2       │
+                                 │    │ P + replicas  │
+                                 │    └───────────────┘
+                                 │    ┌───────────────┐
+                                 └───▶│ Shard N       │
+                                      │ P + replicas  │
+                                      └───────────────┘">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="diagram" data-theme="nord"><code data-language="diagram" data-theme="nord" style="display: grid;"><span data-line=""><span>                                      ┌───────────────┐</span></span>
+<span data-line=""><span>                                 ┌───▶│ Shard 1       │</span></span>
+<span data-line=""><span>┌────────────┐   ┌──────────┐    │    │ P + replicas  │</span></span>
+<span data-line=""><span>│ App server │──▶│ SQL      │────┤    └───────────────┘</span></span>
+<span data-line=""><span>│            │◀──│ Router   │◀───┤    ┌───────────────┐</span></span>
+<span data-line=""><span>└────────────┘   └──────────┘    ├───▶│ Shard 2       │</span></span>
+<span data-line=""><span>                                 │    │ P + replicas  │</span></span>
+<span data-line=""><span>                                 │    └───────────────┘</span></span>
+<span data-line=""><span>                                 │    ┌───────────────┐</span></span>
+<span data-line=""><span>                                 └───▶│ Shard N       │</span></span>
+<span data-line=""><span>                                      │ P + replicas  │</span></span>
+<span data-line=""><span>                                      └───────────────┘</span></span></code></pre></figure>
+<p>例如按 <code>user.id</code> 的哈希值分片：</p>
+<ul>
+<li><code>SELECT email FROM user WHERE id = 4</code> 能由 <code>id = 4</code> 唯一定位到一个分片</li>
+<li><code>SELECT email FROM user WHERE id BETWEEN 3 AND 5</code> 可能覆盖多个分片，Router 需要生成分布式执行计划、向相关分片发起查询，再合并结果</li>
+</ul>
+<p>第二类查询意味着 Router 不能只是按字符串转发 SQL，而要具备完整的 SQL Parser、Planner 和结果聚合能力。若查询还包含 <code>ORDER BY</code>、<code>LIMIT</code>、聚合或跨表 <code>JOIN</code>，合并过程会更复杂，也更消耗 Router 的 CPU、内存与网络资源。</p>
+<h3 id="Router%20%E5%A6%82%E4%BD%95%E7%9F%A5%E9%81%93%E6%95%B0%E6%8D%AE%E5%9C%A8%E5%93%AA%E9%87%8C">Router 如何知道数据在哪里</h3>
+<p>数据库的表结构和访问模式各不相同，因此分布规则不能全部硬编码在 Router 中。Neki 和 Vitess 使用 JSON 元数据描述逻辑表到物理分片的映射，例如：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#f5de19" d="M4.014 14.976a2.5 2.5 0 0 0 1.567-.518a2.38 2.38 0 0 0 .805-1.358a15.3 15.3 0 0 0 .214-2.944q.012-2.085.075-2.747a5.2 5.2 0 0 1 .418-1.686a3 3 0 0 1 .755-1.018A3.05 3.05 0 0 1 9 4.125A6.8 6.8 0 0 1 10.544 4h.7v1.96h-.387a2.34 2.34 0 0 0-1.723.468a3.4 3.4 0 0 0-.425 2.092a36 36 0 0 1-.137 4.133a4.7 4.7 0 0 1-.768 2.06A4.6 4.6 0 0 1 6.1 16a3.8 3.8 0 0 1 1.992 1.754a8.9 8.9 0 0 1 .618 3.865q0 2.435.05 2.9a1.76 1.76 0 0 0 .504 1.181a2.64 2.64 0 0 0 1.592.337h.387V28h-.7a5.7 5.7 0 0 1-1.773-.2a2.97 2.97 0 0 1-1.324-.93a3.35 3.35 0 0 1-.681-1.63a24 24 0 0 1-.165-3.234a16.5 16.5 0 0 0-.214-3.106a2.4 2.4 0 0 0-.805-1.361a2.5 2.5 0 0 0-1.567-.524Zm23.972 2.035a2.5 2.5 0 0 0-1.567.524a2.4 2.4 0 0 0-.805 1.361a16.5 16.5 0 0 0-.212 3.109a24 24 0 0 1-.169 3.234a3.35 3.35 0 0 1-.681 1.63a2.97 2.97 0 0 1-1.324.93a5.7 5.7 0 0 1-1.773.2h-.7V26.04h.387a2.64 2.64 0 0 0 1.592-.337a1.76 1.76 0 0 0 .506-1.186q.05-.462.05-2.9a8.9 8.9 0 0 1 .618-3.865A3.8 3.8 0 0 1 25.9 16a4.6 4.6 0 0 1-1.7-1.286a4.7 4.7 0 0 1-.768-2.06a36 36 0 0 1-.137-4.133a3.4 3.4 0 0 0-.425-2.092a2.34 2.34 0 0 0-1.723-.468h-.387V4h.7a6.8 6.8 0 0 1 1.54.125a3.05 3.05 0 0 1 1.149.581a3 3 0 0 1 .755 1.018a5.2 5.2 0 0 1 .418 1.686q.062.662.075 2.747a15.3 15.3 0 0 0 .212 2.947a2.38 2.38 0 0 0 .805 1.355a2.5 2.5 0 0 0 1.567.518Z"/></svg>json</span><button type="button" class="code-copy-button" data-code="{
+  &#x22;shard_indexes&#x22;: {
+    &#x22;user_hash&#x22;: {
+      &#x22;type&#x22;: &#x22;hash&#x22;
+    }
+  },
+  &#x22;tables&#x22;: {
+    &#x22;user&#x22;: {
+      &#x22;shard_by&#x22;: &#x22;user_hash&#x22;,
+      &#x22;column&#x22;: &#x22;id&#x22;
+    }
+  }
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="json" data-theme="nord"><code data-language="json" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#ECEFF4">{</span></span>
+<span data-line=""><span style="color:#ECEFF4">  "</span><span style="color:#8FBCBB">shard_indexes</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#ECEFF4">    "</span><span style="color:#8FBCBB">user_hash</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#ECEFF4">      "</span><span style="color:#8FBCBB">type</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">hash</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""><span style="color:#ECEFF4">    }</span></span>
+<span data-line=""><span style="color:#ECEFF4">  },</span></span>
+<span data-line=""><span style="color:#ECEFF4">  "</span><span style="color:#8FBCBB">tables</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#ECEFF4">    "</span><span style="color:#8FBCBB">user</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#ECEFF4">      "</span><span style="color:#8FBCBB">shard_by</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">user_hash</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#ECEFF4">      "</span><span style="color:#8FBCBB">column</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">:</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">id</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""><span style="color:#ECEFF4">    }</span></span>
+<span data-line=""><span style="color:#ECEFF4">  }</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p>这段配置表达两个事实：<code>user</code> 表以 <code>id</code> 为分片键，并通过 <code>user_hash</code> 计算目标分片。Router 结合这份拓扑元数据和 SQL 中的谓词，决定查询应该发往哪里。</p>
+<p><strong>配置化解决的是“如何把业务数据模型告诉通用 Router”的问题，但配置本身仍是数据库设计的一部分</strong>：分片键选错后，热点、跨片查询和数据迁移成本都不会被 Router 自动消除。</p>
+<h3 id="%E5%A4%9A%E4%B8%AA%20Router%20%E5%A6%82%E4%BD%95%E4%BB%8D%E8%A1%A8%E7%8E%B0%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%85%A5%E5%8F%A3">多个 Router 如何仍表现为一个入口</h3>
+<p>一个 Router 无法承载数百万 QPS，也会成为单点，因此实际系统需要横向部署多个 Router。应用可以通过 Network Load Balancer（NLB）访问统一域名：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">diagram</span><button type="button" class="code-copy-button" data-code="                              ┌──────────┐
+                         ┌───▶│ Router 1 │───┐
+┌────────────┐   ┌───────┐   ├──────────┤   │   ┌──────────────┐
+│ App server │──▶│  NLB  │──▶│ Router 2 │───┼──▶│ 256 shards   │
+└────────────┘   └───────┘   ├──────────┤   │   │ 768 servers  │
+                         └───▶│ Router N │───┘   └──────────────┘
+                              └──────────┘">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="diagram" data-theme="nord"><code data-language="diagram" data-theme="nord" style="display: grid;"><span data-line=""><span>                              ┌──────────┐</span></span>
+<span data-line=""><span>                         ┌───▶│ Router 1 │───┐</span></span>
+<span data-line=""><span>┌────────────┐   ┌───────┐   ├──────────┤   │   ┌──────────────┐</span></span>
+<span data-line=""><span>│ App server │──▶│  NLB  │──▶│ Router 2 │───┼──▶│ 256 shards   │</span></span>
+<span data-line=""><span>└────────────┘   └───────┘   ├──────────┤   │   │ 768 servers  │</span></span>
+<span data-line=""><span>                         └───▶│ Router N │───┘   └──────────────┘</span></span>
+<span data-line=""><span>                              └──────────┘</span></span></code></pre></figure>
+<p>一次完整连接过程是：</p>
+<ol>
+<li>应用使用统一连接地址，例如 <code>mydb.pscale.com</code></li>
+<li>DNS 将域名解析到 NLB 地址</li>
+<li>NLB 为新连接选择一个 Router，并在连接生命周期内维持该映射</li>
+<li>应用发送 SQL，流量沿 <code>App → NLB → Router → Shard</code> 传递</li>
+<li>Router 隐藏物理分片和结果合并过程，应用继续把它当作一个逻辑数据库</li>
+</ol>
+<p>NLB 不是必需的。让客户端直接感知多个 Router 可以减少一次网络跳转和少量延迟，但会把服务发现、负载分配和故障处理复杂度重新暴露给应用。</p>
+<h3 id="%E2%80%9C%E7%9C%8B%E8%B5%B7%E6%9D%A5%E5%83%8F%E4%B8%80%E4%B8%AA%E6%95%B0%E6%8D%AE%E5%BA%93%E2%80%9D%E7%9A%84%E8%BE%B9%E7%95%8C">“看起来像一个数据库”的边界</h3>
+<p>统一连接串只隐藏了<strong>拓扑与路由复杂度</strong>，并不自动恢复单机数据库的全部语义和成本模型：</p>
+<ul>
+<li><strong>跨片事务</strong>：原子提交需要分布式事务协议，否则只能限制事务范围或接受补偿语义</li>
+<li><strong>跨片 JOIN 与聚合</strong>：可能产生 Scatter-Gather、大量中间数据和尾延迟，性能通常不再等价于单机执行</li>
+<li><strong>全局约束</strong>：跨分片的唯一索引、外键、全局序列和一致性校验更难实现</li>
+<li><strong>热点分片</strong>：哈希分片能均匀分布随机键，却不能保证业务访问均匀；超级用户或热点租户仍可能压垮单片</li>
+<li><strong>重分片</strong>：增加分片数需要在线迁移数据、双写或流量切换，并保持迁移过程的一致性</li>
+<li><strong>故障与拓扑变更</strong>：Router 必须及时获知主从切换和分片变化；多个 Router 之间还要避免使用不一致的旧拓扑</li>
+<li><strong>备份与恢复</strong>：分片缩短单节点备份窗口，但要获得全库一致快照，仍需协调 256 个分片的时间点和恢复顺序</li>
+<li><strong>可观测性</strong>：逻辑上的一次 SQL 可能展开成数百个物理请求，需要跨 Router 和 Shard 追踪延迟、错误与资源消耗</li>
+</ul>
+<p>原文聚焦的是统一访问层，没有展开上述问题。Neki/Vitess 的价值不仅是一个 Proxy，而是围绕路由、拓扑、故障处理和运维提供完整的分片系统。</p>
+<h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
+<ol>
+<li><strong>抽象不会消除复杂度，只会重新安置复杂度</strong>：应用获得了简单的连接模型，但 Router 和数据库平台必须接管 SQL 解析、执行计划、连接池、拓扑管理、故障恢复与结果合并。平台能力越强，业务侧越简单。</li>
+<li><strong>先按瓶颈类型选择扩展方式</strong>：只读副本针对读吞吐和可用性，分片针对写吞吐与容量。若瓶颈只是慢 SQL、索引或连接数，直接分片往往是在用最高复杂度方案解决更低层问题。</li>
+<li><strong>分片键决定系统的性能上限</strong>：好的分片键既要让数据和流量均匀分布，又要让大多数事务与查询能被限制在单片内。设计时应优先围绕访问局部性，而不是只追求数学上的数据均匀。</li>
+<li><strong>最便宜的分布式查询，是不跨分片的查询</strong>：Router 可以支持 Scatter-Gather，不代表业务应依赖它。表的共置、租户键贯穿和查询模式约束，往往比增强跨片执行器更有效。</li>
+<li><strong>控制面与数据面必须分离理解</strong>：SQL Router 位于数据面，负责高频查询转发；分片规则、拓扑变更、主从切换和重分片属于控制面。768 台服务器能否稳定表现为一个数据库，更取决于两者能否一致协作。</li>
+<li><strong>“单一入口”是可演进性的基础</strong>：应用依赖逻辑连接地址而不是物理节点，使底层增加 Router、替换 Primary 或迁移分片时不必修改所有业务服务。这与负载均衡器、服务发现和虚拟存储卷的设计思想一致。</li>
+<li><strong>分片降低的是每个故障域的规模，不是系统总复杂度</strong>：单片备份、恢复和故障切换会更快，但分片数量增多后，故障发生频率、协调工作和观测维度都会增加。</li>
+<li><strong>“几 TB 后就应该分片”不是普适阈值</strong>：这是原文基于 PlanetScale 产品经验给出的建议，实际决策应由数据增长率、写入吞吐、备份窗口、访问模式、团队运维能力和成本共同驱动，而不能只看数据库大小。</li>
+</ol>
+<h2 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h2>
+<ol>
+<li>评估数据库扩展时，分别测量 CPU、IOPS、WAL 写入、数据容量、备份/恢复窗口和读写比例，先确认真正瓶颈。</li>
+<li>在引入分片前统计 Top SQL，验证绝大多数读写能否携带候选分片键并在单片完成。</li>
+<li>用“数据均匀度、访问均匀度、事务局部性、重分片成本”四个维度评审分片键，而不是只检查哈希是否均匀。</li>
+<li>明确系统对跨片事务、JOIN、唯一约束、全局排序和分页的语义及性能边界，不把 Router 的透明性当作无限能力。</li>
+<li>容量规划时同时预算数据库节点和 Router 层；对 Scatter-Gather 查询重点监控扇出数、P99 延迟、中间结果大小和失败比例。</li>
+<li>把重分片、单片故障、Router 故障、拓扑配置不一致和全库恢复纳入上线前演练，验证抽象在故障时仍然成立。</li>
+</ol></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E5%8D%9A%E5%AE%A2%EF%BC%9AMaking%20768%20servers%20look%20like%201" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E5%8D%9A%E5%AE%A2%EF%BC%9AMaking%20768%20servers%20look%20like%201">读博客：Making 768 servers look like 1</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读博客：Making 768 servers look like 1</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E5%81%9A%E5%8D%95%E6%9C%BA%E6%89%A9%E5%AE%B9%E5%92%8C%E5%8F%AA%E8%AF%BB%E5%89%AF%E6%9C%AC%E8%BF%98%E4%B8%8D%E5%A4%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E5%8F%AA%E5%81%9A%E5%8D%95%E6%9C%BA%E6%89%A9%E5%AE%B9%E5%92%8C%E5%8F%AA%E8%AF%BB%E5%89%AF%E6%9C%AC%E8%BF%98%E4%B8%8D%E5%A4%9F">为什么只做单机扩容和只读副本还不够</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">为什么只做单机扩容和只读副本还不够</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%88%86%E7%89%87%E5%A6%82%E4%BD%95%E7%AA%81%E7%A0%B4%E8%BF%99%E4%BA%9B%E9%99%90%E5%88%B6" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%88%86%E7%89%87%E5%A6%82%E4%BD%95%E7%AA%81%E7%A0%B4%E8%BF%99%E4%BA%9B%E9%99%90%E5%88%B6">分片如何突破这些限制</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">分片如何突破这些限制</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Router%20%E6%98%AF%E9%80%BB%E8%BE%91%E6%95%B0%E6%8D%AE%E5%BA%93%E6%8A%BD%E8%B1%A1%E7%9A%84%E6%A0%B8%E5%BF%83" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Router%20%E6%98%AF%E9%80%BB%E8%BE%91%E6%95%B0%E6%8D%AE%E5%BA%93%E6%8A%BD%E8%B1%A1%E7%9A%84%E6%A0%B8%E5%BF%83">Router 是逻辑数据库抽象的核心</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Router 是逻辑数据库抽象的核心</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Router%20%E5%A6%82%E4%BD%95%E7%9F%A5%E9%81%93%E6%95%B0%E6%8D%AE%E5%9C%A8%E5%93%AA%E9%87%8C" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Router%20%E5%A6%82%E4%BD%95%E7%9F%A5%E9%81%93%E6%95%B0%E6%8D%AE%E5%9C%A8%E5%93%AA%E9%87%8C">Router 如何知道数据在哪里</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Router 如何知道数据在哪里</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%A4%9A%E4%B8%AA%20Router%20%E5%A6%82%E4%BD%95%E4%BB%8D%E8%A1%A8%E7%8E%B0%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%85%A5%E5%8F%A3" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%A4%9A%E4%B8%AA%20Router%20%E5%A6%82%E4%BD%95%E4%BB%8D%E8%A1%A8%E7%8E%B0%E4%B8%BA%E4%B8%80%E4%B8%AA%E5%85%A5%E5%8F%A3">多个 Router 如何仍表现为一个入口</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">多个 Router 如何仍表现为一个入口</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E2%80%9C%E7%9C%8B%E8%B5%B7%E6%9D%A5%E5%83%8F%E4%B8%80%E4%B8%AA%E6%95%B0%E6%8D%AE%E5%BA%93%E2%80%9D%E7%9A%84%E8%BE%B9%E7%95%8C" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E2%80%9C%E7%9C%8B%E8%B5%B7%E6%9D%A5%E5%83%8F%E4%B8%80%E4%B8%AA%E6%95%B0%E6%8D%AE%E5%BA%93%E2%80%9D%E7%9A%84%E8%BE%B9%E7%95%8C">“看起来像一个数据库”的边界</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">“看起来像一个数据库”的边界</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">行动：</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>

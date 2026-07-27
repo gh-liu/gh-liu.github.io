@@ -1,0 +1,225 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: style guide</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-02-05</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-03-06</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/GO" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">GO</a></div></div><h3 id="golang">golang</h3>
+<p><a href="https://github.com/golang/go/wiki/CodeReviewComments#go-code-review-comments">https://github.com/golang/go/wiki/CodeReviewComments#go-code-review-comments</a>
+<a href="https://github.com/golang/go/wiki/CommonMistakes">https://github.com/golang/go/wiki/CommonMistakes</a>
+<a href="https://go.dev/doc/effective_go#errors">https://go.dev/doc/effective_go#errors</a></p>
+<h3 id="benbjohnson">benbjohnson</h3>
+<p><a href="https://medium.com/@benbjohnson/structuring-applications-in-go-3b04be4ff091">https://medium.com/@benbjohnson/structuring-applications-in-go-3b04be4ff091</a></p>
+<h3 id="uber">uber</h3>
+<p><a href="https://github.com/uber-go/guide/blob/master/style.md">https://github.com/uber-go/guide/blob/master/style.md</a></p>
+<h4 id="%E6%8C%87%E5%8D%97">指南</h4>
+<p>指向接口的指针：一般直接传值；实现接口方法时，使用指针可以修改底层数据</p>
+<p>验证接口的合理性：接口体指针实现了接口方法 -- var _ 接口 = (*接口体)nil 或者 结构体内嵌接口 -- var _ 接口 = 接口体{}
+接收者与接口：指针接收者与值接收者
+mutex的0值是有效的：可以直接 var mu sync.Mutex ; mu.Lock() ,可以结构体内嵌mutex直接使用（不可导出的结构体），或者申明为结构体的一个字段（可导出结构体，将mutex申明为私有）
+在边界处复制slice和map：slice和map有指向底层数据的指针，复制、返回时，需要新建一个slice或者map，重新复制其中的数据。
+defer和清理：使用defer清理资源，例如锁、文件等
+channel的大小设置为1(buffered)或者不设置(unbuffered)：
+枚举从1开始： iota+1 ，当0被视作默认行为的时候，可以从0开始
+使用time包处理时间：time.Time表示时间实例，time.Duration表示一个时间段；time包没有考虑到闰秒（leap second）
+错误类型：申明错误的不同选择1. errors.New 简单错误，无额外信息 2. fmt.Errorf 3. 自定义类型实行error接口的Error()方法  客户端发现且处理错误 4. "pkg/errors".Wrap 传播由下游函数返回的错误  ； 注意直接暴露自定义的错误类型结构体，应该使用一系列方法，去设置错误、判断错误
+包装错误：如果调用函数失败，主要有三种传播错误的选择：1. 在不需要添加特定上下文信息且保证原错误的情况下，返回原错误 2. 使用"pkg/errors".Wrap 包装上下文，因此可以提供更多信息，且使用 "pkg/errors".Cause可以拿到原错误 3.  如果调用者不需要发现与处理错误，使用fmt.Errorf   ；推荐尽可能的添加上下文而不是使用不详细的错误，在添加上下文的时候，保证言简意赅
+处理<code>类型断言</code>失败：使用common-ok方式接收断言的返回值；而不是使用返回值，因为在这种情况下，不准确的类型会导致panic
+不要panic：运行在生产环境下的代码应该避免panic，panic是级联故障的一个主要原因；如果一个错误发生了，应该返回这个错误给调用者，让其决定如何处理这个错误；panic/recover不是一个处理错误的策略：一个程序只有在发生不可恢复的错误下才必须panic，比如一个对nil解引用；程序初始化是一个意外，在程序启动的时候，不好的东西可能会打断程序从而可能造成panic；甚至在test中，使用t.Fatal 或者t.FailNow 替代panic确保test被标记为failed；
+使用 go.uber.org/atomic：sync/stomic包使用原生类型进行操作，这很容易忘记使用atomic操作读取或者修改一个变量，uber的atomic包隐藏了底层类型，封装了一些安全的类型；
+避免可变的全局变量：避免可变的全局变量，而是选择依赖注入
+避免在可导出的类型中内嵌类型：内嵌的类型缺失了实现的细节，阻碍类型的演变，并且模糊了文档；go允许内嵌作为组合和继承的折中方法，外层类型隐式复制了内嵌类型的方法，这些复制的方法，默认委托给了内嵌类型的实例的方法；外层的这个结构体同时获得和内嵌类型名称相同的字段，如果内嵌类型是可导出的，那么这个字段也是可导出的；为了保持向后兼容性，外层类型的未来版本必须保持这个内嵌的类型；内嵌类型很少是必须的；很方便帮助我们避免啰嗦的委托方法；内嵌一个可兼容的接口提供给开发者更多的灵活性，但是依旧缺失了 具体类型使用抽象实现的细节；内嵌结构体或者接口都限制了外层类型的演变：*添加方法到内嵌接口是一个重大改变 *从一个内嵌结构体移除方法是一个重大改变 *移除内嵌类型是一个重大改变 *替换内嵌的类型，即使使用满足接口的可替代类型，是一个重大改变；
+尽管写这些委托的方法是很啰嗦的，这个额外努力隐藏了实现的细节，也提供了可以改变的机会，并且消除了为了发现完全列表的间接性；
+避免使用build-in 的名字：
+避免init():可能的话，避免init();当不可避免或者必需的时候，代码应该是：*完全确定的，与程序的环境与调用无关 *避免依赖有序或者其他init()函数的副作用 *避免操作全局的 或者环境变量 *避免I/O，包括文件系统、网络、系统调用 ; init()更好或者必须的场景：*复制的表达式，不能使用单赋值语句表示 *可拔插的hooks *确定的提前计算</p>
+<h4 id="%E6%80%A7%E8%83%BD">性能</h4>
+<p>使用strcov 而不是fmt：
+避免在循环内，对一个固定的字符串进行转字节数组操作：
+更倾向于指定容器容量：</p>
+<h4 id="%E8%A7%84%E8%8C%83">规范</h4>
+<p>一致性：
+相似申明分组：
+import分组顺序：
+包命名：
+函数命名:
+import别名：
+函数分组与排序：
+减少嵌套：优先处理特殊情况和处理错误，尽早的返回或跳出循环
+不必要的else：
+顶部变量申明：顶部变量使用var ，不指定类型，除非和右边表达式返回的类型不一致；
+将不可导出的全局变量加上前缀_ ：不可导出的，顶部的var 或者const 添加下划线_前缀；特例，不可导出的错误值，使用err作前缀；原理，因为顶部的全局变量有包的范围，使用普通的名字可能造成在其他文件有意外的错误使用；
+内嵌在结构体中：内嵌的类型应该放在类型内部前面部分的字段中，而且与其他的普通字段有一个分割行；内嵌不应该： *纯粹为了好看或方便 *使得外层类型构造或使用起来更难 *影响外层类型的零值 *使得外层类型暴露出不相干的函数或字段 *暴露出不可导出的类型 *影响外层类型的复制语义 *改变外层类型的的API或者类型语义 *嵌入内部类型的非规范形式 *暴露出外层类型的实现细节 *允许用户观察和控制类型内部 *通过某种包装来改变内部功能的一般行为，使用户感到惊讶
+使用字段名称初始化结构体：
+局部变量申明： 使用短变量申明：=  ，某些特殊情况下，默认值更清晰时，可以使用 var，比如声明空切片
+nil是有效的切片：长度为0的切片，可以返回nil ，判断切片的长度是否为0，使用len()，而不用nil，切片的零值（使用var申明）可以不在make()后直接使用  注意：nil切片与长度为0的切片是不等价的，某些情况被不同对待的（比如序列化）
+缩小变量的范围： 优先级在减少嵌套的后面
+避免裸露的参数：多个参数的意思不明确的时候，在函数调用参数后面使用/**/注释；但是，为了可读性与类型安全，可以使用自定义的类型，可以使用int的别名，定义几个枚举
+使用原生string字面量，从而避免转移： <code>hello"nihao"</code>
+初始化结构体引用： 使用&#x26;{T}而不是new(T)
+初始化map: 倾向于使用make()初始化空map,然后程序化的填充map；如果map知道了固定数量的元素，那么使用字面量初始化
+格式化字符串：format使用的字符串，如果在函数外面，应该使用const固定，便于go vet静态分析到；
+打印格式函数的命名：便于go vet发现并检测格式化所用的字符串，默认使用Printf-格式，或者以f结尾命名，但是需要在govet的时候指定函数名称</p>
+<h4 id="%E6%A8%A1%E5%BC%8F">模式</h4>
+<p>表格驱动测试：
+Functional Options：</p>
+<h4 id="Linting%23%20style%20of%20go">Linting# style of go</h4>
+<p><a href="https://github.com/uber-go/guide/blob/master/style.md">style</a></p>
+<h2 id="%E6%8C%87%E5%AF%BC%E7%AF%87">指导篇</h2>
+<p>不需要指向接口的指针：接口底层数据是个指针；
+指针类型实现接口的方法，可以修改类型数据；</p>
+<p>适当的，在编译期，验证类型是否实现接口；</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="// 零值赋值给指针：
+// 1.指针类型
+var _ YourInterface = (*YourType)(nil)
+// 2.非指针类型
+var _ YourInterface = YourType{}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 零值赋值给指针：</span></span>
+<span data-line=""><span style="color:#616E88">// 1.指针类型</span></span>
+<span data-line=""><span style="color:#81A1C1">var</span><span style="color:#D8DEE9"> _</span><span style="color:#D8DEE9FF"> YourInterface </span><span style="color:#81A1C1">=</span><span style="color:#ECEFF4"> (</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">YourType</span><span style="color:#ECEFF4">)(</span><span style="color:#81A1C1">nil</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#616E88">// 2.非指针类型</span></span>
+<span data-line=""><span style="color:#81A1C1">var</span><span style="color:#D8DEE9"> _</span><span style="color:#D8DEE9FF"> YourInterface </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> YourType</span><span style="color:#ECEFF4">{}</span></span></code></pre></figure>
+<p>避免对接口的修改，影响用户（可能使用了对应类型）；</p>
+<p>方法的接收者：<code>指针</code>可以调用<code>值</code>作为接收者的方法，反之不行；
+实现接口：<code>指针</code>、<code>值</code>作为接收者实现接口，则指针实现接口，而值未实现接口</p>
+<p>零值<code>mutex</code>是有效的；
+不要内嵌<code>mutex</code>，暴露不需要的方法；</p>
+<p>复制<code>slice</code>和<code>map</code>注意：两者都是底层数据含指针，指向真实数据；</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="copy(dstSlice, srcSlice)
+ 
+newMap := make(map[oldMapKeyType]oldMapValueType, len(oldMap))
+for k, v := range oldMap {
+    newMap[k] = v
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">copy</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">dstSlice</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> srcSlice</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">newMap</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> make</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">map</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">oldMapKeyType</span><span style="color:#ECEFF4">]</span><span style="color:#D8DEE9FF">oldMapValueType</span><span style="color:#ECEFF4">,</span><span style="color:#88C0D0"> len</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">oldMap</span><span style="color:#ECEFF4">))</span></span>
+<span data-line=""><span style="color:#81A1C1">for</span><span style="color:#D8DEE9"> k</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> v</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> range</span><span style="color:#D8DEE9"> oldMap</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">    newMap</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9">k</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> v</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p>使用<code>defer</code>进行清理工作；</p>
+<p><code>channel</code>的大小应该是0或1：认真考虑决定<code>channel</code>大小的原因</p>
+<p>枚举值应该从1开始，避免0值问题；</p>
+<p>使用<code>time</code>包处理时间：
+<code>time.Time</code>表示时间点；
+<code>time.Duration</code>表示时间段；
+当使用数字表示时间时，字段名需要加上单位；</p>
+<p>错误变量、错误类型：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="errors.Is()
+errors.As()
+ 
+errors.New(&#x22;err str&#x22;)
+fmt.Errorf(&#x22;%w&#x22;,err)">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9">errors</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Is</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#D8DEE9">errors</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">As</span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">errors</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">New</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">err str</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#D8DEE9">fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Errorf</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#EBCB8B">%w</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9">err</span><span style="color:#ECEFF4">)</span></span></code></pre></figure>
+<p>包装错误：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="// 添加错误上下文
+fmt.Errorf(&#x22;%w&#x22;,err) // 错误被包装了，可以使用 errors.Is() 和 errors.As()
+fmt.Errorf(&#x22;%v&#x22;,err)">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 添加错误上下文</span></span>
+<span data-line=""><span style="color:#D8DEE9">fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Errorf</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#EBCB8B">%w</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9">err</span><span style="color:#ECEFF4">)</span><span style="color:#616E88"> // 错误被包装了，可以使用 errors.Is() 和 errors.As()</span></span>
+<span data-line=""><span style="color:#D8DEE9">fmt</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Errorf</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#EBCB8B">%v</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9">err</span><span style="color:#ECEFF4">)</span></span></code></pre></figure>
+<p>命名错误：变量以Err开头，类型以Error结尾；
+处理错误(仅处理一次)：</p>
+<ul>
+<li>特定错误，进行匹配，分别处理</li>
+<li>可恢复错误，打印并优雅降级处理</li>
+<li>直接、或包装后返回</li>
+</ul>
+<p>处理断言失败的情况；</p>
+<p>不要<code>panic</code>；
+仅在不可恢复的错误时，使用<code>panic</code>；</p>
+<p>使用<code>atomic</code>包；</p>
+<p>使用依赖注入，而不是全局变量；</p>
+<p>阻止在pub结构体中内嵌类型，会暴露实现细节，阻碍结构体调整；私有，并使用代理模式；
+内嵌的不可导出的类型中，含有可导出字段，也会暴露出来；
+内嵌结构也比内嵌结构体好，但依旧暴露实现细节；
+内嵌的问题：对内嵌类型的修改，都是breaking change；</p>
+<p>阻止使用go内建的名称：error，string之类的；</p>
+<p>尽可能不使用<code>init()</code>函数，如果要使用，应该：</p>
+<ul>
+<li>不能依赖其他<code>init()</code>函数</li>
+<li>不操作全局变量或环境变量？</li>
+<li>不进行IO操作
+如下情况也许适合：</li>
+<li>复杂的计算</li>
+<li>可拔插的钩子</li>
+</ul>
+<p>在main函数退出（而不是其他函数）：
+使用<code>os.Exit()</code>或<code>log.Fatal*</code>立刻退出；
+从其他函数退出程序，有如下缺点：控制流程不清晰；难以测试；跳过了清理工作；
+尽可能的只退出一次；</p>
+<p>在序列化或反序列化结构体时，使用字段tag；避免修改字段名，导致break；</p>
+<p>对<code>goroutine</code>的生命周期进行管理，避免协程泄漏；</p>
+<ul>
+<li>可预期的时间内，协程停止运行</li>
+<li>有一种方式，使得协程停止运行</li>
+</ul>
+<ol>
+<li>等待goroutine退出：<code>sync.WaitGroup</code> 或 <code>close(chan)</code></li>
+<li><code>init()</code>函数内不要产生<code>goroutine</code></li>
+</ol>
+<h2 id="%E6%80%A7%E8%83%BD%E7%AF%87">性能篇</h2>
+<p>基础数据与<code>string</code>之间的转换，<code>strconv</code>比<code>fmt</code>包快；</p>
+<p>阻止重复的将字符串转换成字节数组的操作，转换就会分配内存；</p>
+<p>预先指定容器大小，避免扩容操作；</p>
+<h2 id="%E9%A3%8E%E6%A0%BC%E7%AF%87">风格篇</h2>
+<p>避免代码行过长，建议99个字符；</p>
+<p>风格保持一致性：易维护、易理解、低心智成本，易迁移或更新；</p>
+<p>相似的声明，成组；</p>
+<p>import 分组，排序：标准库，其他</p>
+<p>包名：</p>
+<ul>
+<li>全部小写，无大写字母和下划线</li>
+<li>尽量不重命名包名</li>
+<li>简短、简明</li>
+<li>不要复数</li>
+<li>不要信息量很小的包名：common, util, lib 等
+<a href="https://go.dev/blog/package-names">https://go.dev/blog/package-names</a>
+<a href="https://rakyll.org/style-packages">https://rakyll.org/style-packages</a></li>
+</ul>
+<p>函数名：MixedCaps</p>
+<p>导入包别名：仅在导入路径最后一个元素不符合包名的情况下使用；
+其他情况，除非冲突，否则不使用别名；</p>
+<p>函数分组及排序：</p>
+<ul>
+<li>粗略的以调用顺序排序</li>
+<li>以接收器分组
+函数在结构体、常量、变量后；工厂模式函数紧跟着类型，但在其他方法之前；
+无接收器函数在最后；</li>
+</ul>
+<p>尽可能减少嵌套：先处理错误、特殊情况，尽早返回或continue循环；</p>
+<p>减少不必要的else；</p>
+<p>顶层变量声名：不需要类型，仅在非想要的类型时使用；</p>
+<p>不可导出的全局变量/常量，以下划线开头：避免在不同文件之间，意外使用错误；</p>
+<p>结构体内嵌：
+被内嵌的结构体，应该放在最上面，且使用空行隔开；
+不应该：</p>
+<ul>
+<li>不应以便利为导向</li>
+<li>不能使得外部类型更难构造或使用</li>
+<li>不影响外部类型的零值：如果外部类型零值有用，那么内嵌后应该保持</li>
+<li>不能给外部类型暴露了无联系的函数或字段</li>
+<li>不能改变外部类型的类型语意</li>
+<li>不能暴露外部类型的实现细节</li>
+<li>不允许用户操作内部类型</li>
+<li>不能因改变内部类型功能而导致外部类型的使用发生改变</li>
+</ul>
+<p>局部变量声名：使用<code>:=</code>短变量声名；
+零值时，使用<code>var</code>声明；</p>
+<p>nil是一个有效的切片；以长度判断空切片，而不是nil；
+但nil不等于空切片，在某些场景表现不一致，比如序列化；</p>
+<p>尽可能缩小变量的范围(在不违背减少嵌套的情况下)；</p>
+<p>避免裸参数，给参数加上注释？
+最好基于需要，基于基本类型，使用新类型</p>
+<p>使用原生字符串，避免转义；</p>
+<p>初始化结构体：</p>
+<ul>
+<li>使用字段名进行初始化</li>
+<li>零值的字段，可以省略</li>
+<li>使用<code>var</code>进行零值初始化结构体</li>
+<li>使用<code>&#x26;T{}</code>进行结构体指针初始化</li>
+</ul>
+<p>使用<code>make</code>初始化<code>map</code>；
+map有固定元素数量时，使用字面量初始化；</p>
+<p>格式化字符串：将格式字符串用const申明，便于<code>go vet</code>静态分析？</p>
+<p>命名打印风格的函数：函数名以f结尾；
+<a href="https://kuzminva.wordpress.com/2017/11/07/go-vet-printf-family-check">https://kuzminva.wordpress.com/2017/11/07/go-vet-printf-family-check</a></p>
+<h2 id="%E6%A8%A1%E5%BC%8F%E7%AF%87">模式篇</h2>
+<p>表测试驱动
+<a href="https://go.dev/blog/subtests">https://go.dev/blog/subtests</a></p>
+<p>Functional Options</p>
+<h2 id="linting">linting</h2>
+<p>golangci-lint</p></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative pl-8"><a data-toc-link data-heading-id="golang" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#golang">golang</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">golang</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="benbjohnson" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#benbjohnson">benbjohnson</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">benbjohnson</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="uber" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#uber">uber</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">uber</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%8C%87%E5%AF%BC%E7%AF%87" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%8C%87%E5%AF%BC%E7%AF%87">指导篇</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">指导篇</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%80%A7%E8%83%BD%E7%AF%87" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%80%A7%E8%83%BD%E7%AF%87">性能篇</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">性能篇</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%A3%8E%E6%A0%BC%E7%AF%87" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E9%A3%8E%E6%A0%BC%E7%AF%87">风格篇</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">风格篇</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A8%A1%E5%BC%8F%E7%AF%87" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A8%A1%E5%BC%8F%E7%AF%87">模式篇</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">模式篇</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="linting" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#linting">linting</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">linting</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>

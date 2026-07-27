@@ -1,0 +1,285 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Kubernetes</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="k8s">k8s</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2024-05-21</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-08</span><a href="#backlinks" class="meta-pill meta-pill-backlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">2 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/series/INFRA 快速入门" class="topic-chip topic-chip-series rounded-full border px-2.5 py-0.5 text-xs no-underline">INFRA 快速入门</a><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/INFRA" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">INFRA</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">基于共享状态的分布式反馈控制系统</p>
+<ul>
+<li>S 应用部署到多台机器后，需要统一管理部署、扩缩容、故障恢复和服务访问</li>
+<li>C 手工运维或脚本部署难以应对机器故障、流量变化、环境差异和多服务协作</li>
+<li>Q 如何让应用以<code>声明式</code>方式运行在集群中，并<code>自动维持期望状态</code></li>
+<li>A Kubernetes 通过 Pod、Deployment、Service、Controller 等抽象，把应用编排成期望状态，并持续自动调度、恢复和暴露服务</li>
+</ul>
+<h2 id="%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B">心智模型</h2>
+<blockquote>
+<p>Kubernetes 不是<code>运行容器的工具</code>，而是一个基于声明式 API 的分布式控制系统：用户声明期望状态，控制器持续调谐现实状态，让集群逼近目标。</p>
+</blockquote>
+<ul>
+<li>声明式系统（desired state）</li>
+<li>控制器模型（control loop）</li>
+<li>分布式收敛（eventual consistency）</li>
+<li>调度与资源约束</li>
+</ul>
+<blockquote>
+<p>Kubernetes = API Server 中的共享状态 + 一组 Controller 的反馈调谐循环 + 一套可组合的资源抽象</p>
+</blockquote>
+<pre><code>你写 spec（期望状态）
+    → Controller watch 实际状态
+    → 发现 diff
+    → 执行动作
+    → 趋近期望
+    → 循环（Reconcile Loop）
+</code></pre>
+<h2 id="%E6%A0%B8%E5%BF%83%E6%8A%BD%E8%B1%A1">核心抽象</h2>
+<blockquote>
+<p>Kubernetes 不是一个<code>大而全</code>的应用模型，而是一组可以组合的抽象：</p>
+</blockquote>
+<ul>
+<li>Pod 表示运行单元</li>
+<li>Service 暴露访问入口</li>
+<li>Config/Storage 注入运行依赖</li>
+<li>Controller 维持期望状态</li>
+<li>Label/Selector 把这些资源关联起来</li>
+</ul>
+<p>工作负载：Pod -> Deployment(无状态) -> StatefulSet(有状态); DaemonSet(每个node一个); job/cronjob(一次性任务、定时任务)
+网络：Service(应用稳定入口,L4,ClusterIP/NodePort/LoadBalancer) -> Ingress(外部流量入口,L7)
+配置、存储：Config/Storage</p>
+<pre><code>用户浏览器 → DNS → Ingress（七层路由，按域名/路径分发）
+  → Service（四层 LB，iptables 选一个 Pod IP）
+  → Pod（容器处理请求）
+</code></pre>
+<h2 id="kubectl%20cli%20%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4">kubectl cli 常用命令</h2>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#d9b400" d="M29.4 27.6H2.5V4.5h26.9Zm-25.9-1h24.9V5.5H3.5Z"/><path fill="#d9b400" d="m6.077 19.316l-.555-.832l4.844-3.229l-4.887-4.071l.641-.768l5.915 4.928zM12.7 18.2h7.8v1h-7.8zM2.5 5.5h26.9v1.9H2.5z"/></svg>bash</span><button type="button" class="code-copy-button" data-code="# https://dl.k8s.io/
+curl https://dl.k8s.io/v1.36.1/bin/linux/amd64/kubectl">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88"># https://dl.k8s.io/</span></span>
+<span data-line=""><span style="color:#88C0D0">curl</span><span style="color:#A3BE8C"> https://dl.k8s.io/v1.36.1/bin/linux/amd64/kubectl</span></span></code></pre></figure>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#d9b400" d="M29.4 27.6H2.5V4.5h26.9Zm-25.9-1h24.9V5.5H3.5Z"/><path fill="#d9b400" d="m6.077 19.316l-.555-.832l4.844-3.229l-4.887-4.071l.641-.768l5.915 4.928zM12.7 18.2h7.8v1h-7.8zM2.5 5.5h26.9v1.9H2.5z"/></svg>bash</span><button type="button" class="code-copy-button" data-code="# 探索
+kubectl api-resources     # 列出所有资源类型
+kubectl explain $RESOURCE # 查看资源字段说明
+ 
+# 查看
+kubectl get $RESOURCE      # 列出实例
+kubectl describe $RESOURCE # 详细信息（事件、状态）
+ 
+# 部署
+kubectl create deployment my-nginx --image=nginx --dry-run=client -o yaml # 生成 YAML
+kubectl apply -f manifest.yaml                                            # 声明式创建/更新（推荐）
+ 
+# 运维
+kubectl rollout status/undo        # 发版状态/回滚
+kubectl scale                      # 手动扩缩容
+kubectl logs / exec / port-forward # 调试">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88"># 探索</span></span>
+<span data-line=""><span style="color:#88C0D0">kubectl</span><span style="color:#A3BE8C"> api-resources</span><span style="color:#616E88">     # 列出所有资源类型</span></span>
+<span data-line=""><span style="color:#88C0D0">kubectl</span><span style="color:#A3BE8C"> explain</span><span style="color:#D8DEE9"> $RESOURCE</span><span style="color:#616E88"> # 查看资源字段说明</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88"># 查看</span></span>
+<span data-line=""><span style="color:#88C0D0">kubectl</span><span style="color:#A3BE8C"> get</span><span style="color:#D8DEE9"> $RESOURCE</span><span style="color:#616E88">      # 列出实例</span></span>
+<span data-line=""><span style="color:#88C0D0">kubectl</span><span style="color:#A3BE8C"> describe</span><span style="color:#D8DEE9"> $RESOURCE</span><span style="color:#616E88"> # 详细信息（事件、状态）</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88"># 部署</span></span>
+<span data-line=""><span style="color:#88C0D0">kubectl</span><span style="color:#A3BE8C"> create</span><span style="color:#A3BE8C"> deployment</span><span style="color:#A3BE8C"> my-nginx</span><span style="color:#A3BE8C"> --image=nginx</span><span style="color:#A3BE8C"> --dry-run=client</span><span style="color:#A3BE8C"> -o</span><span style="color:#A3BE8C"> yaml</span><span style="color:#616E88"> # 生成 YAML</span></span>
+<span data-line=""><span style="color:#88C0D0">kubectl</span><span style="color:#A3BE8C"> apply</span><span style="color:#A3BE8C"> -f</span><span style="color:#A3BE8C"> manifest.yaml</span><span style="color:#616E88">                                            # 声明式创建/更新（推荐）</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88"># 运维</span></span>
+<span data-line=""><span style="color:#88C0D0">kubectl</span><span style="color:#A3BE8C"> rollout</span><span style="color:#A3BE8C"> status/undo</span><span style="color:#616E88">        # 发版状态/回滚</span></span>
+<span data-line=""><span style="color:#88C0D0">kubectl</span><span style="color:#A3BE8C"> scale</span><span style="color:#616E88">                      # 手动扩缩容</span></span>
+<span data-line=""><span style="color:#88C0D0">kubectl</span><span style="color:#A3BE8C"> logs</span><span style="color:#A3BE8C"> /</span><span style="color:#A3BE8C"> exec</span><span style="color:#A3BE8C"> /</span><span style="color:#A3BE8C"> port-forward</span><span style="color:#616E88"> # 调试</span></span></code></pre></figure>
+<h2 id="k8s%20%E5%86%85%E9%83%A8">k8s 内部</h2>
+<blockquote>
+<p>控制面组件+数据面（跑pod）</p>
+</blockquote>
+<p><img src="/notes/.ref/k8s_arch.png" alt=".ref/k8s_arch.png"></p>
+<p><strong>控制面</strong>: 负责维护集群大脑，API、状态存储、调度、控制循环</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+<th>通常怎么运行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>kube-apiserver</strong></td>
+<td>Kubernetes API 入口，所有读写都先经过它(RESTful API)</td>
+<td>通常是静态 Pod / 容器镜像</td>
+</tr>
+<tr>
+<td><strong>etcd</strong></td>
+<td>持久化保存集群共享状态，比如 Pod、Deployment、Service 等对象</td>
+<td>通常是静态 Pod / 容器镜像，也可外部部署</td>
+</tr>
+<tr>
+<td><strong>kube-scheduler</strong></td>
+<td>给新 Pod 选择合适 Node(按资源/亲和性/污点打分选择)</td>
+<td>通常是静态 Pod / 容器镜像</td>
+</tr>
+<tr>
+<td><strong>kube-controller-manager</strong></td>
+<td>运行各种 Controller(Deployment/ReplicaSet/Node/...)，持续调谐状态</td>
+<td>通常是静态 Pod / 容器镜像</td>
+</tr>
+</tbody>
+</table>
+<p>CoreDNS 严格来说不是 Kubernetes 控制面的核心组件，但在实际集群里非常重要，负责服务名解析，是集群服务发现的基础设施</p>
+<p><strong>数据面</strong>: 节点组件，每台机器上负责真正跑 Pod</p>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>作用</th>
+<th>通常怎么运行</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>container runtime</strong></td>
+<td>真正运行容器，比如 containerd、CRI-O</td>
+<td>通常是宿主机进程，不是 Pod</td>
+</tr>
+<tr>
+<td><strong>kubelet</strong></td>
+<td>每个 Node 上的代理，负责拉起 Pod、检查容器状态、汇报 Node/Pod 状态</td>
+<td>通常是宿主机 systemd 进程，不是 Pod</td>
+</tr>
+<tr>
+<td><strong>kube-proxy</strong></td>
+<td>实现 Service 的流量转发规则</td>
+<td>通常是 DaemonSet Pod / 容器镜像</td>
+</tr>
+<tr>
+<td><strong>CNI plugin</strong></td>
+<td>实现 Pod 网络，比如 Calico、Cilium、Flannel</td>
+<td>通常是 DaemonSet Pod / 容器镜像</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>apiserver 接请求</li>
+<li>etcd 存状态</li>
+<li>scheduler 选节点，决定<code>放哪儿</code></li>
+<li>controller-manager 做调谐，决定<code>要什么</code></li>
+<li>kubelet 跑 Pod，决定<code>怎么跑</code></li>
+<li>runtime 跑容器</li>
+<li>CNI 管网络</li>
+<li>kube-proxy 管 Service</li>
+<li>CoreDNS 管服务发现</li>
+</ul>
+<blockquote>
+<p>一个请求的路径：kubectl apply → apiserver → etcd 存储 → scheduler 分配 Node → kubelet 拉镜像启动容器</p>
+</blockquote>
+<h3 id="CNI%2C%20kube-proxy%2C%20CoreDNS">CNI, kube-proxy, CoreDNS</h3>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>输入</th>
+<th>输出</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CNI</code></td>
+<td>Pod IP 流量</td>
+<td>真实网络可达</td>
+<td>Pod 网络连通</td>
+</tr>
+<tr>
+<td><code>kube-proxy</code></td>
+<td>Service ClusterIP:Port</td>
+<td>Pod IP:Port</td>
+<td>流量转发 / 负载均衡</td>
+</tr>
+<tr>
+<td><code>CoreDNS</code></td>
+<td>服务域名</td>
+<td>Service ClusterIP</td>
+<td>名字解析</td>
+</tr>
+</tbody>
+</table>
+<p>CNI：负责 Pod 网络连通
+kube-proxy / eBPF replacement：负责 Kubernetes Service 的 L4 转发
+Service Mesh：负责服务间通信治理，更多是 L7 能力</p>
+<h3 id="Controller">Controller</h3>
+<blockquote>
+<p>给某类资源增加<code>自动维持期望状态</code>的能力，本质是让Pod 具备生产环境能力的自动化控制层</p>
+</blockquote>
+<blockquote>
+<p>通常运行在 kube-controller-manager 里（少数例外），监听 API Server 中的资源变化，然后创建/修改其他资源</p>
+</blockquote>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="高级资源(spec)
+      |
+      v
+Controller
+      |
+      v
+低级资源(Pod)
+      |
+      v
+kubelet 创建容器">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>高级资源(spec)</span></span>
+<span data-line=""><span>      |</span></span>
+<span data-line=""><span>      v</span></span>
+<span data-line=""><span>Controller</span></span>
+<span data-line=""><span>      |</span></span>
+<span data-line=""><span>      v</span></span>
+<span data-line=""><span>低级资源(Pod)</span></span>
+<span data-line=""><span>      |</span></span>
+<span data-line=""><span>      v</span></span>
+<span data-line=""><span>kubelet 创建容器</span></span></code></pre></figure>
+<blockquote>
+<p>在 Pod 之上增加不同领域能力</p>
+</blockquote>
+<ul>
+<li>Deployment 增加发布能力：无状态应用管理 + 滚动发布 (Deployment -> ReplicaSet -> Pod)</li>
+<li>ReplicaSet 增加副本能力</li>
+<li>StatefulSet 增加身份和存储能力：有状态应用管理</li>
+<li>DaemonSet 增加节点级部署能力：每个节点运行一个 Pod</li>
+<li>Job 增加任务完成能力</li>
+<li>Node：节点生命周期管理</li>
+<li>Service：服务暴露能力</li>
+<li>EndpointSlice：维护 Service 后端 Pod 地址列表</li>
+<li>Namespace：命名空间生命周期管理</li>
+<li>Garbage Collector：资源级联删除</li>
+<li>ServiceAccount：自动创建和管理身份</li>
+</ul>
+<h3 id="Scheduler">Scheduler</h3>
+<blockquote>
+<p>Scheduler 负责给<code>还没有分配 Node 的 Pod</code>选择一个合适的 Node，并把绑定结果写回 apiserver。</p>
+</blockquote>
+<ol>
+<li>过滤：哪些 Node 能跑？</li>
+<li>打分：哪个 Node 更合适？</li>
+</ol>
+<h4 id="Scheduler%20vs.%20Controller%3A">Scheduler vs. Controller:</h4>
+<blockquote>
+<p>Controller 造 Pod，Scheduler 选 Node，kubelet 跑容器。</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>组件</th>
+<th>负责什么</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Controller</strong></td>
+<td>让资源数量、版本、状态逼近期望</td>
+</tr>
+<tr>
+<td><strong>Scheduler</strong></td>
+<td>给未调度的 Pod 选择 Node</td>
+</tr>
+<tr>
+<td><strong>kubelet</strong></td>
+<td>在目标 Node 上真正启动 Pod</td>
+</tr>
+</tbody>
+</table>
+<h2 id="Operator">Operator</h2>
+<blockquote>
+<p>内置 Controller 覆盖了通用场景，但如果业务有特殊的运维逻辑（如数据库主从切换、证书自动续期），如何让 k8s 理解并自动管理自定义的业务资源？</p>
+</blockquote>
+<p><strong>CRD（自定义资源）+ Controller（自定义控制循环）= Operator</strong></p>
+<p>本质还是声明式 + 控制循环，只是你自己定义了"期望状态"长什么样、"如何趋近"的逻辑。</p>
+<h2 id="links">links</h2>
+<ol>
+<li><a href="https://planetscale.com/blog/the-feedback-loops-behind-kubernetes">https://planetscale.com/blog/the-feedback-loops-behind-kubernetes</a></li>
+<li><a href="https://medium.com/@keshiha/k8s-architecture-bb6964767c12">https://medium.com/@keshiha/k8s-architecture-bb6964767c12</a></li>
+</ol></article><aside id="backlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">被 2 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1775543540-KYBS" class="note-link underline-offset-4 hover:underline">learn-k8s-with-kind-and-kubectl</a></li><li><a href="/notes/1716947297-NYSL" class="note-link underline-offset-4 hover:underline">Helm</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="k8s" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#k8s">k8s</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">k8s</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B">心智模型</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">心智模型</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E6%8A%BD%E8%B1%A1" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E6%8A%BD%E8%B1%A1">核心抽象</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心抽象</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="kubectl%20cli%20%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#kubectl%20cli%20%E5%B8%B8%E7%94%A8%E5%91%BD%E4%BB%A4">kubectl cli 常用命令</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">kubectl cli 常用命令</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="k8s%20%E5%86%85%E9%83%A8" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#k8s%20%E5%86%85%E9%83%A8">k8s 内部</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">k8s 内部</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="CNI%2C%20kube-proxy%2C%20CoreDNS" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#CNI%2C%20kube-proxy%2C%20CoreDNS">CNI, kube-proxy, CoreDNS</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">CNI, kube-proxy, CoreDNS</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Controller" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Controller">Controller</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Controller</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Scheduler" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Scheduler">Scheduler</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Scheduler</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Operator" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Operator">Operator</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Operator</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: 泛型 generic</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Go%3A%20%E6%B3%9B%E5%9E%8B%20generic">Go: 泛型 generic</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-02-05</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-16</span><a href="#backlinks" class="meta-pill meta-pill-backlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">2 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/series/Inside Go" class="topic-chip topic-chip-series rounded-full border px-2.5 py-0.5 text-xs no-underline">Inside Go</a><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/GO" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">GO</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">把`类型变化`和`逻辑不变`分离。</p>
+<ol>
+<li>什么是泛型，泛型约束是什么</li>
+<li>Go如何实现的泛型</li>
+<li>类型推导</li>
+</ol>
+<h2 id="%E4%BB%80%E4%B9%88%E6%98%AF%E6%B3%9B%E5%9E%8B">什么是泛型</h2>
+<p>...</p>
+<h2 id="%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86">实现原理</h2>
+<p>Go 泛型提供的是编译期类型参数化，不保证总是 Rust/C++ 那种完全静态分发；</p>
+<p>Go 泛型实现采用 dictionary + GC shape stenciling，是性能、编译速度、二进制大小之间的折中。</p>
+<p>Go 泛型实现 = <strong>GC Shape Stenciling + Dictionaries</strong>，介于「完全单态化」与「完全装箱」之间。</p>
+<h3 id="1.%20GC%20Shape%20Stenciling%EF%BC%88%E6%8C%89%20GC%20%E5%BD%A2%E7%8A%B6%E6%A8%A1%E6%9D%BF%E5%8C%96%EF%BC%89">1. GC Shape Stenciling（按 GC 形状模板化）</h3>
+<p>编译器不为每个具体类型都生成一份代码（C++/Rust 那样会让二进制爆炸），而是按 <strong>GCShape</strong> 分组生成：</p>
+<ul>
+<li>同一 GCShape &#x3C;-> 在 GC 看来<code>内存布局相同</code>（大小、指针/非指针位图一致）</li>
+<li>所有指针类型共享一份代码（<code>*int</code>、<code>*string</code>、<code>*T</code> 都是一个 word + 是指针）</li>
+<li>值类型按布局分组：<code>int32</code> 与 <code>float32</code> 同形状、<code>int64</code> 与 <code>float64</code> 同形状</li>
+<li>结果：N 个实例化类型 → 只生成「去重后 GCShape 数量」份机器码（≤ N，常常远小于 N）</li>
+</ul>
+<p>举例：<code>func F[T any](x T)</code> 被以下类型实例化：</p>
+<pre><code>F[*User]    ┐
+F[*Order]   ├─→ 都是 ptrshape，共享 1 份代码
+F[*int]     ┘
+F[int64]    ┐
+F[float64]  ┴─→ 都是 int64shape，共享 1 份代码
+F[string]   ──→ stringshape，1 份代码
+</code></pre>
+<p>N=6 个类型 → 只生成 3 份机器码（3 个不同的 GCShape）。</p>
+<h3 id="2.%20Dictionary%EF%BC%88%E5%AD%97%E5%85%B8%E4%BC%A0%E9%80%92%EF%BC%89">2. Dictionary（字典传递）</h3>
+<p>同形状的不同类型<code>语义</code>不同（方法调用、<code>new(T)</code>、<code>==</code>、reflect 需要具体类型信息），编译器在每个泛型函数调用处隐式传入一个 <strong>dict 参数</strong>：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="type Dict struct {
+	typ      *runtime._type // 用于 new、make、reflect、map key、==
+	itab     *itab          // 接口约束 → 具体类型的方法表
+	methods  [N]uintptr     // 约束方法的具体函数地址
+	subDicts [M]*Dict       // 嵌套泛型调用要传给被调函数的 dict
+	derived  *typeInfo      // *T、[]T、map[K]V 等派生类型描述
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">type</span><span style="color:#D8DEE9FF"> Dict </span><span style="color:#81A1C1">struct</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	typ</span><span style="color:#81A1C1">      *</span><span style="color:#D8DEE9FF">runtime</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">_type </span><span style="color:#616E88">// 用于 new、make、reflect、map key、==</span></span>
+<span data-line=""><span style="color:#D8DEE9">	itab</span><span style="color:#81A1C1">     *</span><span style="color:#D8DEE9FF">itab          </span><span style="color:#616E88">// 接口约束 → 具体类型的方法表</span></span>
+<span data-line=""><span style="color:#D8DEE9">	methods</span><span style="color:#ECEFF4">  [</span><span style="color:#D8DEE9FF">N</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1">uintptr</span><span style="color:#616E88">     // 约束方法的具体函数地址</span></span>
+<span data-line=""><span style="color:#D8DEE9">	subDicts</span><span style="color:#ECEFF4"> [</span><span style="color:#D8DEE9FF">M</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1">*</span><span style="color:#D8DEE9FF">Dict       </span><span style="color:#616E88">// 嵌套泛型调用要传给被调函数的 dict</span></span>
+<span data-line=""><span style="color:#D8DEE9">	derived</span><span style="color:#81A1C1">  *</span><span style="color:#D8DEE9FF">typeInfo      </span><span style="color:#616E88">// *T、[]T、map[K]V 等派生类型描述</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p><strong>心智模型</strong>：同一份函数代码 + 调用者按调用点传不同的"类型说明书 (dict)" + 函数内部对类型敏感的操作都改写成"从 dict 里取指针/调函数"。</p>
+<pre><code>编译期:                            运行期:
+F[*User](u)  ─生成─▶ dict_FU       F_ptrshape(dict, x){
+F[*Order](o) ─生成─▶ dict_FO         x.Less(y)
+                                      ↓ 编译为
+同一份 F_ptrshape 代码                dict.methods[0](dict, x, y)
+不同调用点选不同 dict               }
+</code></pre>
+<h3 id="%E4%B8%8D%E6%98%AF%E7%B1%BB%E5%9E%8B%E6%96%AD%E8%A8%80%EF%BC%8C%E6%98%AF%20dict%20%E4%BC%A0%E5%8F%82">不是类型断言，是 dict 传参</h3>
+<p>容易误解为"函数内部 switch x.(type)"，实际不是：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>类型断言（错误模型）</th>
+<th>Dict 传参（实际做法）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>类型信息从哪来</td>
+<td>值里带（如 <code>interface{}</code> 的 itab）</td>
+<td>编译期在调用处生成的字典</td>
+</tr>
+<tr>
+<td>值的表示</td>
+<td>装箱（带 type header）</td>
+<td>保持原样（裸 <code>*User</code>、裸 <code>int64</code>）</td>
+</tr>
+<tr>
+<td>分派开销</td>
+<td>运行时 switch / itab 查表</td>
+<td>直接从 dict 偏移取指针，一次间接调用</td>
+</tr>
+<tr>
+<td>谁选类型</td>
+<td>函数运行时自己判断</td>
+<td>调用者编译期就把类型"打包"进 dict</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dict%20%E7%94%A8%E4%BA%8E%22%E7%B1%BB%E5%9E%8B%E5%B1%82%E9%9D%A2%E7%9A%84%E5%85%83%E4%BF%A1%E6%81%AF%E5%92%8C%E6%96%B9%E6%B3%95%22%EF%BC%8C%E4%B8%8D%E7%94%A8%E4%BA%8E%E5%AD%97%E6%AE%B5%E8%AE%BF%E9%97%AE">dict 用于"类型层面的元信息和方法"，不用于字段访问</h3>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="func F[T Constraint](x T) {
+	y := x             // 不需要 dict（按 shape 操作字节）
+	_ = (x == y)       // 需要 dict.equalFunc
+	x.Less(y)          // 需要 dict.methods[i]
+	p := new(T)        // 需要 dict.typ
+	s := make([]T, 10) // 需要 dict.typ
+ 
+	// ❌ x.Name —— Go 泛型不支持任意字段访问，T 上没有结构化字段约束
+}">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> F</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9">T</span><span style="color:#D8DEE9FF"> Constraint</span><span style="color:#ECEFF4">](</span><span style="color:#D8DEE9">x</span><span style="color:#D8DEE9FF"> T</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9">	y</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> x</span><span style="color:#616E88">             // 不需要 dict（按 shape 操作字节）</span></span>
+<span data-line=""><span style="color:#D8DEE9">	_</span><span style="color:#81A1C1"> =</span><span style="color:#ECEFF4"> (</span><span style="color:#D8DEE9">x</span><span style="color:#81A1C1"> ==</span><span style="color:#D8DEE9"> y</span><span style="color:#ECEFF4">)</span><span style="color:#616E88">       // 需要 dict.equalFunc</span></span>
+<span data-line=""><span style="color:#D8DEE9">	x</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Less</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">y</span><span style="color:#ECEFF4">)</span><span style="color:#616E88">          // 需要 dict.methods[i]</span></span>
+<span data-line=""><span style="color:#D8DEE9">	p</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> new</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">T</span><span style="color:#ECEFF4">)</span><span style="color:#616E88">        // 需要 dict.typ</span></span>
+<span data-line=""><span style="color:#D8DEE9">	s</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> make</span><span style="color:#ECEFF4">([]</span><span style="color:#D8DEE9FF">T</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 10</span><span style="color:#ECEFF4">)</span><span style="color:#616E88"> // 需要 dict.typ</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88">	// ❌ x.Name —— Go 泛型不支持任意字段访问，T 上没有结构化字段约束</span></span>
+<span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
+<p>Go 泛型没有"结构化类型"约束（不像 TypeScript），所以<strong>根本没有"通过 dict 访问字段"这回事</strong>——dict 只服务于类型元信息和方法分派。</p>
+<h3 id="3.%20%E4%B8%89%E7%A7%8D%E5%AE%9E%E7%8E%B0%E7%AD%96%E7%95%A5%E5%AF%B9%E6%AF%94">3. 三种实现策略对比</h3>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>性能</th>
+<th>编译速度</th>
+<th>二进制大小</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>完全单态化 (C++/Rust)</td>
+<td>最快</td>
+<td>慢</td>
+<td>大</td>
+</tr>
+<tr>
+<td>完全装箱 (Java 早期)</td>
+<td>慢（装箱）</td>
+<td>快</td>
+<td>小</td>
+</tr>
+<tr>
+<td>Go: shape + dict</td>
+<td>中等</td>
+<td>中等</td>
+<td>中等</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4.%20%E6%80%A7%E8%83%BD%E5%90%AB%E4%B9%89">4. 性能含义</h3>
+<ul>
+<li>接口约束的方法调用走 dict → <strong>间接调用</strong>，<strong>无法内联</strong>，比手写代码慢</li>
+<li>同形状但不同类型 → 共享代码，但每次调用要查 dict</li>
+<li>指针类型最受益（共享多）；值类型仍有近似 boxing 的开销</li>
+</ul>
+<h3 id="5.%20%E7%AE%80%E5%8C%96%E7%A4%BA%E6%84%8F">5. 简化示意</h3>
+<pre><code>源码:                       编译后:
+func F[T any](x T) {...}    F_ptrshape(dict, x *any)    ← 所有指针 T 共享
+                            F_int64shape(dict, x i64)   ← int64/float64 共享
+
+调用 F[*User](u):
+  dict_F_User = { typ:*User, ... }
+  call F_ptrshape(&#x26;dict_F_User, u)
+</code></pre>
+<p>官方设计文档：<a href="https://github.com/golang/proposal/blob/master/design/generics-implementation-gcshape.md">https://github.com/golang/proposal/blob/master/design/generics-implementation-gcshape.md</a></p>
+<h2 id="%E7%B1%BB%E5%9E%8B%E6%8E%A8%E5%AF%BC">类型推导</h2>
+<p>...</p>
+<h2 id="%E4%BD%95%E6%97%B6%E4%BD%BF%E7%94%A8%E6%B3%9B%E5%9E%8B">何时使用泛型</h2>
+<blockquote>
+<p>如果发现正在写完全相同的代码，只是类型不同，那么考虑类型参数。</p>
+</blockquote>
+<h2 id="interface%20vs.%20generic">interface vs. generic</h2>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>interface</th>
+<th>generic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>抽象对象</td>
+<td>行为</td>
+<td>类型</td>
+</tr>
+<tr>
+<td>动态性</td>
+<td>运行时</td>
+<td>编译期</td>
+</tr>
+<tr>
+<td>典型用途</td>
+<td>插件、多态</td>
+<td>算法复用</td>
+</tr>
+<tr>
+<td>例子</td>
+<td>io.Reader</td>
+<td>slice/map/set</td>
+</tr>
+</tbody>
+</table>
+<h2 id="links">links</h2>
+<ol>
+<li><a href="https://www.bmpi.dev/dev/deep-in-program-language/how-to-implement-generics/">https://www.bmpi.dev/dev/deep-in-program-language/how-to-implement-generics/</a></li>
+<li><a href="https://mp.weixin.qq.com/s/SJsEurfZr4TG-I3rncid5A">https://mp.weixin.qq.com/s/SJsEurfZr4TG-I3rncid5A</a></li>
+<li><a href="https://colobu.com/2021/08/30/how-is-go-generic-implemented/">https://colobu.com/2021/08/30/how-is-go-generic-implemented/</a></li>
+<li><a href="https://colobu.com/2021/10/24/go-generic-eliding-interface/">https://colobu.com/2021/10/24/go-generic-eliding-interface/</a></li>
+<li><a href="https://github.com/golang/proposal/blob/master/design/generics-implementation-gcshape.md">https://github.com/golang/proposal/blob/master/design/generics-implementation-gcshape.md</a></li>
+<li><a href="https://zackoverflow.dev/writing/go-generics-static-dispatch">https://zackoverflow.dev/writing/go-generics-static-dispatch</a></li>
+<li><a href="https://go.dev/blog/when-generics">https://go.dev/blog/when-generics</a></li>
+<li><a href="https://thume.ca/2019/07/14/a-tour-of-metaprogramming-models-for-generics/">https://thume.ca/2019/07/14/a-tour-of-metaprogramming-models-for-generics/</a></li>
+<li><a href="https://rednafi.com/go/gc-shape-stenciling/">https://rednafi.com/go/gc-shape-stenciling/</a></li>
+</ol></article><aside id="backlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">被 2 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1773811625-KFOQ" class="note-link underline-offset-4 hover:underline">Go: type system</a></li><li><a href="/notes/1610283039-KYZK" class="note-link underline-offset-4 hover:underline">Go: 接口 Interface</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="Go%3A%20%E6%B3%9B%E5%9E%8B%20generic" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Go%3A%20%E6%B3%9B%E5%9E%8B%20generic">Go: 泛型 generic</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Go: 泛型 generic</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%BB%80%E4%B9%88%E6%98%AF%E6%B3%9B%E5%9E%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%B3%9B%E5%9E%8B">什么是泛型</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">什么是泛型</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%AE%9E%E7%8E%B0%E5%8E%9F%E7%90%86">实现原理</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">实现原理</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20GC%20Shape%20Stenciling%EF%BC%88%E6%8C%89%20GC%20%E5%BD%A2%E7%8A%B6%E6%A8%A1%E6%9D%BF%E5%8C%96%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#1.%20GC%20Shape%20Stenciling%EF%BC%88%E6%8C%89%20GC%20%E5%BD%A2%E7%8A%B6%E6%A8%A1%E6%9D%BF%E5%8C%96%EF%BC%89">1. GC Shape Stenciling（按 GC 形状模板化）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">1. GC Shape Stenciling（按 GC 形状模板化）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20Dictionary%EF%BC%88%E5%AD%97%E5%85%B8%E4%BC%A0%E9%80%92%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#2.%20Dictionary%EF%BC%88%E5%AD%97%E5%85%B8%E4%BC%A0%E9%80%92%EF%BC%89">2. Dictionary（字典传递）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">2. Dictionary（字典传递）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%B8%8D%E6%98%AF%E7%B1%BB%E5%9E%8B%E6%96%AD%E8%A8%80%EF%BC%8C%E6%98%AF%20dict%20%E4%BC%A0%E5%8F%82" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%8D%E6%98%AF%E7%B1%BB%E5%9E%8B%E6%96%AD%E8%A8%80%EF%BC%8C%E6%98%AF%20dict%20%E4%BC%A0%E5%8F%82">不是类型断言，是 dict 传参</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">不是类型断言，是 dict 传参</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="dict%20%E7%94%A8%E4%BA%8E%22%E7%B1%BB%E5%9E%8B%E5%B1%82%E9%9D%A2%E7%9A%84%E5%85%83%E4%BF%A1%E6%81%AF%E5%92%8C%E6%96%B9%E6%B3%95%22%EF%BC%8C%E4%B8%8D%E7%94%A8%E4%BA%8E%E5%AD%97%E6%AE%B5%E8%AE%BF%E9%97%AE" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#dict%20%E7%94%A8%E4%BA%8E%22%E7%B1%BB%E5%9E%8B%E5%B1%82%E9%9D%A2%E7%9A%84%E5%85%83%E4%BF%A1%E6%81%AF%E5%92%8C%E6%96%B9%E6%B3%95%22%EF%BC%8C%E4%B8%8D%E7%94%A8%E4%BA%8E%E5%AD%97%E6%AE%B5%E8%AE%BF%E9%97%AE">dict 用于&quot;类型层面的元信息和方法&quot;，不用于字段访问</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">dict 用于&quot;类型层面的元信息和方法&quot;，不用于字段访问</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="3.%20%E4%B8%89%E7%A7%8D%E5%AE%9E%E7%8E%B0%E7%AD%96%E7%95%A5%E5%AF%B9%E6%AF%94" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#3.%20%E4%B8%89%E7%A7%8D%E5%AE%9E%E7%8E%B0%E7%AD%96%E7%95%A5%E5%AF%B9%E6%AF%94">3. 三种实现策略对比</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">3. 三种实现策略对比</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="4.%20%E6%80%A7%E8%83%BD%E5%90%AB%E4%B9%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#4.%20%E6%80%A7%E8%83%BD%E5%90%AB%E4%B9%89">4. 性能含义</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">4. 性能含义</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="5.%20%E7%AE%80%E5%8C%96%E7%A4%BA%E6%84%8F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#5.%20%E7%AE%80%E5%8C%96%E7%A4%BA%E6%84%8F">5. 简化示意</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">5. 简化示意</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%B1%BB%E5%9E%8B%E6%8E%A8%E5%AF%BC" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%B1%BB%E5%9E%8B%E6%8E%A8%E5%AF%BC">类型推导</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">类型推导</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%BD%95%E6%97%B6%E4%BD%BF%E7%94%A8%E6%B3%9B%E5%9E%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BD%95%E6%97%B6%E4%BD%BF%E7%94%A8%E6%B3%9B%E5%9E%8B">何时使用泛型</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">何时使用泛型</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="interface%20vs.%20generic" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#interface%20vs.%20generic">interface vs. generic</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">interface vs. generic</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
