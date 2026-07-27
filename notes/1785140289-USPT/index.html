@@ -1,34 +1,355 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读论文：The Dataflow Model</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E8%AE%BA%E6%96%87%EF%BC%9AThe%20Dataflow%20Model">读论文：The Dataflow Model</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2023-11-27</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-27</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/PAPER" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">PAPER</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">The Dataflow Model: A Practical Approach to BalancingCorrectness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing</p>
-<blockquote>
-<p><a href="https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/43864.pdf">https://static.googleusercontent.com/media/research.google.com/zh-CN//pubs/archive/43864.pdf</a></p>
-</blockquote>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读论文：The Dataflow Model</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E8%AE%BA%E6%96%87%EF%BC%9AThe%20Dataflow%20Model">读论文：The Dataflow Model</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2023-11-27</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-27</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/PAPER" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">PAPER</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">The Dataflow Model: A Practical Approach to Balancing Correctness, Latency, and Cost in Massive-Scale, Unbounded, Out-of-Order Data Processing</p>
 <ul>
 <li>是什么（What）：
 <ul>
-<li>{{理论/原则，建立认知模型}}</li>
+<li>一个处理无界、乱序数据的统一编程模型。它将数据处理拆成 What / Where / When / How 四个相互独立的维度，以窗口、触发器和增量修订表达业务语义。</li>
 </ul>
 </li>
 <li>为什么（Why）：
 <ul>
-<li>{{背后的动机、约束与权衡}}</li>
+<li>对无界数据，系统通常无法证明<code>数据已经完整</code>；若把 watermark 当作完成信号，就会在低延迟、正确性和成本之间做出隐式且僵化的取舍。</li>
+<li>批处理、微批和流处理是执行方式，不应决定业务语义。相同的逻辑处理计划应能运行在不同引擎上，仅体现延迟和资源成本的差异。</li>
 </ul>
 </li>
 <li>怎么做（How）：
 <ul>
-<li>{{技巧 + 实践 + 边界（该做与不该做）}}</li>
+<li>用 event time 和 window 定义数据属于哪个逻辑结果；用 trigger 定义何时物化阶段性结果；用 discarding、accumulating、retracting 定义新旧结果的关系。</li>
 </ul>
 </li>
 </ul>
-<h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
+<h2 id="%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98">核心问题</h2>
+<p>无界、乱序数据使<code>等待全部数据后再给出唯一答案</code>失去可操作性。问题不只是输入永不结束，还在于业务时间与系统处理时间天然错位：系统既无法准确判断结果何时完整，也无法同时得到最低延迟、最高正确性和最低成本。</p>
+<h3 id="1.%20%E6%97%A0%E7%95%8C%E6%95%B0%E6%8D%AE%E6%B2%A1%E6%9C%89%E5%8F%AF%E9%9D%A0%E7%9A%84%E7%BB%93%E6%9D%9F">1. 无界数据没有可靠的<code>结束</code></h3>
+<p>日志、移动端事件和传感器数据持续产生，并且会因离线设备、网络延迟、重试、调度和反压而乱序到达。即使某个时间段暂时没有新事件，也无法由此证明未来不会再收到属于该时间段的数据。</p>
+<p>因此，对无界数据问<code>什么时候收齐全部输入</code>通常是一个不可判定的工程问题。更实用的问题是：</p>
+<ol>
+<li>当前已知数据能得到什么答案？</li>
+<li>什么时候值得把这个答案交给下游？</li>
+<li>新数据到来后怎样修正旧答案？</li>
+<li>为更快或更准确的答案，愿意付出多少计算、存储和运维成本？</li>
+</ol>
+<h3 id="2.%20Event%20time%20%E4%B8%8E%20processing%20time">2. Event time 与 processing time</h3>
+<ul>
+<li>Event time：事件实际发生的时间，来自事件本身；用于回答<code>业务事实发生在什么时候</code>。</li>
+<li>Processing time：事件在流水线某个节点被观察和处理的时间；用于回答<code>系统什么时候知道这件事</code>。</li>
+</ul>
+<p>事件的 event time 通常不变，但它在流水线各处的 processing time 不断变化。两者之差来自网络、排队、重试、处理耗时等因素，而且会动态波动。</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">diagram</span><button type="button" class="code-copy-button" data-code="event time ───────▶ 事件实际发生的业务时间
+     │
+     │ 网络延迟、离线、重试、排队、反压
+     ▼
+processing time ─▶ 系统观察并处理事件的时间">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="diagram" data-theme="nord"><code data-language="diagram" data-theme="nord" style="display: grid;"><span data-line=""><span>event time ───────▶ 事件实际发生的业务时间</span></span>
+<span data-line=""><span>     │</span></span>
+<span data-line=""><span>     │ 网络延迟、离线、重试、排队、反压</span></span>
+<span data-line=""><span>     ▼</span></span>
+<span data-line=""><span>processing time ─▶ 系统观察并处理事件的时间</span></span></code></pre></figure>
+<p>若按 processing time 分窗，迟到事件会被计入<code>到达时</code>的窗口，重放同一批数据还可能得到不同结果。按 event time 分窗才能稳定地还原事件发生时的业务上下文。</p>
+<h2 id="%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3">设计思想</h2>
+<p>Dataflow Model 不再寻找统一的<code>完成时刻</code>，而是将计算内容、事件时间范围、输出时机和修订关系拆开，使每个维度都能独立表达和组合。</p>
+<h3 id="%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3%EF%BC%9A%E8%AE%A9%E7%BB%93%E6%9E%9C%E6%8C%81%E7%BB%AD%E6%BC%94%E5%8C%96">核心思想：让结果持续演化</h3>
 <blockquote>
-<p>...</p>
+<p>不要等待无界数据<code>最终完整</code>，而要让结果能够随新事实持续演化，并把正确性、延迟和成本的取舍显式交给使用者。</p>
 </blockquote>
+<p>Dataflow Model 最重要的贡献不是<code>流处理比批处理更好</code>，而是把数据集的性质与执行引擎的形态分开：</p>
+<ul>
+<li>数据集是 bounded / unbounded；</li>
+<li>执行引擎才是 batch / micro-batch / streaming；</li>
+<li>无界数据可以由重复批处理执行，有界数据也可以由流式引擎执行；</li>
+<li>在语义足够完整的模型下，三类引擎可以计算相同的正确结果，区别主要落在延迟和成本上。</li>
+</ul>
+<p>论文用四个问题描述一条数据处理流水线：</p>
+<table>
+<thead>
+<tr>
+<th>问题</th>
+<th>含义</th>
+<th>Dataflow 中的机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>What</td>
+<td>计算什么结果？</td>
+<td><code>ParDo</code>、<code>GroupByKey</code>、聚合等变换</td>
+</tr>
+<tr>
+<td>Where</td>
+<td>在 event time 的什么范围内计算？</td>
+<td>Window assignment / merging</td>
+</tr>
+<tr>
+<td>When</td>
+<td>在 processing time 的什么时刻输出？</td>
+<td>Trigger</td>
+</tr>
+<tr>
+<td>How</td>
+<td>后续结果如何修订先前结果？</td>
+<td>Discarding / Accumulating / Retracting</td>
+</tr>
+</tbody>
+</table>
+<p>这四个维度正交后，同一种业务计算可以自由组合窗口、输出时机和修订策略，而不用复制一套 batch 逻辑和一套 streaming 逻辑。</p>
+<h3 id="What%EF%BC%9A%E6%A0%B8%E5%BF%83%E5%8F%98%E6%8D%A2">What：核心变换</h3>
+<p>论文从两个基本变换出发：</p>
+<ul>
+<li><code>ParDo</code>：对每个输入调用用户函数，产生零到多个输出。它逐元素工作，可以自然处理无界输入。</li>
+<li><code>GroupByKey</code>：收集同一 key 的所有 value。对无界输入，<code>所有</code>永远没有自然边界，因此实际需要的是 <code>GroupByKeyAndWindow</code>。</li>
+</ul>
+<p>Window 不是一种可选的性能优化，而是让无界数据上的聚合、外连接等操作具有有限作用域的语义边界。<code>map</code>、<code>filter</code>、内连接等不必等待一组数据完整的操作则不一定需要窗口。</p>
+<h3 id="Where%EF%BC%9A%E7%AA%97%E5%8F%A3%E5%86%B3%E5%AE%9A%E4%BA%8B%E4%BB%B6%E6%97%B6%E9%97%B4%E4%B8%8A%E7%9A%84%E5%88%86%E7%BB%84">Where：窗口决定事件时间上的分组</h3>
+<p>常见窗口包括：</p>
+<table>
+<thead>
+<tr>
+<th>窗口</th>
+<th>定义</th>
+<th>特征</th>
+<th>典型场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fixed / Tumbling</td>
+<td>固定长度且不重叠</td>
+<td>通常 aligned</td>
+<td>每小时请求量、每日账单</td>
+</tr>
+<tr>
+<td>Sliding</td>
+<td>窗口长度 + 滑动周期</td>
+<td>可重叠，一个事件可属于多个窗口</td>
+<td>最近一小时、每分钟更新</td>
+</tr>
+<tr>
+<td>Session</td>
+<td>相邻活动间隔小于 gap 就合并</td>
+<td>按 key 形成，unaligned</td>
+<td>用户会话、设备活跃区间</td>
+</tr>
+</tbody>
+</table>
+<p>Aligned window 对所有 key 使用同一组边界；unaligned window 只作用于某个数据子集，例如每个用户的 session 边界各不相同。论文将所有窗口在模型层统一视为 unaligned，再由执行层优化 fixed 等 aligned 场景。</p>
+<p>窗口被拆成两个操作：</p>
+<ol>
+<li><code>AssignWindows(element) -> Set&#x3C;Window></code>：根据元素及其 event time，把元素分配到零到多个窗口；</li>
+<li><code>MergeWindows(Set&#x3C;Window>) -> Set&#x3C;Window></code>：在分组时合并窗口，使数据驱动的窗口可以随新事件演化。</li>
+</ol>
+<p>元素在流水线中可抽象为四元组：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="(key, value, event_time, window)">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>(key, value, event_time, window)</span></span></code></pre></figure>
+<p>窗口直接附着在元素上，所以 window assignment 可以发生在 <code>GroupByKey</code> 之前任意位置，即使分组隐藏在 <code>Sum.integersPerKey()</code> 之类的组合变换内部。</p>
+<h4 id="Session%20%E5%90%88%E5%B9%B6%E7%A4%BA%E4%BE%8B">Session 合并示例</h4>
+<p>假设 session gap 为 30 分钟：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="e1: key=u, event_time=13:02 -> [13:02, 13:32)
+e2: key=u, event_time=13:20 -> [13:20, 13:50)">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>e1: key=u, event_time=13:02 -> [13:02, 13:32)</span></span>
+<span data-line=""><span>e2: key=u, event_time=13:20 -> [13:20, 13:50)</span></span></code></pre></figure>
+<p>两个候选窗口重叠，因此在 grouping 时合并为 <code>[13:02, 13:50)</code>。这说明 session 不是预先切好的时间桶，而是由同一 key 的数据逐步塑造出来的窗口。若迟到事件连接了两个原本分离的 session，旧 session 结果也必须被合并和修订。</p>
+<h3 id="Watermark%EF%BC%9A%E8%BF%9B%E5%BA%A6%E4%BC%B0%E8%AE%A1%EF%BC%8C%E4%B8%8D%E6%98%AF%E5%AE%8C%E6%95%B4%E6%80%A7%E8%AF%81%E6%98%8E">Watermark：进度估计，不是完整性证明</h3>
+<p>Watermark 可理解为系统认为已经处理到的 event time 下界：当 watermark 为 <code>t</code> 时，系统估计 event time 小于 <code>t</code> 的数据大多已到达。</p>
+<p>它很有用，但存在两个相反的问题：</p>
+<ul>
+<li>太快：watermark 已越过窗口末尾，迟到数据仍可能出现，已有结果需要修订；</li>
+<li>太慢：一个 straggler 可能拖住全局进度，使绝大多数正常数据迟迟不能输出。</li>
+</ul>
+<p>所以 watermark 适合：</p>
+<ul>
+<li>估计窗口何时<code>足够完整</code>；</li>
+<li>监控 pipeline 的 event-time lag 和健康状态；</li>
+<li>驱动允许近似的输出与状态垃圾回收策略。</li>
+</ul>
+<p>但它不应该被解释为<code>此后绝不会再有旧数据</code>。对于离线移动设备之类的输入，系统根本不知道设备何时重新上线；watermark 通常只能是启发式估计。结构化输入源若能暴露尚未处理的数据范围，watermark 可以非常准确，但仍需区分高质量估计和逻辑证明。</p>
+<h3 id="When%EF%BC%9ATrigger%20%E5%86%B3%E5%AE%9A%E4%BD%95%E6%97%B6%E7%89%A9%E5%8C%96%E7%BB%93%E6%9E%9C">When：Trigger 决定何时物化结果</h3>
+<p>Window 回答<code>哪些事件属于同一个结果</code>，trigger 回答<code>什么时候观察这个结果</code>。一次触发产生该窗口的一个 pane；同一个窗口可以产生多个 pane。</p>
+<p>触发信号可以来自：</p>
+<ul>
+<li>event-time progress：watermark 越过窗口末尾；</li>
+<li>processing time：首个元素到达若干时间后，或周期性输出；</li>
+<li>data driven：元素个数、字节数、数据模式等达到条件；</li>
+<li>external signal：RPC 回调、外部进度指标、人工注入请求等。</li>
+</ul>
+<p>Trigger 可以用 <code>and</code>、<code>or</code>、sequence、loop 等方式组合。例如：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="窗口关闭前：每分钟输出一次低延迟估计
+watermark 越过窗口：输出一次较完整结果
+窗口关闭后：每次迟到数据到达时继续修订">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>窗口关闭前：每分钟输出一次低延迟估计</span></span>
+<span data-line=""><span>watermark 越过窗口：输出一次较完整结果</span></span>
+<span data-line=""><span>窗口关闭后：每次迟到数据到达时继续修订</span></span></code></pre></figure>
+<p>这比单独依赖 watermark 更实用：早期 pane 降低延迟，watermark pane 提供较稳定结果，后续 pane 吸收迟到数据。所谓<code>完成</code>不再是系统必须猜对的二值状态，而变成由业务选择的输出策略。</p>
+<h3 id="How%EF%BC%9A%E5%A2%9E%E9%87%8F%E7%BB%93%E6%9E%9C%E5%A6%82%E4%BD%95%E7%9B%B8%E4%BA%92%E5%85%B3%E8%81%94">How：增量结果如何相互关联</h3>
+<p>同一窗口多次触发时，Dataflow 提供三种 refinement mode：</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>每次 pane 的含义</th>
+<th>状态/成本</th>
+<th>下游要求</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Discarding</td>
+<td>只包含上次触发后新到的数据</td>
+<td>状态最少</td>
+<td>下游能够合并独立增量，例如累加 delta</td>
+</tr>
+<tr>
+<td>Accumulating</td>
+<td>包含截至当前的全部数据，是旧结果的新版</td>
+<td>需保留累计状态</td>
+<td>下游按 key/window 覆盖旧值</td>
+</tr>
+<tr>
+<td>Accumulating &#x26; Retracting</td>
+<td>先撤销旧结果，再发出累计后的新结果</td>
+<td>还需保存已发结果，成本最高</td>
+<td>下游理解并传播 retraction</td>
+</tr>
+</tbody>
+</table>
+<p>Retraction 在连续多个 grouping stage 时尤其重要。假设一个迟到事件把 session A 和 B 合并成 C，下游已经按 A、B 的属性做过二次聚合：仅发送 C 会让 A、B 的影响残留；必须先撤销 A、B，再加入 C，才能维持派生结果的正确性。</p>
+<p>这种模式也有约束：简单实现依赖确定性计算；可逆 combiner 可通过 <code>uncombine</code> 高效撤销，否则需要保存更多状态或重算。最终 sink 也必须支持幂等覆盖、upsert 或显式撤回，否则模型内部的正确修订无法转化为端到端正确性。</p>
+<h3 id="%E5%9B%9B%E4%B8%AA%E7%BB%B4%E5%BA%A6%E7%9A%84%E7%BB%84%E5%90%88%EF%BC%9A%E8%A7%86%E9%A2%91%E8%A7%82%E7%9C%8B%E4%BC%9A%E8%AF%9D">四个维度的组合：视频观看会话</h3>
+<p>论文的动机案例是视频平台统计用户观看 session，用于实时分析和计费：</p>
+<ol>
+<li>What：按用户聚合观看时长、广告和视频信息；</li>
+<li>Where：按 event time 使用 30 分钟 gap 的 session window；</li>
+<li>When：周期性给出低延迟估计，watermark 越过 session 后给出较稳定结果，迟到数据到达后继续触发；</li>
+<li>How：使用 accumulating &#x26; retracting，使离线设备补传数据后能够合并 session，并撤销下游已消费的旧结果。</li>
+</ol>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">diagram</span><button type="button" class="code-copy-button" data-code="乱序事件
+   │
+   ▼
+┌────────────────────┐
+│ Assign session     │  Where: event-time session
+│ windows per user   │
+└─────────┬──────────┘
+          ▼
+┌────────────────────┐
+│ Group / aggregate  │  What: viewing statistics
+└─────────┬──────────┘
+          ▼
+┌────────────────────┐
+│ Composite trigger  │  When: early / watermark / late
+└─────────┬──────────┘
+          ▼
+┌────────────────────┐
+│ Retract + replace  │  How: revise prior sessions
+└────────────────────┘">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="diagram" data-theme="nord"><code data-language="diagram" data-theme="nord" style="display: grid;"><span data-line=""><span>乱序事件</span></span>
+<span data-line=""><span>   │</span></span>
+<span data-line=""><span>   ▼</span></span>
+<span data-line=""><span>┌────────────────────┐</span></span>
+<span data-line=""><span>│ Assign session     │  Where: event-time session</span></span>
+<span data-line=""><span>│ windows per user   │</span></span>
+<span data-line=""><span>└─────────┬──────────┘</span></span>
+<span data-line=""><span>          ▼</span></span>
+<span data-line=""><span>┌────────────────────┐</span></span>
+<span data-line=""><span>│ Group / aggregate  │  What: viewing statistics</span></span>
+<span data-line=""><span>└─────────┬──────────┘</span></span>
+<span data-line=""><span>          ▼</span></span>
+<span data-line=""><span>┌────────────────────┐</span></span>
+<span data-line=""><span>│ Composite trigger  │  When: early / watermark / late</span></span>
+<span data-line=""><span>└─────────┬──────────┘</span></span>
+<span data-line=""><span>          ▼</span></span>
+<span data-line=""><span>┌────────────────────┐</span></span>
+<span data-line=""><span>│ Retract + replace  │  How: revise prior sessions</span></span>
+<span data-line=""><span>└────────────────────┘</span></span></code></pre></figure>
+<p>这一表达同时适用于实时处理和历史 backfill；切换执行引擎不应要求重写业务逻辑。</p>
+<h2 id="%E5%B7%A5%E7%A8%8B%E5%8F%96%E8%88%8D">工程取舍</h2>
+<p>模型没有消除现实约束，而是把 correctness、latency 与 cost 的冲突从执行引擎的隐式行为，提升为使用者能够审视和配置的显式策略。</p>
+<h3 id="%E8%BE%93%E5%87%BA%E7%AD%96%E7%95%A5%E5%A6%82%E4%BD%95%E6%94%B9%E5%8F%98%E6%AD%A3%E7%A1%AE%E6%80%A7%E3%80%81%E5%BB%B6%E8%BF%9F%E4%B8%8E%E6%88%90%E6%9C%AC">输出策略如何改变正确性、延迟与成本</h3>
+<p>不同输出与状态策略对应不同的取舍：</p>
+<table>
+<thead>
+<tr>
+<th>选择</th>
+<th>延迟</th>
+<th>正确性/新鲜度</th>
+<th>成本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>只在 watermark 后输出</td>
+<td>较高，受 straggler 影响</td>
+<td>首次结果通常更稳定，但仍非绝对完整</td>
+<td>输出和下游更新较少</td>
+</tr>
+<tr>
+<td>增加 early trigger</td>
+<td>较低</td>
+<td>先给近似结果，随后修订</td>
+<td>更多计算、状态、网络和 sink 写入</td>
+</tr>
+<tr>
+<td>接受任意迟到数据</td>
+<td>可能持续修订</td>
+<td>更接近最终事实</td>
+<td>状态无法轻易回收，成本高</td>
+</tr>
+<tr>
+<td>限制 lateness / 清理状态</td>
+<td>可控</td>
+<td>超过期限的数据无法纳入原结果</td>
+<td>存储和运维成本可控</td>
+</tr>
+<tr>
+<td>使用 retraction</td>
+<td>可维护多级派生正确性</td>
+<td>能撤销旧事实</td>
+<td>协议、状态和下游处理最复杂</td>
+</tr>
+</tbody>
+</table>
+<p><code>正确性</code>也不是单一开关。它至少取决于输入可重放性、事件去重、状态一致性、用户函数确定性、trigger/refinement 语义以及 sink 是否正确应用更新。论文提供的是组织这些选择的模型，不会自动解决端到端 exactly-once。</p>
+<h3 id="%E5%90%8C%E4%B8%80%E8%AF%AD%E4%B9%89%E5%9C%A8%E4%B8%8D%E5%90%8C%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E%E4%B8%8A%E7%9A%84%E8%A1%A8%E7%8E%B0">同一语义在不同执行引擎上的表现</h3>
+<p>相同的 event-time window + watermark trigger 可以映射到不同引擎：</p>
+<ul>
+<li>Batch：watermark 在处理期间停留在时间起点，输入完成后推进到无穷大，一次性物化窗口；</li>
+<li>Micro-batch：每个批次形成一次进度推进，变更过的窗口按批次更新；</li>
+<li>Streaming：watermark 随输入进度持续推进，窗口及时输出，迟到数据触发修订。</li>
+</ul>
+<p>这三者可以具有相同的逻辑语义。真正的工程差异是调度粒度、状态管理、输出频率，以及由此产生的延迟和资源成本。论文也由此反对 Lambda Architecture 中长期维护两套业务实现：统一模型允许一套逻辑在实时运行和大规模 backfill 之间复用。</p>
+<h3 id="%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99%E4%B8%8E%E5%AE%9E%E8%B7%B5%E4%BE%9D%E6%8D%AE">设计原则与实践依据</h3>
+<p>论文总结了五条设计原则：</p>
+<ol>
+<li>永远不要依赖<code>数据完整</code>的概念；</li>
+<li>保持灵活，以容纳不同及未来未知的用例；</li>
+<li>模型在 batch、micro-batch、streaming 上都应有意义并带来价值；</li>
+<li>鼓励清晰的实现；</li>
+<li>支持在事件实际发生的上下文中稳健分析数据。</li>
+</ol>
+<p>这些机制来自 Google 使用 FlumeJava 和 MillWheel 的实际经验：</p>
+<ul>
+<li>大规模 log join 与 backfill 推动 batch/streaming 统一；</li>
+<li>搜索、广告、分析、社交和 YouTube 的用户活动推动 unaligned session window；</li>
+<li>计费系统中的迟到数据和 watermark lag 推动 trigger、accumulation、retraction；</li>
+<li>统计与 abuse detection 推动 watermark 和 percentile watermark trigger；</li>
+<li>推荐系统偏好及时的局部视图，推动 processing-time trigger；</li>
+<li>异常检测需要发现后立即输出，推动 data-driven 与 composite trigger。</li>
+</ul>
+<h3 id="%E9%80%82%E7%94%A8%E8%BE%B9%E7%95%8C%E4%B8%8E%E9%9A%90%E5%90%AB%E4%BB%A3%E4%BB%B7">适用边界与隐含代价</h3>
+<ol>
+<li>这是编程模型，不是性能突破。 CPU、内存、磁盘、网络的物理约束仍然存在；高频 trigger 和长期接收迟到数据会直接转化为更高成本。</li>
+<li>Watermark 的质量依赖输入源。 模型允许处理错误估计，却不能凭空知道尚未出现的数据。状态何时清理仍需业务策略。</li>
+<li>论文弱化了实现细节。 核心代码在 FlumeJava、MillWheel 和当时的 Cloud Dataflow 中实现，但论文没有深入说明状态布局、容错、定时器扩展性和 retraction 成本。</li>
+<li>端到端修订需要下游协议配合。 只要 sink 或后续系统把每个 pane 当作互不相关的新记录，accumulation/retraction 的语义就会丢失。</li>
+<li>统一语义不等于运行行为完全一致。 不同引擎的 watermark 推进、调度粒度和故障恢复方式仍会造成可观察的输出时机及成本差异。</li>
+<li>论文中的 API 是 2015 年的简化 Dataflow Java SDK。 应把示例当作语义说明，而不是当前 Apache Beam API 的精确用法。</li>
+</ol>
 <h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
 <ol>
-<li>...</li>
-<li>...</li>
+<li>完整性不是事实，而是策略。 在开放世界中，系统不能证明未来没有迟到数据；它只能基于当前知识决定何时输出、何时修订、何时停止维护状态。</li>
+<li>Window 与 trigger 必须分开。 <code>业务上哪些事件属于一起</code>和<code>系统何时给答案</code>是两个不同问题；将它们绑在一起会迫使语义服从执行机制。</li>
+<li>Watermark 是知识边界。 它描述系统对 event-time 进度的估计，而不是数据世界的客观终点。把它当作监控和触发信号比当作完成证明更准确。</li>
+<li>结果应被视为随时间演化的值。 多个 pane 不是重复答案，而是同一逻辑结果的增量、替换或撤回。这与数据库的 change stream / changelog 思想相通。</li>
+<li>低延迟的本质是提前暴露不完整信息。 早出结果并不免费：下游必须能够理解修订，系统必须承担更多状态和更新成本。</li>
+<li>正确性是端到端协议。 Source、状态、用户计算、触发策略和 sink 中任一环节不支持重放、去重或修订，都可能破坏整体语义。</li>
+<li>Batch 是 streaming 的退化情形。 有界数据可看作 watermark 最终推进到无穷大的无界计算；这种视角简化了实时计算、历史重放和 backfill 的统一设计。</li>
 </ol>
 <h2 id="links">links</h2>
 <ol>
+<li><a href="https://www.vldb.org/pvldb/vol8/p1792-Akidau.pdf">https://www.vldb.org/pvldb/vol8/p1792-Akidau.pdf</a></li>
+<li><a href="https://research.google/pubs/the-dataflow-model-a-practical-approach-to-balancing-correctness-latency-and-cost-in-massive-scale-unbounded-out-of-order-data-processing/">https://research.google/pubs/the-dataflow-model-a-practical-approach-to-balancing-correctness-latency-and-cost-in-massive-scale-unbounded-out-of-order-data-processing/</a></li>
+<li><a href="https://doi.org/10.14778/2824032.2824076">https://doi.org/10.14778/2824032.2824076</a></li>
 <li><a href="https://blog.acolyer.org/2015/08/18/the-dataflow-model-a-practical-approach-to-balancing-correctness-latency-and-cost-in-massive-scale-unbounded-out-of-order-data-processing/">https://blog.acolyer.org/2015/08/18/the-dataflow-model-a-practical-approach-to-balancing-correctness-latency-and-cost-in-massive-scale-unbounded-out-of-order-data-processing/</a></li>
-</ol></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E8%AE%BA%E6%96%87%EF%BC%9AThe%20Dataflow%20Model" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E8%AE%BA%E6%96%87%EF%BC%9AThe%20Dataflow%20Model">读论文：The Dataflow Model</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读论文：The Dataflow Model</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
+</ol></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E8%AE%BA%E6%96%87%EF%BC%9AThe%20Dataflow%20Model" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E8%AE%BA%E6%96%87%EF%BC%9AThe%20Dataflow%20Model">读论文：The Dataflow Model</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读论文：The Dataflow Model</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E9%97%AE%E9%A2%98">核心问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心问题</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20%E6%97%A0%E7%95%8C%E6%95%B0%E6%8D%AE%E6%B2%A1%E6%9C%89%E5%8F%AF%E9%9D%A0%E7%9A%84%E7%BB%93%E6%9D%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#1.%20%E6%97%A0%E7%95%8C%E6%95%B0%E6%8D%AE%E6%B2%A1%E6%9C%89%E5%8F%AF%E9%9D%A0%E7%9A%84%E7%BB%93%E6%9D%9F">1. 无界数据没有可靠的结束</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">1. 无界数据没有可靠的结束</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20Event%20time%20%E4%B8%8E%20processing%20time" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#2.%20Event%20time%20%E4%B8%8E%20processing%20time">2. Event time 与 processing time</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">2. Event time 与 processing time</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AE%BE%E8%AE%A1%E6%80%9D%E6%83%B3">设计思想</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">设计思想</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3%EF%BC%9A%E8%AE%A9%E7%BB%93%E6%9E%9C%E6%8C%81%E7%BB%AD%E6%BC%94%E5%8C%96" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3%EF%BC%9A%E8%AE%A9%E7%BB%93%E6%9E%9C%E6%8C%81%E7%BB%AD%E6%BC%94%E5%8C%96">核心思想：让结果持续演化</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心思想：让结果持续演化</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="What%EF%BC%9A%E6%A0%B8%E5%BF%83%E5%8F%98%E6%8D%A2" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#What%EF%BC%9A%E6%A0%B8%E5%BF%83%E5%8F%98%E6%8D%A2">What：核心变换</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">What：核心变换</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Where%EF%BC%9A%E7%AA%97%E5%8F%A3%E5%86%B3%E5%AE%9A%E4%BA%8B%E4%BB%B6%E6%97%B6%E9%97%B4%E4%B8%8A%E7%9A%84%E5%88%86%E7%BB%84" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Where%EF%BC%9A%E7%AA%97%E5%8F%A3%E5%86%B3%E5%AE%9A%E4%BA%8B%E4%BB%B6%E6%97%B6%E9%97%B4%E4%B8%8A%E7%9A%84%E5%88%86%E7%BB%84">Where：窗口决定事件时间上的分组</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Where：窗口决定事件时间上的分组</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Watermark%EF%BC%9A%E8%BF%9B%E5%BA%A6%E4%BC%B0%E8%AE%A1%EF%BC%8C%E4%B8%8D%E6%98%AF%E5%AE%8C%E6%95%B4%E6%80%A7%E8%AF%81%E6%98%8E" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Watermark%EF%BC%9A%E8%BF%9B%E5%BA%A6%E4%BC%B0%E8%AE%A1%EF%BC%8C%E4%B8%8D%E6%98%AF%E5%AE%8C%E6%95%B4%E6%80%A7%E8%AF%81%E6%98%8E">Watermark：进度估计，不是完整性证明</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Watermark：进度估计，不是完整性证明</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="When%EF%BC%9ATrigger%20%E5%86%B3%E5%AE%9A%E4%BD%95%E6%97%B6%E7%89%A9%E5%8C%96%E7%BB%93%E6%9E%9C" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#When%EF%BC%9ATrigger%20%E5%86%B3%E5%AE%9A%E4%BD%95%E6%97%B6%E7%89%A9%E5%8C%96%E7%BB%93%E6%9E%9C">When：Trigger 决定何时物化结果</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">When：Trigger 决定何时物化结果</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="How%EF%BC%9A%E5%A2%9E%E9%87%8F%E7%BB%93%E6%9E%9C%E5%A6%82%E4%BD%95%E7%9B%B8%E4%BA%92%E5%85%B3%E8%81%94" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#How%EF%BC%9A%E5%A2%9E%E9%87%8F%E7%BB%93%E6%9E%9C%E5%A6%82%E4%BD%95%E7%9B%B8%E4%BA%92%E5%85%B3%E8%81%94">How：增量结果如何相互关联</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">How：增量结果如何相互关联</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%9B%9B%E4%B8%AA%E7%BB%B4%E5%BA%A6%E7%9A%84%E7%BB%84%E5%90%88%EF%BC%9A%E8%A7%86%E9%A2%91%E8%A7%82%E7%9C%8B%E4%BC%9A%E8%AF%9D" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%9B%9B%E4%B8%AA%E7%BB%B4%E5%BA%A6%E7%9A%84%E7%BB%84%E5%90%88%EF%BC%9A%E8%A7%86%E9%A2%91%E8%A7%82%E7%9C%8B%E4%BC%9A%E8%AF%9D">四个维度的组合：视频观看会话</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">四个维度的组合：视频观看会话</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%B7%A5%E7%A8%8B%E5%8F%96%E8%88%8D" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%B7%A5%E7%A8%8B%E5%8F%96%E8%88%8D">工程取舍</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">工程取舍</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%BE%93%E5%87%BA%E7%AD%96%E7%95%A5%E5%A6%82%E4%BD%95%E6%94%B9%E5%8F%98%E6%AD%A3%E7%A1%AE%E6%80%A7%E3%80%81%E5%BB%B6%E8%BF%9F%E4%B8%8E%E6%88%90%E6%9C%AC" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%BE%93%E5%87%BA%E7%AD%96%E7%95%A5%E5%A6%82%E4%BD%95%E6%94%B9%E5%8F%98%E6%AD%A3%E7%A1%AE%E6%80%A7%E3%80%81%E5%BB%B6%E8%BF%9F%E4%B8%8E%E6%88%90%E6%9C%AC">输出策略如何改变正确性、延迟与成本</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">输出策略如何改变正确性、延迟与成本</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%90%8C%E4%B8%80%E8%AF%AD%E4%B9%89%E5%9C%A8%E4%B8%8D%E5%90%8C%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E%E4%B8%8A%E7%9A%84%E8%A1%A8%E7%8E%B0" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%90%8C%E4%B8%80%E8%AF%AD%E4%B9%89%E5%9C%A8%E4%B8%8D%E5%90%8C%E6%89%A7%E8%A1%8C%E5%BC%95%E6%93%8E%E4%B8%8A%E7%9A%84%E8%A1%A8%E7%8E%B0">同一语义在不同执行引擎上的表现</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">同一语义在不同执行引擎上的表现</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99%E4%B8%8E%E5%AE%9E%E8%B7%B5%E4%BE%9D%E6%8D%AE" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99%E4%B8%8E%E5%AE%9E%E8%B7%B5%E4%BE%9D%E6%8D%AE">设计原则与实践依据</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">设计原则与实践依据</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E9%80%82%E7%94%A8%E8%BE%B9%E7%95%8C%E4%B8%8E%E9%9A%90%E5%90%AB%E4%BB%A3%E4%BB%B7" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E9%80%82%E7%94%A8%E8%BE%B9%E7%95%8C%E4%B8%8E%E9%9A%90%E5%90%AB%E4%BB%A3%E4%BB%B7">适用边界与隐含代价</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">适用边界与隐含代价</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
