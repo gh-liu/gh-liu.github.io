@@ -1,17 +1,36 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Is Parallel Programming Hard</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9AIs%20Parallel%20Programming%20Hard">读书笔记：Is Parallel Programming Hard</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-04-29</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-04-29</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BN</a></div></div>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读书笔记：Is Parallel Programming Hard</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9AIs%20Parallel%20Programming%20Hard">读书笔记：Is Parallel Programming Hard</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-04-29</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-28</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BN</a></div></div>
 <blockquote>
-<p><a href="https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook.html">https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook.html</a>
-<a href="https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook-e2.html">https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook-e2.html</a></p>
-</blockquote>
-<blockquote>
-<p>并行编程的核心不是“多开线程”，而是管理共享状态：尽量少共享；必须共享时，明确所有权、同步边界、可见性顺序和性能成本。</p>
+<p>并行编程的核心不是<code>多开线程</code>，而是管理共享状态：尽量少共享；必须共享时，明确所有权、同步边界、可见性顺序和性能成本。</p>
 </blockquote>
 <ul>
-<li>这不是一本并发 API 手册，而是一本讲并行程序设计方法论的书：先理解硬件，再做拆分，再选同步原语，再验证正确性，最后才谈极致性能。</li>
+<li>是什么（What）：
+<ul>
+<li>一本面向工程实践的并行程序设计方法论：它不只罗列并发原语，而是从硬件行为出发，讨论如何拆分工作与资源、控制共享访问、回收并发对象，并验证正确性与可扩展性。</li>
+<li>全书以 Linux 内核经验和 <code>RCU</code> 为重要案例，但核心原则也适用于数据库、服务端和其他共享内存系统。</li>
+</ul>
+</li>
+<li>为什么（Why）：
+<ul>
+<li>多核让并行成为常态，但共享状态会同时带来竞态、死锁、内存序错误和扩展性瓶颈；程序即使逻辑正确，也可能因为缓存争用和全局序列化而无法扩展。</li>
+<li>源码顺序不等于实际执行顺序，缓存一致性也不等于业务一致性。只凭顺序程序的直觉，无法可靠地推断并发程序。</li>
+<li>性能、生产率和通用性彼此制约，不存在适合所有负载的同步方案；需要一套根据业务语义和访问模式做取舍的方法。</li>
+</ul>
+</li>
+<li>怎么做（How）：
+<ol>
+<li>先定义语义：结果必须精确还是允许近似，是否允许重试、阻塞或延迟回收。</li>
+<li>再减少共享：优先分区、复制、局部缓存和明确所有权，把全局热点拆成局部状态。</li>
+<li>刻画访问模式：识别读写比例、争用强度、快慢路径以及数据生命周期。</li>
+<li>选择最简单且满足语义的机制：能用所有权就不共享，能用锁就不贸然 lock-free；读多写少且允许延迟回收时，再考虑 <code>RCU</code> 等专门方案。</li>
+<li>明确正确性边界：为共享数据定义不变量、同步关系、内存顺序和对象回收时机。</li>
+<li>用测试、断言、跟踪、模型检查、基准测试和性能分析共同验证，并根据证据迭代设计。</li>
+</ol>
+</li>
 </ul>
 <h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
 <ol>
-<li>并行编程的目标不只有性能，还有 <code>productivity</code> 和 <code>generality</code>。</li>
+<li>全书给出了一条递进的方法链：先理解硬件，再掌握基本工具；继而通过计数、分区、锁、所有权、延迟处理和数据结构学习设计；最后用验证、形式化方法和内存模型保障正确性。高级并发技术建立在这条链上，不能绕过基础原则。</li>
+<li>并行编程的目标不只有性能，还有 <code>productivity</code> 和 <code>generality</code>。三者经常冲突，因此并行设计本质上是在特定负载和约束下做取舍，而不是寻找银弹。</li>
 <li>并行之所以难，主要难在：
 <ul>
 <li>工作拆分 <code>work partitioning</code></li>
@@ -21,7 +40,10 @@
 <li>多种能力组合后的复杂性 <code>composite capabilities</code></li>
 </ul>
 </li>
-<li>很多问题不是“加锁就行”，而是要先决定：
+<li>硬件是并行设计的约束而不是实现细节。编译器与 CPU 会重排序，cache miss、I/O、跨核缓存同步和原子操作都有成本；缓存一致性只能保证硬件层面的值传播，不能替程序建立业务不变量。很多竞态和性能崩坏，本质上是程序违背了硬件习性。</li>
+<li>设计应从 <code>partition first</code> 开始。可以按数据、线程归属、快慢路径拆分，也可以使用层级锁和局部缓存。性能通常来自把热点拆散、减少争用和全局序列化，而不是让更多线程以更复杂的方式访问同一份状态。</li>
+<li>明确的数据所有权是最强的简化手段之一。线程归属、消息传递、私有化和进程隔离，都能把“如何同步共享”转化为“谁有权修改”。</li>
+<li>很多问题不是<code>加锁就行</code>，而是要先决定：
 <ul>
 <li>数据归谁管</li>
 <li>读多写少还是写多读少</li>
@@ -29,219 +51,41 @@
 <li>是否接受近似结果</li>
 </ul>
 </li>
-<li>并行优化的本质往往不是“让所有线程都碰同一份共享状态”，而是减少共享、减少争用、减少全局序列化。</li>
+<li>锁不是落后技术，lock-free 也不天然更优。锁除了执行成本，还可能引入死锁、活锁、饥饿、不公平和扩展性问题；但在应用代码中，它往往仍是最容易验证的选择。线程、锁、读写锁、原子操作和线程/CPU 局部变量都只是工具，必须根据访问模式、争用程度、进展保证和团队验证能力选择，不能默认 mutex，也不能盲目追求无锁。</li>
+<li>延迟处理把“更新”与“确认旧读者已经离开”分开，是解决并发对象生命周期的关键思路；内存回收往往比并发访问本身更难。引用计数直观但更新较重，Hazard pointers 适合无锁场景但使用复杂，SeqLock 让读路径较快但可能重试，<code>RCU</code> 则代表<code>读多写少 + 延迟回收 + 降低读侧同步成本</code>的设计思想。</li>
+<li>精确性具有同步成本，计数器正是并发设计的缩影。统计型计数可以允许暂时不精确，近似限额以误差换速度，精确限额则必须为边界保证支付更高同步成本。应先确定所需语义，再决定是否值得进行全局协调。</li>
+<li>数据结构决定并行能力的上限：可分区、可复制、读写路径可分离的结构更容易扩展；如果结构本身制造全局热点，微调锁通常无济于事。</li>
+<li>并发验证的目标不是证明自己正确，而是系统地寻找反例。测试、断言、跟踪、静态分析、代码审查、litmus test、模型检查和基准分析需要相互补充。</li>
+<li>内存顺序是 lock-free、<code>RCU</code> 等高级同步机制的正确性边界。重排序同时来自编译器和硬件，acquire、release、barrier、dependency、cache coherence 与 multicopy atomicity 都会影响可观察结果；不理解这些约束，代码即使偶然通过测试也不代表正确。</li>
+<li>非阻塞同步、实时系统、事务内存和函数式并行等高级主题，不会替代分区、所有权、验证和内存序等基础原则；复杂同步技术的价值只能在明确的负载与约束中判断。</li>
 </ol>
-<h2 id="%E5%85%A8%E4%B9%A6%E4%B8%BB%E7%BA%BF%EF%BC%9A">全书主线：</h2>
-<ul>
-<li>前半部分讲基础：并行为什么难、硬件会怎样坑你、有哪些基本工具。</li>
-<li>中间部分讲设计：计数、分区、锁、数据所有权、延迟回收、并发数据结构。</li>
-<li>后半部分讲保障：验证、形式化验证、内存模型、未来趋势。</li>
-<li>书里最强的一条线索是：<code>RCU</code> 不是孤立技术，而是“读多写少 + 延迟回收 + 弱化同步成本”这一设计思想的代表。</li>
-</ul>
-<h2 id="%E5%88%86%E7%AB%A0%E8%8A%82%E7%AC%94%E8%AE%B0%EF%BC%9A">分章节笔记：</h2>
-<h3 id="1.%20How%20To%20Use%20This%20Book%20%2F%20Introduction">1. How To Use This Book / Introduction</h3>
-<ul>
-<li>作者强调：并行编程已经从科研特例，变成工程常态。</li>
-<li>三大目标彼此冲突：
-<ul>
-<li>高性能</li>
-<li>高生产率</li>
-<li>高通用性</li>
-</ul>
-</li>
-<li>启发：并行方案没有银弹，任何设计都在做取舍。</li>
-</ul>
-<h3 id="2.%20Hardware%20and%20its%20Habits">2. Hardware and its Habits</h3>
-<ul>
-<li>CPU、缓存、原子操作、内存屏障、cache miss、I/O 延迟，都会直接决定并行代码表现。</li>
-<li>关键认识：
-<ul>
-<li>硬件不会按你源码的“直觉顺序”执行。</li>
-<li>缓存一致性不等于程序逻辑正确。</li>
-<li>原子操作很贵，跨核共享更贵。</li>
-</ul>
-</li>
-<li>启发：并发 bug 和性能崩坏，很多不是算法错误，而是违背了硬件习性。</li>
-</ul>
-<h3 id="3.%20Tools%20of%20the%20Trade">3. Tools of the Trade</h3>
-<ul>
-<li>介绍线程、锁、读写锁、原子操作、线程局部/CPU 局部变量等。</li>
-<li>重点不在 API，而在“什么时候用哪种工具”。</li>
-<li>启发：工具选择要看争用模式，不要一上来默认 mutex。</li>
-</ul>
-<h3 id="4.%20Counting">4. Counting</h3>
-<ul>
-<li>计数器是并行世界最容易低估的难题。</li>
-<li>书里把计数分成几类：
-<ul>
-<li>统计型计数器：追求低开销，允许暂时不精确</li>
-<li>近似限额计数器：允许误差，但要快</li>
-<li>精确限额计数器：保证边界正确，但同步成本更高</li>
-</ul>
-</li>
-<li>启发：先问“业务要不要绝对精确”，再决定实现。很多系统根本不需要强一致计数。</li>
-</ul>
-<h3 id="5.%20Partitioning%20and%20Synchronization%20Design">5. Partitioning and Synchronization Design</h3>
-<ul>
-<li>并行设计第一原则是 <code>partition first</code>。</li>
-<li>常见策略：
-<ul>
-<li>按数据分片</li>
-<li>按线程归属</li>
-<li>按快路径/慢路径拆分</li>
-<li>层级锁、局部缓存</li>
-</ul>
-</li>
-<li>启发：性能通常来自“把热点拆散”，不是“把共享写得更花哨”。</li>
-</ul>
-<h3 id="6.%20Locking">6. Locking</h3>
-<ul>
-<li>锁的问题不只是开销，还有：
-<ul>
-<li>死锁</li>
-<li>活锁</li>
-<li>饥饿</li>
-<li>不公平</li>
-<li>可扩展性差</li>
-</ul>
-</li>
-<li>作者对锁的态度很工程化：
-<ul>
-<li>对应用来说，锁常常是英雄</li>
-<li>对并行库来说，锁只是工具之一</li>
-<li>对“给顺序程序强行并行化”的场景，锁可能是反派</li>
-</ul>
-</li>
-<li>启发：锁不是过时技术，但它经常被滥用。</li>
-</ul>
-<h3 id="7.%20Data%20Ownership">7. Data Ownership</h3>
-<ul>
-<li>最强的简化手段之一：让某份数据有明确 owner。</li>
-<li>常见方法：
-<ul>
-<li>指定线程处理</li>
-<li>函数/消息投递</li>
-<li>私有化</li>
-<li>多进程隔离</li>
-</ul>
-</li>
-<li>启发：能用 ownership 解决的问题，通常比共享内存加锁更稳。</li>
-</ul>
-<h3 id="8.%20Deferred%20Processing">8. Deferred Processing</h3>
-<ul>
-<li>这是全书最重要的章节之一。</li>
-<li>核心问题：删除/更新对象时，怎样保证并发读者还安全？</li>
-<li>书里比较了：
-<ul>
-<li>引用计数 <code>reference counting</code></li>
-<li>Hazard pointers</li>
-<li>Sequence locks</li>
-<li><code>RCU</code></li>
-</ul>
-</li>
-<li>大体理解：
-<ul>
-<li>引用计数：直观，但更新路径重、扩展性一般</li>
-<li>Hazard pointers：适合无锁场景，但使用复杂</li>
-<li>SeqLock：读快，但读者可能重试</li>
-<li><code>RCU</code>：特别适合读多写少，读路径极轻</li>
-</ul>
-</li>
-<li>启发：内存回收问题，往往才是并发设计真正难点。</li>
-</ul>
-<h3 id="9.%20Data%20Structures">9. Data Structures</h3>
-<ul>
-<li>数据结构是否“可分区”，直接决定并行难度。</li>
-<li>书中用哈希表等例子说明：
-<ul>
-<li>可分区结构容易扩展</li>
-<li>读多写少结构适合 <code>RCU</code></li>
-<li>不可分区结构扩展难，往往需要重构设计而不是微调锁</li>
-</ul>
-</li>
-<li>启发：性能瓶颈很多时候不是代码写法，而是数据结构选型。</li>
-</ul>
-<h3 id="10.%20Validation%20%2F%20Formal%20Verification">10. Validation / Formal Verification</h3>
-<ul>
-<li>并发程序不能只靠“跑过几次没出错”。</li>
-<li>书里强调：
-<ul>
-<li>tracing</li>
-<li>assertions</li>
-<li>static analysis</li>
-<li>code review</li>
-<li>benchmark / profiling</li>
-<li>model checking / litmus tests / axiomatic methods</li>
-</ul>
-</li>
-<li>一个很重要的观念：验证不是证明自己对，而是系统地找自己错。</li>
-<li>启发：并发系统的测试方法必须比普通业务代码更有攻击性。</li>
-</ul>
-<h3 id="11.%20Advanced%20Synchronization%3A%20Memory%20Ordering">11. Advanced Synchronization: Memory Ordering</h3>
-<ul>
-<li>这是并发里的硬骨头。</li>
-<li>关键点：
-<ul>
-<li>重排序来自硬件和编译器两边</li>
-<li>acquire / release / barrier 不是语法细节，而是正确性边界</li>
-<li>dependency、cache coherence、multicopy atomicity 都会影响结果</li>
-</ul>
-</li>
-<li>启发：不理解内存模型，写 lock-free / <code>RCU</code> 类代码基本等于碰运气。</li>
-</ul>
-<h3 id="12.%20Putting%20It%20All%20Together%20%2F%20Advanced%20Topics%20%2F%20Future">12. Putting It All Together / Advanced Topics / Future</h3>
-<ul>
-<li>后面几章更像专题串讲：
-<ul>
-<li>把多种同步技术混合使用</li>
-<li>非阻塞同步</li>
-<li>实时系统</li>
-<li>事务内存</li>
-<li>函数式并行</li>
-<li>对未来硬件和并行生态的判断</li>
-</ul>
-</li>
-<li>启发：高级技术不是替代基础原则，而是建立在“分区、所有权、验证、内存序”这些基础之上。</li>
-</ul>
 <h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
 <ol>
-<li>并行设计先问“能不能少共享”，再问“怎么同步共享”。</li>
+<li>并行设计先问<code>能不能少共享</code>，再问<code>怎么同步共享</code>。</li>
 <li>正确的数据所有权设计，价值常常高于花哨的 lock-free。</li>
 <li>读多写少场景，<code>RCU</code> 是非常强的思路。</li>
 <li>计数器不是小问题，而是并发设计缩影。</li>
-<li>锁的问题主要不在“慢”，而在“会形成全局串行点”。</li>
-<li>精确性是昂贵的，很多系统应该先争取“足够正确”。</li>
+<li>锁的问题主要不在<code>慢</code>，而在<code>会形成全局串行点</code>。</li>
+<li>精确性是昂贵的，很多系统应该先争取<code>足够正确</code>。</li>
 <li>缓存、一致性、内存序会决定并发代码真实行为。</li>
 <li>数据结构决定上限，API 技巧只能做局部优化。</li>
 <li>并发验证要靠多种手段叠加，不能迷信单一测试。</li>
 <li>并行编程首先是工程 discipline，不是技巧表演。</li>
 </ol>
-<h2 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h2>
+<h3 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h3>
 <ol>
-<li>以后遇到并发性能问题，先从“是否能减少共享状态”入手，而不是直接换锁。</li>
+<li>以后遇到并发性能问题，先从<code>是否能减少共享状态</code>入手，而不是直接换锁。</li>
 <li>设计计数器时，先明确它是统计型、近似限额型，还是精确限额型。</li>
 <li>对读多写少的数据路径，优先考虑 <code>RCU</code>、只读快路径和延迟回收。</li>
 <li>对高争用热点，优先考虑分片、局部缓存、线程所有权，而不是全局原子变量。</li>
 <li>任何涉及 lock-free、内存屏障、对象回收的代码，都要配套验证策略。</li>
 </ol>
-<h2 id="%E9%80%82%E5%90%88%E4%BB%80%E4%B9%88%E4%BA%BA%E8%AF%BB%EF%BC%9A">适合什么人读：</h2>
-<ul>
-<li>内核、数据库、中间件、存储、网络系统开发者</li>
-<li>需要写高并发 C/C++/Rust/Go 基础设施的人</li>
-<li>想真正理解 <code>RCU</code>、内存序、可扩展同步的人</li>
-</ul>
-<h2 id="%E6%8E%A8%E8%8D%90%E9%98%85%E8%AF%BB%E9%A1%BA%E5%BA%8F%EF%BC%9A">推荐阅读顺序：</h2>
-<ol>
-<li>Introduction</li>
-<li>Hardware</li>
-<li>Tools</li>
-<li>Locking / Data Ownership</li>
-<li>Deferred Processing</li>
-<li>Validation</li>
-<li>Memory Ordering</li>
-<li>再回头看形式化验证和高级章节</li>
-</ol>
 <h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
 <ol>
-<li>这本书真正教的不是“并发技巧”，而是把共享内存并行问题，改写成硬件能承受、团队能验证、系统能扩展的工程结构。</li>
-</ol></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9AIs%20Parallel%20Programming%20Hard" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9AIs%20Parallel%20Programming%20Hard">读书笔记：Is Parallel Programming Hard</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读书笔记：Is Parallel Programming Hard</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%85%A8%E4%B9%A6%E4%B8%BB%E7%BA%BF%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%85%A8%E4%B9%A6%E4%B8%BB%E7%BA%BF%EF%BC%9A">全书主线：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">全书主线：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%88%86%E7%AB%A0%E8%8A%82%E7%AC%94%E8%AE%B0%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%88%86%E7%AB%A0%E8%8A%82%E7%AC%94%E8%AE%B0%EF%BC%9A">分章节笔记：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">分章节笔记：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20How%20To%20Use%20This%20Book%20%2F%20Introduction" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#1.%20How%20To%20Use%20This%20Book%20%2F%20Introduction">1. How To Use This Book / Introduction</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">1. How To Use This Book / Introduction</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20Hardware%20and%20its%20Habits" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#2.%20Hardware%20and%20its%20Habits">2. Hardware and its Habits</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">2. Hardware and its Habits</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="3.%20Tools%20of%20the%20Trade" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#3.%20Tools%20of%20the%20Trade">3. Tools of the Trade</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">3. Tools of the Trade</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="4.%20Counting" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#4.%20Counting">4. Counting</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">4. Counting</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="5.%20Partitioning%20and%20Synchronization%20Design" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#5.%20Partitioning%20and%20Synchronization%20Design">5. Partitioning and Synchronization Design</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">5. Partitioning and Synchronization Design</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="6.%20Locking" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#6.%20Locking">6. Locking</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">6. Locking</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="7.%20Data%20Ownership" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#7.%20Data%20Ownership">7. Data Ownership</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">7. Data Ownership</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="8.%20Deferred%20Processing" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#8.%20Deferred%20Processing">8. Deferred Processing</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">8. Deferred Processing</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="9.%20Data%20Structures" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#9.%20Data%20Structures">9. Data Structures</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">9. Data Structures</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="10.%20Validation%20%2F%20Formal%20Verification" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#10.%20Validation%20%2F%20Formal%20Verification">10. Validation / Formal Verification</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">10. Validation / Formal Verification</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="11.%20Advanced%20Synchronization%3A%20Memory%20Ordering" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#11.%20Advanced%20Synchronization%3A%20Memory%20Ordering">11. Advanced Synchronization: Memory Ordering</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">11. Advanced Synchronization: Memory Ordering</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="12.%20Putting%20It%20All%20Together%20%2F%20Advanced%20Topics%20%2F%20Future" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#12.%20Putting%20It%20All%20Together%20%2F%20Advanced%20Topics%20%2F%20Future">12. Putting It All Together / Advanced Topics / Future</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">12. Putting It All Together / Advanced Topics / Future</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">行动：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%80%82%E5%90%88%E4%BB%80%E4%B9%88%E4%BA%BA%E8%AF%BB%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E9%80%82%E5%90%88%E4%BB%80%E4%B9%88%E4%BA%BA%E8%AF%BB%EF%BC%9A">适合什么人读：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">适合什么人读：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%8E%A8%E8%8D%90%E9%98%85%E8%AF%BB%E9%A1%BA%E5%BA%8F%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%8E%A8%E8%8D%90%E9%98%85%E8%AF%BB%E9%A1%BA%E5%BA%8F%EF%BC%9A">推荐阅读顺序：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">推荐阅读顺序：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">金句：</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
+<li>这本书真正教的不是<code>并发技巧</code>，而是把共享内存并行问题，改写成硬件能承受、团队能验证、系统能扩展的工程结构。</li>
+</ol>
+<h2 id="links">links</h2>
+<ol>
+<li><a href="https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook.html">https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook.html</a></li>
+<li><a href="https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook-e2.html">https://mirrors.edge.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook-e2.html</a></li>
+</ol></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9AIs%20Parallel%20Programming%20Hard" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9AIs%20Parallel%20Programming%20Hard">读书笔记：Is Parallel Programming Hard</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读书笔记：Is Parallel Programming Hard</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">行动：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">金句：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
