@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: channel 通道</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Channel%20%E9%80%9A%E9%81%93">Channel 通道</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-02-05</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-03-15</span><a href="#outlinks" class="meta-pill meta-pill-outlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">2 出链</a><a href="#backlinks" class="meta-pill meta-pill-backlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">2 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/series/Inside Go" class="topic-chip topic-chip-series rounded-full border px-2.5 py-0.5 text-xs no-underline">Inside Go</a><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/GO" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">GO</a></div></div>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Go: channel 通道</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Channel%20%E9%80%9A%E9%81%93">Channel 通道</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-02-05</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-03-15</span><a href="#outlinks" class="meta-pill meta-pill-outlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">2 出链</a><a href="#backlinks" class="meta-pill meta-pill-backlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">3 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/series/Inside Go" class="topic-chip topic-chip-series rounded-full border px-2.5 py-0.5 text-xs no-underline">Inside Go</a><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/GO" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">GO</a></div></div>
 <blockquote>
 <p>A channel provides a mechanism for concurrently executing functions to communicate by sending and receiving values of a specified element type.</p>
 <p>通道提供了一种机制：用于在并发执行的函数直接发送/接受特定类型的值。</p>
@@ -34,7 +34,7 @@ print(chan1 == nil) // true">Copy</button></figcaption><pre style="background-co
 ch <- 1
  
 // 2. 接受
-v2    := <-ch
+v2 := <-ch
 x, ok := <-ch
  
 // 3. 关闭
@@ -51,14 +51,14 @@ for v1 := range ch {
  
 // 6. select 操作：用于在多个 channel 的发送/接收操作中选择最先就绪的那个
 select {
-	case <-chan1:
-	case chan2 <- 2:
+case <-chan1:
+case chan2 <- 2:
 }">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// 1. 发送</span></span>
 <span data-line=""><span style="color:#616E88">// SendStmt = Channel "&#x3C;-" Expression .</span></span>
 <span data-line=""><span style="color:#D8DEE9">ch</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#B48EAD"> 1</span></span>
 <span data-line=""> </span>
 <span data-line=""><span style="color:#616E88">// 2. 接受</span></span>
-<span data-line=""><span style="color:#D8DEE9">v2</span><span style="color:#81A1C1">    :=</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">ch</span></span>
+<span data-line=""><span style="color:#D8DEE9">v2</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">ch</span></span>
 <span data-line=""><span style="color:#D8DEE9">x</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> ok</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">ch</span></span>
 <span data-line=""> </span>
 <span data-line=""><span style="color:#616E88">// 3. 关闭</span></span>
@@ -75,8 +75,8 @@ select {
 <span data-line=""> </span>
 <span data-line=""><span style="color:#616E88">// 6. select 操作：用于在多个 channel 的发送/接收操作中选择最先就绪的那个</span></span>
 <span data-line=""><span style="color:#81A1C1">select</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#81A1C1">	case</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">chan1</span><span style="color:#ECEFF4">:</span></span>
-<span data-line=""><span style="color:#81A1C1">	case</span><span style="color:#D8DEE9"> chan2</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#B48EAD"> 2</span><span style="color:#ECEFF4">:</span></span>
+<span data-line=""><span style="color:#81A1C1">case</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">chan1</span><span style="color:#ECEFF4">:</span></span>
+<span data-line=""><span style="color:#81A1C1">case</span><span style="color:#D8DEE9"> chan2</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#B48EAD"> 2</span><span style="color:#ECEFF4">:</span></span>
 <span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
 <p>NOTE:</p>
 <table>
@@ -152,15 +152,15 @@ type hchan struct {
 	elemsize uint16         // chan中的元素大小
 	closed   uint32         // chan是否关闭
 	elemtype *_type         // chan中的元素类型
-	                        // ！用于缓存型chan
-	sendx    uint           // 已经发送的元素在底层循环数组的索引
-	recvx    uint           // 已经接收的元素在底层循环数组的索引
+	// ！用于缓存型chan
+	sendx uint // 已经发送的元素在底层循环数组的索引
+	recvx uint // 已经接收的元素在底层循环数组的索引
  
-	                        // 重点！关联的goroutine
-	recvq    waitq          // 等待接收 的goroutine队列（尝试从channel读取数据而堵塞）
-	sendq    waitq          // 等待发送 的goroutine队列（尝试发送数据至channel而堵塞）
-	
-	lock mutex              // 锁保护hchan的所有字段
+	// 重点！关联的goroutine
+	recvq waitq // 等待接收 的goroutine队列（尝试从channel读取数据而堵塞）
+	sendq waitq // 等待发送 的goroutine队列（尝试发送数据至channel而堵塞）
+ 
+	lock mutex // 锁保护hchan的所有字段
 }
  
 // 2. makechan 源码：分配hchan大小、底层的循环队列(可能无)的大小
@@ -187,7 +187,7 @@ func makechan(t *chantype, size int) *hchan {
 		c.buf = add(unsafe.Pointer(c), hchanSize)
 	// 3.4 有指针，hchan 和 buf 分开分配
 	default:
-		c = new(hchan) 
+		c = new(hchan)
 		c.buf = mallocgc(mem, elem, true) // 2nd 参数不为nil，会被GC扫描(无类型信息就不会扫描)
 	}
  
@@ -204,15 +204,15 @@ func makechan(t *chantype, size int) *hchan {
 <span data-line=""><span style="color:#D8DEE9">	elemsize</span><span style="color:#81A1C1"> uint16</span><span style="color:#616E88">         // chan中的元素大小</span></span>
 <span data-line=""><span style="color:#D8DEE9">	closed</span><span style="color:#81A1C1">   uint32</span><span style="color:#616E88">         // chan是否关闭</span></span>
 <span data-line=""><span style="color:#D8DEE9">	elemtype</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">_type         </span><span style="color:#616E88">// chan中的元素类型</span></span>
-<span data-line=""><span style="color:#616E88">	                        // ！用于缓存型chan</span></span>
-<span data-line=""><span style="color:#D8DEE9">	sendx</span><span style="color:#81A1C1">    uint</span><span style="color:#616E88">           // 已经发送的元素在底层循环数组的索引</span></span>
-<span data-line=""><span style="color:#D8DEE9">	recvx</span><span style="color:#81A1C1">    uint</span><span style="color:#616E88">           // 已经接收的元素在底层循环数组的索引</span></span>
+<span data-line=""><span style="color:#616E88">	// ！用于缓存型chan</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sendx</span><span style="color:#81A1C1"> uint</span><span style="color:#616E88"> // 已经发送的元素在底层循环数组的索引</span></span>
+<span data-line=""><span style="color:#D8DEE9">	recvx</span><span style="color:#81A1C1"> uint</span><span style="color:#616E88"> // 已经接收的元素在底层循环数组的索引</span></span>
 <span data-line=""> </span>
-<span data-line=""><span style="color:#616E88">	                        // 重点！关联的goroutine</span></span>
-<span data-line=""><span style="color:#D8DEE9">	recvq</span><span style="color:#D8DEE9FF">    waitq          </span><span style="color:#616E88">// 等待接收 的goroutine队列（尝试从channel读取数据而堵塞）</span></span>
-<span data-line=""><span style="color:#D8DEE9">	sendq</span><span style="color:#D8DEE9FF">    waitq          </span><span style="color:#616E88">// 等待发送 的goroutine队列（尝试发送数据至channel而堵塞）</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">	</span></span>
-<span data-line=""><span style="color:#D8DEE9">	lock</span><span style="color:#D8DEE9FF"> mutex              </span><span style="color:#616E88">// 锁保护hchan的所有字段</span></span>
+<span data-line=""><span style="color:#616E88">	// 重点！关联的goroutine</span></span>
+<span data-line=""><span style="color:#D8DEE9">	recvq</span><span style="color:#D8DEE9FF"> waitq </span><span style="color:#616E88">// 等待接收 的goroutine队列（尝试从channel读取数据而堵塞）</span></span>
+<span data-line=""><span style="color:#D8DEE9">	sendq</span><span style="color:#D8DEE9FF"> waitq </span><span style="color:#616E88">// 等待发送 的goroutine队列（尝试发送数据至channel而堵塞）</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#D8DEE9">	lock</span><span style="color:#D8DEE9FF"> mutex </span><span style="color:#616E88">// 锁保护hchan的所有字段</span></span>
 <span data-line=""><span style="color:#ECEFF4">}</span></span>
 <span data-line=""> </span>
 <span data-line=""><span style="color:#616E88">// 2. makechan 源码：分配hchan大小、底层的循环队列(可能无)的大小</span></span>
@@ -239,7 +239,7 @@ func makechan(t *chantype, size int) *hchan {
 <span data-line=""><span style="color:#D8DEE9">		c</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">buf</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> add</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Pointer</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">c</span><span style="color:#ECEFF4">),</span><span style="color:#D8DEE9"> hchanSize</span><span style="color:#ECEFF4">)</span></span>
 <span data-line=""><span style="color:#616E88">	// 3.4 有指针，hchan 和 buf 分开分配</span></span>
 <span data-line=""><span style="color:#81A1C1">	default</span><span style="color:#ECEFF4">:</span></span>
-<span data-line=""><span style="color:#D8DEE9">		c</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> new</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">hchan</span><span style="color:#ECEFF4">)</span><span style="color:#D8DEE9FF"> </span></span>
+<span data-line=""><span style="color:#D8DEE9">		c</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> new</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">hchan</span><span style="color:#ECEFF4">)</span></span>
 <span data-line=""><span style="color:#D8DEE9">		c</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">buf</span><span style="color:#81A1C1"> =</span><span style="color:#88C0D0"> mallocgc</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">mem</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> elem</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> true</span><span style="color:#ECEFF4">)</span><span style="color:#616E88"> // 2nd 参数不为nil，会被GC扫描(无类型信息就不会扫描)</span></span>
 <span data-line=""><span style="color:#ECEFF4">	}</span></span>
 <span data-line=""> </span>
@@ -414,7 +414,7 @@ ch <- 1">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:
 	gp.waiting = mysg
 	gp.param = nil
 	// 5.2 入 chan 的阻塞写队列
-	c.sendq.enqueue(mysg) 
+	c.sendq.enqueue(mysg)
 	// 5.3 阻塞当前g，挂起
 	reason := waitReasonChanSend
 	gopark(chanparkcommit, unsafe.Pointer(&#x26;c.lock), reason, traceBlockChanSend, 2)
@@ -426,7 +426,7 @@ ch <- 1">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:
 	gp.activeStackChans = false
 	closed := !mysg.success // 发送未成功，表示chan被关了
 	gp.param = nil
-	mysg.c.set(nil) // 值被消费掉了
+	mysg.c.set(nil)    // 值被消费掉了
 	releaseSudog(mysg) // 释放伪g
 	if closed {
 		panic(plainError(&#x22;send on closed channel&#x22;))
@@ -487,7 +487,7 @@ ch <- 1">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:
 <span data-line=""><span style="color:#D8DEE9">	gp</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">waiting</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> mysg</span></span>
 <span data-line=""><span style="color:#D8DEE9">	gp</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">param</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> nil</span></span>
 <span data-line=""><span style="color:#616E88">	// 5.2 入 chan 的阻塞写队列</span></span>
-<span data-line=""><span style="color:#D8DEE9">	c</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">sendq</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">enqueue</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">mysg</span><span style="color:#ECEFF4">)</span><span style="color:#D8DEE9FF"> </span></span>
+<span data-line=""><span style="color:#D8DEE9">	c</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">sendq</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">enqueue</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">mysg</span><span style="color:#ECEFF4">)</span></span>
 <span data-line=""><span style="color:#616E88">	// 5.3 阻塞当前g，挂起</span></span>
 <span data-line=""><span style="color:#D8DEE9">	reason</span><span style="color:#81A1C1"> :=</span><span style="color:#D8DEE9"> waitReasonChanSend</span></span>
 <span data-line=""><span style="color:#88C0D0">	gopark</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">chanparkcommit</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> unsafe</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Pointer</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">&#x26;</span><span style="color:#D8DEE9">c</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">lock</span><span style="color:#ECEFF4">),</span><span style="color:#D8DEE9"> reason</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> traceBlockChanSend</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 2</span><span style="color:#ECEFF4">)</span></span>
@@ -499,7 +499,7 @@ ch <- 1">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:
 <span data-line=""><span style="color:#D8DEE9">	gp</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">activeStackChans</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> false</span></span>
 <span data-line=""><span style="color:#D8DEE9">	closed</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> !</span><span style="color:#D8DEE9">mysg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">success</span><span style="color:#616E88"> // 发送未成功，表示chan被关了</span></span>
 <span data-line=""><span style="color:#D8DEE9">	gp</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">param</span><span style="color:#81A1C1"> =</span><span style="color:#81A1C1"> nil</span></span>
-<span data-line=""><span style="color:#D8DEE9">	mysg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">c</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">set</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">nil</span><span style="color:#ECEFF4">)</span><span style="color:#616E88"> // 值被消费掉了</span></span>
+<span data-line=""><span style="color:#D8DEE9">	mysg</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9">c</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">set</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">nil</span><span style="color:#ECEFF4">)</span><span style="color:#616E88">    // 值被消费掉了</span></span>
 <span data-line=""><span style="color:#88C0D0">	releaseSudog</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">mysg</span><span style="color:#ECEFF4">)</span><span style="color:#616E88"> // 释放伪g</span></span>
 <span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#D8DEE9"> closed</span><span style="color:#ECEFF4"> {</span></span>
 <span data-line=""><span style="color:#88C0D0">		panic</span><span style="color:#ECEFF4">(</span><span style="color:#88C0D0">plainError</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">send on closed channel</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">))</span></span>
@@ -517,12 +517,12 @@ ch <- 1">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:
 <p>NOTE: 发送到nil的chan，挂起（select则不挂起）；发送到closed的chan，panic（select的也panic）</p>
 <h4 id="%E6%8E%A5%E6%94%B6">接收</h4>
 <figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="ch := make(chan int)
-val := <- ch
+val := <-ch
 // 或者
-val, ok := <- ch">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9">ch</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> make</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">chan</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#D8DEE9">val</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9"> ch</span></span>
+val, ok := <-ch">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9">ch</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> make</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">chan</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#D8DEE9">val</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">ch</span></span>
 <span data-line=""><span style="color:#616E88">// 或者</span></span>
-<span data-line=""><span style="color:#D8DEE9">val</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> ok</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9"> ch</span></span></code></pre></figure>
+<span data-line=""><span style="color:#D8DEE9">val</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> ok</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">ch</span></span></code></pre></figure>
 <p>分是否带ok两种，查看汇编，可知往chan发送数据的函数是<code>runtime.chanrecv1</code>或<code>runtime.chanrecv2</code>，最终还是调用<code>runtime.chanrecv</code></p>
 <p>查看chanrecv源码</p>
 <figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="func chanrecv(c *hchan, ep unsafe.Pointer, block bool) (selected, received bool) {
@@ -541,7 +541,6 @@ val, ok := <- ch">Copy</button></figcaption><pre style="background-color:#2e3440
 		gopark(nil, nil, waitReasonChanReceiveNilChan, traceBlockForever, 2)
 		throw(&#x22;unreachable&#x22;)
 	}
- 
  
 	// 2. 快速路径（不阻塞，且为空）：
 	if !block &#x26;&#x26; empty(c) {
@@ -646,7 +645,6 @@ val, ok := <- ch">Copy</button></figcaption><pre style="background-color:#2e3440
 <span data-line=""><span style="color:#88C0D0">		gopark</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">nil</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> nil</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> waitReasonChanReceiveNilChan</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> traceBlockForever</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 2</span><span style="color:#ECEFF4">)</span></span>
 <span data-line=""><span style="color:#88C0D0">		throw</span><span style="color:#ECEFF4">(</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">unreachable</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4">)</span></span>
 <span data-line=""><span style="color:#ECEFF4">	}</span></span>
-<span data-line=""> </span>
 <span data-line=""> </span>
 <span data-line=""><span style="color:#616E88">	// 2. 快速路径（不阻塞，且为空）：</span></span>
 <span data-line=""><span style="color:#81A1C1">	if</span><span style="color:#81A1C1"> !</span><span style="color:#D8DEE9">block</span><span style="color:#81A1C1"> &#x26;&#x26;</span><span style="color:#88C0D0"> empty</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">c</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
@@ -761,108 +759,108 @@ done := make(chan struct{})，先完成的 goroutine 里 close(done)，其他 go
 <p>把 channel 看作数据流，提供 map、filter、take 等操作。</p>
 <figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 254.5 225"><path fill="#00acd7" d="M-46.926 89c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777h55.448c.621 0 .777.466.466.932l-2.64 4.038a2.37 2.37 0 0 1-1.553.932Zm-23.453 14.285c-.621 0-.777-.311-.466-.777l3.262-4.194a2.23 2.23 0 0 1 1.708-.777H4.95a.714.714 0 0 1 .777.932L4.484 102.2a1.36 1.36 0 0 1-1.4.932Zm37.587 14.289c-.621 0-.777-.466-.466-.932l2.174-3.883a2.06 2.06 0 0 1 1.553-.932H1.533c.621 0 .932.466.932 1.087l-.311 3.728a1.17 1.17 0 0 1-1.087 1.087ZM128.426 86.2c-9.785 2.485-16.464 4.349-26.093 6.834c-2.33.621-2.485.777-4.5-1.553c-2.33-2.64-4.038-4.349-7.3-5.9c-9.785-4.815-19.259-3.417-28.112 2.33c-10.561 6.834-16 16.929-15.842 29.51c.155 12.425 8.7 22.676 20.968 24.385c10.561 1.4 19.414-2.33 26.4-10.251c1.4-1.708 2.64-3.572 4.194-5.747H68.163c-3.262 0-4.038-2.019-2.951-4.659c2.019-4.815 5.747-12.891 7.921-16.929a4.19 4.19 0 0 1 3.883-2.485h56.535c-.311 4.194-.311 8.387-.932 12.581a66.24 66.24 0 0 1-12.736 30.442c-11.183 14.752-25.783 23.915-44.265 26.4c-15.221 2.019-29.355-.932-41.78-10.251a48.8 48.8 0 0 1-19.725-34.48c-2.019-16.929 2.951-32.15 13.2-45.508C38.342 66.475 52.942 57.312 70.8 54.05c14.6-2.64 28.578-.932 41.159 7.61a48.7 48.7 0 0 1 18.017 21.9c.935 1.398.313 2.175-1.55 2.64"/><path fill="#00acd7" d="M179.835 172.09c-14.134-.311-27.025-4.349-37.9-13.668a48.7 48.7 0 0 1-16.774-29.976c-2.8-17.551 2.019-33.082 12.581-46.905c11.338-14.91 25.006-22.676 43.488-25.938c15.842-2.8 30.753-1.243 44.265 7.921c12.27 8.387 19.88 19.725 21.9 34.635c2.64 20.968-3.417 38.052-17.861 52.652a71.17 71.17 0 0 1-37.276 19.88c-4.191.778-8.384.933-12.423 1.399m36.965-62.747a45 45 0 0 0-.466-5.125c-2.8-15.376-16.929-24.074-31.684-20.657c-14.444 3.262-23.763 12.425-27.18 27.025a25.58 25.58 0 0 0 14.289 29.355c8.542 3.728 17.085 3.262 25.317-.932c12.269-6.369 18.948-16.309 19.724-29.666"/></svg>go</span><button type="button" class="code-copy-button" data-code="// take：只取前 n 个元素
 func take(ctx context.Context, in <-chan int, n int) <-chan int {
-    out := make(chan int)
-    go func() {
-        defer close(out)
-        for i := 0; i < n; i++ {
-            select {
-            case val, ok := <-in:
-                if !ok {
-                    return
-                }
-                out <- val
-            case <-ctx.Done():
-                return
-            }
-        }
-    }()
-    return out
+	out := make(chan int)
+	go func() {
+		defer close(out)
+		for i := 0; i < n; i++ {
+			select {
+			case val, ok := <-in:
+				if !ok {
+					return
+				}
+				out <- val
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+	return out
 }
  
 // map：映射转换
 func streamMap(ctx context.Context, in <-chan int, f func(int) int) <-chan int {
-    out := make(chan int)
-    go func() {
-        defer close(out)
-        for val := range in {
-            select {
-            case out <- f(val):
-            case <-ctx.Done():
-                return
-            }
-        }
-    }()
-    return out
+	out := make(chan int)
+	go func() {
+		defer close(out)
+		for val := range in {
+			select {
+			case out <- f(val):
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
+	return out
 }
  
 // filter：过滤
 func filter(ctx context.Context, in <-chan int, f func(int) bool) <-chan int {
-    out := make(chan int)
-    go func() {
-        defer close(out)
-        for val := range in {
-            if f(val) {
-                select {
-                case out <- val:
-                case <-ctx.Done():
-                    return
-                }
-            }
-        }
-    }()
-    return out
+	out := make(chan int)
+	go func() {
+		defer close(out)
+		for val := range in {
+			if f(val) {
+				select {
+				case out <- val:
+				case <-ctx.Done():
+					return
+				}
+			}
+		}
+	}()
+	return out
 }">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="go" data-theme="nord"><code data-language="go" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#616E88">// take：只取前 n 个元素</span></span>
 <span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> take</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">ctx</span><span style="color:#D8DEE9FF"> context</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Context</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> in</span><span style="color:#81A1C1"> &#x3C;-chan</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> n</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> &#x3C;-chan</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#D8DEE9">    out</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> make</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">chan</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#81A1C1">    go</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#81A1C1">        defer</span><span style="color:#88C0D0"> close</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">out</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#81A1C1">        for</span><span style="color:#D8DEE9"> i</span><span style="color:#81A1C1"> :=</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9"> i</span><span style="color:#81A1C1"> &#x3C;</span><span style="color:#D8DEE9"> n</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9"> i</span><span style="color:#81A1C1">++</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#81A1C1">            select</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#81A1C1">            case</span><span style="color:#D8DEE9"> val</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> ok</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">in</span><span style="color:#ECEFF4">:</span></span>
-<span data-line=""><span style="color:#81A1C1">                if</span><span style="color:#81A1C1"> !</span><span style="color:#D8DEE9">ok</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#81A1C1">                    return</span></span>
-<span data-line=""><span style="color:#ECEFF4">                }</span></span>
-<span data-line=""><span style="color:#D8DEE9">                out</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9"> val</span></span>
-<span data-line=""><span style="color:#81A1C1">            case</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">ctx</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Done</span><span style="color:#ECEFF4">():</span></span>
-<span data-line=""><span style="color:#81A1C1">                return</span></span>
-<span data-line=""><span style="color:#ECEFF4">            }</span></span>
-<span data-line=""><span style="color:#ECEFF4">        }</span></span>
-<span data-line=""><span style="color:#ECEFF4">    }()</span></span>
-<span data-line=""><span style="color:#81A1C1">    return</span><span style="color:#D8DEE9"> out</span></span>
+<span data-line=""><span style="color:#D8DEE9">	out</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> make</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">chan</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">	go</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">		defer</span><span style="color:#88C0D0"> close</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">out</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">		for</span><span style="color:#D8DEE9"> i</span><span style="color:#81A1C1"> :=</span><span style="color:#B48EAD"> 0</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9"> i</span><span style="color:#81A1C1"> &#x3C;</span><span style="color:#D8DEE9"> n</span><span style="color:#81A1C1">;</span><span style="color:#D8DEE9"> i</span><span style="color:#81A1C1">++</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">			select</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">			case</span><span style="color:#D8DEE9"> val</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> ok</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">in</span><span style="color:#ECEFF4">:</span></span>
+<span data-line=""><span style="color:#81A1C1">				if</span><span style="color:#81A1C1"> !</span><span style="color:#D8DEE9">ok</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">					return</span></span>
+<span data-line=""><span style="color:#ECEFF4">				}</span></span>
+<span data-line=""><span style="color:#D8DEE9">				out</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9"> val</span></span>
+<span data-line=""><span style="color:#81A1C1">			case</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">ctx</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Done</span><span style="color:#ECEFF4">():</span></span>
+<span data-line=""><span style="color:#81A1C1">				return</span></span>
+<span data-line=""><span style="color:#ECEFF4">			}</span></span>
+<span data-line=""><span style="color:#ECEFF4">		}</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}()</span></span>
+<span data-line=""><span style="color:#81A1C1">	return</span><span style="color:#D8DEE9"> out</span></span>
 <span data-line=""><span style="color:#ECEFF4">}</span></span>
 <span data-line=""> </span>
 <span data-line=""><span style="color:#616E88">// map：映射转换</span></span>
 <span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> streamMap</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">ctx</span><span style="color:#D8DEE9FF"> context</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Context</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> in</span><span style="color:#81A1C1"> &#x3C;-chan</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> f</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">int</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> &#x3C;-chan</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#D8DEE9">    out</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> make</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">chan</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#81A1C1">    go</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#81A1C1">        defer</span><span style="color:#88C0D0"> close</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">out</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#81A1C1">        for</span><span style="color:#D8DEE9"> val</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> range</span><span style="color:#D8DEE9"> in</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#81A1C1">            select</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#81A1C1">            case</span><span style="color:#D8DEE9"> out</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#88C0D0"> f</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">val</span><span style="color:#ECEFF4">):</span></span>
-<span data-line=""><span style="color:#81A1C1">            case</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">ctx</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Done</span><span style="color:#ECEFF4">():</span></span>
-<span data-line=""><span style="color:#81A1C1">                return</span></span>
-<span data-line=""><span style="color:#ECEFF4">            }</span></span>
-<span data-line=""><span style="color:#ECEFF4">        }</span></span>
-<span data-line=""><span style="color:#ECEFF4">    }()</span></span>
-<span data-line=""><span style="color:#81A1C1">    return</span><span style="color:#D8DEE9"> out</span></span>
+<span data-line=""><span style="color:#D8DEE9">	out</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> make</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">chan</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">	go</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">		defer</span><span style="color:#88C0D0"> close</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">out</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">		for</span><span style="color:#D8DEE9"> val</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> range</span><span style="color:#D8DEE9"> in</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">			select</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">			case</span><span style="color:#D8DEE9"> out</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#88C0D0"> f</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">val</span><span style="color:#ECEFF4">):</span></span>
+<span data-line=""><span style="color:#81A1C1">			case</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">ctx</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Done</span><span style="color:#ECEFF4">():</span></span>
+<span data-line=""><span style="color:#81A1C1">				return</span></span>
+<span data-line=""><span style="color:#ECEFF4">			}</span></span>
+<span data-line=""><span style="color:#ECEFF4">		}</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}()</span></span>
+<span data-line=""><span style="color:#81A1C1">	return</span><span style="color:#D8DEE9"> out</span></span>
 <span data-line=""><span style="color:#ECEFF4">}</span></span>
 <span data-line=""> </span>
 <span data-line=""><span style="color:#616E88">// filter：过滤</span></span>
 <span data-line=""><span style="color:#81A1C1">func</span><span style="color:#88C0D0"> filter</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">ctx</span><span style="color:#D8DEE9FF"> context</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">Context</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> in</span><span style="color:#81A1C1"> &#x3C;-chan</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> f</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">int</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> bool</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> &#x3C;-chan</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#D8DEE9">    out</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> make</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">chan</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#81A1C1">    go</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#81A1C1">        defer</span><span style="color:#88C0D0"> close</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">out</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#81A1C1">        for</span><span style="color:#D8DEE9"> val</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> range</span><span style="color:#D8DEE9"> in</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#81A1C1">            if</span><span style="color:#88C0D0"> f</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">val</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#81A1C1">                select</span><span style="color:#ECEFF4"> {</span></span>
-<span data-line=""><span style="color:#81A1C1">                case</span><span style="color:#D8DEE9"> out</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9"> val</span><span style="color:#ECEFF4">:</span></span>
-<span data-line=""><span style="color:#81A1C1">                case</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">ctx</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Done</span><span style="color:#ECEFF4">():</span></span>
-<span data-line=""><span style="color:#81A1C1">                    return</span></span>
-<span data-line=""><span style="color:#ECEFF4">                }</span></span>
-<span data-line=""><span style="color:#ECEFF4">            }</span></span>
-<span data-line=""><span style="color:#ECEFF4">        }</span></span>
-<span data-line=""><span style="color:#ECEFF4">    }()</span></span>
-<span data-line=""><span style="color:#81A1C1">    return</span><span style="color:#D8DEE9"> out</span></span>
+<span data-line=""><span style="color:#D8DEE9">	out</span><span style="color:#81A1C1"> :=</span><span style="color:#88C0D0"> make</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">chan</span><span style="color:#81A1C1"> int</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">	go</span><span style="color:#81A1C1"> func</span><span style="color:#ECEFF4">()</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">		defer</span><span style="color:#88C0D0"> close</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">out</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">		for</span><span style="color:#D8DEE9"> val</span><span style="color:#81A1C1"> :=</span><span style="color:#81A1C1"> range</span><span style="color:#D8DEE9"> in</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">			if</span><span style="color:#88C0D0"> f</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9">val</span><span style="color:#ECEFF4">)</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">				select</span><span style="color:#ECEFF4"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">				case</span><span style="color:#D8DEE9"> out</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9"> val</span><span style="color:#ECEFF4">:</span></span>
+<span data-line=""><span style="color:#81A1C1">				case</span><span style="color:#81A1C1"> &#x3C;-</span><span style="color:#D8DEE9">ctx</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">Done</span><span style="color:#ECEFF4">():</span></span>
+<span data-line=""><span style="color:#81A1C1">					return</span></span>
+<span data-line=""><span style="color:#ECEFF4">				}</span></span>
+<span data-line=""><span style="color:#ECEFF4">			}</span></span>
+<span data-line=""><span style="color:#ECEFF4">		}</span></span>
+<span data-line=""><span style="color:#ECEFF4">	}()</span></span>
+<span data-line=""><span style="color:#81A1C1">	return</span><span style="color:#D8DEE9"> out</span></span>
 <span data-line=""><span style="color:#ECEFF4">}</span></span></code></pre></figure>
 <h2 id="%E6%80%9D%E8%80%83">思考</h2>
 <p>Do not communicate by sharing memory; instead, share memory by communicating.
@@ -887,4 +885,4 @@ sharing memory是分享一块内存的信息；
 <li><a href="https://dave.cheney.net/2014/03/19/channel-axioms">Channel Axioms</a></li>
 <li><a href="https://go.dev/blog/pipelines">Go Concurrency Patterns: Pipelines and cancellation</a></li>
 <li><a href="https://www.youtube.com/watch?v=KBZlN0izeiY">https://www.youtube.com/watch?v=KBZlN0izeiY</a></li>
-</ol></article><aside id="outlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">引用了 2 篇笔记</h2><ul class="space-y-2"><li><a href="/notes/1770786730-PFOI" class="note-link underline-offset-4 hover:underline">Go: goroutine 协程</a></li><li><a href="/notes/1770295838-RTOD" class="note-link underline-offset-4 hover:underline">Go: compile 编译器</a></li></ul></aside><aside id="backlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">被 2 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1773500934-CYOX" class="note-link underline-offset-4 hover:underline">Go: concurrency pattern</a></li><li><a href="/notes/1651114405-FDOD" class="note-link underline-offset-4 hover:underline">Go: 标准库 sync</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="Channel%20%E9%80%9A%E9%81%93" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Channel%20%E9%80%9A%E9%81%93">Channel 通道</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Channel 通道</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%88%9B%E5%BB%BA" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%88%9B%E5%BB%BA">创建</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">创建</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C">相关操作</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">相关操作</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="select%20%E6%93%8D%E4%BD%9C" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#select%20%E6%93%8D%E4%BD%9C">select 操作</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">select 操作</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Inside%20Chan" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Inside%20Chan">Inside Chan</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Inside Chan</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%88%9B%E5%BB%BA" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%88%9B%E5%BB%BA">创建</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">创建</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%85%B3%E9%97%AD" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%85%B3%E9%97%AD">关闭</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">关闭</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%8F%91%E9%80%81%2F%E6%8E%A5%E5%8F%97" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8F%91%E9%80%81%2F%E6%8E%A5%E5%8F%97">发送/接受</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">发送/接受</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Patterns" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Patterns">Patterns</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Patterns</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20Or-Done%20%E6%A8%A1%E5%BC%8F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#1.%20Or-Done%20%E6%A8%A1%E5%BC%8F">1. Or-Done 模式</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">1. Or-Done 模式</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E6%89%87%E5%85%A5%E6%A8%A1%E5%BC%8F%20(Fan-In)" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#2.%20%E6%89%87%E5%85%A5%E6%A8%A1%E5%BC%8F%20(Fan-In)">2. 扇入模式 (Fan-In)</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">2. 扇入模式 (Fan-In)</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="3.%20%E6%89%87%E5%87%BA%E6%A8%A1%E5%BC%8F%20(Fan-Out)" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#3.%20%E6%89%87%E5%87%BA%E6%A8%A1%E5%BC%8F%20(Fan-Out)">3. 扇出模式 (Fan-Out)</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">3. 扇出模式 (Fan-Out)</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="4.%20Stream%20%E6%A8%A1%E5%BC%8F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#4.%20Stream%20%E6%A8%A1%E5%BC%8F">4. Stream 模式</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">4. Stream 模式</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%80%9D%E8%80%83" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%80%9D%E8%80%83">思考</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">思考</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
+</ol></article><aside id="outlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">引用了 2 篇笔记</h2><ul class="space-y-2"><li><a href="/notes/1770786730-PFOI" class="note-link underline-offset-4 hover:underline">Go: goroutine 协程</a></li><li><a href="/notes/1770295838-RTOD" class="note-link underline-offset-4 hover:underline">Go: compile 编译器</a></li></ul></aside><aside id="backlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">被 3 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1773500934-CYOX" class="note-link underline-offset-4 hover:underline">Go: concurrency pattern</a></li><li><a href="/notes/1679411116-OOTT" class="note-link underline-offset-4 hover:underline">Go: runtime</a></li><li><a href="/notes/1651114405-FDOD" class="note-link underline-offset-4 hover:underline">Go: 标准库 sync</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="Channel%20%E9%80%9A%E9%81%93" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Channel%20%E9%80%9A%E9%81%93">Channel 通道</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Channel 通道</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%88%9B%E5%BB%BA" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%88%9B%E5%BB%BA">创建</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">创建</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%9B%B8%E5%85%B3%E6%93%8D%E4%BD%9C">相关操作</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">相关操作</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="select%20%E6%93%8D%E4%BD%9C" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#select%20%E6%93%8D%E4%BD%9C">select 操作</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">select 操作</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Inside%20Chan" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Inside%20Chan">Inside Chan</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Inside Chan</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%88%9B%E5%BB%BA" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%88%9B%E5%BB%BA">创建</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">创建</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%85%B3%E9%97%AD" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%85%B3%E9%97%AD">关闭</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">关闭</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%8F%91%E9%80%81%2F%E6%8E%A5%E5%8F%97" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8F%91%E9%80%81%2F%E6%8E%A5%E5%8F%97">发送/接受</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">发送/接受</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Patterns" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Patterns">Patterns</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Patterns</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20Or-Done%20%E6%A8%A1%E5%BC%8F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#1.%20Or-Done%20%E6%A8%A1%E5%BC%8F">1. Or-Done 模式</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">1. Or-Done 模式</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E6%89%87%E5%85%A5%E6%A8%A1%E5%BC%8F%20(Fan-In)" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#2.%20%E6%89%87%E5%85%A5%E6%A8%A1%E5%BC%8F%20(Fan-In)">2. 扇入模式 (Fan-In)</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">2. 扇入模式 (Fan-In)</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="3.%20%E6%89%87%E5%87%BA%E6%A8%A1%E5%BC%8F%20(Fan-Out)" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#3.%20%E6%89%87%E5%87%BA%E6%A8%A1%E5%BC%8F%20(Fan-Out)">3. 扇出模式 (Fan-Out)</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">3. 扇出模式 (Fan-Out)</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="4.%20Stream%20%E6%A8%A1%E5%BC%8F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#4.%20Stream%20%E6%A8%A1%E5%BC%8F">4. Stream 模式</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">4. Stream 模式</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%80%9D%E8%80%83" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%80%9D%E8%80%83">思考</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">思考</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
