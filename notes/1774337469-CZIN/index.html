@@ -1,7 +1,6 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>WebAPI设计</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9AWebAPI%E8%AE%BE%E8%AE%A1">读书笔记：WebAPI设计</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-03-24</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-28</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BN</a></div></div>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读书笔记：WebAPI设计</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9AWebAPI%E8%AE%BE%E8%AE%A1">读书笔记：WebAPI设计</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-03-24</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-28</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BN</a><a href="/tags/Api" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">Api</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">The Design of Web APIs</p>
 <blockquote>
-<p>The Design of Web APIs
-<a href="https://book.douban.com/subject/34847654">https://book.douban.com/subject/34847654</a></p>
+<p><a href="https://book.douban.com/subject/34847654">https://book.douban.com/subject/34847654</a></p>
 </blockquote>
 <ul>
 <li>是什么（What）— Web API 设计的本质是以消费者为中心的产品思维，在业务目标与技术约束中创造易用的"开发者产品"</li>
@@ -10,12 +9,12 @@
 </ul>
 <h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
 <blockquote>
-<p>API 设计的本质是<strong>以消费者为中心（consumer-first）</strong>，在业务目标与技术约束之间取得平衡，创造出让开发者乐于使用的"产品"。</p>
+<p>API 设计的本质是以消费者为中心（consumer-first），在业务目标与技术约束之间取得平衡，创造出让开发者乐于使用的"产品"。</p>
 </blockquote>
 <ul>
-<li><strong>API 是产品，不仅仅是接口</strong>：API 暴露的是能力（capabilities），而非内部实现。设计时应从"消费者能用它做什么"出发，而不是从"系统内部长什么样"出发</li>
-<li><strong>设计先于编码（Design-first）</strong>：用 API Capabilities Canvas 识别用例、参与方与目标，在写第一行代码之前就完成设计</li>
-<li><strong>用户友好性四层递进</strong>：
+<li>API 是产品，不仅仅是接口：API 暴露的是能力（capabilities），而非内部实现。设计时应从"消费者能用它做什么"出发，而不是从"系统内部长什么样"出发</li>
+<li>设计先于编码（Design-first）：用 API Capabilities Canvas 识别用例、参与方与目标，在写第一行代码之前就完成设计</li>
+<li>用户友好性四层递进：
 <ol>
 <li>可用（does the job）—— 满足功能需求</li>
 <li>易用（user-friendly）—— 命名一致、操作语义清晰、数据流自然</li>
@@ -23,16 +22,16 @@
 <li>高效（efficient）—— 缓存、分页、批量操作、压缩</li>
 </ol>
 </li>
-<li><strong>可互操作性（interoperability）</strong>：REST/OpenAPI 是基线，但思维方式同样适用于 GraphQL、gRPC 等范式</li>
-<li><strong>演进与版本策略</strong>：修改 API 前必须评估破坏性后果（breaking change analysis），善用语义化版本和弃用策略来 future-proof</li>
+<li>可互操作性（interoperability）：REST/OpenAPI 是基线，但思维方式同样适用于 GraphQL、gRPC 等范式</li>
+<li>演进与版本策略：修改 API 前必须评估破坏性后果（breaking change analysis），善用语义化版本和弃用策略来 future-proof</li>
 </ul>
 <h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
 <ol>
-<li><strong>任何 API 都需要设计</strong>——即使是"只有自己用的私有 BFF API"，不设计就会后悔（作者原话："Even if it's just a private API, you need to think about it because if you don't, you will deeply regret it later."）</li>
-<li><strong>API Capabilities Canvas</strong> 是需求分析的实用工具：识别参与方（who）、用例（what）、操作（how），从用户视角穷举能力，避免遗漏</li>
-<li><strong>从 REST 角度观察操作（Observing operations from the REST angle）</strong>：将业务操作映射为资源 + HTTP 动词，而不是直接暴露函数调用</li>
-<li><strong>用 OpenAPI + JSON Schema 描述 API 是一种沟通工具</strong>——不仅用于生成文档，更是团队对齐设计意图的契约</li>
-<li><strong>非破坏性修改是一门艺术</strong>：添加可选字段、扩展枚举值通常安全；删除字段、改变语义总是危险的</li>
+<li>任何 API 都需要设计——即使是"只有自己用的私有 BFF API"，不设计就会后悔（作者原话："Even if it's just a private API, you need to think about it because if you don't, you will deeply regret it later."）</li>
+<li>API Capabilities Canvas 是需求分析的实用工具：识别参与方（who）、用例（what）、操作（how），从用户视角穷举能力，避免遗漏</li>
+<li>从 REST 角度观察操作（Observing operations from the REST angle）：将业务操作映射为资源 + HTTP 动词，而不是直接暴露函数调用</li>
+<li>用 OpenAPI + JSON Schema 描述 API 是一种沟通工具——不仅用于生成文档，更是团队对齐设计意图的契约</li>
+<li>非破坏性修改是一门艺术：添加可选字段、扩展枚举值通常安全；删除字段、改变语义总是危险的</li>
 </ol>
 <h2 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h2>
 <ol>
