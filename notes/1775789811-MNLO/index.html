@@ -1,4 +1,4 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>b-tree</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="B-tree">B-tree</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-04-10</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-04-10</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a></div></div>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>b-tree</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="B-tree">B-tree</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-04-10</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-29</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/Data-Structure" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">Data-Structure</a></div></div>
 <h2 id="S%20-%20%E5%9C%BA%E6%99%AF">S - 场景</h2>
 <p><strong>需要频繁随机读取且支持范围查询</strong>的场景：</p>
 <ul>
@@ -124,13 +124,13 @@
 <pre><code>search(key, node):
   # 在节点中找到 >= key 的第一个 key
   i = binary_search(node.keys, key)
-  
+
   if key 在 node.keys 中:
     return node.data[i]  # 找到
-  
+
   if node 是叶子:
     return NOT_FOUND     # 不存在
-  
+
   return search(key, node.children[i])  # 递归搜索
 </code></pre>
 <p><strong>时间复杂度</strong>：O(log n)</p>
@@ -143,16 +143,16 @@
 <pre><code>insert(key, value):
   # 1. 找到叶子节点
   leaf = find_leaf(key)
-  
+
   # 2. 在叶子插入 key-value
   leaf.insert(key, value)
-  
+
   # 3. 如果叶子过满（超过 m-1 个 key）
   if leaf.is_full():
     # 3a. 分裂：取中间 key 上升
     mid_key = leaf.keys[m/2]
     left, right = leaf.split()
-    
+
     # 3b. 递归处理父节点
     parent.insert(mid_key)
     if parent.is_full():
@@ -162,7 +162,7 @@
 <pre><code>Before (过满):       [10, 20, 30]
                         │
                         ↓ split
-                        
+
 After:              [20]           (上升到父节点)
                    /  \
             [10]  [30]  (分成两个节点)
@@ -176,7 +176,7 @@ After:              [20]           (上升到父节点)
 <pre><code>delete(key):
   # 1. 找到包含 key 的节点
   node = search_node(key)
-  
+
   if node 是叶子:
     node.remove(key)
   else:
@@ -184,7 +184,7 @@ After:              [20]           (上升到父节点)
     predecessor = get_predecessor(key)
     node.replace(key, predecessor)
     delete(predecessor)
-  
+
   # 2. 如果节点过空（&#x3C; ⌈m/2⌉ 个 key）
   if node.underflow():
     # 尝试从兄弟节点借
@@ -200,7 +200,7 @@ After:              [20]           (上升到父节点)
             [10]  []  [30]    [35]  [50]
                 │
                 └─ 与兄弟合并，从父节点借 key
-                
+
 After:            [20, 40]
                  /   |   \
             [10] [30,35] [50]
@@ -252,7 +252,7 @@ After:            [20, 40]
 B-tree (m=100, 内部节点存 99 个 key)：
   树高：h ≈ log₁₀₀(10^7) ≈ 3-4 层
   最坏情况只需 3-4 次磁盘 I/O
-  
+
 性能差异：
   ├─ 二叉树：24 次 I/O × 10ms/IO = 240ms
   └─ B-tree：3 次 I/O × 10ms/IO = 30ms
@@ -296,15 +296,15 @@ B-tree (m=100, 内部节点存 99 个 key)：
 <pre><code>结构：
   聚集索引：主键 + 完整行数据
   辅助索引：索引键 + 主键引用
-  
+
   Clustered Index (按主键):
     内部节点：[key1] [key2] [key3]
     叶子节点：[pk1, data1] [pk2, data2] ...
-    
+
   Secondary Index (非主键索引):
     内部节点：[key1] [key2]
     叶子节点：[key1, pk1] [key2, pk2] ...
-    
+
 查询流程：
   SELECT * FROM users WHERE name = 'Alice'
     ├─ 在 name 索引上二分查找
@@ -382,22 +382,22 @@ B-tree (m=100, 内部节点存 99 个 key)：
     def __init__(self, order=3):
         self.order = order  # m
         self.root = BNode(order)
-    
+ 
     def search(self, key):
         return self._search_node(self.root, key)
-    
+ 
     def _search_node(self, node, key):
         # 二分查找找到 >= key 的位置
         idx = bisect.bisect_left(node.keys, key)
-        
+ 
         if idx < len(node.keys) and node.keys[idx] == key:
             return node.data[idx]  # 找到
-        
+ 
         if node.is_leaf:
             return None  # 叶子中未找到
-        
+ 
         return self._search_node(node.children[idx], key)
-    
+ 
     def insert(self, key, value):
         if self.root.is_full():
             # 根满了，需要创建新根
@@ -405,12 +405,12 @@ B-tree (m=100, 内部节点存 99 个 key)：
             self.root = BNode(self.order)
             self.root.children.append(old_root)
             self._split_child(self.root, 0)
-        
+ 
         self._insert_non_full(self.root, key, value)
-    
+ 
     def _insert_non_full(self, node, key, value):
         idx = bisect.bisect_left(node.keys, key)
-        
+ 
         if node.is_leaf:
             # 直接插入
             node.keys.insert(idx, key)
@@ -424,26 +424,26 @@ B-tree (m=100, 内部节点存 99 个 key)：
                 if key > node.keys[idx]:
                     idx += 1
                 child = node.children[idx]
-            
+ 
             self._insert_non_full(child, key, value)
-    
+ 
     def _split_child(self, parent, child_idx):
         # 分裂第 child_idx 个子节点
         child = parent.children[child_idx]
         mid_idx = (self.order - 1) // 2
-        
+ 
         # 创建新节点
         new_child = BNode(self.order)
-        new_child.keys = child.keys[mid_idx + 1:]
-        new_child.data = child.data[mid_idx + 1:]
-        
+        new_child.keys = child.keys[mid_idx + 1 :]
+        new_child.data = child.data[mid_idx + 1 :]
+ 
         if not child.is_leaf:
-            new_child.children = child.children[mid_idx + 1:]
-        
+            new_child.children = child.children[mid_idx + 1 :]
+ 
         # 更新原节点
         child.keys = child.keys[:mid_idx]
         child.data = child.data[:mid_idx]
-        
+ 
         # 中间 key 上升到父节点
         parent.keys.insert(child_idx, child.keys[mid_idx])
         parent.data.insert(child_idx, child.data[mid_idx])
@@ -451,22 +451,22 @@ B-tree (m=100, 内部节点存 99 个 key)：
 <span data-line=""><span style="color:#81A1C1">    def</span><span style="color:#88C0D0"> __init__</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> order</span><span style="color:#81A1C1">=</span><span style="color:#B48EAD">3</span><span style="color:#ECEFF4">):</span></span>
 <span data-line=""><span style="color:#81A1C1">        self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">order </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> order  </span><span style="color:#616E88"># m</span></span>
 <span data-line=""><span style="color:#81A1C1">        self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root </span><span style="color:#81A1C1">=</span><span style="color:#88C0D0"> BNode</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">order</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">    </span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#81A1C1">    def</span><span style="color:#88C0D0"> search</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> key</span><span style="color:#ECEFF4">):</span></span>
 <span data-line=""><span style="color:#81A1C1">        return</span><span style="color:#81A1C1"> self</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">_search_node</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">    </span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#81A1C1">    def</span><span style="color:#88C0D0"> _search_node</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> node</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> key</span><span style="color:#ECEFF4">):</span></span>
 <span data-line=""><span style="color:#616E88">        # 二分查找找到 >= key 的位置</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">        idx </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> bisect</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">bisect_left</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">        </span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#81A1C1">        if</span><span style="color:#D8DEE9FF"> idx </span><span style="color:#81A1C1">&#x3C;</span><span style="color:#88C0D0"> len</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> and</span><span style="color:#D8DEE9FF"> node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">idx</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1"> ==</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">:</span></span>
 <span data-line=""><span style="color:#81A1C1">            return</span><span style="color:#D8DEE9FF"> node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">idx</span><span style="color:#ECEFF4">]</span><span style="color:#616E88">  # 找到</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">        </span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#81A1C1">        if</span><span style="color:#D8DEE9FF"> node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">is_leaf</span><span style="color:#ECEFF4">:</span></span>
 <span data-line=""><span style="color:#81A1C1">            return</span><span style="color:#81A1C1"> None</span><span style="color:#616E88">  # 叶子中未找到</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">        </span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#81A1C1">        return</span><span style="color:#81A1C1"> self</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">_search_node</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">idx</span><span style="color:#ECEFF4">],</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">    </span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#81A1C1">    def</span><span style="color:#88C0D0"> insert</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> key</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> value</span><span style="color:#ECEFF4">):</span></span>
 <span data-line=""><span style="color:#81A1C1">        if</span><span style="color:#81A1C1"> self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">is_full</span><span style="color:#ECEFF4">():</span></span>
 <span data-line=""><span style="color:#616E88">            # 根满了，需要创建新根</span></span>
@@ -474,12 +474,12 @@ B-tree (m=100, 内部节点存 99 个 key)：
 <span data-line=""><span style="color:#81A1C1">            self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root </span><span style="color:#81A1C1">=</span><span style="color:#88C0D0"> BNode</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">order</span><span style="color:#ECEFF4">)</span></span>
 <span data-line=""><span style="color:#81A1C1">            self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">append</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">old_root</span><span style="color:#ECEFF4">)</span></span>
 <span data-line=""><span style="color:#81A1C1">            self</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">_split_child</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root</span><span style="color:#ECEFF4">,</span><span style="color:#B48EAD"> 0</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">        </span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#81A1C1">        self</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">_insert_non_full</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">root</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> value</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">    </span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#81A1C1">    def</span><span style="color:#88C0D0"> _insert_non_full</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> node</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> key</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> value</span><span style="color:#ECEFF4">):</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">        idx </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> bisect</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">bisect_left</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">        </span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#81A1C1">        if</span><span style="color:#D8DEE9FF"> node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">is_leaf</span><span style="color:#ECEFF4">:</span></span>
 <span data-line=""><span style="color:#616E88">            # 直接插入</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">            node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">insert</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">idx</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">)</span></span>
@@ -493,26 +493,26 @@ B-tree (m=100, 内部节点存 99 个 key)：
 <span data-line=""><span style="color:#81A1C1">                if</span><span style="color:#D8DEE9FF"> key </span><span style="color:#81A1C1">></span><span style="color:#D8DEE9FF"> node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">idx</span><span style="color:#ECEFF4">]:</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">                    idx </span><span style="color:#81A1C1">+=</span><span style="color:#B48EAD"> 1</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">                child </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> node</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">idx</span><span style="color:#ECEFF4">]</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">            </span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#81A1C1">            self</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">_insert_non_full</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">child</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> key</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> value</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">    </span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#81A1C1">    def</span><span style="color:#88C0D0"> _split_child</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> parent</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> child_idx</span><span style="color:#ECEFF4">):</span></span>
 <span data-line=""><span style="color:#616E88">        # 分裂第 child_idx 个子节点</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">        child </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> parent</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">child_idx</span><span style="color:#ECEFF4">]</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">        mid_idx </span><span style="color:#81A1C1">=</span><span style="color:#ECEFF4"> (</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">order </span><span style="color:#81A1C1">-</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> //</span><span style="color:#B48EAD"> 2</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">        </span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#616E88">        # 创建新节点</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">        new_child </span><span style="color:#81A1C1">=</span><span style="color:#88C0D0"> BNode</span><span style="color:#ECEFF4">(</span><span style="color:#81A1C1">self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">order</span><span style="color:#ECEFF4">)</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">        new_child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">mid_idx </span><span style="color:#81A1C1">+</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4">:]</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">        new_child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">mid_idx </span><span style="color:#81A1C1">+</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4">:]</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">        </span></span>
+<span data-line=""><span style="color:#D8DEE9FF">        new_child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">mid_idx </span><span style="color:#81A1C1">+</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4"> :]</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">        new_child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">mid_idx </span><span style="color:#81A1C1">+</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4"> :]</span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#81A1C1">        if</span><span style="color:#81A1C1"> not</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">is_leaf</span><span style="color:#ECEFF4">:</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">            new_child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">mid_idx </span><span style="color:#81A1C1">+</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4">:]</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">        </span></span>
+<span data-line=""><span style="color:#D8DEE9FF">            new_child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">children</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">mid_idx </span><span style="color:#81A1C1">+</span><span style="color:#B48EAD"> 1</span><span style="color:#ECEFF4"> :]</span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#616E88">        # 更新原节点</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">        child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">[:</span><span style="color:#D8DEE9FF">mid_idx</span><span style="color:#ECEFF4">]</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">        child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data </span><span style="color:#81A1C1">=</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data</span><span style="color:#ECEFF4">[:</span><span style="color:#D8DEE9FF">mid_idx</span><span style="color:#ECEFF4">]</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">        </span></span>
+<span data-line=""> </span>
 <span data-line=""><span style="color:#616E88">        # 中间 key 上升到父节点</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">        parent</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">insert</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">child_idx</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">keys</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">mid_idx</span><span style="color:#ECEFF4">])</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">        parent</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">insert</span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">child_idx</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> child</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">data</span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9FF">mid_idx</span><span style="color:#ECEFF4">])</span></span>
