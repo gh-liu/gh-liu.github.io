@@ -4,6 +4,36 @@
 </blockquote>
 <p>2020 年以后，S3 的 GET、PUT 和 LIST 都具备强一致性
 <a href="https://aws.amazon.com/cn/blogs/aws/amazon-s3-update-strong-read-after-write-consistency/">https://aws.amazon.com/cn/blogs/aws/amazon-s3-update-strong-read-after-write-consistency/</a></p>
+<p>conditional write 单对象 CAS
+<a href="https://aws.amazon.com/about-aws/whats-new/2024/11/amazon-s3-functionality-conditional-writes/">https://aws.amazon.com/about-aws/whats-new/2024/11/amazon-s3-functionality-conditional-writes/</a></p>
+<p>S3-native 系统的核心不是<code>直接从 S3 查</code>
+┌──────────────────────────────┐
+│ 查询 / 事务 / 消费协议层      │
+├──────────────────────────────┤
+│ Catalog / Manifest / Metadata │
+├──────────────────────────────┤
+│ Cache / Local NVMe / Memory   │
+├──────────────────────────────┤
+│ Compaction / GC / Tiering     │
+├──────────────────────────────┤
+│ S3 immutable objects          │
+└──────────────────────────────┘</p>
+<p>写路径
+请求
+→ memory buffer / WAL
+→ 本地或远程 durable log
+→ 聚合成较大对象
+→ PUT S3
+→ 更新 manifest/catalog
+→ 后台 compaction</p>
+<p>读路径
+query
+→ metadata pruning
+→ partition/file pruning
+→ 本地缓存
+→ range GET
+→ vectorized scan
+→ result</p>
 <ul>
 <li>S 什么场景</li>
 <li>C 什么冲突</li>
