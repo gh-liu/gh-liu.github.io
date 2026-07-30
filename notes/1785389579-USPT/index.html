@@ -1,0 +1,284 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读书笔记：understanding distributed systems</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9Aunderstanding%20distributed%20systems">读书笔记：understanding distributed systems</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2025-03-30</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-30</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BN</a><a href="/tags/System-design" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">System-design</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">从通信、协调、扩展、韧性和可维护性理解分布式系统</p>
+<blockquote>
+<p><a href="https://understandingdistributed.systems">https://understandingdistributed.systems</a></p>
+</blockquote>
+<ul>
+<li>是什么（What）：
+<ul>
+<li>一份连接分布式系统<code>理论</code>与大规模后端<code>工程实践</code>的全景指南</li>
+<li>以通信、协调、可扩展性、韧性和可维护性五条主线，解释云应用如何从单机演进为可扩展、可容错、可运营的分布式系统</li>
+</ul>
+</li>
+<li>为什么（Why）：
+<ul>
+<li>分布式系统的复杂性不是机器数量本身，而是远程通信存在延迟、部分失败和结果不确定性；扩容又会增加组件数量与故障概率</li>
+<li>理论材料往往缺少落地语境，实践材料又容易变成孤立的模式清单；需要一套从底层约束推导工程方案的认知框架</li>
+</ul>
+</li>
+<li>怎么做（How）：
+<ul>
+<li>从网络调用的真实成本出发，逐层理解发现、API、时间、复制、一致性和事务</li>
+<li>用<code>功能拆分、数据分区、复制</code>扩展系统，用<code>冗余、隔离、限流、降载</code>控制故障</li>
+<li>把测试、发布、监控、可观测性和可管理性当作系统能力，而不是上线后的附加工作</li>
+</ul>
+</li>
+</ul>
+<h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
+<blockquote>
+<p>分布式系统设计的核心，不是消除故障，而是在通信不可靠、节点会失败、负载会变化的前提下，仍然向用户提供明确的语义和可接受的服务质量。</p>
+</blockquote>
+<blockquote>
+<p>扩展性会增加活动部件，活动部件会增加故障概率。因此，每一次拆分、分区和复制，都必须同时回答如何隔离故障、观测退化和恢复服务。</p>
+</blockquote>
+<h3 id="%E4%B8%80%E3%80%81%E9%80%9A%E4%BF%A1%EF%BC%9A%E8%BF%9C%E7%A8%8B%E8%B0%83%E7%94%A8%E4%B8%8D%E6%98%AF%E6%9C%AC%E5%9C%B0%E8%B0%83%E7%94%A8">一、通信：远程调用不是本地调用</h3>
+<ul>
+<li>进程间通信是分布式系统的起点。一次 API 调用依赖 DNS、IP、TCP、TLS 和 HTTP 等多层协议；上层抽象会泄漏，排障时必须能沿协议栈向下追踪</li>
+<li>IP 提供尽力而为的数据报，可能丢失、重复和乱序；TCP 在其上通过序列号、确认、重传、流量控制和拥塞控制提供可靠、有序的<code>字节流</code>
+<ul>
+<li>TCP 没有消息边界，应用必须自行分帧</li>
+<li>TCP 确认只代表数据到达对端协议栈，不代表业务逻辑已经成功执行</li>
+<li>连接建立、慢启动、队头阻塞和重传都会体现在尾延迟上</li>
+</ul>
+</li>
+<li>TLS 在可靠链路上提供机密性、完整性和身份认证；加密并不自动解决证书信任、密钥轮换和端点授权问题</li>
+<li>DNS 是一个分层、分布式、带缓存、最终一致的键值系统：TTL 降低查询压力，却使变更不能立即生效；不能把 DNS 更新当成瞬时、原子的流量切换</li>
+<li>API 是服务之间的长期契约：
+<ul>
+<li>接口应围绕资源和业务语义，而不是暴露内部数据结构</li>
+<li>请求需要验证、认证、授权和大小限制；错误应可分类，并给调用方足够的处理信息</li>
+<li>兼容性优先于<code>整洁地重写</code>；字段新增、废弃和版本迁移要允许新旧客户端并存</li>
+<li>远程写操作应定义超时、重试和幂等语义，不能假设一次调用恰好执行一次</li>
+</ul>
+</li>
+</ul>
+<h3 id="%E4%BA%8C%E3%80%81%E5%8D%8F%E8%B0%83%EF%BC%9A%E5%9C%A8%E4%B8%8D%E7%A1%AE%E5%AE%9A%E6%80%A7%E4%B8%AD%E5%BD%A2%E6%88%90%E5%85%B1%E5%90%8C%E5%86%B3%E5%AE%9A">二、协调：在不确定性中形成共同决定</h3>
+<ul>
+<li>先明确系统模型，再讨论算法是否正确：
+<ul>
+<li>节点可能崩溃、暂停或运行缓慢，网络可能延迟、丢包、重复、乱序和分区</li>
+<li>同步系统有已知时间上界，异步系统没有；现实通常按<code>部分同步</code>建模，即正常时期近似有界，但不能假设永远有界</li>
+<li>安全性描述<code>坏事永远不发生</code>，活性描述<code>好事最终会发生</code>；网络分区时，系统经常牺牲活性来守住安全性</li>
+</ul>
+</li>
+<li>故障检测器提供的是<code>怀疑</code>而不是真相。心跳超时无法区分节点崩溃、网络中断、机器过载和长时间暂停；阈值太短会误判，太长会延迟恢复</li>
+<li>物理时钟会漂移、跳变且机器之间不同步：
+<ul>
+<li>测量本机耗时使用单调时钟，不使用墙上时钟</li>
+<li>Lamport 时钟表达事件的偏序约束，不能还原真实时间，也不能仅凭时间戳判断两个事件是否并发</li>
+<li>需要跨节点顺序时，应依靠协议形成顺序，而不是相信<code>last-write-wins</code>中的物理时间戳天然正确</li>
+</ul>
+</li>
+<li>选举领导者不是<code>得到最多票</code>这么简单：旧领导者可能只是暂时失联，恢复后继续执行写操作
+<ul>
+<li>租约必须考虑时钟与暂停</li>
+<li>使用单调递增的 term/epoch 和 fencing token，让资源端拒绝旧领导者的迟到请求</li>
+<li>领导权与数据新旧程度要一起判断，不能选出缺失已提交记录的节点</li>
+</ul>
+</li>
+<li>复制用冗余提高可用性、读取能力和数据耐久性，但会引入副本延迟、冲突、选主和恢复问题：
+<ul>
+<li>单主复制简化写入排序，但领导者是写路径上的协调点</li>
+<li>多主和无主复制提高多地写可用性，却需要明确冲突检测、合并和客户端可见语义</li>
+<li>写入何时算成功、读哪个副本、落后副本如何追赶，是一个完整复制协议不可缺少的部分</li>
+</ul>
+</li>
+<li>CAP 只讨论<code>网络分区发生时</code>一致性与可用性的取舍；PACELC 补充了正常情况下也存在延迟与一致性的权衡。二者都不是简单的数据库分类标签</li>
+<li>避免协调往往比优化协调更有效：
+<ul>
+<li>若操作可交换、可结合或幂等，就可以降低对全局顺序的依赖</li>
+<li>CRDT 通过受约束的数据类型使并发更新确定性合并，换取无需同步协调的强最终一致性</li>
+<li>因果一致性只约束有因果关系的事件顺序，允许真正并发的事件独立执行</li>
+<li>弱化一致性前必须从业务异常出发，确认乱序、旧读和冲突是否真的可接受</li>
+</ul>
+</li>
+<li>分布式事务把多个参与者的变化变成一个原子结果：
+<ul>
+<li>2PC 能协调原子提交，但协调者或参与者失败时可能阻塞；它没有消除失败，只是把处理失败的复杂性封装进协议</li>
+<li>长事务和跨服务流程常用 Saga 拆成一系列本地事务，通过补偿处理部分完成；它牺牲隔离性，补偿也不一定等价于撤销</li>
+<li>Transactional Outbox 将业务状态和待发送事件写入同一数据库事务，再异步投递，避免<code>数据库已提交但消息未发送</code>的双写裂缝</li>
+<li>消费者仍需幂等，因为发布、传输和消费任一阶段都可能重试</li>
+</ul>
+</li>
+</ul>
+<h3 id="%E4%B8%89%E3%80%81%E5%8F%AF%E6%89%A9%E5%B1%95%E6%80%A7%EF%BC%9A%E6%8B%86%E5%88%86%E3%80%81%E5%88%86%E5%8C%BA%E5%92%8C%E5%A4%8D%E5%88%B6">三、可扩展性：拆分、分区和复制</h3>
+<blockquote>
+<p>扩展系统只有三种基本杠杆：按职责拆分功能，按键空间分区数据，复制功能或数据。缓存、CDN、负载均衡、微服务和消息系统都是这些杠杆的具体组合。</p>
+</blockquote>
+<ul>
+<li>扩容前先定义负载和服务目标：请求率、数据量、读写比、对象大小、热点分布，以及平均值和高分位延迟。没有目标的<code>可扩展</code>无法验证</li>
+<li>垂直扩展简单且应优先考虑，但存在物理和成本上限；水平扩展突破单机上限，同时引入路由、协调、数据分布和部分失效</li>
+<li>HTTP 缓存和 CDN 把响应放到离用户更近的位置，减少源站负载和延迟：
+<ul>
+<li><code>Cache-Control</code>定义可缓存性与新鲜度，ETag/条件请求用于重新验证</li>
+<li>CDN 适合静态、公共、读多写少的内容；个性化和敏感响应必须正确设置缓存键与访问边界</li>
+<li>缓存失效、版本化 URL 和源站回源能力需要一起设计</li>
+</ul>
+</li>
+<li>分区把数据和负载分散到节点：
+<ul>
+<li>范围分区支持范围扫描，但顺序写容易形成热点</li>
+<li>哈希分区分布更均匀，却破坏相邻关系；一致性哈希可减少成员变化时的数据迁移</li>
+<li>分区键决定负载上限，应围绕访问模式、基数和热点选择</li>
+<li>重平衡期间需要限速并保留容量余量，否则<code>为了恢复平衡</code>本身可能压垮系统</li>
+</ul>
+</li>
+<li>大文件适合交给对象存储，通过元数据与内容分离、分块、复制和校验获得容量与耐久性；应用服务器不应成为大文件数据面的中转瓶颈</li>
+<li>负载均衡可以发生在不同层：
+<ul>
+<li>DNS 能做粗粒度地理和容灾路由，但受缓存与 TTL 影响</li>
+<li>L4 依据连接与地址转发，性能高；L7 理解 HTTP，可按路径、头部和权重做更细的路由</li>
+<li>负载均衡必须结合健康检查、连接排空和过载保护，不能继续向已失效或已过载实例分流</li>
+</ul>
+</li>
+<li>数据存储扩展通常先复制读，再对写入或容量分片；每一步都会降低查询、约束和事务的自由度。NoSQL 的价值是针对明确访问模式提供可预测扩展，不是自动优于关系数据库</li>
+<li>缓存以空间和一致性复杂度换延迟与吞吐：
+<ul>
+<li>cache-aside 简单，但读取回填可能覆盖新值，删除与更新之间也有竞态</li>
+<li>热点 key、缓存击穿、穿透和雪崩会把问题集中放大到后端</li>
+<li>TTL 应加入随机抖动；热点重建可使用请求合并或互斥；缓存失效时后端必须能受控降级</li>
+<li>先估算不用缓存是否真的不能满足目标，再决定是否承担双份状态</li>
+</ul>
+</li>
+<li>微服务主要解决<code>组织与独立演进</code>问题，不是性能优化手段。服务边界不清时，拆分只会把本地调用变成不可靠网络调用，并带来跨服务数据一致性和运维成本</li>
+<li>控制面管理配置、拓扑和策略，数据面处理用户请求：控制面可以相对低吞吐、强一致，数据面应在控制面短暂不可用时继续使用最后已知的有效配置</li>
+<li>异步消息解耦生产者和消费者的可用时间与处理速率，但也会引入积压、重复、乱序和毒消息：
+<ul>
+<li>明确 at-most-once / at-least-once 的投递语义</li>
+<li>用幂等键和去重实现业务效果，而不是轻信<code>exactly-once</code>标签</li>
+<li>监控队列年龄而不只是队列长度，因为年龄更直接反映用户等待时间</li>
+<li>设置重试上限、退避与死信处理，并为重放保留足够上下文</li>
+</ul>
+</li>
+</ul>
+<h3 id="%E5%9B%9B%E3%80%81%E9%9F%A7%E6%80%A7%EF%BC%9A%E6%8A%8A%E5%A4%B1%E8%B4%A5%E9%99%90%E5%88%B6%E5%9C%A8%E5%8F%AF%E6%89%BF%E5%8F%97%E8%8C%83%E5%9B%B4">四、韧性：把失败限制在可承受范围</h3>
+<ul>
+<li>可用性是系统整体属性。串联系统中，依赖越多，整体可用性通常越低；并行冗余只有在副本不会因相同原因同时失败时才有效</li>
+<li>常见故障不仅来自硬件，还包括错误配置、软件缺陷、依赖退化、证书过期、资源泄漏、流量突增和操作失误。设计应假设故障最终一定发生</li>
+<li>冗余不能解决相关故障：同一软件版本、同一电源、同一网络、同一区域和同一配置会形成共同故障域。副本应跨越与目标故障相匹配的隔离边界</li>
+<li>故障隔离的目标是缩小爆炸半径：
+<ul>
+<li>bulkhead 为租户、流量类别或依赖分配独立资源，避免一个拥塞点耗尽所有线程、连接和内存</li>
+<li>shuffle sharding 为每个租户选择不同的小型节点子集，在保留共享资源效率的同时降低租户间重叠</li>
+<li>cellular architecture 把系统拆成可独立运行的单元，让一次故障只影响部分用户，并允许逐单元发布与回滚</li>
+</ul>
+</li>
+<li>保护下游依赖：
+<ul>
+<li>每次远程调用都应有超时，端到端 deadline 要在调用链中向下传播；分层独立超时可能让总耗时失控</li>
+<li>重试只适用于暂时性错误和幂等操作，采用指数退避与随机抖动，并设置重试预算</li>
+<li>多层同时重试会指数放大流量，应选择一个负责重试的层</li>
+<li>circuit breaker 在持续失败时快速拒绝，给依赖恢复空间；它是稳定机制，不是错误处理的替代品</li>
+<li>降级返回较旧、较少或非个性化的数据，前提是业务明确接受这种语义</li>
+</ul>
+</li>
+<li>保护自身免受上游过载：
+<ul>
+<li>限流控制某个调用方在时间窗口内的使用量，配额应对应成本与公平性</li>
+<li>load shedding 在资源饱和前主动丢弃低优先级工作，通常比接收全部请求后一起超时更好</li>
+<li>admission control 根据当前容量决定是否接纳新工作；有界队列避免等待任务无限占用内存</li>
+<li>backpressure 把消费者的处理能力反馈给生产者，从源头减速，而不是把压力隐藏在不断增长的队列里</li>
+</ul>
+</li>
+</ul>
+<h3 id="%E4%BA%94%E3%80%81%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7%EF%BC%9A%E8%AE%A9%E7%B3%BB%E7%BB%9F%E8%83%BD%E5%A4%9F%E5%AE%89%E5%85%A8%E5%8F%98%E5%8C%96%E5%92%8C%E5%BF%AB%E9%80%9F%E6%81%A2%E5%A4%8D">五、可维护性：让系统能够安全变化和快速恢复</h3>
+<ul>
+<li>测试应分层建立信心：单元测试验证局部逻辑，集成测试验证真实边界，端到端测试验证少量关键旅程。越靠近端到端，速度越慢、定位越难，不应让测试金字塔倒置</li>
+<li>分布式系统测试应主动注入延迟、超时、重复、乱序、节点重启和依赖失败；只覆盖成功路径无法验证容错机制</li>
+<li>对共识、并发等关键算法，可用模型检查和形式化规约探索人工难以穷举的状态空间；它不能代替实现测试，但能在编码前暴露设计错误</li>
+<li>持续交付把小变更频繁送入生产：
+<ul>
+<li>自动化构建、测试、制品和部署流程，保证同一个不可变制品逐环境晋级</li>
+<li>rolling、blue-green 和 canary 发布控制风险；数据库和消息格式变更应遵循 expand-and-contract，支持新旧版本并存</li>
+<li>发布与功能启用解耦，使用 feature flag 渐进开放并保留快速关闭能力</li>
+</ul>
+</li>
+<li>监控回答<code>已知问题是否发生</code>，可观测性帮助从输出推断<code>未知内部状态</code>：
+<ul>
+<li>metrics 适合聚合趋势和告警，logs 记录离散事件，traces 关联跨服务请求；三者通过 request/trace ID 连接</li>
+<li>使用结构化日志，记录决策所需上下文，但避免泄露凭据和个人数据</li>
+<li>高基数维度适合日志和追踪，不应无边界地放入指标标签</li>
+</ul>
+</li>
+<li>SLI 是用户可感知行为的量化指标，SLO 是目标，error budget 是允许不达标的额度：
+<ul>
+<li>可用性、正确性、延迟、新鲜度和持久性都可能成为 SLI</li>
+<li>告警应围绕 SLO 消耗速度，而不是每个瞬时资源波动</li>
+<li>SLO 不是越高越好；额外的<code>9</code>会显著增加成本，并限制发布速度</li>
+</ul>
+</li>
+<li>可管理性意味着在不发布代码的情况下安全改变系统行为：动态配置、流量开关、容量调整和功能开关都要有校验、审计、分批生效、回滚与 last-known-good 配置</li>
+</ul>
+<h3 id="%E8%B4%AF%E7%A9%BF%E5%85%A8%E4%B9%A6%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95">贯穿全书的设计方法</h3>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="用户目标与工作负载
+        ↓
+明确语义、SLI / SLO 和容量边界
+        ↓
+列出节点、网络、依赖与人为故障模型
+        ↓
+选择最少的拆分、分区、复制与协调机制
+        ↓
+设计超时、幂等、隔离、过载保护和恢复路径
+        ↓
+用故障测试、渐进发布和可观测性闭环验证">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>用户目标与工作负载</span></span>
+<span data-line=""><span>        ↓</span></span>
+<span data-line=""><span>明确语义、SLI / SLO 和容量边界</span></span>
+<span data-line=""><span>        ↓</span></span>
+<span data-line=""><span>列出节点、网络、依赖与人为故障模型</span></span>
+<span data-line=""><span>        ↓</span></span>
+<span data-line=""><span>选择最少的拆分、分区、复制与协调机制</span></span>
+<span data-line=""><span>        ↓</span></span>
+<span data-line=""><span>设计超时、幂等、隔离、过载保护和恢复路径</span></span>
+<span data-line=""><span>        ↓</span></span>
+<span data-line=""><span>用故障测试、渐进发布和可观测性闭环验证</span></span></code></pre></figure>
+<ul>
+<li>先从单机和最简单架构开始，只在容量、可用性或团队边界出现真实约束时分布化</li>
+<li>对每个新组件同时写出：它解决什么瓶颈、引入什么状态、如何失败、如何观测、由谁恢复</li>
+<li>不只设计正常路径，也要设计<code>请求已经执行但响应丢失</code>、<code>旧节点恢复</code>、<code>缓存全部失效</code>、<code>依赖变慢而非宕机</code>和<code>系统过载</code>这些灰色状态</li>
+<li>分别控制平均性能、尾延迟和爆炸半径；大规模系统的用户体验常由最慢依赖与最坏故障域决定</li>
+<li>优先消除不必要的协调和共享状态；确实需要强语义时，再明确支付延迟、可用性和复杂度成本</li>
+</ul>
+<h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
+<ol>
+<li><code>网络调用成功</code>不是一个单一事实：发送成功、对端收到、业务执行、状态持久化、响应收到是不同阶段，失败发生在哪一段决定了能否安全重试</li>
+<li>扩展模式与韧性模式必须成对出现：服务拆分对应隔离和 deadline，分区对应重平衡和热点治理，复制对应故障域和一致性协议</li>
+<li>缓存、队列和副本都在保存额外状态；它们提升性能或可用性的同时，也扩大了需要维护一致性和观测滞后的范围</li>
+<li>系统最危险的状态往往不是彻底宕机，而是<code>慢、旧、部分成功</code>；超时、fencing、幂等和可观测性正是为这些不确定状态服务</li>
+<li>重试是局部合理、全局危险的机制：没有退避、抖动、预算和层级约束的重试，会把一次依赖退化放大成级联故障</li>
+<li>冗余的价值取决于故障独立性。两个位于同一故障域、运行同一错误配置的副本，不等于高可用</li>
+<li>微服务首先是组织扩展方案；如果没有独立部署、所有权或容量隔离需求，模块化单体通常更简单、更可靠</li>
+<li>控制面与数据面分离的关键收益，是把管理变化的复杂性从高吞吐请求路径移开，并允许数据面在控制面故障时继续服务</li>
+<li>运维能力是架构的一部分：无法快速发现、定位、降级和回滚的系统，即使正常路径设计正确，也不是可靠系统</li>
+<li>最好的分布式机制不是最多的机制，而是满足明确语义与 SLO 的最小组合</li>
+</ol>
+<h3 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h3>
+<ol>
+<li>为每个远程接口写清超时、deadline、可重试错误、幂等键、去重期限和最大请求/响应大小</li>
+<li>评审重试时画出完整调用链，确保只有合适的一层重试，并配置指数退避、抖动与重试预算</li>
+<li>引入缓存前记录无缓存基线，定义失效策略，并演练缓存全空时后端能否通过限流和请求合并存活</li>
+<li>选择分区键时用真实流量验证分布，检查单租户、单时间段和单 key 是否可能形成热点</li>
+<li>为复制系统明确 RPO/RTO、确认写入条件、读一致性、故障切换、fencing 和副本修复流程</li>
+<li>对每个关键依赖配置 deadline、并发上限和降级策略；让等待队列有界，并在饱和前降载</li>
+<li>按故障域审计冗余，确认实例、机架、可用区、区域、软件版本和配置错误是否会相关失效</li>
+<li>用 SLI/SLO 和 error budget 驱动告警与发布，不以 CPU、内存等单一资源指标代替用户体验</li>
+<li>发布共享契约时使用 expand-and-contract 和 canary，保证数据库、事件和 API 的新旧版本能同时运行</li>
+<li>在故障演练中覆盖慢依赖、响应丢失、消息重复、节点长暂停、配置错误和恢复后的旧节点，而不只测试进程崩溃</li>
+</ol>
+<h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
+<ol>
+<li>分布式系统的可靠性，不来自假设组件不会失败，而来自限制失败的影响并自动恢复。</li>
+<li>超时只能终止等待，不能证明远端操作没有发生。</li>
+<li>每个缓存都在用一致性复杂度购买延迟，每个队列都在用时间和积压购买解耦。</li>
+<li>冗余只有跨越了真正的故障域，才会转化为可用性。</li>
+<li>重试会放大负载；系统最需要恢复空间的时候，恰恰最承受不起无节制的重试。</li>
+<li>可扩展性解决系统如何增长，韧性解决增长后的系统如何失败。</li>
+<li>微服务不是目的，而是在组织、部署或容量需要独立扩展时才值得支付的成本。</li>
+<li>无法观测和管理的系统，也就无法被可靠地运营。</li>
+</ol>
+<h2 id="links">links</h2>
+<ol>
+<li><a href="https://test-media.mainstack.me/docs/Understanding_distributed_systems_roberto-vitillo_1759745400386.pdf">https://test-media.mainstack.me/docs/Understanding_distributed_systems_roberto-vitillo_1759745400386.pdf</a></li>
+<li><a href="https://understandingdistributed.systems/sample.pdf">https://understandingdistributed.systems/sample.pdf</a></li>
+<li><a href="https://sre.google/sre-book/table-of-contents/">https://sre.google/sre-book/table-of-contents/</a></li>
+<li><a href="https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/">https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/</a></li>
+<li><a href="https://martinfowler.com/articles/patterns-of-distributed-systems/">https://martinfowler.com/articles/patterns-of-distributed-systems/</a></li>
+</ol></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9Aunderstanding%20distributed%20systems" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9Aunderstanding%20distributed%20systems">读书笔记：understanding distributed systems</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读书笔记：understanding distributed systems</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%B8%80%E3%80%81%E9%80%9A%E4%BF%A1%EF%BC%9A%E8%BF%9C%E7%A8%8B%E8%B0%83%E7%94%A8%E4%B8%8D%E6%98%AF%E6%9C%AC%E5%9C%B0%E8%B0%83%E7%94%A8" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%80%E3%80%81%E9%80%9A%E4%BF%A1%EF%BC%9A%E8%BF%9C%E7%A8%8B%E8%B0%83%E7%94%A8%E4%B8%8D%E6%98%AF%E6%9C%AC%E5%9C%B0%E8%B0%83%E7%94%A8">一、通信：远程调用不是本地调用</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">一、通信：远程调用不是本地调用</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%BA%8C%E3%80%81%E5%8D%8F%E8%B0%83%EF%BC%9A%E5%9C%A8%E4%B8%8D%E7%A1%AE%E5%AE%9A%E6%80%A7%E4%B8%AD%E5%BD%A2%E6%88%90%E5%85%B1%E5%90%8C%E5%86%B3%E5%AE%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BA%8C%E3%80%81%E5%8D%8F%E8%B0%83%EF%BC%9A%E5%9C%A8%E4%B8%8D%E7%A1%AE%E5%AE%9A%E6%80%A7%E4%B8%AD%E5%BD%A2%E6%88%90%E5%85%B1%E5%90%8C%E5%86%B3%E5%AE%9A">二、协调：在不确定性中形成共同决定</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">二、协调：在不确定性中形成共同决定</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%B8%89%E3%80%81%E5%8F%AF%E6%89%A9%E5%B1%95%E6%80%A7%EF%BC%9A%E6%8B%86%E5%88%86%E3%80%81%E5%88%86%E5%8C%BA%E5%92%8C%E5%A4%8D%E5%88%B6" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%89%E3%80%81%E5%8F%AF%E6%89%A9%E5%B1%95%E6%80%A7%EF%BC%9A%E6%8B%86%E5%88%86%E3%80%81%E5%88%86%E5%8C%BA%E5%92%8C%E5%A4%8D%E5%88%B6">三、可扩展性：拆分、分区和复制</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">三、可扩展性：拆分、分区和复制</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%9B%9B%E3%80%81%E9%9F%A7%E6%80%A7%EF%BC%9A%E6%8A%8A%E5%A4%B1%E8%B4%A5%E9%99%90%E5%88%B6%E5%9C%A8%E5%8F%AF%E6%89%BF%E5%8F%97%E8%8C%83%E5%9B%B4" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%9B%9B%E3%80%81%E9%9F%A7%E6%80%A7%EF%BC%9A%E6%8A%8A%E5%A4%B1%E8%B4%A5%E9%99%90%E5%88%B6%E5%9C%A8%E5%8F%AF%E6%89%BF%E5%8F%97%E8%8C%83%E5%9B%B4">四、韧性：把失败限制在可承受范围</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">四、韧性：把失败限制在可承受范围</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%BA%94%E3%80%81%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7%EF%BC%9A%E8%AE%A9%E7%B3%BB%E7%BB%9F%E8%83%BD%E5%A4%9F%E5%AE%89%E5%85%A8%E5%8F%98%E5%8C%96%E5%92%8C%E5%BF%AB%E9%80%9F%E6%81%A2%E5%A4%8D" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BA%94%E3%80%81%E5%8F%AF%E7%BB%B4%E6%8A%A4%E6%80%A7%EF%BC%9A%E8%AE%A9%E7%B3%BB%E7%BB%9F%E8%83%BD%E5%A4%9F%E5%AE%89%E5%85%A8%E5%8F%98%E5%8C%96%E5%92%8C%E5%BF%AB%E9%80%9F%E6%81%A2%E5%A4%8D">五、可维护性：让系统能够安全变化和快速恢复</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">五、可维护性：让系统能够安全变化和快速恢复</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%B4%AF%E7%A9%BF%E5%85%A8%E4%B9%A6%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%B4%AF%E7%A9%BF%E5%85%A8%E4%B9%A6%E7%9A%84%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95">贯穿全书的设计方法</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">贯穿全书的设计方法</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">行动：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">金句：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
