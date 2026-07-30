@@ -1,0 +1,179 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Zig</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Zig">Zig</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2025-03-31</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-30</span><a href="#outlinks" class="meta-pill meta-pill-outlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">1 出链</a><a href="#backlinks" class="meta-pill meta-pill-backlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">3 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/Lang" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">Lang</a></div></div>
+<blockquote>
+<p>保持高级语言表达能力的同时，把<code>数据如何表示、代码何时生成、运行时发生什么</code>尽可能交还给程序员</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Zig 的选择</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>数据如何存在</td>
+<td>显式布局与表示</td>
+</tr>
+<tr>
+<td>代码如何复用</td>
+<td><code>comptime</code> 生成和特化</td>
+</tr>
+<tr>
+<td>运行时如何变化</td>
+<td>显式函数指针、tagged union、vtable</td>
+</tr>
+<tr>
+<td>资源如何管理</td>
+<td>显式 allocator 与生命周期</td>
+</tr>
+<tr>
+<td>错误如何传播</td>
+<td>显式 error union</td>
+</tr>
+<tr>
+<td>成本在哪里发生</td>
+<td>尽可能可从源码判断</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>简单（代码所见即所得）：调试代码，而不是调试编程语言知识（比如Rust的所有权借用、Go的GC/调度器/接口动态分派）</li>
+</ol>
+<ul>
+<li>无隐藏控制流（手动管理内存+defer/errdefer释放资源；!T 错误路径显式化、?T空值显式化...），没有隐藏运行时</li>
+<li>无隐藏内存分配（内存分配是显式的，如果一个函数内部需要分配堆内存，需要接收一个allocator的参数）</li>
+<li>无预处理器、宏</li>
+</ul>
+<ol start="2">
+<li>基于<code>编译时代码执行、惰性求值</code>的元编程：</li>
+</ol>
+<ul>
+<li>编译期执行函数</li>
+<li>把类型当作值一样操作（无运行时开销，类型内省）</li>
+<li>Comptime 会以目标平台的类型、布局与运算规则为基础，在编译期完成求值</li>
+</ul>
+<ol start="3">
+<li>以统一工具链渐进改造 C/C++ 工程：</li>
+</ol>
+<ul>
+<li><code>zig build</code> 提供统一构建与跨平台编译能力</li>
+<li>与现有 C/C++ 项目的无缝衔接（zig替代c编译链、c使用zig模块）</li>
+</ul>
+<h2 id="comptime%20%E7%BC%96%E8%AF%91%E6%9C%9F%E8%BF%90%E7%AE%97">comptime 编译期运算</h2>
+<blockquote>
+<p>Zig 把<code>类型抽象、代码生成</code>大量放在编译期，比如泛型，反射...</p>
+</blockquote>
+<ol>
+<li>anytype 类型，用于函数参数推导，调用时确定具体类型，然后编译对应实现</li>
+<li>comptime + type
+<ul>
+<li>comptime 可以修饰函数调用、代码块、表达式，表示这些指令需要在编译期执行；可以修饰参数，表示这个值必须在编译期已知</li>
+<li>类型T也是某种值，其类型是type：参数<code>comptime T: type</code>接收一个类型</li>
+</ul>
+</li>
+</ol>
+<h2 id="%E8%BF%90%E8%A1%8C%E6%97%B6%E5%8A%A8%E6%80%81%E6%80%A7">运行时动态性</h2>
+<blockquote>
+<ol>
+<li>union(enum) + switch，可以看作显式的、封闭世界的动态分派</li>
+</ol>
+</blockquote>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#f7a41d" d="M5.733 19.731v-7.467h2.8V8.531H2v14.933h3.547l3.36-3.733zm20.72-11.2l-3.36 3.733h3.174v7.467h-2.8v3.733H30V8.531z"/><path fill="#f7a41d" d="m26.875 6.707l-6.362 1.824H9.467v3.733h7.38L5.115 25.293l6.382-1.829h11.036v-3.733h-7.385z"/></svg>zig</span><button type="button" class="code-copy-button" data-code="const Writer = union(enum) {
+    file: *FileWriter,
+    socket: *SocketWriter,
+    memory: *MemoryWriter,
+ 
+    pub fn write(self: Writer, data: []const u8) !usize {
+        return switch (self) {
+            .file => |w| w.write(data),
+            .socket => |w| w.write(data),
+            .memory => |w| w.write(data),
+        };
+    }
+};">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="zig" data-theme="nord"><code data-language="zig" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">const</span><span style="color:#D8DEE9FF"> Writer </span><span style="color:#81A1C1">=</span><span style="color:#81A1C1"> union</span><span style="color:#D8DEE9FF">(</span><span style="color:#81A1C1">enum</span><span style="color:#D8DEE9FF">) {</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">    file</span><span style="color:#ECEFF4">:</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">FileWriter</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">    socket</span><span style="color:#ECEFF4">:</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">SocketWriter</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">    memory</span><span style="color:#ECEFF4">:</span><span style="color:#81A1C1"> *</span><span style="color:#D8DEE9FF">MemoryWriter</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">    pub</span><span style="color:#81A1C1"> fn</span><span style="color:#88C0D0"> write</span><span style="color:#D8DEE9FF">(self</span><span style="color:#ECEFF4">:</span><span style="color:#D8DEE9FF"> Writer</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> data</span><span style="color:#ECEFF4">:</span><span style="color:#D8DEE9FF"> []</span><span style="color:#81A1C1">const</span><span style="color:#81A1C1"> u8</span><span style="color:#D8DEE9FF">) </span><span style="color:#81A1C1">!usize</span><span style="color:#D8DEE9FF"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">        return</span><span style="color:#81A1C1"> switch</span><span style="color:#D8DEE9FF"> (self) {</span></span>
+<span data-line=""><span style="color:#ECEFF4">            .</span><span style="color:#D8DEE9FF">file </span><span style="color:#81A1C1">=></span><span style="color:#81A1C1"> |</span><span style="color:#D8DEE9FF">w</span><span style="color:#81A1C1">|</span><span style="color:#D8DEE9FF"> w</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">write</span><span style="color:#D8DEE9FF">(data)</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#ECEFF4">            .</span><span style="color:#D8DEE9FF">socket </span><span style="color:#81A1C1">=></span><span style="color:#81A1C1"> |</span><span style="color:#D8DEE9FF">w</span><span style="color:#81A1C1">|</span><span style="color:#D8DEE9FF"> w</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">write</span><span style="color:#D8DEE9FF">(data)</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#ECEFF4">            .</span><span style="color:#D8DEE9FF">memory </span><span style="color:#81A1C1">=></span><span style="color:#81A1C1"> |</span><span style="color:#D8DEE9FF">w</span><span style="color:#81A1C1">|</span><span style="color:#D8DEE9FF"> w</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">write</span><span style="color:#D8DEE9FF">(data)</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">        }</span><span style="color:#81A1C1">;</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">    }</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">}</span><span style="color:#81A1C1">;</span></span></code></pre></figure>
+<blockquote>
+<ol start="2">
+<li>函数指针</li>
+</ol>
+</blockquote>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#f7a41d" d="M5.733 19.731v-7.467h2.8V8.531H2v14.933h3.547l3.36-3.733zm20.72-11.2l-3.36 3.733h3.174v7.467h-2.8v3.733H30V8.531z"/><path fill="#f7a41d" d="m26.875 6.707l-6.362 1.824H9.467v3.733h7.38L5.115 25.293l6.382-1.829h11.036v-3.733h-7.385z"/></svg>zig</span><button type="button" class="code-copy-button" data-code="const Callback = struct {
+    context: *anyopaque,
+    callFn: *const fn (*anyopaque, []const u8) void,
+ 
+    pub fn call(self: Callback, data: []const u8) void {
+        self.callFn(self.context, data);
+    }
+};">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="zig" data-theme="nord"><code data-language="zig" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">const</span><span style="color:#D8DEE9FF"> Callback </span><span style="color:#81A1C1">=</span><span style="color:#81A1C1"> struct</span><span style="color:#D8DEE9FF"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">    context</span><span style="color:#ECEFF4">:</span><span style="color:#81A1C1"> *anyopaque</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">    callFn</span><span style="color:#ECEFF4">:</span><span style="color:#81A1C1"> *const</span><span style="color:#81A1C1"> fn</span><span style="color:#D8DEE9FF"> (</span><span style="color:#81A1C1">*anyopaque</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> []</span><span style="color:#81A1C1">const</span><span style="color:#81A1C1"> u8</span><span style="color:#D8DEE9FF">) </span><span style="color:#81A1C1">void</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">    pub</span><span style="color:#81A1C1"> fn</span><span style="color:#88C0D0"> call</span><span style="color:#D8DEE9FF">(self</span><span style="color:#ECEFF4">:</span><span style="color:#D8DEE9FF"> Callback</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> data</span><span style="color:#ECEFF4">:</span><span style="color:#D8DEE9FF"> []</span><span style="color:#81A1C1">const</span><span style="color:#81A1C1"> u8</span><span style="color:#D8DEE9FF">) </span><span style="color:#81A1C1">void</span><span style="color:#D8DEE9FF"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">        self</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">callFn</span><span style="color:#D8DEE9FF">(self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">context</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> data)</span><span style="color:#81A1C1">;</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">    }</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">}</span><span style="color:#81A1C1">;</span></span></code></pre></figure>
+<blockquote>
+<ol start="3">
+<li>定义 vtable</li>
+</ol>
+</blockquote>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#f7a41d" d="M5.733 19.731v-7.467h2.8V8.531H2v14.933h3.547l3.36-3.733zm20.72-11.2l-3.36 3.733h3.174v7.467h-2.8v3.733H30V8.531z"/><path fill="#f7a41d" d="m26.875 6.707l-6.362 1.824H9.467v3.733h7.38L5.115 25.293l6.382-1.829h11.036v-3.733h-7.385z"/></svg>zig</span><button type="button" class="code-copy-button" data-code="const Writer = struct {
+    ptr: *anyopaque,
+    vtable: *const VTable,
+ 
+    const VTable = struct {
+        write: *const fn (*anyopaque, []const u8) anyerror!usize,
+        flush: *const fn (*anyopaque) anyerror!void,
+    };
+ 
+    pub fn write(self: Writer, data: []const u8) !usize {
+        return self.vtable.write(self.ptr, data);
+    }
+ 
+    pub fn flush(self: Writer) !void {
+        return self.vtable.flush(self.ptr);
+    }
+};">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="zig" data-theme="nord"><code data-language="zig" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">const</span><span style="color:#D8DEE9FF"> Writer </span><span style="color:#81A1C1">=</span><span style="color:#81A1C1"> struct</span><span style="color:#D8DEE9FF"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">    ptr</span><span style="color:#ECEFF4">:</span><span style="color:#81A1C1"> *anyopaque</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">    vtable</span><span style="color:#ECEFF4">:</span><span style="color:#81A1C1"> *const</span><span style="color:#D8DEE9FF"> VTable</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">    const</span><span style="color:#D8DEE9FF"> VTable </span><span style="color:#81A1C1">=</span><span style="color:#81A1C1"> struct</span><span style="color:#D8DEE9FF"> {</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">        write</span><span style="color:#ECEFF4">:</span><span style="color:#81A1C1"> *const</span><span style="color:#81A1C1"> fn</span><span style="color:#D8DEE9FF"> (</span><span style="color:#81A1C1">*anyopaque</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> []</span><span style="color:#81A1C1">const</span><span style="color:#81A1C1"> u8</span><span style="color:#D8DEE9FF">) </span><span style="color:#81A1C1">anyerror!usize</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">        flush</span><span style="color:#ECEFF4">:</span><span style="color:#81A1C1"> *const</span><span style="color:#81A1C1"> fn</span><span style="color:#D8DEE9FF"> (</span><span style="color:#81A1C1">*anyopaque</span><span style="color:#D8DEE9FF">) </span><span style="color:#81A1C1">anyerror!void</span><span style="color:#ECEFF4">,</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">    }</span><span style="color:#81A1C1">;</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">    pub</span><span style="color:#81A1C1"> fn</span><span style="color:#88C0D0"> write</span><span style="color:#D8DEE9FF">(self</span><span style="color:#ECEFF4">:</span><span style="color:#D8DEE9FF"> Writer</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> data</span><span style="color:#ECEFF4">:</span><span style="color:#D8DEE9FF"> []</span><span style="color:#81A1C1">const</span><span style="color:#81A1C1"> u8</span><span style="color:#D8DEE9FF">) </span><span style="color:#81A1C1">!usize</span><span style="color:#D8DEE9FF"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">        return</span><span style="color:#D8DEE9FF"> self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">vtable</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">write</span><span style="color:#D8DEE9FF">(self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">ptr</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9FF"> data)</span><span style="color:#81A1C1">;</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">    }</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#81A1C1">    pub</span><span style="color:#81A1C1"> fn</span><span style="color:#88C0D0"> flush</span><span style="color:#D8DEE9FF">(self</span><span style="color:#ECEFF4">:</span><span style="color:#D8DEE9FF"> Writer) </span><span style="color:#81A1C1">!void</span><span style="color:#D8DEE9FF"> {</span></span>
+<span data-line=""><span style="color:#81A1C1">        return</span><span style="color:#D8DEE9FF"> self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">vtable</span><span style="color:#ECEFF4">.</span><span style="color:#88C0D0">flush</span><span style="color:#D8DEE9FF">(self</span><span style="color:#ECEFF4">.</span><span style="color:#D8DEE9FF">ptr)</span><span style="color:#81A1C1">;</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">    }</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">}</span><span style="color:#81A1C1">;</span></span></code></pre></figure>
+<p>NOTE: <code>comptime</code> 可以帮助构造运行时动态机制，比如将某个具体类型转换成符合vtable的类型（类似Go的interface）</p>
+<h2 id="%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86">错误处理</h2>
+<p>同<a href="/notes/1774882981-DNXX#%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86">rust的错误处理</a>目标一致：错误是类型系统的一部分，不可被静默忽略；</p>
+<p>但有区别：</p>
+<p><code>E!T</code>内建于编译器，错误<code>E</code>只能是<code>error set</code>错误集合：</p>
+<ul>
+<li>穷举：<code>switch</code>穷举所有错误</li>
+<li>传播：<code>try</code>向上传播给调用方</li>
+<li>组合：错误集可通过<code>||</code>合并或由编译器自动推断，组合轻松</li>
+<li>信息：错误仅是名字（整数），无法携带丰富信息，需额外方式传递</li>
+<li>恢复：就地降级（<code>catch |_| default_value</code>）</li>
+</ul>
+<h1 id="links">links</h1>
+<ul>
+<li><a href="https://mitchellh.com/zig">https://mitchellh.com/zig</a></li>
+</ul></article><aside id="outlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">引用了 1 篇笔记</h2><ul class="space-y-2"><li><a href="/notes/1774882981-DNXX" class="note-link underline-offset-4 hover:underline">Rust</a></li></ul></aside><aside id="backlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">被 3 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1774927359-HTYX" class="note-link underline-offset-4 hover:underline">lang-error-is-value</a></li><li><a href="/notes/1734192000-OCXG" class="note-link underline-offset-4 hover:underline">如何学习一门编程语言</a></li><li><a href="/notes/1611990110-GTWU" class="note-link underline-offset-4 hover:underline">Go: 错误是值 errors are values</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="Zig" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Zig">Zig</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Zig</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="comptime%20%E7%BC%96%E8%AF%91%E6%9C%9F%E8%BF%90%E7%AE%97" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#comptime%20%E7%BC%96%E8%AF%91%E6%9C%9F%E8%BF%90%E7%AE%97">comptime 编译期运算</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">comptime 编译期运算</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E8%BF%90%E8%A1%8C%E6%97%B6%E5%8A%A8%E6%80%81%E6%80%A7" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%BF%90%E8%A1%8C%E6%97%B6%E5%8A%A8%E6%80%81%E6%80%A7">运行时动态性</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">运行时动态性</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E9%94%99%E8%AF%AF%E5%A4%84%E7%90%86">错误处理</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">错误处理</span></li><li class="group relative"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
