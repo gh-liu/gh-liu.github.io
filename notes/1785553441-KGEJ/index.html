@@ -1,0 +1,79 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>对象存储</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E5%AF%B9%E8%B1%A1%E5%AD%98%E5%82%A8">对象存储</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-08-01</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-08-01</span></div><div class="flex flex-wrap gap-1.5"><a href="/series/INFRA 快速入门" class="topic-chip topic-chip-series rounded-full border px-2.5 py-0.5 text-xs no-underline">INFRA 快速入门</a><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/INFRA" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">INFRA</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">以 Bucket、Key、Object 为核心抽象，理解 S3、R2 等对象存储</p>
+<ul>
+<li>S：图片、视频、备份、日志、数据湖等海量非结构化数据，需要低成本、长期可靠地保存。</li>
+<li>C：本地文件系统容量受单机限制；分布式文件系统运维复杂；数据库不适合存放大对象。</li>
+<li>Q：如何提供容量近乎无限、可靠且可通过网络访问的存储？</li>
+<li>A：对象存储将数据抽象成独立对象，以 <code>Bucket + Key</code> 定位，通过 HTTP API 整体读写，由服务端负责分片、副本、校验与扩容。</li>
+</ul>
+<blockquote>
+<p>对象存储 = 扁平 Key 空间 + 整体对象读写 + 托管的持久性与扩展性</p>
+</blockquote>
+<h2 id="%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B">心智模型</h2>
+<p>对象存储不是远程磁盘，也不是传统文件系统，而是一个超大规模的 <code>key -> bytes + metadata</code> 映射。</p>
+<ul>
+<li><code>Bucket</code>：对象的容器，也是区域、权限、版本、生命周期等策略的边界。</li>
+<li><code>Key</code>：Bucket 内对象的唯一名称。</li>
+<li><code>Object</code>：数据本体、元数据和可选版本 ID。</li>
+<li><code>Prefix</code>：Key 的前缀；<code>logs/2026/08/a.json</code> 看似有目录，实际只是一个字符串 Key。</li>
+</ul>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="my-bucket/images/avatar.png
+└ Bucket ┘└──── Key ─────┘">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>my-bucket/images/avatar.png</span></span>
+<span data-line=""><span>└ Bucket ┘└──── Key ─────┘</span></span></code></pre></figure>
+<h2 id="%E8%AF%BB%E5%86%99%E6%A8%A1%E5%9E%8B">读写模型</h2>
+<ul>
+<li><code>PUT</code>：上传或整体覆盖对象，不能像磁盘一样原地修改几个字节。</li>
+<li><code>GET</code>：读取整个对象，也可用 <code>Range</code> 只读取指定字节范围。</li>
+<li><code>HEAD</code>：只读取大小、类型、ETag 等元数据。</li>
+<li><code>LIST</code>：按 Prefix 分页列举对象。</li>
+<li><code>DELETE</code>：删除对象；开启版本控制后通常只是产生删除标记。</li>
+<li>大对象使用 <code>Multipart Upload</code> 并行上传；失败时只需重传分片。</li>
+</ul>
+<p>一致性由具体产品定义；现代主流服务通常提供强一致性。多个客户端同时覆盖同一个 Key 时，仍需要用版本号或条件请求处理并发冲突。</p>
+<h2 id="%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%82%E5%90%88%E6%B5%B7%E9%87%8F%E6%95%B0%E6%8D%AE">为什么适合海量数据</h2>
+<ul>
+<li><strong>容量与扩展</strong>：无需预分配磁盘，服务端自动扩展。</li>
+<li><strong>持久性</strong>：数据跨多个设备保存并持续校验、修复；持久性不等于服务永远可用。</li>
+<li><strong>成本分层</strong>：可按访问频率选择热、冷、归档存储，并用生命周期规则自动迁移或删除。</li>
+<li><strong>计算分离</strong>：多个计算节点可以共享同一份数据，适合静态资源、备份、日志和数据湖。</li>
+</ul>
+<h2 id="%E6%80%A7%E8%83%BD%E4%B8%8E%E6%88%90%E6%9C%AC">性能与成本</h2>
+<p>一次请求通常包含网络和服务端处理开销，延迟远高于内存或本地磁盘。每个请求还可能单独计费，因此应避免大量细粒度读写。</p>
+<ul>
+<li>合并小对象，减少请求数量。</li>
+<li>大对象使用分片并行上传，下载时可并发 <code>Range GET</code>。</li>
+<li>高频读取配合 CDN 或缓存，避免反复跨网络访问源站。</li>
+<li>成本不仅是存储容量，还包括请求次数、数据传出、检索和提前删除费用。</li>
+</ul>
+<h2 id="%E5%8F%AF%E9%9D%A0%E6%80%A7%E4%B8%8E%E5%AE%89%E5%85%A8">可靠性与安全</h2>
+<ul>
+<li>如果服务支持，开启 <code>Versioning</code>，降低误删和覆盖风险；它不能代替独立备份。</li>
+<li>使用 <code>Lifecycle</code> 清理旧版本、未完成的分片上传，并迁移冷数据。</li>
+<li>默认保持私有，通过访问策略或临时凭证授权。</li>
+<li>客户端直传/下载可使用有过期时间的 <code>Presigned URL</code>，无需暴露云凭证。</li>
+<li>需要跨地域容灾时配置复制；具体持久性和可用性范围由产品与存储类型决定。</li>
+</ul>
+<h2 id="S3%20%E4%B8%8E%20R2">S3 与 R2</h2>
+<p>S3 是 AWS 的对象存储产品，其 API 已成为事实标准；Cloudflare R2 提供 S3 兼容 API。因此，二者的核心模型和常见操作基本相同：</p>
+<ul>
+<li><code>Bucket / Key / Object</code></li>
+<li><code>PUT / GET / HEAD / DELETE / LIST</code></li>
+<li>Multipart Upload、Range GET、Presigned URL</li>
+<li>常见 S3 SDK 和工具</li>
+</ul>
+<p>但 <strong>S3 兼容不等于能力完全相同</strong>。身份与权限、存储类型、版本控制、生命周期、复制、事件通知、校验算法、请求限制和计费模型都可能不同；迁移时应核对目标服务的兼容性文档，而不是只替换 endpoint。</p>
+<h2 id="%E4%B8%8D%E9%80%82%E5%90%88%E7%9A%84%E5%9C%BA%E6%99%AF">不适合的场景</h2>
+<ul>
+<li>低延迟、高频、细粒度随机读写。</li>
+<li>依赖文件锁、原子重命名、追加写等 POSIX 文件系统语义。</li>
+<li>大量小文件且每个文件都被频繁访问。</li>
+<li>需要复杂查询、事务或记录级更新的数据。</li>
+</ul>
+<p>对象<code>重命名</code>通常需要 <code>Copy + Delete</code>；追加或局部修改通常需要生成新对象。因此，设计时应优先采用不可变对象、批量写入和新 Key 发布。</p>
+<h2 id="%E5%B8%B8%E8%A7%81%E5%9C%BA%E6%99%AF">常见场景</h2>
+<ul>
+<li>静态资源与 CDN 源站</li>
+<li>数据库备份、归档与灾难恢复</li>
+<li>日志、埋点与数据湖</li>
+<li>图片、音视频和用户上传文件</li>
+<li>构建产物、模型与软件包分发</li>
+</ul></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E5%AF%B9%E8%B1%A1%E5%AD%98%E5%82%A8" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%AF%B9%E8%B1%A1%E5%AD%98%E5%82%A8">对象存储</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">对象存储</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B">心智模型</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">心智模型</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E8%AF%BB%E5%86%99%E6%A8%A1%E5%9E%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E5%86%99%E6%A8%A1%E5%9E%8B">读写模型</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读写模型</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%82%E5%90%88%E6%B5%B7%E9%87%8F%E6%95%B0%E6%8D%AE" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%BA%E4%BB%80%E4%B9%88%E9%80%82%E5%90%88%E6%B5%B7%E9%87%8F%E6%95%B0%E6%8D%AE">为什么适合海量数据</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">为什么适合海量数据</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%80%A7%E8%83%BD%E4%B8%8E%E6%88%90%E6%9C%AC" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%80%A7%E8%83%BD%E4%B8%8E%E6%88%90%E6%9C%AC">性能与成本</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">性能与成本</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%8F%AF%E9%9D%A0%E6%80%A7%E4%B8%8E%E5%AE%89%E5%85%A8" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8F%AF%E9%9D%A0%E6%80%A7%E4%B8%8E%E5%AE%89%E5%85%A8">可靠性与安全</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">可靠性与安全</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="S3%20%E4%B8%8E%20R2" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#S3%20%E4%B8%8E%20R2">S3 与 R2</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">S3 与 R2</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%B8%8D%E9%80%82%E5%90%88%E7%9A%84%E5%9C%BA%E6%99%AF" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%8D%E9%80%82%E5%90%88%E7%9A%84%E5%9C%BA%E6%99%AF">不适合的场景</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">不适合的场景</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%B8%B8%E8%A7%81%E5%9C%BA%E6%99%AF" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%B8%B8%E8%A7%81%E5%9C%BA%E6%99%AF">常见场景</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">常见场景</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
