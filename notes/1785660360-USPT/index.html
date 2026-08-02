@@ -1,0 +1,476 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读书笔记：数据库系统内幕</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B3%BB%E7%BB%9F%E5%86%85%E5%B9%95">读书笔记：数据库系统内幕</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-08-02</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-08-02</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BN</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">从页、B-Tree、LSM、WAL 到复制、事务与共识，理解现代数据库的存储和分布式内核</p>
+<blockquote>
+<p><a href="https://book.douban.com/subject/35078474/">https://book.douban.com/subject/35078474/</a></p>
+</blockquote>
+<ul>
+<li>是什么（What）：
+<ul>
+<li>一本解释现代数据库底层实现的系统性导读。上半部分从磁盘页、文件格式、B-Tree、LSM Tree、事务与崩溃恢复出发，说明数据如何被组织、更新和持久化；下半部分讨论故障检测、选主、复制、反熵、分布式事务与共识，说明多台不可靠机器如何协作成一个数据库。</li>
+</ul>
+</li>
+<li>为什么（Why）：
+<ul>
+<li>数据库提供的表、索引、事务和一致性都是昂贵抽象。其真实行为受存储介质、页布局、缓存命中率、写放大、网络延迟、节点故障和协议假设共同约束。只有理解这些约束，才能解释为什么同一条查询在不同负载下差异巨大，为什么已经返回成功的写入仍可能丢失，以及为什么高可用、一致性和低延迟不能无条件兼得。</li>
+</ul>
+</li>
+<li>怎么做（How）：
+<ul>
+<li>分析数据库时沿两条路径追踪：单机上追踪一次写入经过内存、WAL、数据页和后台维护的过程；分布式环境中追踪一次操作经过路由、复制、确认、故障切换和修复的过程。先明确负载与正确性目标，再比较读、写、空间和网络放大，最后结合故障模型选择结构与协议。不要只凭“B-Tree 读快、LSM 写快”或“用了多数派所以强一致”之类标签做判断。</li>
+</ul>
+</li>
+</ul>
+<h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
+<blockquote>
+<p>数据库不是某一种数据结构或算法，而是一组相互约束的子系统：存储结构决定数据怎样落盘，事务和恢复机制决定更新怎样安全生效，分布式协议决定副本怎样形成共同历史。每层都在利用批处理、缓存、间接寻址、不可变性和冗余，把昂贵的随机 I/O、同步等待和故障恢复移出前台路径；代价则以读放大、写放大、空间放大、维护流量和更复杂的状态机重新出现。</p>
+</blockquote>
+<p>全书可以压缩成三个问题：</p>
+<ol>
+<li><strong>数据怎样布局？</strong> 数据库以页和记录为基本单位，在 B-Tree 或 LSM 等结构中组织数据，以减少设备 I/O 并支持目标访问模式。</li>
+<li><strong>更新怎样可靠？</strong> 数据页更新不是原子的，需要 WAL、缓冲池、并发控制和恢复算法共同保证原子性、持久性与隔离性。</li>
+<li><strong>副本怎样一致？</strong> 节点只能通过有延迟且可能失败的网络交换局部知识，需要复制、故障检测、选主、反熵、原子提交和共识协议管理分歧。</li>
+</ol>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">diagram</span><button type="button" class="code-copy-button" data-code="┌──────────────┐
+│ Client Query │
+└──────┬───────┘
+       ▼
+┌──────────────┐    logical operation / transaction
+│ Database API │
+└──────┬───────┘
+       ▼
+┌──────────────┐    pages, indexes, WAL, buffer pool
+│ Storage      │
+│ Engine       │
+└──────┬───────┘
+       ▼
+┌──────────────┐    replication, election, consensus
+│ Distributed  │
+│ Protocols    │
+└──────┬───────┘
+       ▼
+┌──────────────┐
+│ Disk/Network │
+└──────────────┘">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="diagram" data-theme="nord"><code data-language="diagram" data-theme="nord" style="display: grid;"><span data-line=""><span>┌──────────────┐</span></span>
+<span data-line=""><span>│ Client Query │</span></span>
+<span data-line=""><span>└──────┬───────┘</span></span>
+<span data-line=""><span>       ▼</span></span>
+<span data-line=""><span>┌──────────────┐    logical operation / transaction</span></span>
+<span data-line=""><span>│ Database API │</span></span>
+<span data-line=""><span>└──────┬───────┘</span></span>
+<span data-line=""><span>       ▼</span></span>
+<span data-line=""><span>┌──────────────┐    pages, indexes, WAL, buffer pool</span></span>
+<span data-line=""><span>│ Storage      │</span></span>
+<span data-line=""><span>│ Engine       │</span></span>
+<span data-line=""><span>└──────┬───────┘</span></span>
+<span data-line=""><span>       ▼</span></span>
+<span data-line=""><span>┌──────────────┐    replication, election, consensus</span></span>
+<span data-line=""><span>│ Distributed  │</span></span>
+<span data-line=""><span>│ Protocols    │</span></span>
+<span data-line=""><span>└──────┬───────┘</span></span>
+<span data-line=""><span>       ▼</span></span>
+<span data-line=""><span>┌──────────────┐</span></span>
+<span data-line=""><span>│ Disk/Network │</span></span>
+<span data-line=""><span>└──────────────┘</span></span></code></pre></figure>
+<h2 id="%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%EF%BC%9A%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E">第一部分：存储引擎</h2>
+<h3 id="1.%20%E4%BB%8E%E5%B7%A5%E4%BD%9C%E8%B4%9F%E8%BD%BD%E5%92%8C%E4%BB%8B%E8%B4%A8%E7%BA%A6%E6%9D%9F%E5%87%BA%E5%8F%91">1. 从工作负载和介质约束出发</h3>
+<p>数据库首先要在访问模式和硬件特征之间做匹配：</p>
+<ul>
+<li><strong>事务型负载（OLTP）</strong>：大量短事务、点查和小范围更新，关心单次请求延迟与并发。</li>
+<li><strong>分析型负载（OLAP）</strong>：扫描大量记录并聚合少数字段，关心顺序吞吐、压缩率和向量化处理。</li>
+<li><strong>行式存储</strong>适合读取或更新完整记录；<strong>列式存储</strong>适合只扫描少数字段并按列压缩。</li>
+<li>磁盘和 SSD 都更擅长较大块的顺序 I/O，而不是许多细碎随机 I/O；内存虽快，却不是无限且默认持久的。</li>
+</ul>
+<p>因此，数据库不会直接为每条记录单独访问磁盘，而是以固定大小的**页（page）**作为读写、缓存、校验和恢复的基本单位。一次逻辑记录更新，最终会变成对一个或多个页的修改。</p>
+<p>存储引擎要同时管理三类放大：</p>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>常见来源</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读放大</td>
+<td>为返回一份数据额外读取了多少页、文件或副本</td>
+<td>多层索引、多个 SSTable、缓存未命中</td>
+</tr>
+<tr>
+<td>写放大</td>
+<td>一次逻辑写导致数据被写入或重写多少次</td>
+<td>WAL、页分裂、compaction、复制</td>
+</tr>
+<tr>
+<td>空间放大</td>
+<td>保存逻辑数据之外额外占用多少空间</td>
+<td>空洞、旧版本、墓碑、冗余副本</td>
+</tr>
+</tbody>
+</table>
+<p>这三者往往无法同时最小化。一个结构减少前台随机写，通常会把成本转移到读取、空间占用或后台整理。</p>
+<h3 id="2.%20%E9%A1%B5%E5%92%8C%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%EF%BC%9A%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BF%85%E9%A1%BB%E5%8F%AF%E6%8C%81%E4%B9%85%E5%8C%96">2. 页和文件格式：数据结构必须可持久化</h3>
+<p>内存里的指针在进程重启后没有意义，磁盘结构需要稳定的二进制布局和可解析的引用。一个页通常包含：</p>
+<ul>
+<li><strong>页头</strong>：页类型、记录数、空闲空间边界、校验和、版本等元数据。</li>
+<li><strong>槽目录（slot directory）</strong>：保存单元格的偏移和长度，让记录可在页内移动而不改变外部引用。</li>
+<li><strong>单元格（cell）</strong>：键、值或指向子页/溢出页的引用。</li>
+<li><strong>空闲空间</strong>：供插入、更新和页内整理使用。</li>
+</ul>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">diagram</span><button type="button" class="code-copy-button" data-code="┌──────────────────────── Page ────────────────────────┐
+│ Header │ Slot 0 │ Slot 1 │ ... │ Free Space │ Cells │
+└──────────────────────────────────────────────────────┘
+           │                                ▲
+           └──────── offset/length ─────────┘">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="diagram" data-theme="nord"><code data-language="diagram" data-theme="nord" style="display: grid;"><span data-line=""><span>┌──────────────────────── Page ────────────────────────┐</span></span>
+<span data-line=""><span>│ Header │ Slot 0 │ Slot 1 │ ... │ Free Space │ Cells │</span></span>
+<span data-line=""><span>└──────────────────────────────────────────────────────┘</span></span>
+<span data-line=""><span>           │                                ▲</span></span>
+<span data-line=""><span>           └──────── offset/length ─────────┘</span></span></code></pre></figure>
+<p>槽页解决了变长记录带来的间接寻址问题：外部可以引用“页号 + 槽号”，页内整理时只更新槽目录，不必修改所有索引指针。超出页容量的大值则可拆到 overflow page，但额外跳转会增加读取成本。</p>
+<p>文件格式设计还要考虑：</p>
+<ul>
+<li>字节序、定长与变长编码；</li>
+<li>版本兼容与格式升级；</li>
+<li>校验和，以识别静默数据损坏或 torn page；</li>
+<li>页内碎片和可用空间管理；</li>
+<li>解析边界，避免损坏长度字段扩散成越界读取。</li>
+</ul>
+<p><strong>关键认识</strong>：磁盘数据结构不仅要支持查询，还要在任意时刻都能被验证、恢复和演进。</p>
+<h3 id="3.%20B-Tree%EF%BC%9A%E7%94%A8%E5%AE%BD%E8%80%8C%E7%9F%AE%E7%9A%84%E6%9C%89%E5%BA%8F%E6%A0%91%E5%87%8F%E5%B0%91%20I%2FO">3. B-Tree：用宽而矮的有序树减少 I/O</h3>
+<p>B-Tree 把许多有序键放在同一个页中，使每个节点拥有较高扇出，从而让树保持很矮。内部节点保存分隔键和子页引用，叶子节点保存记录或记录位置；从根到叶的路径长度就是一次查找所需的主要随机 I/O 次数。</p>
+<p>核心不变量包括：</p>
+<ul>
+<li>节点内键有序，子树的键范围由分隔键界定；</li>
+<li>除根节点外，节点占用率有下限和上限；</li>
+<li>所有叶子位于同一深度；</li>
+<li>插入导致溢出时分裂节点，并把分隔键向父节点传播；</li>
+<li>删除导致占用不足时，从兄弟节点借位或合并，并更新父节点。</li>
+</ul>
+<p>B+Tree 常把真正的数据保存在叶子，内部节点只负责导航；叶子间通过 sibling link 相连，可高效执行范围扫描。</p>
+<h4 id="%E5%AE%9E%E7%8E%B0%E7%BB%86%E8%8A%82%E6%AF%94%E6%8A%BD%E8%B1%A1%E7%AE%97%E6%B3%95%E6%9B%B4%E9%87%8D%E8%A6%81">实现细节比抽象算法更重要</h4>
+<p>教科书里的 B-Tree 操作通常假设单步原子修改，但真实数据库需要处理：</p>
+<ul>
+<li>一个逻辑操作可能修改叶子、父节点甚至一路传播到根；</li>
+<li>并发线程可能同时搜索、分裂和合并同一条路径；</li>
+<li>进程可能在任意两个页写入之间崩溃；</li>
+<li>更新和删除会留下不可直接复用的碎片；</li>
+<li>单调递增键可能持续命中最右侧页，形成并发热点。</li>
+</ul>
+<p>数据库会使用 latch 保护内存页结构，并通过 latch crabbing、sibling link、high key 等技术缩小锁定范围，使读者在结构变化期间仍能导航到正确页。页分裂的正确性不仅取决于“键是否分成两半”，还取决于链接和父指针以什么顺序发布。</p>
+<h4 id="B-Tree%20%E7%9A%84%E7%BB%B4%E6%8A%A4%E6%88%90%E6%9C%AC">B-Tree 的维护成本</h4>
+<ul>
+<li>随机更新会原地改页，并产生 WAL 和脏页回写。</li>
+<li>页分裂可能造成额外 I/O，低填充率会带来空间放大。</li>
+<li>删除记录后，空间不一定立刻归还，需要 vacuum、页合并或碎片整理。</li>
+<li>批量加载已排序数据，可以自底向上构造页面，避免逐条插入和重复分裂。</li>
+<li>前缀压缩可以减少内部节点中重复键的存储，提高扇出并降低树高。</li>
+</ul>
+<h3 id="4.%20%E4%BA%8B%E5%8A%A1%E5%A4%84%E7%90%86%EF%BC%9A%E9%80%BB%E8%BE%91%E5%8E%9F%E5%AD%90%E6%80%A7%E5%BB%BA%E7%AB%8B%E5%9C%A8%E9%9D%9E%E5%8E%9F%E5%AD%90%E7%9A%84%E9%A1%B5%E5%86%99%E4%B9%8B%E4%B8%8A">4. 事务处理：逻辑原子性建立在非原子的页写之上</h3>
+<p>事务通常用 ACID 描述，但四个属性由不同机制共同实现：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>要解决的问题</th>
+<th>典型机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Atomicity</td>
+<td>事务不能只执行一半</td>
+<td>undo、版本、原子提交协议</td>
+</tr>
+<tr>
+<td>Consistency</td>
+<td>事务前后业务不变量成立</td>
+<td>数据约束 + 应用逻辑 + 原子性/隔离性</td>
+</tr>
+<tr>
+<td>Isolation</td>
+<td>并发事务不应观察到非法中间状态</td>
+<td>锁、时间戳、MVCC、串行化验证</td>
+</tr>
+<tr>
+<td>Durability</td>
+<td>已提交结果在故障后仍存在</td>
+<td>WAL、fsync、复制、恢复</td>
+</tr>
+</tbody>
+</table>
+<p>这里的 Consistency 是应用不变量，不等于分布式系统里的副本一致性模型；数据库只能提供执行机制，无法自动证明所有业务规则。</p>
+<h4 id="Buffer%20Pool">Buffer Pool</h4>
+<p>数据库通过缓冲池缓存热页，避免每次访问磁盘：</p>
+<ul>
+<li>读页时先查 page cache；未命中才从磁盘装入 frame。</li>
+<li>更新通常先修改内存中的页并标记 dirty，不必同步写回数据文件。</li>
+<li>淘汰算法既要考虑最近/频繁访问，也要避免扫描污染整个缓存。</li>
+<li>正在被使用或尚不能安全落盘的页需要 pin，不能随意淘汰。</li>
+</ul>
+<p>缓冲池让性能显著提高，也带来一个恢复难题：提交时数据页可能尚未写盘；未提交事务修改过的脏页又可能先被淘汰到磁盘。</p>
+<h4 id="Write-Ahead%20Log">Write-Ahead Log</h4>
+<p>WAL 的核心规则是：<strong>描述修改的日志必须先于对应数据页持久化</strong>。事务返回提交成功前，还必须让它的 commit record 达到持久存储。</p>
+<p>典型写路径如下：</p>
+<ol>
+<li>在内存中生成日志记录，为其分配递增的 LSN。</li>
+<li>修改缓冲池中的目标页，并把页标记为 dirty。</li>
+<li>提交时把该事务截至 commit record 的 WAL 刷盘。</li>
+<li>数据页稍后由后台线程批量写回，写回前确认相关 WAL 已经持久化。</li>
+</ol>
+<p>WAL 把大量细小随机页写转换为追加日志，再允许数据页乱序、批量回写。一次 <code>fsync</code> 还可以为多个事务共同完成持久化，即 group commit。</p>
+<h4 id="%E5%B4%A9%E6%BA%83%E6%81%A2%E5%A4%8D">崩溃恢复</h4>
+<p>恢复算法必须区分：哪些事务已提交但数据页尚未落盘，需要 <strong>redo</strong>；哪些事务未提交但修改已经写入数据文件，需要 <strong>undo</strong>。</p>
+<p>以 ARIES 思路概括：</p>
+<ol>
+<li><strong>Analysis</strong>：从 checkpoint 附近重建崩溃时的脏页表和活跃事务表。</li>
+<li><strong>Redo</strong>：重复历史，把可能未落盘的修改恢复到崩溃前状态；page LSN 可避免重复执行已存在的更新。</li>
+<li><strong>Undo</strong>：按相反方向撤销未提交事务，并写 compensation log record，让恢复过程本身也可再次恢复。</li>
+</ol>
+<p>Checkpoint 不是把数据库“暂停并全部写干净”，而是缩小恢复时需要扫描的日志范围。正常运行的吞吐与故障后的恢复时间之间仍需权衡。</p>
+<h3 id="5.%20B-Tree%20%E5%8F%98%E4%BD%93%EF%BC%9A%E5%9B%B4%E7%BB%95%E5%86%99%E5%85%A5%E5%92%8C%E5%B9%B6%E5%8F%91%E9%87%8D%E6%96%B0%E5%AE%89%E6%8E%92%E5%B7%A5%E4%BD%9C">5. B-Tree 变体：围绕写入和并发重新安排工作</h3>
+<p>经典 B-Tree 不是终点。不同变体通过改变修改传播方式来优化特定瓶颈：</p>
+<ul>
+<li><strong>Copy-on-Write B-Tree</strong>：不覆盖旧页，而是创建新页并一路复制到根；提交可归结为切换根指针，天然保留快照，但随机更新可能复制整条路径。</li>
+<li><strong>Bw-Tree</strong>：借助映射表和 delta record 避免原地修改页面，以 CAS 发布变化，再由后台 consolidation 合并增量；降低 latch 依赖，但读取要遍历增量链。</li>
+<li><strong>Fractal Tree / FD-Tree</strong>：在内部节点缓冲更新，攒成批后向下传播，把随机写转化为批量顺序工作；代价是读取和维护逻辑更复杂。</li>
+<li><strong>Cache-oblivious B-Tree</strong>：不显式固定块大小，通过递归布局尝试在不同缓存层级获得局部性。</li>
+</ul>
+<p>这些设计都在回答同一个问题：能否延迟、批量或间接发布修改，从而减少前台随机写和结构锁竞争。它们没有消灭工作，只是改变了工作发生的时间和位置。</p>
+<h3 id="6.%20LSM%20Tree%EF%BC%9A%E5%89%8D%E5%8F%B0%E8%BF%BD%E5%8A%A0%EF%BC%8C%E5%90%8E%E5%8F%B0%E5%BD%92%E5%B9%B6">6. LSM Tree：前台追加，后台归并</h3>
+<p>LSM Tree 把随机更新先写入内存有序结构，再按不可变文件顺序落盘：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">diagram</span><button type="button" class="code-copy-button" data-code="                 flush
+┌─────┐   ┌──────────┐   ┌──────────┐
+│ WAL │◀──│ Memtable │──▶│ SSTable  │  L0
+└─────┘   └──────────┘   └────┬─────┘
+                               │ compaction
+                               ▼
+                         ┌──────────┐
+                         │ SSTables │  L1 ... Ln
+                         └──────────┘">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="diagram" data-theme="nord"><code data-language="diagram" data-theme="nord" style="display: grid;"><span data-line=""><span>                 flush</span></span>
+<span data-line=""><span>┌─────┐   ┌──────────┐   ┌──────────┐</span></span>
+<span data-line=""><span>│ WAL │◀──│ Memtable │──▶│ SSTable  │  L0</span></span>
+<span data-line=""><span>└─────┘   └──────────┘   └────┬─────┘</span></span>
+<span data-line=""><span>                               │ compaction</span></span>
+<span data-line=""><span>                               ▼</span></span>
+<span data-line=""><span>                         ┌──────────┐</span></span>
+<span data-line=""><span>                         │ SSTables │  L1 ... Ln</span></span>
+<span data-line=""><span>                         └──────────┘</span></span></code></pre></figure>
+<h4 id="%E5%86%99%E5%85%A5%E8%B7%AF%E5%BE%84">写入路径</h4>
+<ol>
+<li>追加 WAL，保证 memtable 丢失后可以恢复。</li>
+<li>更新内存中的有序 memtable。</li>
+<li>memtable 达到阈值后冻结为 immutable memtable，并顺序写成 SSTable。</li>
+<li>后台 compaction 归并文件、保留新版本并清理安全可删除的旧版本与墓碑。</li>
+</ol>
+<p>SSTable 内部按键有序，通常配有稀疏索引、数据块索引和 Bloom filter。Bloom filter 能快速证明“某文件一定没有这个键”，但不能证明键一定存在，并且只优化点查而非任意范围扫描。</p>
+<h4 id="%E8%AF%BB%E5%8F%96%E8%B7%AF%E5%BE%84">读取路径</h4>
+<p>读取需要从新到旧检查 memtable 和可能覆盖目标键范围的 SSTable，找到最新可见版本。文件和层级越多，读放大越高；block cache、Bloom filter、索引和 compaction 都是在减少实际查询的文件数。</p>
+<p>删除通常写入 <strong>tombstone</strong>，因为旧值可能仍存在于更老文件中。只有当 compaction 能确认不会让旧版本“复活”，且不再受快照、复制或修复窗口约束时，墓碑才能被安全清理。</p>
+<h4 id="Compaction%20%E7%AD%96%E7%95%A5">Compaction 策略</h4>
+<table>
+<thead>
+<tr>
+<th>策略</th>
+<th>做法</th>
+<th>典型权衡</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Size-tiered</td>
+<td>把大小相近的文件成批合并</td>
+<td>写入成本较低，但重叠文件多，读和空间放大较高</td>
+</tr>
+<tr>
+<td>Leveled</td>
+<td>每层控制大小，除 L0 外尽量让键范围不重叠</td>
+<td>读和空间放大较低，但数据可能在层间被反复重写</td>
+</tr>
+</tbody>
+</table>
+<p>Compaction 是 LSM 的代价结算器：它消除旧版本、回收墓碑、降低读放大，却消耗磁盘带宽和 CPU，并可能与前台请求争抢资源。若写入速度持续超过 compaction 能力，就会形成 compaction debt，最终表现为文件数增长、空间膨胀和延迟尖峰。</p>
+<h4 id="B-Tree%20%E4%B8%8E%20LSM%20%E7%9A%84%E6%AD%A3%E7%A1%AE%E6%AF%94%E8%BE%83%E6%96%B9%E5%BC%8F">B-Tree 与 LSM 的正确比较方式</h4>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>B-Tree 家族</th>
+<th>LSM 家族</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>当前视图</td>
+<td>原地维护一个主要有序结构</td>
+<td>多个按时间形成的有序结构共同构成当前视图</td>
+</tr>
+<tr>
+<td>前台写入</td>
+<td>更新页，可能触发分裂和随机 I/O</td>
+<td>WAL + memtable，主要为追加与内存更新</td>
+</tr>
+<tr>
+<td>点查</td>
+<td>路径稳定，通常检查单棵树</td>
+<td>可能检查多层文件，依赖过滤器和缓存</td>
+</tr>
+<tr>
+<td>范围扫描</td>
+<td>叶子连续，行为较直观</td>
+<td>需要多路归并并处理版本与墓碑</td>
+</tr>
+<tr>
+<td>后台工作</td>
+<td>刷脏页、vacuum、页合并</td>
+<td>flush、compaction、墓碑回收</td>
+</tr>
+<tr>
+<td>主要风险</td>
+<td>随机写、页碎片、结构热点</td>
+<td>compaction 抢占、读放大、空间暂增</td>
+</tr>
+</tbody>
+</table>
+<p>不能脱离以下因素宣布谁“更快”：读写比例、键分布、值大小、范围查询比例、缓存容量、设备特性、压缩率、持久性设置和尾延迟目标。</p>
+<h2 id="%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F">第二部分：分布式系统</h2>
+<h3 id="7.%20%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BA%A6%E6%9D%9F">7. 分布式系统的基本约束</h3>
+<p>单机数据库可以依赖本地函数调用、共享内存和相对清晰的失败边界；分布式数据库面对的是局部知识：</p>
+<ul>
+<li>消息可能延迟、丢失、重复或乱序；</li>
+<li>节点可能暂停、崩溃、重启，磁盘也可能损坏；</li>
+<li>节点没有完美同步的全局时钟；</li>
+<li>超时不能证明远端失败，只能说明本地尚未收到响应；</li>
+<li>客户端重试时，无法仅凭超时判断前一次操作是否已经生效。</li>
+</ul>
+<p>所以网络请求必须考虑唯一请求标识、幂等、去重和重试边界；协议必须明确系统模型和故障模型，不能把“通常很快”当作安全性前提。</p>
+<h3 id="8.%20%E6%95%85%E9%9A%9C%E6%A3%80%E6%B5%8B%EF%BC%9A%E8%B6%85%E6%97%B6%E8%BE%93%E5%87%BA%E7%9A%84%E6%98%AF%E6%80%80%E7%96%91">8. 故障检测：超时输出的是怀疑</h3>
+<p>节点通常通过心跳和超时判断同伴是否可达：</p>
+<ul>
+<li>超时短，发现故障更快，但慢节点和网络抖动会制造误判。</li>
+<li>超时长，误判更少，但故障恢复和选主更慢。</li>
+<li>自适应检测器根据历史到达间隔估算怀疑程度，而不是只输出布尔值。</li>
+</ul>
+<p>故障检测器的输出只能作为协议输入，不能单独授予节点成为 leader 的权力。否则两个互相不可达的节点都可能认为对方已死，形成 split brain。真正的排他性通常来自 quorum、epoch/term 和 fencing token。</p>
+<h3 id="9.%20Leader%20Election%EF%BC%9A%E9%80%89%E5%87%BA%20leader%20%E8%BF%98%E4%B8%8D%E5%A4%9F">9. Leader Election：选出 leader 还不够</h3>
+<p>选主需要同时保证：</p>
+<ul>
+<li>同一有效任期内不会有两个都能提交写入的 leader；</li>
+<li>新 leader 包含足够新的已提交历史；</li>
+<li>旧 leader 恢复或网络恢复后，不能继续以旧身份修改共享资源；</li>
+<li>系统稳定后能完成选举并继续服务。</li>
+</ul>
+<p>任期号或 epoch 用来区分新旧领导权。外部存储也必须检查 fencing token，否则旧 leader 即使失去集群多数票，仍可能在暂停恢复后继续写入。</p>
+<h3 id="10.%20%E5%A4%8D%E5%88%B6%E4%B8%8E%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%9A%E5%89%AF%E6%9C%AC%E6%95%B0%E9%87%8F%E4%B8%8D%E7%AD%89%E4%BA%8E%E6%AD%A3%E7%A1%AE%E6%80%A7">10. 复制与一致性：副本数量不等于正确性</h3>
+<p>复制可以提高容错、读吞吐并缩短地理距离，但会带来副本延迟和冲突。</p>
+<ul>
+<li><strong>同步复制</strong>等待一个或多个副本确认后返回，故障时数据保证更强，但延迟和不可用风险更高。</li>
+<li><strong>异步复制</strong>由主节点先返回，再传播更新，延迟较低，但主节点在复制前故障会产生已确认写入丢失窗口。</li>
+<li><strong>单主复制</strong>集中排序写入，模型简单，但 leader 是写路径瓶颈和故障切换焦点。</li>
+<li><strong>多主或无主复制</strong>允许多个位置接收更新，提高局部可用性，却必须检测和解决并发版本。</li>
+</ul>
+<p>若系统有 <code>N</code> 个副本、写等待 <code>W</code> 个确认、读查询 <code>R</code> 个副本，<code>R + W > N</code> 只说明读写集合必有交集。它并不会自动得到线性一致性：还需要版本排序、并发写处理、读取最新值、节点成员视图和故障恢复等条件。</p>
+<p>一致性必须用可观察行为描述，例如线性一致性、顺序一致性、因果一致性、读己之写或单调读；“强一致”和“最终一致”常常不足以成为可验证的契约。</p>
+<h3 id="11.%20%E5%8F%8D%E7%86%B5%E4%B8%8E%E4%BF%A1%E6%81%AF%E4%BC%A0%E6%92%AD%EF%BC%9A%E4%BF%AE%E5%A4%8D%E5%89%AF%E6%9C%AC%E5%88%86%E6%AD%A7">11. 反熵与信息传播：修复副本分歧</h3>
+<p>即使正常写路径会复制，短暂离线、丢包和故障恢复仍会让副本缺少更新。系统需要后台机制持续发现和修复差异：</p>
+<ul>
+<li><strong>Read repair</strong>：读取多个副本时顺便修复旧版本。</li>
+<li><strong>Hinted handoff</strong>：目标副本不可用时暂存提示，恢复后补发。</li>
+<li><strong>Merkle tree</strong>：分层比较哈希，只传输不同的范围，避免逐条校验全部数据。</li>
+<li><strong>Gossip</strong>：节点周期性随机交换成员和状态摘要，让信息以概率方式扩散。</li>
+</ul>
+<p>这些机制通常只保证最终传播，不天然提供操作全序。版本向量等逻辑时钟可以区分“一个版本覆盖另一个”和“两个版本并发”，但冲突最终仍需由确定性合并规则或业务语义解决。</p>
+<h3 id="12.%20%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%EF%BC%9A%E5%8E%9F%E5%AD%90%E6%8F%90%E4%BA%A4%E4%B8%8E%E5%85%B1%E8%AF%86%E4%B8%8D%E6%98%AF%E4%B8%80%E5%9B%9E%E4%BA%8B">12. 分布式事务：原子提交与共识不是一回事</h3>
+<p>跨节点事务首先要保证所有参与者共同提交或共同回滚。两阶段提交（2PC）分两轮完成：</p>
+<ol>
+<li><strong>Prepare</strong>：协调者询问参与者能否提交；参与者持久化准备状态并锁定相关资源。</li>
+<li><strong>Commit/Abort</strong>：全体同意才提交，否则回滚。</li>
+</ol>
+<p>参与者一旦回答 prepared，就不能自行决定结果；如果此时协调者失联，它可能长期阻塞并持有资源。2PC 解决原子提交，但经典形式不容忍协调者不可达，因此不等于共识。</p>
+<p>实践中要区分三个层次：</p>
+<ul>
+<li>本地并发控制决定每个分片内哪些操作可以并发执行；</li>
+<li>原子提交决定一个跨分片事务是否整体生效；</li>
+<li>共识复制保证每个参与角色及其决策在节点故障后仍可恢复。</li>
+</ul>
+<p>把协调者和参与者状态复制到共识组，可以提高可用性，但没有消除跨分片协调、长尾等待和锁持有成本。</p>
+<h3 id="13.%20%E5%85%B1%E8%AF%86%EF%BC%9A%E7%94%A8%E5%A4%9A%E6%95%B0%E6%B4%BE%E4%BA%A4%E9%9B%86%E4%BF%9D%E6%8A%A4%E5%94%AF%E4%B8%80%E5%8E%86%E5%8F%B2">13. 共识：用多数派交集保护唯一历史</h3>
+<p>共识要求多个节点对同一个值或日志前缀达成决定。Paxos、Raft、ZAB 等协议表达方式不同，但都依赖相似基础：</p>
+<ul>
+<li><code>2f + 1</code> 个投票节点最多容忍 <code>f</code> 个节点失效；</li>
+<li>任意两个多数派必有交集，已提交历史会被后续多数派中的至少一个节点携带；</li>
+<li>递增 term/ballot/epoch 区分新旧提案和领导权；</li>
+<li>投票与日志等关键状态必须持久化，重启不能忘记承诺；</li>
+<li>少数派必须停止决定新值，以安全性换取网络分区期间的部分不可用。</li>
+</ul>
+<p>共识的首要目标是 <strong>safety</strong>：不能形成两个都被提交的冲突历史。网络持续不稳定时，系统可以暂时没有进展，但不能通过两个 leader 各自提交来制造“可用性”。成员变更、日志截断、快照安装和持久化边界，都是实现中与算法核心同样重要的正确性部分。</p>
+<h2 id="%E7%BB%9F%E4%B8%80%E5%88%86%E6%9E%90%E6%A1%86%E6%9E%B6">统一分析框架</h2>
+<p>面对一个数据库或存储系统，可以按以下顺序拆解：</p>
+<h3 id="1.%20%E5%85%88%E9%97%AE%E5%B7%A5%E4%BD%9C%E8%B4%9F%E8%BD%BD">1. 先问工作负载</h3>
+<ul>
+<li>点查、范围扫描还是全表聚合？</li>
+<li>读多、写多还是突发写入？</li>
+<li>键和值多大，键分布是否单调或倾斜？</li>
+<li>更关注平均吞吐还是 P99/P999 延迟？</li>
+</ul>
+<h3 id="2.%20%E5%86%8D%E8%BF%BD%E8%B8%AA%E5%8D%95%E6%9C%BA%E5%86%99%E8%B7%AF%E5%BE%84">2. 再追踪单机写路径</h3>
+<ul>
+<li>写入何时进入 WAL，何时真正持久化？</li>
+<li>数据页是原地更新还是生成不可变文件？</li>
+<li>提交是否依赖 <code>fsync</code>，是否做 group commit？</li>
+<li>崩溃后 redo/undo 从哪里开始，checkpoint 有什么保证？</li>
+<li>后台 flush、vacuum 或 compaction 是否会抢占前台资源？</li>
+</ul>
+<h3 id="3.%20%E5%86%8D%E8%BF%BD%E8%B8%AA%E5%88%86%E5%B8%83%E5%BC%8F%E7%A1%AE%E8%AE%A4%E8%B7%AF%E5%BE%84">3. 再追踪分布式确认路径</h3>
+<ul>
+<li>请求由谁排序和提交，需要几个副本确认？</li>
+<li>返回成功时，哪些故障仍可能丢失结果？</li>
+<li>leader 如何选举，旧 leader 如何被 fencing？</li>
+<li>客户端超时重试会不会重复执行？</li>
+<li>离线副本如何追赶，冲突版本如何合并？</li>
+</ul>
+<h3 id="4.%20%E6%9C%80%E5%90%8E%E6%A0%B8%E5%AF%B9%E5%A5%91%E7%BA%A6">4. 最后核对契约</h3>
+<ul>
+<li>系统承诺哪一种隔离级别和一致性模型？</li>
+<li>保证在什么故障模型、持久化配置和副本配置下成立？</li>
+<li>备份能否恢复，恢复点和恢复时间目标是什么？</li>
+<li>性能收益是消灭了成本，还是把成本延迟到后台或故障期间？</li>
+</ul>
+<h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
+<ol>
+<li><strong>数据库的大部分优化都在重新安排工作。</strong> 缓存把磁盘读取延后，WAL 把随机写改成追加，LSM 把整理移到 compaction，复制把恢复能力换成网络和一致性成本。评估优化时必须找到被转移的代价。</li>
+<li><strong>页是存储引擎真正的原子词汇。</strong> 表、行和索引是逻辑概念，而空间管理、缓存、校验、锁存和恢复最终都围绕页展开。</li>
+<li><strong>不可变性降低了原地协调，却增加了版本管理。</strong> SSTable、copy-on-write、快照和追加日志更容易并发读取与恢复，但必须处理旧版本、墓碑、回收和空间放大。</li>
+<li><strong>WAL 的价值不只是备份。</strong> 它通过明确写入顺序，把提交延迟与数据页回写解耦，是 steal/no-force 缓冲策略能够成立的基础。</li>
+<li><strong>B-Tree 和 LSM 不是简单的“读优化/写优化”二选一。</strong> 两者都有 WAL、缓存和后台维护；真实结果取决于放大系数、设备、负载、压缩和延迟目标。</li>
+<li><strong>后台任务也是核心数据路径。</strong> Compaction、vacuum、checkpoint 和 replica repair 若跟不上，前台短暂的高吞吐只是积累债务。</li>
+<li><strong>超时代表未知，不代表失败。</strong> 这直接推出客户端请求要有幂等语义或去重标识，也推出故障检测不能单独解决 split brain。</li>
+<li><strong>复制保存多个副本，共识保存一个决定。</strong> 有副本不代表它们同样新，也不代表故障切换后不会产生冲突历史。</li>
+<li><strong>Quorum 交集是必要条件，不是完整一致性证明。</strong> 还必须追问版本、顺序、并发写、成员变更和读取规则。</li>
+<li><strong>原子提交、复制与共识解决不同问题。</strong> 2PC 决定多个参与者是否一起提交，共识让某个参与者的决策状态在故障后保持唯一；二者可以组合，但不能互相替代。</li>
+<li><strong>数据库正确性是一条端到端链路。</strong> 应用约束、事务隔离、WAL 持久化、存储校验、复制确认和故障切换任一环节的弱保证，都可能成为最终的数据安全边界。</li>
+<li><strong>性能测试必须覆盖稳态和恢复态。</strong> 空库基准或短时压测看不到缓存淘汰、compaction debt、墓碑堆积、故障追赶和 checkpoint 恢复成本。</li>
+</ol>
+<h3 id="%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</h3>
+<ol>
+<li>以后评估数据库选型时，先记录工作负载、数据规模、正确性契约和故障模型，再讨论产品和数据结构。</li>
+<li>为关键数据库画出完整写路径：client → WAL → memtable/buffer pool → data file → replica → acknowledgement，并标注每一步的持久化和失败语义。</li>
+<li>监控不只看 QPS 和平均延迟，同时观察 cache hit、WAL fsync、dirty page、compaction backlog、读写/空间放大、replication lag 与恢复时间。</li>
+<li>为所有可能超时重试的写操作设计 idempotency key、去重表或可安全覆盖的状态转移，不把网络错误直接等同于操作未执行。</li>
+<li>压测 LSM 系统时持续运行到 compaction 进入稳态，并加入覆盖范围删除、墓碑回收和磁盘接近容量上限的场景。</li>
+<li>做高可用演练时验证真实故障边界：leader 在确认前后崩溃、旧 leader 暂停后恢复、少数派隔离、磁盘写满、落后副本追赶和整集群重启。</li>
+<li>阅读数据库文档时，把“强一致”“同步复制”“零数据丢失”等宣传语改写成可验证条件：等待哪些副本、何时 fsync、容忍哪些故障、少数派怎样处理。</li>
+</ol>
+<h2 id="%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</h2>
+<ol>
+<li>数据库的抽象越简单，底层为维持这个抽象付出的协调成本往往越高。</li>
+<li>WAL 先记录意图，数据页随后兑现；恢复就是在故障后完成或撤销这些意图。</li>
+<li>B-Tree 持续维护一个有序视图，LSM 则让多个有序历史在后台逐步收敛成当前视图。</li>
+<li>不可变文件让写入和恢复更简单，却把删除变成了一个需要证明安全后才能完成的过程。</li>
+<li>超时之后得到的不是失败，而是未知；可靠系统必须设计如何处理未知。</li>
+<li>复制解决“还有副本”，共识解决“哪份历史算数”。</li>
+<li>性能优化没有消灭成本，只是把成本从前台挪到后台、从单次请求摊到批次，或从正常路径推迟到恢复路径。</li>
+</ol>
+<h2 id="links">links</h2>
+<ol>
+<li><a href="https://www.oreilly.com/library/view/shu-ju-ku-xi-tong-nei-mu/9787111655169/chapter-129.html">https://www.oreilly.com/library/view/shu-ju-ku-xi-tong-nei-mu/9787111655169/chapter-129.html</a></li>
+<li><a href="https://www.oreilly.com/library/view/database-internals/9781492040330/">https://www.oreilly.com/library/view/database-internals/9781492040330/</a></li>
+</ol></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B3%BB%E7%BB%9F%E5%86%85%E5%B9%95" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E4%B9%A6%E7%AC%94%E8%AE%B0%EF%BC%9A%E6%95%B0%E6%8D%AE%E5%BA%93%E7%B3%BB%E7%BB%9F%E5%86%85%E5%B9%95">读书笔记：数据库系统内幕</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读书笔记：数据库系统内幕</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%EF%BC%9A%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86%EF%BC%9A%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E">第一部分：存储引擎</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">第一部分：存储引擎</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20%E4%BB%8E%E5%B7%A5%E4%BD%9C%E8%B4%9F%E8%BD%BD%E5%92%8C%E4%BB%8B%E8%B4%A8%E7%BA%A6%E6%9D%9F%E5%87%BA%E5%8F%91" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#1.%20%E4%BB%8E%E5%B7%A5%E4%BD%9C%E8%B4%9F%E8%BD%BD%E5%92%8C%E4%BB%8B%E8%B4%A8%E7%BA%A6%E6%9D%9F%E5%87%BA%E5%8F%91">1. 从工作负载和介质约束出发</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">1. 从工作负载和介质约束出发</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E9%A1%B5%E5%92%8C%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%EF%BC%9A%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BF%85%E9%A1%BB%E5%8F%AF%E6%8C%81%E4%B9%85%E5%8C%96" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#2.%20%E9%A1%B5%E5%92%8C%E6%96%87%E4%BB%B6%E6%A0%BC%E5%BC%8F%EF%BC%9A%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E5%BF%85%E9%A1%BB%E5%8F%AF%E6%8C%81%E4%B9%85%E5%8C%96">2. 页和文件格式：数据结构必须可持久化</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">2. 页和文件格式：数据结构必须可持久化</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="3.%20B-Tree%EF%BC%9A%E7%94%A8%E5%AE%BD%E8%80%8C%E7%9F%AE%E7%9A%84%E6%9C%89%E5%BA%8F%E6%A0%91%E5%87%8F%E5%B0%91%20I%2FO" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#3.%20B-Tree%EF%BC%9A%E7%94%A8%E5%AE%BD%E8%80%8C%E7%9F%AE%E7%9A%84%E6%9C%89%E5%BA%8F%E6%A0%91%E5%87%8F%E5%B0%91%20I%2FO">3. B-Tree：用宽而矮的有序树减少 I/O</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">3. B-Tree：用宽而矮的有序树减少 I/O</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="4.%20%E4%BA%8B%E5%8A%A1%E5%A4%84%E7%90%86%EF%BC%9A%E9%80%BB%E8%BE%91%E5%8E%9F%E5%AD%90%E6%80%A7%E5%BB%BA%E7%AB%8B%E5%9C%A8%E9%9D%9E%E5%8E%9F%E5%AD%90%E7%9A%84%E9%A1%B5%E5%86%99%E4%B9%8B%E4%B8%8A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#4.%20%E4%BA%8B%E5%8A%A1%E5%A4%84%E7%90%86%EF%BC%9A%E9%80%BB%E8%BE%91%E5%8E%9F%E5%AD%90%E6%80%A7%E5%BB%BA%E7%AB%8B%E5%9C%A8%E9%9D%9E%E5%8E%9F%E5%AD%90%E7%9A%84%E9%A1%B5%E5%86%99%E4%B9%8B%E4%B8%8A">4. 事务处理：逻辑原子性建立在非原子的页写之上</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">4. 事务处理：逻辑原子性建立在非原子的页写之上</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="5.%20B-Tree%20%E5%8F%98%E4%BD%93%EF%BC%9A%E5%9B%B4%E7%BB%95%E5%86%99%E5%85%A5%E5%92%8C%E5%B9%B6%E5%8F%91%E9%87%8D%E6%96%B0%E5%AE%89%E6%8E%92%E5%B7%A5%E4%BD%9C" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#5.%20B-Tree%20%E5%8F%98%E4%BD%93%EF%BC%9A%E5%9B%B4%E7%BB%95%E5%86%99%E5%85%A5%E5%92%8C%E5%B9%B6%E5%8F%91%E9%87%8D%E6%96%B0%E5%AE%89%E6%8E%92%E5%B7%A5%E4%BD%9C">5. B-Tree 变体：围绕写入和并发重新安排工作</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">5. B-Tree 变体：围绕写入和并发重新安排工作</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="6.%20LSM%20Tree%EF%BC%9A%E5%89%8D%E5%8F%B0%E8%BF%BD%E5%8A%A0%EF%BC%8C%E5%90%8E%E5%8F%B0%E5%BD%92%E5%B9%B6" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#6.%20LSM%20Tree%EF%BC%9A%E5%89%8D%E5%8F%B0%E8%BF%BD%E5%8A%A0%EF%BC%8C%E5%90%8E%E5%8F%B0%E5%BD%92%E5%B9%B6">6. LSM Tree：前台追加，后台归并</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">6. LSM Tree：前台追加，后台归并</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86%EF%BC%9A%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F">第二部分：分布式系统</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">第二部分：分布式系统</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="7.%20%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BA%A6%E6%9D%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#7.%20%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%E7%9A%84%E5%9F%BA%E6%9C%AC%E7%BA%A6%E6%9D%9F">7. 分布式系统的基本约束</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">7. 分布式系统的基本约束</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="8.%20%E6%95%85%E9%9A%9C%E6%A3%80%E6%B5%8B%EF%BC%9A%E8%B6%85%E6%97%B6%E8%BE%93%E5%87%BA%E7%9A%84%E6%98%AF%E6%80%80%E7%96%91" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#8.%20%E6%95%85%E9%9A%9C%E6%A3%80%E6%B5%8B%EF%BC%9A%E8%B6%85%E6%97%B6%E8%BE%93%E5%87%BA%E7%9A%84%E6%98%AF%E6%80%80%E7%96%91">8. 故障检测：超时输出的是怀疑</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">8. 故障检测：超时输出的是怀疑</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="9.%20Leader%20Election%EF%BC%9A%E9%80%89%E5%87%BA%20leader%20%E8%BF%98%E4%B8%8D%E5%A4%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#9.%20Leader%20Election%EF%BC%9A%E9%80%89%E5%87%BA%20leader%20%E8%BF%98%E4%B8%8D%E5%A4%9F">9. Leader Election：选出 leader 还不够</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">9. Leader Election：选出 leader 还不够</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="10.%20%E5%A4%8D%E5%88%B6%E4%B8%8E%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%9A%E5%89%AF%E6%9C%AC%E6%95%B0%E9%87%8F%E4%B8%8D%E7%AD%89%E4%BA%8E%E6%AD%A3%E7%A1%AE%E6%80%A7" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#10.%20%E5%A4%8D%E5%88%B6%E4%B8%8E%E4%B8%80%E8%87%B4%E6%80%A7%EF%BC%9A%E5%89%AF%E6%9C%AC%E6%95%B0%E9%87%8F%E4%B8%8D%E7%AD%89%E4%BA%8E%E6%AD%A3%E7%A1%AE%E6%80%A7">10. 复制与一致性：副本数量不等于正确性</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">10. 复制与一致性：副本数量不等于正确性</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="11.%20%E5%8F%8D%E7%86%B5%E4%B8%8E%E4%BF%A1%E6%81%AF%E4%BC%A0%E6%92%AD%EF%BC%9A%E4%BF%AE%E5%A4%8D%E5%89%AF%E6%9C%AC%E5%88%86%E6%AD%A7" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#11.%20%E5%8F%8D%E7%86%B5%E4%B8%8E%E4%BF%A1%E6%81%AF%E4%BC%A0%E6%92%AD%EF%BC%9A%E4%BF%AE%E5%A4%8D%E5%89%AF%E6%9C%AC%E5%88%86%E6%AD%A7">11. 反熵与信息传播：修复副本分歧</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">11. 反熵与信息传播：修复副本分歧</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="12.%20%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%EF%BC%9A%E5%8E%9F%E5%AD%90%E6%8F%90%E4%BA%A4%E4%B8%8E%E5%85%B1%E8%AF%86%E4%B8%8D%E6%98%AF%E4%B8%80%E5%9B%9E%E4%BA%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#12.%20%E5%88%86%E5%B8%83%E5%BC%8F%E4%BA%8B%E5%8A%A1%EF%BC%9A%E5%8E%9F%E5%AD%90%E6%8F%90%E4%BA%A4%E4%B8%8E%E5%85%B1%E8%AF%86%E4%B8%8D%E6%98%AF%E4%B8%80%E5%9B%9E%E4%BA%8B">12. 分布式事务：原子提交与共识不是一回事</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">12. 分布式事务：原子提交与共识不是一回事</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="13.%20%E5%85%B1%E8%AF%86%EF%BC%9A%E7%94%A8%E5%A4%9A%E6%95%B0%E6%B4%BE%E4%BA%A4%E9%9B%86%E4%BF%9D%E6%8A%A4%E5%94%AF%E4%B8%80%E5%8E%86%E5%8F%B2" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#13.%20%E5%85%B1%E8%AF%86%EF%BC%9A%E7%94%A8%E5%A4%9A%E6%95%B0%E6%B4%BE%E4%BA%A4%E9%9B%86%E4%BF%9D%E6%8A%A4%E5%94%AF%E4%B8%80%E5%8E%86%E5%8F%B2">13. 共识：用多数派交集保护唯一历史</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">13. 共识：用多数派交集保护唯一历史</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%BB%9F%E4%B8%80%E5%88%86%E6%9E%90%E6%A1%86%E6%9E%B6" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%BB%9F%E4%B8%80%E5%88%86%E6%9E%90%E6%A1%86%E6%9E%B6">统一分析框架</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">统一分析框架</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20%E5%85%88%E9%97%AE%E5%B7%A5%E4%BD%9C%E8%B4%9F%E8%BD%BD" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#1.%20%E5%85%88%E9%97%AE%E5%B7%A5%E4%BD%9C%E8%B4%9F%E8%BD%BD">1. 先问工作负载</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">1. 先问工作负载</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E5%86%8D%E8%BF%BD%E8%B8%AA%E5%8D%95%E6%9C%BA%E5%86%99%E8%B7%AF%E5%BE%84" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#2.%20%E5%86%8D%E8%BF%BD%E8%B8%AA%E5%8D%95%E6%9C%BA%E5%86%99%E8%B7%AF%E5%BE%84">2. 再追踪单机写路径</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">2. 再追踪单机写路径</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="3.%20%E5%86%8D%E8%BF%BD%E8%B8%AA%E5%88%86%E5%B8%83%E5%BC%8F%E7%A1%AE%E8%AE%A4%E8%B7%AF%E5%BE%84" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#3.%20%E5%86%8D%E8%BF%BD%E8%B8%AA%E5%88%86%E5%B8%83%E5%BC%8F%E7%A1%AE%E8%AE%A4%E8%B7%AF%E5%BE%84">3. 再追踪分布式确认路径</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">3. 再追踪分布式确认路径</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="4.%20%E6%9C%80%E5%90%8E%E6%A0%B8%E5%AF%B9%E5%A5%91%E7%BA%A6" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#4.%20%E6%9C%80%E5%90%8E%E6%A0%B8%E5%AF%B9%E5%A5%91%E7%BA%A6">4. 最后核对契约</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">4. 最后核对契约</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%A1%8C%E5%8A%A8%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%A1%8C%E5%8A%A8%EF%BC%9A">行动：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">行动：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E9%87%91%E5%8F%A5%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E9%87%91%E5%8F%A5%EF%BC%9A">金句：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">金句：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
