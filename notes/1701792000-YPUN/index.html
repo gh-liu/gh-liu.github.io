@@ -93,6 +93,41 @@
 <li>索引 / 访问路径：主键、二级索引、覆盖索引、多列索引；点查、范围扫描、全表扫描</li>
 <li>这一层直接决定<code>读放大 / 写放大 / 空间放大</code>三角</li>
 </ul>
+<p>写优先的引擎（LSM / 日志结构）会把数据路径拆成两条：<strong>前台提交路径</strong>负责低延迟与持久性，<strong>后台整理路径</strong>异步把数据变成可查询、可归档的形态：</p>
+<pre class="mermaid mx-auto block h-auto max-w-full">sequenceDiagram
+    autonumber
+    box rgb(225,240,255) 前台提交路径 commit path（同步 · 决定延迟与持久性）
+        participant C as Client
+        participant E as 存储引擎 (Leader)
+        participant W as WAL / replicated log
+        participant D as 本地 SSD
+        participant F as Follower (副本)
+    end
+    box rgb(255,244,220) 后台整理路径 materialization path（异步 · 决定存储形态与成本）
+        participant M as 内存状态 (MemTable / Buffer Pool)
+        participant B as 后台任务 checkpoint / flush / compaction
+        participant T as SSTable / segment / snapshot
+        participant O as 对象存储 S3
+    end
+
+    Note over C,F: ① 提交路径：写入先过日志，返回前必须 durable
+    C->>E: 写入请求 (put / txn commit)
+    E->>W: append log record + fsync
+    W->>D: 顺序写日志段
+    W-->>E: 本地落盘确认（单机持久性）
+    E->>F: 复制日志记录
+    F-->>E: quorum ack（分布式持久性）
+    E->>M: 更新内存状态（无 I/O，立即可读）
+    E-->>C: 返回提交成功（commit ack）
+
+    Note over M,O: ② 整理路径：提交之后才动，慢一点没关系
+    B->>M: checkpoint / flush（周期触发）
+    M->>T: 刷出不可变快照（SSTable / segment）
+    B->>T: compaction（合并 / 排序 / 清理）
+    B->>O: 上传快照到对象存储（廉价归档）
+    B->>W: 截断已 checkpoint 的日志
+</pre>
+<p>两条路径的本质分工：<strong>提交路径只做顺序写</strong>（日志追加 + fsync，或复制到 quorum），把随机写和重活全甩给<strong>后台路径</strong>批量消化；<code>写放大 / 空间放大</code>因此发生在后台，不挡前台延迟。本地 SSD 与 quorum 满足其一即可保证 durable。</p>
 <h3 id="3.%20%E5%88%86%E5%B8%83%E5%B1%82%EF%BC%88%E8%A7%84%E6%A8%A1%20%26%20%E5%8F%AF%E7%94%A8%E6%80%A7%EF%BC%89%E2%80%94%E2%80%94%20%E5%86%B3%E5%AE%9A%E5%A4%9A%E5%A4%A7%20%26%20%E5%A4%9A%E7%A8%B3">3. 分布层（规模 &#x26; 可用性）—— 决定<code>多大 &#x26; 多稳</code></h3>
 <ul>
 <li>复制：单主 / 多主 / 无主；同步 / 半同步 / 异步；副本拓扑（链式、星型、Quorum）</li>
