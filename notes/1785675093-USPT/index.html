@@ -1,0 +1,143 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>读博客：Parse, don’t validate</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%AF%BB%E5%8D%9A%E5%AE%A2%EF%BC%9AParse%2C%20don%E2%80%99t%20validate">读博客：Parse, don’t validate</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-08-02</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-08-02</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/BLN" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">BLN</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">不要只检查输入是否合法，而要把检查得到的事实保存在类型中，让非法状态在后续程序里无法表示。</p>
+<blockquote>
+<p><a href="https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/">https://lexi-lambda.github.io/blog/2019/11/05/parse-don-t-validate/</a></p>
+</blockquote>
+<ul>
+<li>是什么（What）
+<ul>
+<li><code>Parse, don’t validate</code>是一条类型驱动设计原则：不要只检查输入是否满足约束，而要把低结构数据转换为能够表达该约束的、更精确的数据类型</li>
+</ul>
+</li>
+<li>为什么（Why）
+<ul>
+<li>普通校验只返回成功或失败，检查得到的事实没有进入类型系统，后续代码仍需重复检查；解析则把事实保存在返回值中，使编译器能够持续维护这个不变量</li>
+</ul>
+</li>
+<li>怎么做（How）
+<ul>
+<li>先为业务约束选择精确的数据结构，再把不可靠输入尽早解析为该结构；让解析失败停留在系统边界，让核心逻辑只处理已经满足不变量的数据</li>
+</ul>
+</li>
+</ul>
+<h2 id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</h2>
+<blockquote>
+<p>校验回答<code>这个值现在是否合法</code>，解析则把答案编码进一个新值，使后续代码不必再问同一个问题。</p>
+</blockquote>
+<h3 id="%E4%BB%8E%E5%81%8F%E5%87%BD%E6%95%B0%E5%BC%80%E5%A7%8B">从偏函数开始</h3>
+<p>原文从一个简单的 <code>head</code> 函数开始：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">haskell</span><button type="button" class="code-copy-button" data-code="head :: [a] -> a">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="haskell" data-theme="nord"><code data-language="haskell" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">head</span><span style="color:#81A1C1"> ::</span><span style="color:#ECEFF4"> [</span><span style="color:#D8DEE9">a</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1"> -></span><span style="color:#D8DEE9"> a</span></span></code></pre></figure>
+<p>这个签名实际上无法对所有输入成立。当输入是空列表 <code>[]</code> 时，函数没有任何 <code>a</code> 可以返回，因此它是一个偏函数（partial function）。</p>
+<p>要把它变成对所有输入都有定义的全函数（total function），有两种思路。</p>
+<p>第一种是减弱对返回值的承诺：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">haskell</span><button type="button" class="code-copy-button" data-code="head :: [a] -> Maybe a
+head (x : _) = Just x
+head []      = Nothing">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="haskell" data-theme="nord"><code data-language="haskell" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">head</span><span style="color:#81A1C1"> ::</span><span style="color:#ECEFF4"> [</span><span style="color:#D8DEE9">a</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1"> -></span><span style="color:#81A1C1"> Maybe</span><span style="color:#D8DEE9"> a</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">head </span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">x </span><span style="color:#81A1C1">:</span><span style="color:#D8DEE9FF"> _</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9FF"> Just x</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">head </span><span style="color:#ECEFF4">[]</span><span style="color:#81A1C1">      =</span><span style="color:#D8DEE9FF"> Nothing</span></span></code></pre></figure>
+<p>这样实现很方便，但代价被转移给了调用方。即使调用方已经检查过列表非空，类型仍然是 <code>[a]</code>，其中没有保存<code>非空</code>这个事实，所以每一次调用 <code>head</code> 都必须继续处理 <code>Nothing</code>。</p>
+<p>第二种是加强对参数的要求：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">haskell</span><button type="button" class="code-copy-button" data-code="data NonEmpty a = a :| [a]
+ 
+head :: NonEmpty a -> a
+head (x :| _) = x">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="haskell" data-theme="nord"><code data-language="haskell" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#81A1C1">data</span><span style="color:#81A1C1"> NonEmpty</span><span style="color:#D8DEE9"> a</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9"> a</span><span style="color:#D8DEE9FF"> :| </span><span style="color:#ECEFF4">[</span><span style="color:#D8DEE9">a</span><span style="color:#ECEFF4">]</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#88C0D0">head</span><span style="color:#81A1C1"> ::</span><span style="color:#81A1C1"> NonEmpty</span><span style="color:#D8DEE9"> a</span><span style="color:#81A1C1"> -></span><span style="color:#D8DEE9"> a</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">head </span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">x </span><span style="color:#81A1C1">:|</span><span style="color:#D8DEE9FF"> _</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9FF"> x</span></span></code></pre></figure>
+<p><code>NonEmpty a</code> 在结构上保证至少存在一个元素。现在 <code>head</code> 不需要错误分支，也不需要调用方处理一个理论上不可能发生的结果。与其让函数接收宽泛的数据后不断防御，不如让函数只接收足以兑现其承诺的数据。</p>
+<h3 id="%E6%A0%A1%E9%AA%8C%E4%BC%9A%E4%B8%A2%E5%BC%83%E4%BF%A1%E6%81%AF%EF%BC%8C%E8%A7%A3%E6%9E%90%E4%BC%9A%E4%BF%9D%E7%95%99%E4%BF%A1%E6%81%AF">校验会丢弃信息，解析会保留信息</h3>
+<p>下面两个函数做了几乎相同的检查，关键区别只在返回类型：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">haskell</span><button type="button" class="code-copy-button" data-code="validateNonEmpty :: [a] -> IO ()
+validateNonEmpty (_ : _) = pure ()
+validateNonEmpty []      = throwIO $ userError &#x22;list cannot be empty&#x22;
+ 
+parseNonEmpty :: [a] -> IO (NonEmpty a)
+parseNonEmpty (x : xs) = pure (x :| xs)
+parseNonEmpty []       = throwIO $ userError &#x22;list cannot be empty&#x22;">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="haskell" data-theme="nord"><code data-language="haskell" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">validateNonEmpty</span><span style="color:#81A1C1"> ::</span><span style="color:#ECEFF4"> [</span><span style="color:#D8DEE9">a</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1"> -></span><span style="color:#81A1C1"> IO</span><span style="color:#ECEFF4"> ()</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">validateNonEmpty </span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">_ </span><span style="color:#81A1C1">:</span><span style="color:#D8DEE9FF"> _</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9FF"> pure </span><span style="color:#ECEFF4">()</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">validateNonEmpty </span><span style="color:#ECEFF4">[]</span><span style="color:#81A1C1">      =</span><span style="color:#D8DEE9FF"> throwIO </span><span style="color:#81A1C1">$</span><span style="color:#D8DEE9FF"> userError </span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">list cannot be empty</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#88C0D0">parseNonEmpty</span><span style="color:#81A1C1"> ::</span><span style="color:#ECEFF4"> [</span><span style="color:#D8DEE9">a</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1"> -></span><span style="color:#81A1C1"> IO</span><span style="color:#ECEFF4"> (</span><span style="color:#81A1C1">NonEmpty</span><span style="color:#D8DEE9"> a</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">parseNonEmpty </span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">x </span><span style="color:#81A1C1">:</span><span style="color:#D8DEE9FF"> xs</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9FF"> pure </span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">x </span><span style="color:#81A1C1">:|</span><span style="color:#D8DEE9FF"> xs</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">parseNonEmpty </span><span style="color:#ECEFF4">[]</span><span style="color:#81A1C1">       =</span><span style="color:#D8DEE9FF"> throwIO </span><span style="color:#81A1C1">$</span><span style="color:#D8DEE9FF"> userError </span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">list cannot be empty</span><span style="color:#ECEFF4">"</span></span></code></pre></figure>
+<p><code>validateNonEmpty</code> 成功后只返回 <code>()</code>，也就是没有携带任何新信息。原始值仍然是 <code>[a]</code>，后续函数无法知道它已经通过检查。</p>
+<p><code>parseNonEmpty</code> 则返回 <code>NonEmpty a</code>。它不仅完成了检查，还把<code>列表非空</code>这一事实保存在类型中。此后只要持有这个值，就同时持有了该不变量的证明。</p>
+<p>从这个角度看，解析不只是在处理文本。任何把低结构输入转换为高结构输出、并显式表示失败的函数，都可以视为解析器：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="[a]  -- parseNonEmpty -->  NonEmpty a
+JSON -- parser --------->  DomainModel
+Text -- parser --------->  EmailAddress
+Int  -- smart constructor -> Port">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>[a]  -- parseNonEmpty -->  NonEmpty a</span></span>
+<span data-line=""><span>JSON -- parser --------->  DomainModel</span></span>
+<span data-line=""><span>Text -- parser --------->  EmailAddress</span></span>
+<span data-line=""><span>Int  -- smart constructor -> Port</span></span></code></pre></figure>
+<p>解析的价值不只是<code>判断是否合法</code>，而是缩小值的可能性空间。输入类型允许的状态很多，输出类型只允许核心逻辑能够正确处理的状态。</p>
+<h3 id="%E6%8A%8A%E5%A4%B1%E8%B4%A5%E9%99%90%E5%88%B6%E5%9C%A8%E8%A7%A3%E6%9E%90%E9%98%B6%E6%AE%B5">把失败限制在解析阶段</h3>
+<p>如果校验代码散落在业务处理过程中，就容易形成 LangSec 所说的 shotgun parsing（霰弹式解析）：程序一边处理输入，一边在不同位置补充零散检查，并期待其中某个检查可以捕获所有坏数据。</p>
+<p>它会带来两个问题：</p>
+<ol>
+<li>无法从函数签名确认输入是否已经完成全部检查，只能依赖调用约定、注释和测试；</li>
+<li>程序可能先对一部分输入产生副作用，之后才发现另一部分无效，此时必须回滚已经发生的状态变化，而回滚并不总是可行。</li>
+</ol>
+<p>解析则倾向于把程序划分为两个阶段：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="不可信输入 ──▶ 解析阶段 ──▶ 可信领域类型 ──▶ 执行阶段
+                │                              │
+                └─ 允许因输入无效而失败         └─ 不再重复检查输入不变量">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>不可信输入 ──▶ 解析阶段 ──▶ 可信领域类型 ──▶ 执行阶段</span></span>
+<span data-line=""><span>                │                              │</span></span>
+<span data-line=""><span>                └─ 允许因输入无效而失败         └─ 不再重复检查输入不变量</span></span></code></pre></figure>
+<p>JSON、命令行参数、数据库记录、URL、HTTP Header 等都位于系统与外部世界的边界。应该尽可能在这些边界完成解析，再让业务逻辑接收领域类型，而不是原始字符串、宽泛对象或带有隐含约束的基础类型。</p>
+<h3 id="%E5%AE%9E%E8%B7%B5%E6%96%B9%E6%B3%95%EF%BC%9A%E5%85%88%E8%AE%BE%E8%AE%A1%E6%83%B3%E8%A6%81%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B">实践方法：先设计想要的数据类型</h3>
+<p>假设一个函数接收键值对列表，但业务要求键不能重复。脆弱的做法是额外调用一个只返回 <code>()</code> 的检查：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">haskell</span><button type="button" class="code-copy-button" data-code="checkNoDuplicateKeys
+  :: (MonadError AppError m, Eq k)
+  => [(k, v)]
+  -> m ()">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="haskell" data-theme="nord"><code data-language="haskell" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9FF">checkNoDuplicateKeys</span></span>
+<span data-line=""><span style="color:#81A1C1">  ::</span><span style="color:#ECEFF4"> (</span><span style="color:#81A1C1">MonadError</span><span style="color:#81A1C1"> AppError</span><span style="color:#D8DEE9"> m</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> Eq</span><span style="color:#D8DEE9"> k</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">  =></span><span style="color:#ECEFF4"> [(</span><span style="color:#D8DEE9">k</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> v</span><span style="color:#ECEFF4">)]</span></span>
+<span data-line=""><span style="color:#81A1C1">  -></span><span style="color:#D8DEE9"> m</span><span style="color:#ECEFF4"> ()</span></span></code></pre></figure>
+<p>因为检查结果没有被后续计算使用，调用方可以遗漏它，程序仍然能够通过类型检查。更好的起点是直接让核心函数接收 <code>Map k v</code>：<code>Map</code> 从数据结构上排除了重复键。</p>
+<p>然后沿调用链向上调整类型，直到到达数据首次产生的位置，或到达确实需要允许重复键的位置。在这个边界执行转换，并返回后续代码真正需要的结构：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">haskell</span><button type="button" class="code-copy-button" data-code="parseUniqueKeys
+  :: (MonadError AppError m, Eq k)
+  => [(k, v)]
+  -> m (Map k v)">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="haskell" data-theme="nord"><code data-language="haskell" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9FF">parseUniqueKeys</span></span>
+<span data-line=""><span style="color:#81A1C1">  ::</span><span style="color:#ECEFF4"> (</span><span style="color:#81A1C1">MonadError</span><span style="color:#81A1C1"> AppError</span><span style="color:#D8DEE9"> m</span><span style="color:#ECEFF4">,</span><span style="color:#81A1C1"> Eq</span><span style="color:#D8DEE9"> k</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#81A1C1">  =></span><span style="color:#ECEFF4"> [(</span><span style="color:#D8DEE9">k</span><span style="color:#ECEFF4">,</span><span style="color:#D8DEE9"> v</span><span style="color:#ECEFF4">)]</span></span>
+<span data-line=""><span style="color:#81A1C1">  -></span><span style="color:#D8DEE9"> m</span><span style="color:#ECEFF4"> (</span><span style="color:#81A1C1">Map</span><span style="color:#D8DEE9"> k</span><span style="color:#D8DEE9"> v</span><span style="color:#ECEFF4">)</span></span></code></pre></figure>
+<p>此时检查不再能够被无意省略，因为后续函数需要它产生的 <code>Map</code> 才能继续运行。</p>
+<p>可以归纳为两个动作：</p>
+<ol>
+<li>让非法状态无法表示：使用能够直接表达业务不变量的类型和数据结构，例如 <code>NonEmpty</code>、<code>Map</code>、枚举、和类型（sum type）以及受约束的领域类型；</li>
+<li>把证明责任向调用链上游推，但不要推得过远：尽早转换为最精确的表示，理想位置是系统边界；如果约束只属于某个控制流分支，就在进入该分支时解析，而不是强迫整个系统都携带它。</li>
+</ol>
+<p>换句话说：先按照<code>希望拿到的数据</code>编写函数签名，再解决<code>现有输入</code>与它之间的转换问题，而不是让核心逻辑永久迁就最宽泛的输入形式。</p>
+<h3 id="%E5%85%B7%E4%BD%93%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE">具体实践建议</h3>
+<ol>
+<li>警惕主要用于报错的 <code>m ()</code> 函数：如果一个函数的主要作用是检查并抛错，它很可能应该返回一个更精确的值；</li>
+<li>可以分多轮解析：避免霰弹式解析不等于只能扫描一次。解析器可以先读取判别字段，再根据分支解析其余内容；关键是在输入完整解析前不要执行不可逆的业务动作；</li>
+<li>避免非规范化表示，尤其是可变数据：同一事实存放在多个位置，本身就制造了<code>彼此不一致</code>这种非法状态。确需冗余时，应把同步责任封装在一个小而可信的模块内；</li>
+<li>用抽象数据类型和智能构造器保存难以直接编码的约束：例如整数范围很难仅靠普通代数数据类型表达，可以隐藏构造器，只允许调用会检查范围的函数创建该类型；</li>
+<li>让数据类型指导代码：不要因为当前函数临时需要一个判断，就随手向数据结构中加入 <code>Bool</code>。先确认它是否代表独立状态、互斥分支，或可以由其他字段推导，再选择正确表示。</li>
+</ol>
+<h3 id="%E8%BE%B9%E7%95%8C%E4%B8%8E%E6%9D%83%E8%A1%A1">边界与权衡</h3>
+<p><code>Parse, don’t validate</code>是设计方向，不是必须不计成本遵守的教条。</p>
+<ul>
+<li>有些不变量在现有语言的类型系统中很难自然表达，强行引入高级类型技术可能让维护成本高于收益；</li>
+<li>对简单范围、格式等约束，用私有构造器加智能构造函数通常已经足够，不必追求形式化证明；</li>
+<li>解析不一定是程序收到请求后的绝对第一步。为避免拒绝服务攻击，系统有时应该先做低成本鉴权，再解析可能消耗大量资源的输入；</li>
+<li>类型保证只覆盖已经编码进类型的不变量，外部依赖故障、并发竞争和运行时资源不足仍需正常处理；</li>
+<li>如果暂时无法消除一个<code>不可能</code>分支，至少应把不变量写清楚、缩小影响范围，并用测试保护它。</li>
+</ul>
+<h2 id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</h2>
+<ol>
+<li>检查的结果也应该成为数据：一次检查如果只产生 <code>Bool</code>、<code>()</code> 或异常，就没有给后续代码留下可复用的证据。更好的 API 会返回一个更精确的值；</li>
+<li><code>Maybe</code> 和 <code>Result</code> 不总是更安全的终点：它们能把偏函数变成全函数，但也可能把本可在边界消除的不确定性传播到整个调用链。先判断失败是否真的是该函数领域内的合法可能性；</li>
+<li>类型签名是模块间的不变量协议：返回 <code>NonEmpty a</code> 与<code>返回 </code>[a]<code>，但注释保证非空</code>并不等价。前者会在实现变化破坏承诺时触发编译错误，后者只能依赖人的记忆；</li>
+<li>解析是从可能性更多的世界进入可能性更少的世界：好的领域模型不是保存更多字段，而是准确排除业务不接受的组合；</li>
+<li>失败越靠近边界，核心逻辑越容易推理：当输入错误集中在解析阶段，执行阶段的失败模式就更少，事务、副作用和错误恢复也更容易设计；</li>
+<li>正确的数据结构可以替代大量防御式代码：<code>Map</code> 排除重复键、和类型表达互斥状态、私有构造器保护值域，这些都比散落的条件判断更可靠；</li>
+<li>类型驱动设计是一种迭代过程：不必一开始就知道最终模型。可以先写出核心函数希望接收的类型，再沿调用链向上寻找最合适的解析边界，让编译错误成为重构路线图；</li>
+<li>真正的目标仍然是全函数与可维护的不变量：<code>Parse, don’t validate</code>不是要求把所有规则都塞进类型，而是避免重复、易遗漏、无法被编译器追踪的隐式约定。</li>
+</ol>
+<h2 id="links">links</h2>
+<ol>
+<li><a href="https://www.awwsmm.com/blog/make-invalid-states-unrepresentable">https://www.awwsmm.com/blog/make-invalid-states-unrepresentable</a></li>
+</ol></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%AF%BB%E5%8D%9A%E5%AE%A2%EF%BC%9AParse%2C%20don%E2%80%99t%20validate" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E5%8D%9A%E5%AE%A2%EF%BC%9AParse%2C%20don%E2%80%99t%20validate">读博客：Parse, don’t validate</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读博客：Parse, don’t validate</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E8%A7%82%E7%82%B9%EF%BC%9A">核心观点：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心观点：</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%BB%8E%E5%81%8F%E5%87%BD%E6%95%B0%E5%BC%80%E5%A7%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BB%8E%E5%81%8F%E5%87%BD%E6%95%B0%E5%BC%80%E5%A7%8B">从偏函数开始</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">从偏函数开始</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%A0%A1%E9%AA%8C%E4%BC%9A%E4%B8%A2%E5%BC%83%E4%BF%A1%E6%81%AF%EF%BC%8C%E8%A7%A3%E6%9E%90%E4%BC%9A%E4%BF%9D%E7%95%99%E4%BF%A1%E6%81%AF" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%A1%E9%AA%8C%E4%BC%9A%E4%B8%A2%E5%BC%83%E4%BF%A1%E6%81%AF%EF%BC%8C%E8%A7%A3%E6%9E%90%E4%BC%9A%E4%BF%9D%E7%95%99%E4%BF%A1%E6%81%AF">校验会丢弃信息，解析会保留信息</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">校验会丢弃信息，解析会保留信息</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%8A%8A%E5%A4%B1%E8%B4%A5%E9%99%90%E5%88%B6%E5%9C%A8%E8%A7%A3%E6%9E%90%E9%98%B6%E6%AE%B5" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%8A%8A%E5%A4%B1%E8%B4%A5%E9%99%90%E5%88%B6%E5%9C%A8%E8%A7%A3%E6%9E%90%E9%98%B6%E6%AE%B5">把失败限制在解析阶段</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">把失败限制在解析阶段</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%AE%9E%E8%B7%B5%E6%96%B9%E6%B3%95%EF%BC%9A%E5%85%88%E8%AE%BE%E8%AE%A1%E6%83%B3%E8%A6%81%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%AE%9E%E8%B7%B5%E6%96%B9%E6%B3%95%EF%BC%9A%E5%85%88%E8%AE%BE%E8%AE%A1%E6%83%B3%E8%A6%81%E7%9A%84%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B">实践方法：先设计想要的数据类型</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">实践方法：先设计想要的数据类型</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%85%B7%E4%BD%93%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%85%B7%E4%BD%93%E5%AE%9E%E8%B7%B5%E5%BB%BA%E8%AE%AE">具体实践建议</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">具体实践建议</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%BE%B9%E7%95%8C%E4%B8%8E%E6%9D%83%E8%A1%A1" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%BE%B9%E7%95%8C%E4%B8%8E%E6%9D%83%E8%A1%A1">边界与权衡</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">边界与权衡</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%90%AF%E5%8F%91%E7%82%B9%EF%BC%88%E5%85%B3%E9%94%AE%E6%B4%9E%E5%AF%9F%EF%BC%89%EF%BC%9A">启发点（关键洞察）：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">启发点（关键洞察）：</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
