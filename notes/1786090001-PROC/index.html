@@ -1,0 +1,114 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>process-thread-scheduler</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E8%BF%9B%E7%A8%8B%E3%80%81%E7%BA%BF%E7%A8%8B%E4%B8%8E%E8%B0%83%E5%BA%A6">进程、线程与调度</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-08-07</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-08-07</span><a href="#outlinks" class="meta-pill meta-pill-outlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">5 出链</a><a href="#backlinks" class="meta-pill meta-pill-backlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">5 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/OS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">OS</a></div></div>
+<p>S 一台机器上的可运行任务通常多于 CPU 核数，任务还会因为 I/O、锁或定时器反复进入等待状态。</p>
+<p>C 系统既要让任务共享 CPU，又要保证交互延迟、公平性、吞吐量和优先级；切换过于频繁还会消耗 CPU 并破坏缓存局部性。</p>
+<p>Q 操作系统如何表示执行任务，并决定哪个任务何时运行？</p>
+<p>A 进程承载地址空间和操作系统资源，线程承载执行上下文；调度器维护可运行任务并按调度策略把线程分配给 CPU，必要时通过抢占和上下文切换重新分配处理器时间。</p>
+<hr>
+<h2 id="1.%20%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B">1. 进程与线程</h2>
+<ul>
+<li><strong>进程</strong>是资源与隔离的容器，通常拥有独立虚拟地址空间、文件描述符表、信号状态和安全凭据。</li>
+<li><strong>线程</strong>是内核调度的执行流，拥有程序计数器、寄存器和栈；同一进程内的线程共享地址空间和大部分进程资源。</li>
+<li><strong>协程</strong>通常由用户态运行时调度，不必与内核线程一一对应；是否并行最终仍取决于承载它的内核线程和 CPU。</li>
+</ul>
+<p>Linux 用 <code>task_struct</code> 表示可调度任务，进程和线程都使用这一表示。所谓“进程调度”在现代系统中通常实际调度的是线程。</p>
+<p>进程的典型状态包括：</p>
+<ul>
+<li><strong>running</strong>：正在 CPU 上执行。</li>
+<li><strong>runnable/ready</strong>：可以执行，正在运行队列中等待 CPU。</li>
+<li><strong>sleeping/blocked</strong>：等待 I/O、锁、信号或定时器等事件。</li>
+<li><strong>stopped</strong>：被显式暂停。</li>
+<li><strong>zombie</strong>：已经退出，但父进程尚未回收退出状态。</li>
+</ul>
+<h2 id="2.%20%E5%88%9B%E5%BB%BA%E4%B8%8E%E7%BB%88%E6%AD%A2">2. 创建与终止</h2>
+<p>Unix 常把“复制当前进程”和“加载新程序”拆成两步：</p>
+<ul>
+<li><code>fork()</code> 创建子进程。父子进程拥有逻辑上独立的地址空间，但内核通常通过写时复制延迟真正复制物理页。</li>
+<li><code>execve()</code> 用新程序替换当前进程映像，不创建新的 PID。</li>
+<li><code>wait()</code> / <code>waitpid()</code> 让父进程取得子进程退出状态并回收其僵尸记录。</li>
+<li><code>_exit()</code> 终止进程。</li>
+</ul>
+<p><code>fork()</code> 后继承的文件描述符引用相同的内核打开文件对象，因此可能共享文件偏移；这与父子进程拥有独立用户态内存并不矛盾。</p>
+<h2 id="3.%20%E8%B0%83%E5%BA%A6%E5%99%A8%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98">3. 调度器解决的问题</h2>
+<p>调度器的输入是任务状态、优先级、运行时间、CPU 亲和性等信息，输出是“哪个可运行线程在哪个 CPU 上执行”。它需要权衡：</p>
+<ul>
+<li><strong>吞吐量</strong>：单位时间完成更多工作。</li>
+<li><strong>响应时间</strong>：交互任务尽快得到 CPU。</li>
+<li><strong>公平性</strong>：避免普通任务长期饥饿。</li>
+<li><strong>实时约束</strong>：高优先级实时任务满足时限。</li>
+<li><strong>局部性</strong>：尽量复用热 cache，减少跨 CPU 迁移。</li>
+</ul>
+<h3 id="%E6%8A%A2%E5%8D%A0%E5%BC%8F%E4%B8%8E%E5%8D%8F%E4%BD%9C%E5%BC%8F">抢占式与协作式</h3>
+<ul>
+<li><strong>抢占式调度</strong>：调度器可以挂起正在执行的任务，把 CPU 交给另一个任务。通用操作系统主要依靠这种方式保证响应性和隔离。</li>
+<li><strong>协作式调度</strong>：任务主动让出执行权。切换点更可控，但一个不让出的任务会阻塞其他任务。</li>
+</ul>
+<p>二者可以组合：内核线程由操作系统抢占，语言运行时中的协程既可以在阻塞点协作让出，也可以由运行时机制抢占。</p>
+<h3 id="%E5%A4%9A%E6%A0%B8%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1">多核负载均衡</h3>
+<p>多核系统通常为每个 CPU 维护运行队列，避免所有 CPU 竞争一个全局队列。任务可以通过以下方式重新分布：</p>
+<ul>
+<li><strong>工作分享（work sharing）</strong>：主动把任务推送到较空闲的执行器。</li>
+<li><strong>工作窃取（work stealing）</strong>：空闲执行器从繁忙执行器获取任务。</li>
+</ul>
+<p>平衡负载会改善利用率，但任务迁移会损失缓存和 NUMA 局部性，因此不是越频繁越好。</p>
+<h3 id="Linux%20%E8%B0%83%E5%BA%A6%E7%AD%96%E7%95%A5">Linux 调度策略</h3>
+<p>Linux 同时提供普通分时和实时调度类：</p>
+<ul>
+<li>普通任务由公平调度类管理；Linux 历史上经历了 O(n)、O(1)、CFS 等实现演进，具体实现会继续变化。</li>
+<li><code>SCHED_FIFO</code> 和 <code>SCHED_RR</code> 面向固定优先级实时任务。</li>
+<li>调度类先决定哪类任务优先，再由类内部策略选择具体任务。</li>
+</ul>
+<p>理解原则比记住某一版内核的数据结构更重要：调度器必须快速选择任务，同时维护公平性、优先级和多核负载。</p>
+<h2 id="4.%20%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2">4. 上下文切换</h2>
+<p>上下文切换保存当前线程的寄存器、程序计数器和栈指针，并恢复另一个线程的状态。切换成本不只有保存寄存器，还可能包括：</p>
+<ul>
+<li>调度器执行时间。</li>
+<li>cache、TLB 和分支预测器中的热状态丢失。</li>
+<li>地址空间切换带来的页表上下文变化。</li>
+</ul>
+<p>系统调用只表示从用户态进入内核态；如果调用可以立即完成，原线程可直接返回，不必切换到另一个线程。只有阻塞、抢占或调度决策等情况才需要任务切换，详见 <a href="/notes/1786068078-USPT">syscall</a>。</p>
+<h2 id="5.%20%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%EF%BC%88IPC%EF%BC%89">5. 进程间通信（IPC）</h2>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>数据模型</th>
+<th>典型特点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>signal</td>
+<td>小型异步通知</td>
+<td>信息量有限，处理时机受信号语义约束</td>
+</tr>
+<tr>
+<td>pipe / FIFO</td>
+<td>字节流</td>
+<td>适合单机流式通信；FIFO 有文件系统名称</td>
+</tr>
+<tr>
+<td>message queue</td>
+<td>有边界的消息</td>
+<td>保留消息边界，由内核托管</td>
+</tr>
+<tr>
+<td>shared memory</td>
+<td>共享字节区域</td>
+<td>少复制、吞吐高，但必须另行同步</td>
+</tr>
+<tr>
+<td>socket</td>
+<td>字节流或数据报</td>
+<td>同机和跨机器均可使用</td>
+</tr>
+</tbody>
+</table>
+<p>共享内存只解决“双方能看到同一块数据”，不解决并发读写的顺序和原子性；通常还需要 mutex、semaphore、futex 或原子操作。</p>
+<h2 id="6.%20%E7%9B%B8%E5%85%B3%E7%AC%94%E8%AE%B0">6. 相关笔记</h2>
+<ul>
+<li><a href="/notes/1770295839-UDHH">操作系统</a></li>
+<li><a href="/notes/1786090002-VMEM">虚拟内存</a></li>
+<li><a href="/notes/1786068078-USPT">syscall</a></li>
+<li><a href="/notes/1775193599-GBOK">concurrency</a></li>
+<li><a href="/notes/1785293654-USPT">I/O model</a></li>
+</ul></article><aside id="outlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">引用了 5 篇笔记</h2><ul class="space-y-2"><li><a href="/notes/1786068078-USPT" class="note-link underline-offset-4 hover:underline">syscall</a></li><li><a href="/notes/1770295839-UDHH" class="note-link underline-offset-4 hover:underline">CS_OS</a></li><li><a href="/notes/1786090002-VMEM" class="note-link underline-offset-4 hover:underline">virtual-memory</a></li><li><a href="/notes/1775193599-GBOK" class="note-link underline-offset-4 hover:underline">concurrency</a></li><li><a href="/notes/1785293654-USPT" class="note-link underline-offset-4 hover:underline">io-model</a></li></ul></aside><aside id="backlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">被 5 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1786090004-ASMB" class="note-link underline-offset-4 hover:underline">x86-assembly-basics</a></li><li><a href="/notes/1786090002-VMEM" class="note-link underline-offset-4 hover:underline">virtual-memory</a></li><li><a href="/notes/1785293654-USPT" class="note-link underline-offset-4 hover:underline">io-model</a></li><li><a href="/notes/1786068078-USPT" class="note-link underline-offset-4 hover:underline">syscall</a></li><li><a href="/notes/1770295839-UDHH" class="note-link underline-offset-4 hover:underline">CS_OS</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E8%BF%9B%E7%A8%8B%E3%80%81%E7%BA%BF%E7%A8%8B%E4%B8%8E%E8%B0%83%E5%BA%A6" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%BF%9B%E7%A8%8B%E3%80%81%E7%BA%BF%E7%A8%8B%E4%B8%8E%E8%B0%83%E5%BA%A6">进程、线程与调度</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">进程、线程与调度</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="1.%20%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#1.%20%E8%BF%9B%E7%A8%8B%E4%B8%8E%E7%BA%BF%E7%A8%8B">1. 进程与线程</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">1. 进程与线程</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="2.%20%E5%88%9B%E5%BB%BA%E4%B8%8E%E7%BB%88%E6%AD%A2" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#2.%20%E5%88%9B%E5%BB%BA%E4%B8%8E%E7%BB%88%E6%AD%A2">2. 创建与终止</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">2. 创建与终止</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="3.%20%E8%B0%83%E5%BA%A6%E5%99%A8%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#3.%20%E8%B0%83%E5%BA%A6%E5%99%A8%E8%A7%A3%E5%86%B3%E7%9A%84%E9%97%AE%E9%A2%98">3. 调度器解决的问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">3. 调度器解决的问题</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%8A%A2%E5%8D%A0%E5%BC%8F%E4%B8%8E%E5%8D%8F%E4%BD%9C%E5%BC%8F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%8A%A2%E5%8D%A0%E5%BC%8F%E4%B8%8E%E5%8D%8F%E4%BD%9C%E5%BC%8F">抢占式与协作式</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">抢占式与协作式</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%A4%9A%E6%A0%B8%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%A4%9A%E6%A0%B8%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1">多核负载均衡</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">多核负载均衡</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Linux%20%E8%B0%83%E5%BA%A6%E7%AD%96%E7%95%A5" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Linux%20%E8%B0%83%E5%BA%A6%E7%AD%96%E7%95%A5">Linux 调度策略</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Linux 调度策略</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="4.%20%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#4.%20%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2">4. 上下文切换</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">4. 上下文切换</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="5.%20%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%EF%BC%88IPC%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#5.%20%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1%EF%BC%88IPC%EF%BC%89">5. 进程间通信（IPC）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">5. 进程间通信（IPC）</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="6.%20%E7%9B%B8%E5%85%B3%E7%AC%94%E8%AE%B0" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#6.%20%E7%9B%B8%E5%85%B3%E7%AC%94%E8%AE%B0">6. 相关笔记</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">6. 相关笔记</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
