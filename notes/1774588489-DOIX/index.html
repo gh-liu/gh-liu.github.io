@@ -3,7 +3,11 @@
 <p><a href="https://en.wikipedia.org/wiki/MESI_protocol">https://en.wikipedia.org/wiki/MESI_protocol</a></p>
 </blockquote>
 <p><code>MESI</code> 是多核 CPU 中最经典的 <strong>cache coherence protocol（缓存一致性协议）</strong> 之一，用来保证不同核心看到的同一块内存不会各说各话。</p>
-<h2 id="S%20%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF">S 什么场景</h2>
+<ul>
+<li>
+<p>S：什么场景</p>
+<ul>
+<li>
 <p>现代 CPU 每个核心都有自己的 L1/L2 cache。这样读写很快，但也带来一个根本问题：</p>
 <ul>
 <li>核心 A 读过变量 <code>x</code>，把 cache line 缓存在本地</li>
@@ -11,28 +15,48 @@
 <li>如果 B 后来修改了 <code>x</code></li>
 <li>A 本地 cache 里还是旧值</li>
 </ul>
+</li>
+<li>
 <p>只要多个核心会同时缓存同一个 cache line，就必须回答：</p>
 <ul>
 <li>谁可以写？</li>
 <li>其他核心的旧副本什么时候失效？</li>
 <li>数据什么时候写回内存？</li>
 </ul>
+</li>
+<li>
 <p><code>MESI</code> 就是在这个场景下出现的。</p>
-<h2 id="C%20%E4%BB%80%E4%B9%88%E5%86%B2%E7%AA%81">C 什么冲突</h2>
+</li>
+</ul>
+</li>
+<li>
+<p>C：什么冲突</p>
+<ul>
+<li>
 <p>冲突在于：<strong>缓存的本地性</strong> 和 <strong>共享数据的一致性</strong> 天然对立。</p>
 <ul>
 <li>想要性能，就希望每个核心把数据留在自己 cache 里，少访问主存</li>
 <li>想要正确性，就要求所有核心对同一地址的观察结果一致</li>
 </ul>
+</li>
+<li>
 <p>如果没有一致性协议，会出现：</p>
 <ul>
 <li>一个核心写了数据，另一个核心继续读旧值</li>
 <li>多个核心同时认为自己可以写同一 cache line</li>
 <li>内存、核心 A cache、核心 B cache 三者状态不一致</li>
 </ul>
+</li>
+<li>
 <p>所以协议必须在“尽量少同步”和“绝不能读脏旧数据”之间找平衡。</p>
-<h2 id="Q%20%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98">Q 什么问题</h2>
-<h3 id="1.%20MESI%20%E5%9B%9B%E4%B8%AA%E7%8A%B6%E6%80%81%E5%88%86%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F">1. MESI 四个状态分别是什么？</h3>
+</li>
+</ul>
+</li>
+<li>
+<p>Q：什么问题</p>
+<h3>1. MESI 四个状态分别是什么？</h3>
+<ul>
+<li>
 <p><code>MESI</code> 是四种 cache line 状态的首字母：</p>
 <ul>
 <li><code>M = Modified</code>
@@ -44,68 +68,108 @@
 <li><code>I = Invalid</code>
 本地这行 cache line 无效，不能使用；需要重新从别处获取</li>
 </ul>
+</li>
+<li>
 <p>一个很实用的记忆方式：</p>
 <ul>
 <li><code>M/E</code>：当前核心“独占”</li>
 <li><code>S</code>：多个核心“共享只读”</li>
 <li><code>I</code>：没有这份有效数据</li>
 </ul>
-<h3 id="2.%20%E5%AE%83%E5%88%B0%E5%BA%95%E8%A7%A3%E5%86%B3%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%EF%BC%9F">2. 它到底解决的是什么一致性问题？</h3>
+</li>
+</ul>
+<h3>2. 它到底解决的是什么一致性问题？</h3>
+<ul>
+<li>
 <p>它解决的是 <strong>cache coherence</strong>，不是更高层的 <strong>memory consistency model</strong>。</p>
 <ul>
 <li>coherence 关心：<code>同一个地址</code> 的值，在多个 cache 之间怎么保持一致</li>
 <li>consistency 关心：<code>多个地址</code> 的读写，在程序语义上允许怎样重排</li>
 </ul>
+</li>
+<li>
 <p>所以 <code>MESI</code> 回答的是：</p>
+</li>
+</ul>
 <blockquote>
 <p>当多个核心缓存了同一个 cache line 时，如何保证写入后其他核心不会继续使用过期副本？</p>
 </blockquote>
-<h3 id="3.%20%E5%85%B8%E5%9E%8B%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B%E6%80%8E%E4%B9%88%E8%B5%B0%EF%BC%9F">3. 典型的读写流程怎么走？</h3>
+<h3>3. 典型的读写流程怎么走？</h3>
+<ul>
+<li>
 <p>假设一开始所有核心对某个 cache line 都是 <code>I</code>。</p>
-<h4 id="%E5%9C%BA%E6%99%AF%201%EF%BC%9A%E6%A0%B8%E5%BF%83%20A%20%E8%AF%BB">场景 1：核心 A 读</h4>
+</li>
+<li>
+<h4>场景 1：核心 A 读</h4>
 <ul>
 <li>A 发生 cache miss，发出读请求</li>
 <li>如果别的核心没有这行，A 拿到数据后通常进入 <code>E</code></li>
 <li>如果别的核心也有这行，A 通常进入 <code>S</code></li>
 </ul>
-<h4 id="%E5%9C%BA%E6%99%AF%202%EF%BC%9A%E6%A0%B8%E5%BF%83%20A%20%E5%9C%A8%20E%20%E4%B8%8A%E5%86%99">场景 2：核心 A 在 <code>E</code> 上写</h4>
+</li>
+<li>
+<h4>场景 2：核心 A 在 <code>E</code> 上写</h4>
 <ul>
 <li>因为它本来就独占，且和别人不共享</li>
 <li>可以直接从 <code>E -> M</code></li>
 <li>不需要先通知别人失效</li>
 </ul>
+</li>
+<li>
 <p>这也是 <code>E</code> 状态存在的意义：优化“先读后写”的常见路径。</p>
-<h4 id="%E5%9C%BA%E6%99%AF%203%EF%BC%9A%E6%A0%B8%E5%BF%83%20A%20%E5%9C%A8%20S%20%E4%B8%8A%E5%86%99">场景 3：核心 A 在 <code>S</code> 上写</h4>
+</li>
+<li>
+<h4>场景 3：核心 A 在 <code>S</code> 上写</h4>
 <ul>
 <li>A 必须先发出失效请求（invalidate）</li>
 <li>其他持有这行 <code>S</code> 的核心把自己的副本改成 <code>I</code></li>
 <li>A 获得独占写权限后，<code>S -> M</code></li>
 </ul>
-<h4 id="%E5%9C%BA%E6%99%AF%204%EF%BC%9A%E5%88%AB%E7%9A%84%E6%A0%B8%E5%BF%83%20B%20%E8%AF%BB%E5%8F%96%20A%20%E7%9A%84%20M">场景 4：别的核心 B 读取 A 的 <code>M</code></h4>
+</li>
+<li>
+<h4>场景 4：别的核心 B 读取 A 的 <code>M</code></h4>
 <ul>
 <li>A 持有的是最新值</li>
 <li>协议需要让这份最新数据对 B 可见</li>
 <li>常见效果是：A 提供/回写数据，自己的状态降级，B 拿到共享副本</li>
 <li>最终常见变为 <code>A: S, B: S</code></li>
 </ul>
-<h4 id="%E5%9C%BA%E6%99%AF%205%EF%BC%9A%E5%88%AB%E7%9A%84%E6%A0%B8%E5%BF%83%20B%20%E6%83%B3%E5%86%99%20A%20%E7%9A%84%20M%20%E6%88%96%20S">场景 5：别的核心 B 想写 A 的 <code>M</code> 或 <code>S</code></h4>
+</li>
+<li>
+<h4>场景 5：别的核心 B 想写 A 的 <code>M</code> 或 <code>S</code></h4>
 <ul>
 <li>B 必须先获得独占权</li>
 <li>A 的那份副本会被置为 <code>I</code></li>
 <li>B 成为新的 <code>M</code></li>
 </ul>
+</li>
+<li>
 <p>本质上，<strong>任意时刻一个 cache line 最多只能有一个 writer</strong>。</p>
-<h3 id="4.%20MESI%20%E4%BE%9D%E8%B5%96%E4%BB%80%E4%B9%88%E6%9C%BA%E5%88%B6%E5%B7%A5%E4%BD%9C%EF%BC%9F">4. MESI 依赖什么机制工作？</h3>
+</li>
+</ul>
+<h3>4. MESI 依赖什么机制工作？</h3>
+<ul>
+<li>
 <p>常见实现依赖 <strong>bus snooping（总线嗅探）</strong> 或目录协议。</p>
+</li>
+<li>
 <p>以 snooping 为例：</p>
 <ul>
 <li>一个核心发出读/写意图</li>
 <li>其他核心监听这些一致性事件</li>
 <li>如果发现自己缓存了同一行，就按协议做状态迁移</li>
 </ul>
+</li>
+<li>
 <p>也就是说，cache 不只是存数据，还会对外部事件作出反应。</p>
-<h3 id="5.%20%E4%B8%BA%E4%BB%80%E4%B9%88%20false%20sharing%20%E4%BC%9A%E5%BE%88%E8%B4%B5%EF%BC%9F">5. 为什么 false sharing 会很贵？</h3>
+</li>
+</ul>
+<h3>5. 为什么 false sharing 会很贵？</h3>
+<ul>
+<li>
 <p><code>MESI</code> 的一致性粒度通常不是变量，而是 <strong>cache line</strong>。</p>
+</li>
+<li>
 <p>这意味着：</p>
 <ul>
 <li>线程 A 改变量 <code>x</code></li>
@@ -113,19 +177,33 @@
 <li>即使 <code>x</code> 和 <code>y</code> 是两个完全独立的变量</li>
 <li>只要它们落在同一个 cache line 上</li>
 </ul>
+</li>
+<li>
 <p>两个核心还是会反复触发：</p>
 <ul>
 <li>失效对方副本</li>
 <li>重新获取独占权</li>
 <li>cache line 在不同核心之间来回“乒乓”</li>
 </ul>
+</li>
+<li>
 <p>这就是 <code>false sharing</code>。逻辑上没共享，硬件上却共享了同一行缓存。</p>
-<h2 id="A%20%E5%9B%9E%E7%AD%94%E9%97%AE%E9%A2%98">A 回答问题</h2>
-<p>一句话总结：</p>
+</li>
+</ul>
+</li>
+<li>
+<p>A：回答问题</p>
+<ul>
+<li>一句话总结：</li>
+</ul>
 <blockquote>
 <p><code>MESI</code> 通过给每个 cache line 维护 <code>Modified / Exclusive / Shared / Invalid</code> 四种状态，保证多核缓存下“同一时刻最多一个写者，读者不会长期持有旧副本”。</p>
 </blockquote>
+<ul>
+<li>
 <p>最关键的理解点：</p>
+</li>
+<li>
 <ol>
 <li><code>MESI</code> 管的是 <strong>cache line 一致性</strong>，不是语言级并发语义</li>
 <li><code>E</code> 状态的价值是减少“先读后写”的额外广播成本</li>
@@ -133,8 +211,14 @@
 <li><code>M</code> 表示当前 cache 持有唯一且最新的数据副本</li>
 <li><code>false sharing</code> 本质上是 cache line 粒度一致性带来的副作用</li>
 </ol>
+</li>
+<li>
 <p>如果是从工程角度理解它，最有用的结论通常只有两个：</p>
 <ul>
 <li>多线程性能问题，很多时候不是锁太慢，而是 cache line 在打架</li>
 <li>做并发数据结构或性能优化时，要同时考虑“共享变量”与“共享 cache line”</li>
-</ul></article><aside id="backlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">被 1 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1770295839-UDHH" class="note-link underline-offset-4 hover:underline">CS_OS</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="MESI" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#MESI">MESI</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">MESI</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="S%20%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#S%20%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF">S 什么场景</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">S 什么场景</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="C%20%E4%BB%80%E4%B9%88%E5%86%B2%E7%AA%81" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#C%20%E4%BB%80%E4%B9%88%E5%86%B2%E7%AA%81">C 什么冲突</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">C 什么冲突</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Q%20%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Q%20%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98">Q 什么问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Q 什么问题</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20MESI%20%E5%9B%9B%E4%B8%AA%E7%8A%B6%E6%80%81%E5%88%86%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#1.%20MESI%20%E5%9B%9B%E4%B8%AA%E7%8A%B6%E6%80%81%E5%88%86%E5%88%AB%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F">1. MESI 四个状态分别是什么？</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">1. MESI 四个状态分别是什么？</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20%E5%AE%83%E5%88%B0%E5%BA%95%E8%A7%A3%E5%86%B3%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%EF%BC%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#2.%20%E5%AE%83%E5%88%B0%E5%BA%95%E8%A7%A3%E5%86%B3%E7%9A%84%E6%98%AF%E4%BB%80%E4%B9%88%E4%B8%80%E8%87%B4%E6%80%A7%E9%97%AE%E9%A2%98%EF%BC%9F">2. 它到底解决的是什么一致性问题？</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">2. 它到底解决的是什么一致性问题？</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="3.%20%E5%85%B8%E5%9E%8B%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B%E6%80%8E%E4%B9%88%E8%B5%B0%EF%BC%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#3.%20%E5%85%B8%E5%9E%8B%E7%9A%84%E8%AF%BB%E5%86%99%E6%B5%81%E7%A8%8B%E6%80%8E%E4%B9%88%E8%B5%B0%EF%BC%9F">3. 典型的读写流程怎么走？</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">3. 典型的读写流程怎么走？</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="4.%20MESI%20%E4%BE%9D%E8%B5%96%E4%BB%80%E4%B9%88%E6%9C%BA%E5%88%B6%E5%B7%A5%E4%BD%9C%EF%BC%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#4.%20MESI%20%E4%BE%9D%E8%B5%96%E4%BB%80%E4%B9%88%E6%9C%BA%E5%88%B6%E5%B7%A5%E4%BD%9C%EF%BC%9F">4. MESI 依赖什么机制工作？</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">4. MESI 依赖什么机制工作？</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="5.%20%E4%B8%BA%E4%BB%80%E4%B9%88%20false%20sharing%20%E4%BC%9A%E5%BE%88%E8%B4%B5%EF%BC%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#5.%20%E4%B8%BA%E4%BB%80%E4%B9%88%20false%20sharing%20%E4%BC%9A%E5%BE%88%E8%B4%B5%EF%BC%9F">5. 为什么 false sharing 会很贵？</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">5. 为什么 false sharing 会很贵？</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="A%20%E5%9B%9E%E7%AD%94%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#A%20%E5%9B%9E%E7%AD%94%E9%97%AE%E9%A2%98">A 回答问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">A 回答问题</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
+</ul>
+</li>
+</ul>
+</li>
+</ul></article><aside id="backlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">被 1 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1770295839-UDHH" class="note-link underline-offset-4 hover:underline">CS_OS</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="MESI" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#MESI">MESI</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">MESI</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>

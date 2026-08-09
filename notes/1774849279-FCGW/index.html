@@ -2,36 +2,72 @@
 <blockquote>
 <p><a href="https://en.wikipedia.org/wiki/Translation_lookaside_buffer">https://en.wikipedia.org/wiki/Translation_lookaside_buffer</a></p>
 </blockquote>
-<h2 id="S%20%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF">S 什么场景</h2>
+<ul>
+<li>
+<p>S：什么场景</p>
+<ul>
+<li>
 <p>现代 CPU 使用<strong>虚拟内存</strong>：每个进程看到的地址都是虚拟地址，必须通过<strong>页表（page table）</strong> 翻译成物理地址才能真正访问内存。</p>
+</li>
+<li>
 <p>页表存在主存里，本身就是多级结构（x86-64 通常 4 级）。这意味着<strong>每次内存访问都要先做一次 page walk</strong>——沿着页表树走 4 次内存读——才能拿到物理地址，然后才去访问目标数据。</p>
+</li>
+<li>
 <p>一次普通内存访问，变成了 5 次。</p>
-<h2 id="C%20%E4%BB%80%E4%B9%88%E5%86%B2%E7%AA%81">C 什么冲突</h2>
+</li>
+</ul>
+</li>
+<li>
+<p>C：什么冲突</p>
+<ul>
+<li>
 <p>冲突在于：<strong>虚拟内存提供了隔离和灵活性，但 page walk 的代价让它变得不可接受地慢。</strong></p>
 <ul>
 <li>想要隔离和安全：每个进程有独立地址空间，互不干扰</li>
 <li>想要性能：不希望每次内存访问都额外付出 4 次主存读取的延迟</li>
 </ul>
+</li>
+<li>
 <p>如果每次访存都做完整 page walk，CPU 大部分时间花在"查地址"而不是"用数据"上。</p>
-<h2 id="Q%20%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98">Q 什么问题</h2>
-<h3 id="1.%20TLB%20%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F">1. TLB 是什么？</h3>
+</li>
+</ul>
+</li>
+<li>
+<p>Q：什么问题</p>
+<h3>1. TLB 是什么？</h3>
+<ul>
+<li>
 <p>TLB（Translation Lookaside Buffer）是 MMU 中的一个<strong>硬件缓存</strong>，缓存最近使用过的<strong>虚拟地址 → 物理地址</strong>映射。</p>
 <ul>
 <li>本质上是一个小型的、用 CAM（Content-Addressable Memory）实现的关联缓存</li>
 <li>输入虚拟页号（VPN），输出物理帧号（PFN）</li>
 <li>命中时只需 1 个时钟周期，完全在流水线内完成</li>
 </ul>
-<h3 id="2.%20TLB%20hit%20%E5%92%8C%20TLB%20miss%20%E5%88%86%E5%88%AB%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88%EF%BC%9F">2. TLB hit 和 TLB miss 分别发生什么？</h3>
+</li>
+</ul>
+<h3>2. TLB hit 和 TLB miss 分别发生什么？</h3>
+<ul>
+<li>
 <p><strong>TLB hit</strong>：虚拟页号在 TLB 中找到对应条目，直接拿到物理帧号，拼上页内偏移即可访问物理内存。代价约 1 个周期。</p>
+</li>
+<li>
 <p><strong>TLB miss</strong>：TLB 中没有这个映射，需要做 page walk：</p>
+</li>
+<li>
 <ol>
 <li>硬件（x86）或软件（MIPS）遍历多级页表</li>
 <li>找到有效的页表项 → 把映射加载到 TLB，重试访问</li>
 <li>如果页表中 present bit 也没设置 → 触发 <strong>page fault</strong>，由 OS 处理（可能要从磁盘换入页面）</li>
 </ol>
+</li>
+<li>
 <p>TLB miss 的代价远大于普通 cache miss，因为 page walk 本身就需要多次内存访问。</p>
-<h3 id="3.%20TLB%20miss%20%E7%94%B1%E8%B0%81%E5%A4%84%E7%90%86%EF%BC%9F">3. TLB miss 由谁处理？</h3>
-<p>三种方案：</p>
+</li>
+</ul>
+<h3>3. TLB miss 由谁处理？</h3>
+<ul>
+<li>三种方案：</li>
+</ul>
 <table>
 <thead>
 <tr>
@@ -58,54 +94,94 @@
 </tr>
 </tbody>
 </table>
-<p>x86 用硬件管理，好处是简单且快；软件管理的好处是灵活（OS 可以自定义页表格式和替换策略）。</p>
-<h3 id="4.%20TLB%20%E7%9A%84%E5%85%B8%E5%9E%8B%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%EF%BC%9F">4. TLB 的典型结构是什么样？</h3>
+<ul>
+<li>x86 用硬件管理，好处是简单且快；软件管理的好处是灵活（OS 可以自定义页表格式和替换策略）。</li>
+</ul>
+<h3>4. TLB 的典型结构是什么样？</h3>
+<ul>
+<li>
 <p>现代 CPU 通常有<strong>多级 TLB</strong>，类似 L1/L2 cache 的分层：</p>
 <ul>
 <li><strong>L1 ITLB</strong>（指令）+ <strong>L1 DTLB</strong>（数据）：小、快、低延迟</li>
 <li><strong>L2 TLB</strong>：统一的、更大的 TLB，L1 miss 后查这里</li>
 </ul>
+</li>
+<li>
 <p>以 Intel Nehalem 为例：</p>
 <ul>
 <li>L1 DTLB：64 条目（4 KiB 页），4 路组相联</li>
 <li>L1 ITLB：128 条目（4 KiB 页），4 路组相联</li>
 <li>L2 TLB：512 条目（4 KiB 页），4 路组相联，指令数据统一</li>
 </ul>
-<h3 id="5.%20%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2%E6%97%B6%20TLB%20%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F">5. 上下文切换时 TLB 怎么办？</h3>
+</li>
+</ul>
+<h3>5. 上下文切换时 TLB 怎么办？</h3>
+<ul>
+<li>
 <p>进程切换意味着地址空间变了，TLB 中旧进程的映射不再有效。最简单的做法是<strong>整体刷新（flush）</strong>，但代价很高——新进程刚切进来时 TLB 全空，每次访存都是 miss。</p>
+</li>
+<li>
 <p>优化手段：</p>
 <ul>
 <li><strong>ASID（Address Space Number）</strong>：每个 TLB 条目带上地址空间标识，只有 ASID 匹配当前进程的条目才有效。切换时不需要 flush，只需切换 ASID</li>
 <li><strong>PCID（Process-Context Identifier, x86）</strong>：Intel 从 Westmere 开始支持的 12-bit 标识符，允许 TLB 同时保留多个进程的映射</li>
 <li><strong>Global 页</strong>：标记为 global 的页（如内核映射）在切换时不被刷新</li>
 </ul>
+</li>
+<li>
 <p>Linux 4.14 开始利用 PCID 避免不必要的 TLB flush，这在 Meltdown/Spectre 补丁（KPTI）后对性能尤为重要。</p>
-<h3 id="6.%20%E5%A4%A7%E9%A1%B5%EF%BC%88Huge%20Pages%EF%BC%89%E4%B8%BA%E4%BB%80%E4%B9%88%E8%83%BD%E5%87%8F%E5%B0%91%20TLB%20miss%EF%BC%9F">6. 大页（Huge Pages）为什么能减少 TLB miss？</h3>
+</li>
+</ul>
+<h3>6. 大页（Huge Pages）为什么能减少 TLB miss？</h3>
+<ul>
+<li>
 <p>TLB 条目数量有限（通常几十到几百个）。如果页大小是 4 KiB，512 个 TLB 条目只能覆盖 2 MiB 的内存。</p>
+</li>
+<li>
 <p>使用大页（x86 上 2 MiB 或 1 GiB）时：</p>
 <ul>
 <li>同样数量的 TLB 条目可以覆盖<strong>更大范围</strong>的内存</li>
 <li>32 个 2 MiB 大页条目就能覆盖 64 MiB</li>
 <li>page walk 也更短（少一级页表）</li>
 </ul>
+</li>
+<li>
 <p>适用场景：数据库、JVM、大内存工作集的应用。</p>
-<h3 id="7.%20TLB%20%E4%B8%8E%20CPU%20cache%20%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9F">7. TLB 与 CPU cache 的关系？</h3>
+</li>
+</ul>
+<h3>7. TLB 与 CPU cache 的关系？</h3>
+<ul>
+<li>
 <p>TLB 的位置决定了 cache 使用物理地址还是虚拟地址：</p>
 <ul>
 <li><strong>物理地址缓存（PIPT）</strong>：每次访存先查 TLB 拿物理地址，再用物理地址查 cache。正确性好，但 TLB 在关键路径上</li>
 <li><strong>虚拟地址缓存（VIVT）</strong>：直接用虚拟地址查 cache，cache miss 时才查 TLB。更快，但有同义词/同名问题</li>
 <li><strong>常见优化（VIPT）</strong>：用虚拟地址的 index 位查 cache（与 TLB 并行），用物理地址的 tag 位做比对。兼顾速度和正确性</li>
 </ul>
+</li>
+<li>
 <p>现代 x86 的 L1 cache 通常用 VIPT：TLB 查找和 cache 查找<strong>并行进行</strong>，不会增加额外延迟。</p>
-<h2 id="A%20%E5%9B%9E%E7%AD%94%E9%97%AE%E9%A2%98">A 回答问题</h2>
+</li>
+</ul>
+</li>
+<li>
+<p>A：回答问题</p>
 <blockquote>
 <p>TLB 是 MMU 中缓存"虚拟地址 → 物理地址"映射的硬件缓存，把原本需要 4 次内存访问的 page walk 压缩到 1 个周期完成。</p>
 </blockquote>
+<ul>
+<li>
 <p>关键理解点：</p>
+</li>
+<li>
 <ol>
 <li>TLB 解决的是 <strong>page walk 太慢</strong>的问题，不是 cache miss 的问题</li>
 <li>TLB miss 比普通 cache miss 更贵，因为 page walk 本身要多次访存</li>
 <li>TLB 条目数量极少（几十~几百），所以<strong>覆盖范围有限</strong>，大页是直接的优化手段</li>
 <li>上下文切换是 TLB 性能的大敌，ASID/PCID 是避免全量 flush 的关键技术</li>
 <li>现代 CPU 用 VIPT 让 TLB 查找和 L1 cache 查找并行，消除了额外延迟</li>
-</ol></article><aside id="backlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">被 1 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1786090002-VMEM" class="note-link underline-offset-4 hover:underline">virtual-memory</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="TLB" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#TLB">TLB</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">TLB</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="S%20%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#S%20%E4%BB%80%E4%B9%88%E5%9C%BA%E6%99%AF">S 什么场景</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">S 什么场景</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="C%20%E4%BB%80%E4%B9%88%E5%86%B2%E7%AA%81" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#C%20%E4%BB%80%E4%B9%88%E5%86%B2%E7%AA%81">C 什么冲突</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">C 什么冲突</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Q%20%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Q%20%E4%BB%80%E4%B9%88%E9%97%AE%E9%A2%98">Q 什么问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Q 什么问题</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="1.%20TLB%20%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#1.%20TLB%20%E6%98%AF%E4%BB%80%E4%B9%88%EF%BC%9F">1. TLB 是什么？</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">1. TLB 是什么？</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2.%20TLB%20hit%20%E5%92%8C%20TLB%20miss%20%E5%88%86%E5%88%AB%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88%EF%BC%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#2.%20TLB%20hit%20%E5%92%8C%20TLB%20miss%20%E5%88%86%E5%88%AB%E5%8F%91%E7%94%9F%E4%BB%80%E4%B9%88%EF%BC%9F">2. TLB hit 和 TLB miss 分别发生什么？</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">2. TLB hit 和 TLB miss 分别发生什么？</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="3.%20TLB%20miss%20%E7%94%B1%E8%B0%81%E5%A4%84%E7%90%86%EF%BC%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#3.%20TLB%20miss%20%E7%94%B1%E8%B0%81%E5%A4%84%E7%90%86%EF%BC%9F">3. TLB miss 由谁处理？</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">3. TLB miss 由谁处理？</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="4.%20TLB%20%E7%9A%84%E5%85%B8%E5%9E%8B%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%EF%BC%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#4.%20TLB%20%E7%9A%84%E5%85%B8%E5%9E%8B%E7%BB%93%E6%9E%84%E6%98%AF%E4%BB%80%E4%B9%88%E6%A0%B7%EF%BC%9F">4. TLB 的典型结构是什么样？</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">4. TLB 的典型结构是什么样？</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="5.%20%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2%E6%97%B6%20TLB%20%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#5.%20%E4%B8%8A%E4%B8%8B%E6%96%87%E5%88%87%E6%8D%A2%E6%97%B6%20TLB%20%E6%80%8E%E4%B9%88%E5%8A%9E%EF%BC%9F">5. 上下文切换时 TLB 怎么办？</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">5. 上下文切换时 TLB 怎么办？</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="6.%20%E5%A4%A7%E9%A1%B5%EF%BC%88Huge%20Pages%EF%BC%89%E4%B8%BA%E4%BB%80%E4%B9%88%E8%83%BD%E5%87%8F%E5%B0%91%20TLB%20miss%EF%BC%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#6.%20%E5%A4%A7%E9%A1%B5%EF%BC%88Huge%20Pages%EF%BC%89%E4%B8%BA%E4%BB%80%E4%B9%88%E8%83%BD%E5%87%8F%E5%B0%91%20TLB%20miss%EF%BC%9F">6. 大页（Huge Pages）为什么能减少 TLB miss？</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">6. 大页（Huge Pages）为什么能减少 TLB miss？</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="7.%20TLB%20%E4%B8%8E%20CPU%20cache%20%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#7.%20TLB%20%E4%B8%8E%20CPU%20cache%20%E7%9A%84%E5%85%B3%E7%B3%BB%EF%BC%9F">7. TLB 与 CPU cache 的关系？</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">7. TLB 与 CPU cache 的关系？</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="A%20%E5%9B%9E%E7%AD%94%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#A%20%E5%9B%9E%E7%AD%94%E9%97%AE%E9%A2%98">A 回答问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">A 回答问题</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
+</ol>
+</li>
+</ul>
+</li>
+</ul></article><aside id="backlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">被 1 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1786090002-VMEM" class="note-link underline-offset-4 hover:underline">virtual-memory</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="TLB" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#TLB">TLB</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">TLB</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
