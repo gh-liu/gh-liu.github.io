@@ -1,11 +1,25 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>zig-no-hidden-control-flow</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="zig-no-hidden-control-flow">zig-no-hidden-control-flow</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-05-11</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-05-13</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/CLI" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CLI</a></div></div>
 <ul>
-<li>编译期 hidden：
+<li>
+<p>S：需要理解 Zig 如何通过显式控制流表达错误处理、资源管理和程序行为。</p>
+</li>
+<li>
+<p>C：隐式异常、自动控制流和隐藏副作用会增加代码阅读与推理成本，也可能掩盖资源释放路径。</p>
+</li>
+<li>
+<p>Q：Zig 如何减少隐藏控制流，并让程序行为更容易被检查？</p>
+</li>
+<li>
+<p>A：使用显式错误联合、<code>try</code>、<code>defer</code> 和清晰的返回路径表达控制流，让调用者能够看到可能失败和清理资源的边界。</p>
+</li>
+<li>
+<p>编译期 hidden：</p>
 <ul>
 <li>类型推导、泛型实例化、trait 解析、隐式转换、宏展开、编译器优化。</li>
 </ul>
 </li>
-<li>运行时 hidden：
+<li>
+<p>运行时 hidden：</p>
 <ul>
 <li>内存分配、资源释放、异常跳转、动态分发、装箱、GC、调度、锁、IO。</li>
 </ul>

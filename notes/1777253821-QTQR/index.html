@@ -9,11 +9,24 @@
 </ul>
 <p>Q 排查时常问：</p>
 <ul>
-<li>这个域名现在解析到了什么记录</li>
-<li>是哪个 DNS 服务器给出的答案</li>
-<li>权威 DNS 和递归 DNS 返回是否一致</li>
-<li>结果是不是被简化了，TTL 是多少，是否还在传播中</li>
-<li>某个 IP 反查回来的域名是什么</li>
+<li>
+<p>这个域名现在解析到了什么记录</p>
+</li>
+<li>
+<p>是哪个 DNS 服务器给出的答案</p>
+</li>
+<li>
+<p>权威 DNS 和递归 DNS 返回是否一致</p>
+</li>
+<li>
+<p>结果是不是被简化了，TTL 是多少，是否还在传播中</p>
+</li>
+<li>
+<p>某个 IP 反查回来的域名是什么</p>
+</li>
+<li>
+<p>A：使用 <code>dig</code> 指定记录类型、DNS 服务器和查询选项，结合 ANSWER、AUTHORITY、SERVER 与 Query time 判断解析结果和故障位置。</p>
+</li>
 </ul>
 <h2 id="%E5%B8%B8%E8%A7%81%E5%91%BD%E4%BB%A4%E7%A4%BA%E4%BE%8B">常见命令示例</h2>
 <figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#d9b400" d="M29.4 27.6H2.5V4.5h26.9Zm-25.9-1h24.9V5.5H3.5Z"/><path fill="#d9b400" d="m6.077 19.316l-.555-.832l4.844-3.229l-4.887-4.071l.641-.768l5.915 4.928zM12.7 18.2h7.8v1h-7.8zM2.5 5.5h26.9v1.9H2.5z"/></svg>bash</span><button type="button" class="code-copy-button" data-code="man dig
