@@ -1,0 +1,123 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>rocksdb</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="rocksdb">rocksdb</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-08-10</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-08-10</span><a href="#outlinks" class="meta-pill meta-pill-outlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">2 出链</a></div><div class="flex flex-wrap gap-1.5"><a href="/series/INFRA 快速入门" class="topic-chip topic-chip-series rounded-full border px-2.5 py-0.5 text-xs no-underline">INFRA 快速入门</a><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/INFRA" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">INFRA</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">面向 SSD 的嵌入式 LSM-tree KV 存储引擎</p>
+<ul>
+<li>S：应用需要在单机上持久化大量有序 KV，并以高吞吐写入、点查或范围扫描访问。</li>
+<li>C：原地随机写放大 I/O；纯内存写虽快，却无法抵御进程崩溃。</li>
+<li>Q：如何把随机更新转化为顺序写，同时兼顾持久性与可接受的读取成本？</li>
+<li>A：RocksDB 将 WAL、MemTable、不可变 SST 和后台 Compaction 组成 LSM-tree，以写放大换取高写入吞吐。</li>
+</ul>
+<h2 id="%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B">心智模型</h2>
+<blockquote>
+<p>RocksDB 本身不是数据库，它为什么能够成为 TiDB、CockroachDB、Yugabyte、MyRocks 等数据库的底层？
+RocksDB 提供了一套 MVCC + Snapshot + Transaction API。</p>
+</blockquote>
+<blockquote>
+<p>RocksDB 是嵌入应用进程的<code>有序 KV 存储引擎</code>，不是独立数据库服务。</p>
+</blockquote>
+<ul>
+<li>key/value 都是字节串，key 按 comparator 排序；支持 <code>Put</code>、<code>Get</code>、<code>Delete</code>、<code>Merge</code>、批量写和范围迭代。</li>
+<li>没有内建网络协议、SQL、复制、分片或分布式事务，这些由上层系统实现。</li>
+<li>从 LevelDB 演化而来，针对多核与 SSD 优化；核心数据结构见 <a href="/notes/1775789754-AYPV">LSM-tree</a>。</li>
+</ul>
+<h2 id="%E6%A0%B8%E5%BF%83%E6%8A%BD%E8%B1%A1">核心抽象</h2>
+<h3 id="%E8%AF%BB%E5%86%99%E9%93%BE%E8%B7%AF">读写链路</h3>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="Write → WAL + active MemTable
+                   │ 满
+                   ▼
+            immutable MemTable → flush → L0 SST
+                                             │
+                                             ▼
+                                      background compaction
+ 
+Read  → MemTable → immutable MemTable → L0（可重叠）→ L1...Ln
+                                                   └─ Bloom → index → data block">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>Write → WAL + active MemTable</span></span>
+<span data-line=""><span>                   │ 满</span></span>
+<span data-line=""><span>                   ▼</span></span>
+<span data-line=""><span>            immutable MemTable → flush → L0 SST</span></span>
+<span data-line=""><span>                                             │</span></span>
+<span data-line=""><span>                                             ▼</span></span>
+<span data-line=""><span>                                      background compaction</span></span>
+<span data-line=""> </span>
+<span data-line=""><span>Read  → MemTable → immutable MemTable → L0（可重叠）→ L1...Ln</span></span>
+<span data-line=""><span>                                                   └─ Bloom → index → data block</span></span></code></pre></figure>
+<ul>
+<li><strong>WAL</strong>：追加记录写操作，崩溃后重放未 flush 的 MemTable；持久性取决于 <code>WriteOptions.sync</code> 等配置。通用原理见 <a href="/notes/1776176573-NSDA">WAL</a>。</li>
+<li><strong>MemTable</strong>：默认使用并发 SkipList 保存有序数据；满后冻结，由后台线程 flush。</li>
+<li><strong>SST</strong>：不可变、有序、分块且可压缩；索引定位 data block，Bloom Filter 跳过确定不存在的文件。</li>
+<li><strong>Compaction</strong>：合并 SST、清理旧版本与 tombstone，以额外后台写入降低读放大和空间放大。默认是 Leveled Compaction：L0 文件范围可重叠，L1 及以下同层不重叠。</li>
+<li><strong>Block Cache</strong>：缓存解压后的常用 data/index/filter block，通常是读性能的关键内存预算。</li>
+<li><strong>Column Family</strong>：同一 DB 内共享 WAL、独立维护 MemTable/SST 与配置的逻辑 KV 空间；不是事务或资源完全隔离的独立数据库。</li>
+</ul>
+<h3 id="%E4%B8%89%E7%A7%8D%E6%94%BE%E5%A4%A7">三种放大</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>含义</th>
+<th>主要改善手段</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>读放大</td>
+<td>一次逻辑读检查的内存表、文件或 block 数</td>
+<td>Bloom Filter、缓存、及时 compaction</td>
+</tr>
+<tr>
+<td>写放大</td>
+<td>用户写入触发的 WAL、flush、compaction 总写入量</td>
+<td>compaction 策略、层级大小、批量写</td>
+</tr>
+<tr>
+<td>空间放大</td>
+<td>物理占用 / 有效数据量</td>
+<td>compaction、清理 tombstone/旧版本</td>
+</tr>
+</tbody>
+</table>
+<p>调优本质是在三者与内存、CPU、尾延迟之间取舍，不存在通用最优配置，应以真实 workload benchmark。</p>
+<h3 id="MVCC%20%E4%B8%8E%E5%BF%AB%E7%85%A7">MVCC 与快照</h3>
+<p>RocksDB 的 internal key 可简化为：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="(user_key ASC, sequence_number DESC, value_type)">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>(user_key ASC, sequence_number DESC, value_type)</span></span></code></pre></figure>
+<ul>
+<li>每次写入分配单调递增的 <strong>sequence number</strong>，更新和删除都产生新版本而非原地修改。</li>
+<li>一次读捕获当前 published sequence，只读取不大于它的最新版本；<code>Snapshot</code> 固定该序号供多次读复用。</li>
+<li>活跃 snapshot 会阻止 compaction 删除其仍可能读取的旧版本，因此必须及时释放。</li>
+<li><code>WriteBatch</code> 中的多条修改一起发布，对其他读者原子可见；但它不提供条件判断或完整事务隔离。</li>
+</ul>
+<h3 id="%E4%BA%8B%E5%8A%A1">事务</h3>
+<p>事务写入先暂存在 transaction buffer，commit 时原子写入 RocksDB；事务可读到自己的未提交写入。</p>
+<table>
+<thead>
+<tr>
+<th>模式</th>
+<th>冲突检查</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>TransactionDB</code></td>
+<td>写入时获取 key lock，冲突时等待或超时；可能死锁</td>
+<td>冲突多、重试成本高</td>
+</tr>
+<tr>
+<td><code>OptimisticTransactionDB</code></td>
+<td>写入不加 key lock，commit 时校验；冲突则整笔重试</td>
+<td>冲突少、事务短且重试便宜</td>
+</tr>
+</tbody>
+</table>
+<p>注意：</p>
+<ul>
+<li>snapshot read 提供一致视图，但仅检测 write-write conflict 仍可能出现 <strong>write skew</strong>。</li>
+<li>依赖读取结果做更新时使用 <code>GetForUpdate</code>，把读集合纳入冲突检测。</li>
+<li>点 key 锁不能阻止范围扫描的 phantom；不要默认等同于 SQL 数据库的 Serializable。</li>
+<li>RocksDB 原生事务只覆盖单个本地实例；分布式数据库通常在其上实现自己的事务层。</li>
+</ul>
+<h3 id="Merge%20Operator">Merge Operator</h3>
+<p><code>Merge(key, operand)</code> 不立即执行 read-modify-write，而是记录增量 operand，在读取、flush 或 compaction 时由自定义 Merge Operator 合并。它减少小增量更新的写放大和并发覆盖，但会把尚未合并的计算成本转移到读取路径。</p>
+<h2 id="links">links</h2>
+<ol>
+<li><a href="https://artem.krylysov.com/blog/2023/04/19/how-rocksdb-works/">https://artem.krylysov.com/blog/2023/04/19/how-rocksdb-works/</a></li>
+<li><a href="https://artem.krylysov.com/blog/2026/07/23/how-mvcc-and-transactions-work-in-rocksdb/">https://artem.krylysov.com/blog/2026/07/23/how-mvcc-and-transactions-work-in-rocksdb/</a></li>
+</ol></article><aside id="outlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">引用了 2 篇笔记</h2><ul class="space-y-2"><li><a href="/notes/1775789754-AYPV" class="note-link underline-offset-4 hover:underline">lsm-tree</a></li><li><a href="/notes/1776176573-NSDA" class="note-link underline-offset-4 hover:underline">WAL</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="rocksdb" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#rocksdb">rocksdb</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">rocksdb</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B">心智模型</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">心智模型</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E6%8A%BD%E8%B1%A1" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E6%8A%BD%E8%B1%A1">核心抽象</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心抽象</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%AF%BB%E5%86%99%E9%93%BE%E8%B7%AF" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AF%BB%E5%86%99%E9%93%BE%E8%B7%AF">读写链路</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">读写链路</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%B8%89%E7%A7%8D%E6%94%BE%E5%A4%A7" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%89%E7%A7%8D%E6%94%BE%E5%A4%A7">三种放大</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">三种放大</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="MVCC%20%E4%B8%8E%E5%BF%AB%E7%85%A7" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#MVCC%20%E4%B8%8E%E5%BF%AB%E7%85%A7">MVCC 与快照</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">MVCC 与快照</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%BA%8B%E5%8A%A1" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BA%8B%E5%8A%A1">事务</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">事务</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Merge%20Operator" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Merge%20Operator">Merge Operator</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Merge Operator</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#links">links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
