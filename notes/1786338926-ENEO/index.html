@@ -39,6 +39,33 @@ Read  → MemTable → immutable MemTable → L0（可重叠）→ L1...Ln
 <span data-line=""> </span>
 <span data-line=""><span>Read  → MemTable → immutable MemTable → L0（可重叠）→ L1...Ln</span></span>
 <span data-line=""><span>                                                   └─ Bloom → index → data block</span></span></code></pre></figure>
+<pre><code>                Write
+                  │
+                  ▼
+          ┌──────────────┐
+          │    WAL       │  ← 崩溃恢复
+          └──────────────┘
+                  │
+                  ▼
+          ┌──────────────┐
+          │  MemTable    │  ← SkipList
+          └──────────────┘
+                  │
+              Flush
+                  ▼
+          ┌──────────────┐
+          │    SST       │  ← Immutable
+          └──────────────┘
+                  │
+           Background
+          Compaction
+                  ▼
+      Organized LSM Tree
+                  │
+                  ▼
+          Fast Point Lookup
+          Fast Range Scan
+</code></pre>
 <ul>
 <li><strong>WAL</strong>：追加记录写操作，崩溃后重放未 flush 的 MemTable；持久性取决于 <code>WriteOptions.sync</code> 等配置。通用原理见 <a href="/notes/1776176573-NSDA">WAL</a>。</li>
 <li><strong>MemTable</strong>：默认使用并发 SkipList 保存有序数据；满后冻结，由后台线程 flush。</li>
