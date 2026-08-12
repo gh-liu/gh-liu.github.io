@@ -149,7 +149,7 @@ Sampler = 决策下一个 token
 KV Cache = 记住历史计算结果</p>
 <h2 id="%E8%AE%AD%E7%BB%83">训练</h2>
 <blockquote>
-<p>训练可以简单理解为：让模型反复练习“根据前文预测下一个 token”，再根据预测错误不断调整权重。训练的目标不是直接保存原文，而是找到一组能够描述语言、知识和推理模式的参数。</p>
+<p>训练可以简单理解为：让模型反复练习<code>根据前文预测下一个 token</code>，再根据预测错误不断调整权重。训练的目标不是直接保存原文，而是找到一组能够描述语言、知识和推理模式的参数。</p>
 </blockquote>
 <p>一次训练大致经过以下步骤：</p>
 <ol>
@@ -162,8 +162,8 @@ KV Cache = 记住历史计算结果</p>
 </ol>
 <p>训练过程中，各组件逐渐学会不同类型的信息处理方式：</p>
 <ul>
-<li>Attention 学习“当前 token 应该关注上下文中的哪些信息”。</li>
-<li>MLP 学习“已有特征以某种方式组合时，应该产生哪些新特征”。</li>
+<li>Attention 学习<code>当前 token 应该关注上下文中的哪些信息</code>。</li>
+<li>MLP 学习<code>已有特征以某种方式组合时，应该产生哪些新特征</code>。</li>
 <li>Embedding、Norm、LM Head 等组件也会一起更新，共同影响模型的最终预测。</li>
 </ul>
 <p>训练完成后，语言规律、事实关联和模式通常以分布式表示（distributed representation）编码在模型权重中：一项能力或知识往往由多个 Layer、Attention Head、MLP 神经元以及其他组件共同表示，而不是存放在某一个固定位置。模型权重因此更像对训练数据中规律的高度压缩和近似表达，并不是一个可以逐条查询原始训练记录的数据库。</p>
@@ -173,6 +173,11 @@ KV Cache = 记住历史计算结果</p>
 
 最终得到：Model Weights（对语言、知识和模式的分布式近似表示）
 </code></pre>
+<p>Weights = 训练长期留下来的东西
+Hidden State = 某次输入运行时产生的临时状态
+Gradient = 训练时告诉模型<code>weights 应该怎么改</code></p>
+<p>训练：Input → Hidden State → Loss → Gradient → Weight Update。
+推理：Input → Hidden State → Output。</p>
 <h2 id="%E6%8E%A8%E7%90%86">推理</h2>
 <blockquote>
 <p>推理（Inference）就是使用训练好的权重生成结果。与训练不同，推理不会通过反向传播修改模型权重，而是把输入交给模型计算，并一次生成一个 token，直到得到完整回答。</p>
