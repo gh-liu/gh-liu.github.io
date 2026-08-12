@@ -1,0 +1,150 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>llm</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="llm">llm</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-08-12</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-08-12</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a></div></div>
+<ol>
+<li>训练 Training  = 找权重 weights</li>
+<li>推理 Inference = 用权重 weights</li>
+</ol>
+<h2 id="%E7%BB%84%E4%BB%B6">组件</h2>
+<p>可以先把大语言模型理解成一条“文字 → 数字 → 处理 → 文字”的流水线：</p>
+<ol>
+<li>Tokenizer 把文本切成 token，Embedding 把 token 变成向量；</li>
+<li>Transformer Block 反复结合上下文更新这些向量；</li>
+<li>LM Head 再把最终向量转换成词表中每个 token 的分数，Sampling 根据分数选出下一个 token。</li>
+</ol>
+<blockquote>
+<p>在 Transformer Block 内，Attention 负责让不同 token 交换信息，MLP 负责进一步加工每个 token 的信息；Residual 和 Norm 则帮助信息稳定地流过很多层。模型在每一层产生的 token 表示称为 hidden state（隐藏状态）。</p>
+</blockquote>
+<blockquote>
+<p>以主流 decoder-only Transformer LLM 为例：</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>组件</th>
+<th>输入</th>
+<th>输出</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输入</td>
+<td>Tokenizer</td>
+<td>文本</td>
+<td>Token IDs</td>
+<td>把字符串拆成模型认识的离散符号</td>
+</tr>
+<tr>
+<td></td>
+<td>Embedding</td>
+<td>Token ID</td>
+<td>向量</td>
+<td>把离散 token 映射到连续向量空间</td>
+</tr>
+<tr>
+<td></td>
+<td>Position / RoPE</td>
+<td>token 向量、位置</td>
+<td>带位置信息的表示</td>
+<td>让模型知道 token 的顺序和相对位置</td>
+</tr>
+<tr>
+<td>主干网络</td>
+<td>RMSNorm / LayerNorm</td>
+<td>hidden state</td>
+<td>归一化向量</td>
+<td>稳定数值尺度和训练</td>
+</tr>
+<tr>
+<td></td>
+<td>Q/K/V Projection</td>
+<td>hidden state</td>
+<td>Q、K、V</td>
+<td>为 Attention 构造查询、索引和信息内容</td>
+</tr>
+<tr>
+<td></td>
+<td>Self-Attention</td>
+<td>Q/K/V</td>
+<td>context vector</td>
+<td>让 token 从其他 token 读取上下文信息</td>
+</tr>
+<tr>
+<td></td>
+<td>Output Projection</td>
+<td>Attention 输出</td>
+<td>hidden-size 向量</td>
+<td>合并多个 Attention Head 的结果</td>
+</tr>
+<tr>
+<td></td>
+<td>Residual</td>
+<td>原 hidden + 新结果</td>
+<td>新 hidden</td>
+<td>保留原信息，同时加入本层修正</td>
+</tr>
+<tr>
+<td></td>
+<td>MLP / FFN</td>
+<td>每个 token 的 hidden</td>
+<td>新 feature</td>
+<td>对单个 token 的信息做非线性加工</td>
+</tr>
+<tr>
+<td>输出</td>
+<td>Final Norm</td>
+<td>最后一层 hidden</td>
+<td>final hidden</td>
+<td>输出前再次归一化</td>
+</tr>
+<tr>
+<td></td>
+<td>LM Head</td>
+<td>final hidden</td>
+<td>vocab logits</td>
+<td>从隐藏空间映射到整个词表</td>
+</tr>
+<tr>
+<td></td>
+<td>Softmax / Sampling</td>
+<td>logits</td>
+<td>token</td>
+<td>选择下一个 token</td>
+</tr>
+<tr>
+<td>推理优化</td>
+<td>KV Cache</td>
+<td>历史 K/V</td>
+<td>可复用 K/V</td>
+<td>避免生成时重复计算历史 token</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>Tokenizer（分词器）：文本世界 → Token 世界。把文本切分并转换成模型词表中的 token ID。</li>
+<li>Embedding（嵌入层）：Token 世界 → 向量世界。把每个 token ID 转换成模型能够计算的初始向量。</li>
+<li>Position / RoPE（位置信息）：告诉模型“谁在前、谁在后”，让 Attention 能感知 token 的顺序和相对位置。</li>
+<li>Transformer Block（核心处理模块）：由 Attention、MLP、Residual 和 Norm 等组件组成。多个 Block 串联起来，逐层更新模型对每个 token 的表示。</li>
+<li>Norm（归一化）：把 hidden state 的数值控制在合适范围内，让深层网络的训练和推理更稳定。</li>
+<li>Attention（注意力）：让 token 从上下文中的其他 token 获取信息。Q/K/V 可以直观理解为“我想找什么 / 我能否被匹配 / 我能提供什么”。</li>
+<li>Causal Mask（因果掩码）：生成当前 token 时不能偷看后面的 token，保证模型只能根据已有内容预测下一个 token。</li>
+<li>Multi-Head Attention（多头注意力）：并行使用多组 Attention，让模型可以从不同角度理解上下文关系。</li>
+<li>Residual（残差连接）：把原有信息保留下来，再叠加本层学到的新信息，使模型可以逐层修改而不必每层重建表示。</li>
+<li>MLP / FFN（前馈网络）：单独加工每个 token 的信息，通过非线性变换提取和组合新的特征。</li>
+<li>Hidden State（隐藏状态）：模型在某一层对每个 token 的当前表示，也是各层之间持续传递和更新的数据。</li>
+<li>Final Hidden State（最终隐藏状态）：经过最后一个 Transformer Block 后得到的 token 表示。</li>
+<li>LM Head（语言模型输出层）：把最终隐藏状态转换为词表中每个 token 的分数。</li>
+<li>Logits / Sampling（分数与采样）：logits 是候选 token 的原始分数；采样策略根据这些分数选出下一个 token。</li>
+<li>KV Cache（键值缓存）：保存历史 token 已经算出的 K/V，用更多显存换取更少的重复计算，从而加快逐 token 生成。</li>
+</ol>
+<p>Tokenizer = 切分
+Embedding = 表示
+Position = 定位
+Attention = 读取 / 通信
+MLP = 加工 / 计算
+Residual = 保留 + 累积
+Norm = 稳定
+Hidden State = 模型当前内部状态
+LM Head = 翻译成词表分数
+Sampler = 决策下一个 token
+KV Cache = 记住历史计算结果</p></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="llm" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#llm">llm</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">llm</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%BB%84%E4%BB%B6" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%BB%84%E4%BB%B6">组件</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">组件</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
