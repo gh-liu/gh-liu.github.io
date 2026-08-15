@@ -1,43 +1,80 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>algo</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="algo">algo</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-02-05</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-07-29</span><a href="#outlinks" class="meta-pill meta-pill-outlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">1 出链</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a></div></div>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>algo</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E7%AE%97%E6%B3%95%E6%80%BB%E8%A7%88">算法总览</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-02-05</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-08-15</span><a href="#outlinks" class="meta-pill meta-pill-outlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">2 出链</a><a href="#backlinks" class="meta-pill meta-pill-backlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">2 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a></div></div>
+<blockquote>
+<p>本文是算法知识的主体笔记；如何学习和检验算法能力见 <a href="/notes/1776912349-COYO">算法学习的元认知框架</a>，算法在工程与认知中的作用见 <a href="/notes/1776909486-DFJT">算法的作用</a>。</p>
+</blockquote>
+<h2 id="%E7%AE%97%E6%B3%95%E6%98%AF%E4%BB%80%E4%B9%88">算法是什么</h2>
+<p>计算是在有限规则下，让一个有限表示的状态一步一步转换。计算机真正的核心不是「循环」，而是「反复做局部、机械、有限的状态转换」；计算是一个状态转移系统。</p>
+<p>算法，本质上是在设计「状态怎么演化」。
+算法技巧很多时候实际上是：找到一个结构，使一次有限步骤能够排除尽可能大的状态空间。
+人看到的「捷径」，通常叫作结构（structure）或不变量（invariant）。不是因为人类突破了计算，而是因为人发现了一个更强的结构或不变量。</p>
+<p>算法思维不是整理「捷径」，而是在寻找能够压缩搜索空间、状态空间或计算步骤的结构和不变量。</p>
+<p>很多经典算法真正厉害的地方都发生在 Y → Z：这个问题的核心抽象是什么？如何把问题 Y 转换成 Z？</p>
+<p>算法设计的大量工作其实就是：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="暴力搜索
+   ↓
+发现结构
+   ↓
+找到 invariant
+   ↓
+重新表示问题
+   ↓
+减少状态空间
+   ↓
+更好的算法">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>暴力搜索</span></span>
+<span data-line=""><span>   ↓</span></span>
+<span data-line=""><span>发现结构</span></span>
+<span data-line=""><span>   ↓</span></span>
+<span data-line=""><span>找到 invariant</span></span>
+<span data-line=""><span>   ↓</span></span>
+<span data-line=""><span>重新表示问题</span></span>
+<span data-line=""><span>   ↓</span></span>
+<span data-line=""><span>减少状态空间</span></span>
+<span data-line=""><span>   ↓</span></span>
+<span data-line=""><span>更好的算法</span></span></code></pre></figure>
+<p>数学是精确讨论程序行为的语言。相关工具都在回答：</p>
 <ul>
-<li>S：在学习和实践“algo”时，需要建立统一的概念和问题边界。</li>
-<li>C：相关概念、实现机制和工程取舍容易混在一起，导致只记住结论而无法判断适用条件。</li>
-<li>Q：“algo”要解决什么问题？它的核心抽象、工作机制和边界分别是什么？</li>
-<li>A：本文围绕“algo”整理核心概念、关键机制和工程实践，并明确其适用边界。</li>
+<li>程序到底做多少步？</li>
+<li>状态空间有多大？</li>
+<li>每一步消掉多少可能性？</li>
+<li>递归会展开多少层？</li>
+<li>有没有不变量？</li>
+<li>结果是否一定终止？</li>
+<li>终止时是否正确？</li>
 </ul>
+<p>算法就是设计「状态如何表示、每一步如何转换」，使我们能够正确、最终地得到目标状态，并尽量降低所需资源。</p>
+<p>好的算法往往不是把同一个循环写得更快，而是改变状态空间，让一次转换推进得更多。</p>
 <blockquote>
 <p>学习算法，是为了深刻理解问题</p>
 </blockquote>
-<p><a href="/notes/1776909486-DFJT">role-of-algo</a></p>
-<p>算法三阶段：</p>
+<h2 id="%E5%AD%A6%E4%B9%A0%E9%98%B6%E6%AE%B5">学习阶段</h2>
 <ol>
 <li>用编程语言能够解决问题</li>
-<li>熟悉算法背后的逻辑，可以使用纸笔解释清楚，证明其准确性与分析大O运行时</li>
-<li>第一次提交前多做检查，尽可能保证准确</li>
+<li>熟悉算法背后的逻辑，可以用纸笔解释清楚，证明其正确性并分析 Big-O 复杂度</li>
+<li>第一次提交前多做检查，尽可能保证正确</li>
 </ol>
-<h1 id="%E4%B8%80%E3%80%81%E5%A4%8D%E6%9D%82%E5%BA%A6">一、复杂度</h1>
+<h2 id="%E4%B8%80%E3%80%81%E5%A4%8D%E6%9D%82%E5%BA%A6">一、复杂度</h2>
 <p>以<code>时间</code>或<code>空间</code>衡量算法效率。</p>
 <p>时间复杂度：算法执行操作的次数随输入规模 n 的增长趋势。计算：子问题个数 × 解决子问题时间。
 空间复杂度：算法运行过程中额外占用的内存随 n 的增长趋势。若只使用常数级额外空间（O(1)），称为原地（in-place） 算法。</p>
 <p>常见复杂度（从优到劣）：O(1) &#x3C; O(log n) &#x3C; O(n) &#x3C; O(n log n) &#x3C; O(n²) &#x3C; O(2ⁿ) &#x3C; O(n!)</p>
-<h1 id="%E4%BA%8C%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">二、数据结构</h1>
+<h2 id="%E4%BA%8C%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">二、数据结构</h2>
 <p>常见数据结构可分为「线性」与「非线性」。</p>
 <p>线性：元素之间<code>一对一</code>
 树形：元素之间<code>一对多</code>
 图形：元素之间<code>多对多</code></p>
-<h2 id="%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F">存储方式</h2>
+<h3 id="%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F">存储方式</h3>
 <p>两种底层存储：数组（顺序存储） 和 链表（链式存储）。</p>
 <ul>
 <li>数组：紧凑连续，可随机访问，索引快，相对节约空间；一次性分配、扩容需整体复制、插入删除需移动元素。</li>
 <li>链表：元素不连续，依靠指针指向下一个；不能随机访问，消耗更多空间（指针）。</li>
 </ul>
-<h2 id="%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C">基本操作</h2>
+<h3 id="%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C">基本操作</h3>
 <p>遍历 + 访问（增删改查）。</p>
 <ul>
 <li>线性：for/while 迭代为代表</li>
 <li>非线性：递归为代表</li>
 </ul>
-<h2 id="%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">常见数据结构</h2>
+<h3 id="%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">常见数据结构</h3>
 <ul>
 <li>栈：先进后出（LIFO）。队列：先进先出（FIFO）；双向队列两端可进出。栈实现队列用双栈；队列实现栈把队首取出放队尾。</li>
 <li>哈希表：映射，解决冲突：链式地址法、开放地址法。结合哈希表和数组可使删除和查找 O(1)（待操作元素与数组尾部交换）。</li>
@@ -48,15 +85,15 @@
 <li>图：<code>顶点</code>和<code>边</code>的集合；遍历 BFS、DFS。二分图：两种颜色着色，使任意边两端颜色不同。</li>
 <li>跳表：多层级链表，顶层是子层的子集。</li>
 </ul>
-<h1 id="%E4%B8%89%E3%80%81%E7%AE%97%E6%B3%95%E8%8C%83%E5%BC%8F">三、算法范式</h1>
-<h2 id="%E8%BF%AD%E4%BB%A3%E4%B8%8E%E9%80%92%E5%BD%92">迭代与递归</h2>
+<h2 id="%E4%B8%89%E3%80%81%E7%AE%97%E6%B3%95%E8%8C%83%E5%BC%8F">三、算法范式</h2>
+<h3 id="%E8%BF%AD%E4%BB%A3%E4%B8%8E%E9%80%92%E5%BD%92">迭代与递归</h3>
 <ul>
 <li>递归一定是自上而下的</li>
 <li>任何<code>递归</code>都可以通过<code>循环</code>加<code>栈</code>的<code>迭代</code>形式完成</li>
 <li>任何<code>迭代</code>形式的<code>循环</code>都可以通过<code>递归</code>形式完成</li>
 <li><code>递归</code>适用于：类树形结构（子结构与父结构类似）、涉及回溯、深度不太大</li>
 </ul>
-<h2 id="%E5%88%86%E6%B2%BB%E6%B3%95%EF%BC%88Divide-and-Conquer%EF%BC%89">分治法（Divide-and-Conquer）</h2>
+<h3 id="%E5%88%86%E6%B2%BB%E6%B3%95%EF%BC%88Divide-and-Conquer%EF%BC%89">分治法（Divide-and-Conquer）</h3>
 <p>将原问题划分成 n 个规模较小、结构相似的独立子问题，递归求解，再合并结果。</p>
 <p>三个步骤：</p>
 <ol>
@@ -70,65 +107,65 @@
 <li>解决：递归排序两个子序列</li>
 <li>合并：合并两个已排序的子序列</li>
 </ul>
-<h2 id="%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%EF%BC%88DP%EF%BC%89">动态规划（DP）</h2>
+<h3 id="%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%EF%BC%88DP%EF%BC%89">动态规划（DP）</h3>
 <blockquote>
 <p>分治法 —— 各子问题独立；
 动态规划 —— 各子问题重叠。</p>
 </blockquote>
 <p>DP 问题的一般形式：求最值。核心思想：穷举求最值。</p>
-<h3 id="%E4%B8%A4%E4%B8%AA%E8%A6%81%E7%B4%A0">两个要素</h3>
+<h4 id="%E4%B8%A4%E4%B8%AA%E8%A6%81%E7%B4%A0">两个要素</h4>
 <ol>
 <li>最优子结构：问题的最优解包含子问题的最优解，可从子问题最优结果推导更大规模问题的最优结果。子问题之间互相独立。</li>
 <li>重叠子问题：递归算法会反复求解同样的子问题。</li>
 </ol>
-<h3 id="%E4%B8%89%E8%A6%81%E7%B4%A0%E4%B8%8E%E6%A1%86%E6%9E%B6">三要素与框架</h3>
+<h4 id="%E4%B8%89%E8%A6%81%E7%B4%A0%E4%B8%8E%E6%A1%86%E6%9E%B6">三要素与框架</h4>
 <p>重叠子问题、最优子结构、状态转移方程。</p>
 <p>思维框架：明确 <code>base case</code> → 明确<code>状态</code> → 明确<code>选择</code> → 定义 <code>DP 数组/函数</code>的含义。初始化 base case，遍历所有状态组合，对每个状态求最值（从可选的选择中）。</p>
-<h3 id="%E8%AE%BE%E8%AE%A1%E5%9B%9B%E6%AD%A5%E9%AA%A4">设计四步骤</h3>
+<h4 id="%E8%AE%BE%E8%AE%A1%E5%9B%9B%E6%AD%A5%E9%AA%A4">设计四步骤</h4>
 <ol>
 <li>描述最优解的结构</li>
 <li>递归定义最优解的值</li>
 <li>按自底向上的方式计算最优解的值</li>
 <li>由计算出的结果构造一个最优解</li>
 </ol>
-<h3 id="%E4%B8%A4%E7%A7%8D%E5%AE%9E%E7%8E%B0">两种实现</h3>
+<h4 id="%E4%B8%A4%E7%A7%8D%E5%AE%9E%E7%8E%B0">两种实现</h4>
 <ul>
 <li>自顶向下（记忆化搜索/备忘录）：递归拆解子问题，记录子问题的解</li>
 <li>自底向上（DP table 迭代）：循环迭代完成，脱离递归</li>
 </ul>
-<h3 id="%E7%8A%B6%E6%80%81%E5%8E%8B%E7%BC%A9">状态压缩</h3>
+<h4 id="%E7%8A%B6%E6%80%81%E5%8E%8B%E7%BC%A9">状态压缩</h4>
 <p>二维 dp 数组，若计算 <code>dp[i][j]</code> 只需相邻状态，可投影到一维数组，将无法投影的值用临时变量存储。</p>
-<h3 id="DP%20%E9%81%8D%E5%8E%86">DP 遍历</h3>
+<h4 id="DP%20%E9%81%8D%E5%8E%86">DP 遍历</h4>
 <p>遍历过程中，所需状态必须已经计算出来；遍历终点是存储结果的位置。</p>
-<h3 id="%E7%BB%8F%E5%85%B8%20DP%20%E9%97%AE%E9%A2%98">经典 DP 问题</h3>
-<h4 id="%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%E6%95%B0%E5%88%97">斐波那契数列</h4>
+<h4 id="%E7%BB%8F%E5%85%B8%20DP%20%E9%97%AE%E9%A2%98">经典 DP 问题</h4>
+<h5 id="%E6%96%90%E6%B3%A2%E9%82%A3%E5%A5%91%E6%95%B0%E5%88%97">斐波那契数列</h5>
 <ol>
 <li>暴力递归 O(2^n)：存在大量重叠子问题</li>
 <li>备忘录递归 O(n)：数组/哈希表缓存已计算结果</li>
 <li>DP table 迭代 O(n)：自底向上；状态压缩后只需两个变量</li>
 </ol>
-<h4 id="%E5%87%91%E9%9B%B6%E9%92%B1%EF%BC%88k%20%E7%A7%8D%E9%9D%A2%E5%80%BC%EF%BC%8C%E6%B1%82%E5%87%91%E5%87%BA%E7%9B%AE%E6%A0%87%E9%87%91%E9%A2%9D%E7%9A%84%E6%9C%80%E5%B0%91%E7%A1%AC%E5%B8%81%E6%95%B0%EF%BC%89">凑零钱（k 种面值，求凑出目标金额的最少硬币数）</h4>
+<h5 id="%E5%87%91%E9%9B%B6%E9%92%B1%EF%BC%88k%20%E7%A7%8D%E9%9D%A2%E5%80%BC%EF%BC%8C%E6%B1%82%E5%87%91%E5%87%BA%E7%9B%AE%E6%A0%87%E9%87%91%E9%A2%9D%E7%9A%84%E6%9C%80%E5%B0%91%E7%A1%AC%E5%B8%81%E6%95%B0%EF%BC%89">凑零钱（k 种面值，求凑出目标金额的最少硬币数）</h5>
 <ul>
 <li>状态转移方程：base case（金额 0 → 0 枚）；状态（目标金额）；选择（每种硬币）</li>
 </ul>
 <ol>
 <li>暴力递归 → 2. 备忘录 → 3. DP table 迭代（状态从 0 到目标）</li>
 </ol>
-<h4 id="%E8%82%A1%E7%A5%A8%E4%B9%B0%E5%8D%96%EF%BC%88%E6%9C%80%E5%A4%9A%20k%20%E7%AC%94%E4%BA%A4%E6%98%93%EF%BC%89">股票买卖（最多 k 笔交易）</h4>
+<h5 id="%E8%82%A1%E7%A5%A8%E4%B9%B0%E5%8D%96%EF%BC%88%E6%9C%80%E5%A4%9A%20k%20%E7%AC%94%E4%BA%A4%E6%98%93%EF%BC%89">股票买卖（最多 k 笔交易）</h5>
 <p>三个状态：天数 n、交易次数 K、持有状态（0/1）→ <code>dp[n][k][0 or 1]</code>。今天不持有 = max(昨天不持有, 昨天持有+今天卖出)；今天持有 = max(昨天持有, 昨天未持有-今天买入)。</p>
-<h4 id="%E6%89%93%E5%AE%B6%E5%8A%AB%E8%88%8D">打家劫舍</h4>
+<h5 id="%E6%89%93%E5%AE%B6%E5%8A%AB%E8%88%8D">打家劫舍</h5>
 <ol>
 <li>线性排列：抢或不抢，<code>dp[i]</code> 只与最近两个状态有关</li>
 <li>环形排列：比较「抢首不抢尾」与「抢尾不抢首」</li>
 <li>二叉树：每个节点返回 <code>[不抢最大值, 抢最大值]</code>，抢则加左右不抢的值，不抢则左右各取max。</li>
 </ol>
-<h4 id="0-1%20%E8%83%8C%E5%8C%85%20%2F%20%E5%88%86%E5%89%B2%E7%AD%89%E5%92%8C%E5%AD%90%E9%9B%86">0-1 背包 / 分割等和子集</h4>
+<h5 id="0-1%20%E8%83%8C%E5%8C%85%20%2F%20%E5%88%86%E5%89%B2%E7%AD%89%E5%92%8C%E5%AD%90%E9%9B%86">0-1 背包 / 分割等和子集</h5>
 <ul>
 <li>背包问题：N 个物品、重量 W，求最大价值</li>
 <li>分割等和子集：转化为背包 → 数组 sum/2 容量能否恰好装满</li>
 <li><code>dp[i][j]</code>：前 i 个物品、容量 j 时能否装满；可状态压缩为一维</li>
 </ul>
-<h2 id="%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95">贪心算法</h2>
+<h3 id="%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95">贪心算法</h3>
 <p>每个决策阶段选择当前最优解，期望获取全局最优解。</p>
 <p>与 DP 的区别：</p>
 <ul>
@@ -137,16 +174,16 @@
 <li>贪心划分子问题后通常只剩一个非空子问题</li>
 </ul>
 <p>适用条件：问题具有最优子结构，且贪心选择性质成立。</p>
-<h2 id="%E5%9B%9E%E6%BA%AF%E6%B3%95%EF%BC%88Backtracking%EF%BC%89">回溯法（Backtracking）</h2>
+<h3 id="%E5%9B%9E%E6%BA%AF%E6%B3%95%EF%BC%88Backtracking%EF%BC%89">回溯法（Backtracking）</h3>
 <p>本质：DFS 暴力穷举，决策树的遍历过程。</p>
 <p>三要素：1. 路径（已作出的选择）2. 选择列表（当前可作的选择）3. 结束条件。流程：满足结束条件则记录路径；否则遍历选择列表 → 做选择 → 递归 → 撤销选择。</p>
 <p>回溯的<code>路径</code>、<code>选择列表</code>、<code>结束条件</code> 与 DP 的<code>状态</code>、<code>选择</code>、<code>base case</code> 对应；回溯自顶向下，DP 自底向上。</p>
-<h3 id="%E7%BB%8F%E5%85%B8%E9%97%AE%E9%A2%98">经典问题</h3>
+<h4 id="%E7%BB%8F%E5%85%B8%E9%97%AE%E9%A2%98">经典问题</h4>
 <ol>
 <li>全排列：DFS，选择节点进入下层，遍历后撤销。</li>
 <li>N 皇后：每行对应决策树每层，判断列冲突、左上/右上对角线冲突。</li>
 </ol>
-<h2 id="%E5%88%86%E6%94%AF%E5%AE%9A%E7%95%8C%E6%B3%95%EF%BC%88Branch%20and%20Bound%EF%BC%89">分支定界法（Branch and Bound）</h2>
+<h3 id="%E5%88%86%E6%94%AF%E5%AE%9A%E7%95%8C%E6%B3%95%EF%BC%88Branch%20and%20Bound%EF%BC%89">分支定界法（Branch and Bound）</h3>
 <p>与回溯法的主要区别：BFS 而非 DFS。</p>
 <ul>
 <li>每个活结点只有一次机会成为扩展结点，一次性产生所有儿子结点</li>
@@ -162,82 +199,82 @@
 <p>回溯法内存 O(解空间最长路径长度)，分支定界法内存 O(解空间大小)。
 通常分支定界法先超出内存上限，回溯法先超出时间上限。</p>
 </blockquote>
-<h1 id="%E5%9B%9B%E3%80%81%E5%B8%B8%E7%94%A8%E6%8A%80%E5%B7%A7">四、常用技巧</h1>
-<h2 id="%E5%8F%8C%E6%8C%87%E9%92%88">双指针</h2>
-<h3 id="%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88%EF%BC%88%E9%93%BE%E8%A1%A8%E9%97%AE%E9%A2%98%E4%B8%BA%E4%B8%BB%EF%BC%89">快慢指针（链表问题为主）</h3>
+<h2 id="%E5%9B%9B%E3%80%81%E5%B8%B8%E7%94%A8%E6%8A%80%E5%B7%A7">四、常用技巧</h2>
+<h3 id="%E5%8F%8C%E6%8C%87%E9%92%88">双指针</h3>
+<h4 id="%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88%EF%BC%88%E9%93%BE%E8%A1%A8%E9%97%AE%E9%A2%98%E4%B8%BA%E4%B8%BB%EF%BC%89">快慢指针（链表问题为主）</h4>
 <ol>
 <li>判断链表是否有环：一快一慢，有环则相遇</li>
 <li>环的起始位置：第一次相遇后，一个回到头部，再次相遇即环起点</li>
 <li>链表中点：快到尾部时，慢在中部</li>
 <li>倒数第 K 个元素：快先走 K 步</li>
 </ol>
-<h3 id="%E5%B7%A6%E5%8F%B3%E6%8C%87%E9%92%88%EF%BC%88%E6%95%B0%E7%BB%84%E9%97%AE%E9%A2%98%E4%B8%BA%E4%B8%BB%EF%BC%89">左右指针（数组问题为主）</h3>
+<h4 id="%E5%B7%A6%E5%8F%B3%E6%8C%87%E9%92%88%EF%BC%88%E6%95%B0%E7%BB%84%E9%97%AE%E9%A2%98%E4%B8%BA%E4%B8%BB%EF%BC%89">左右指针（数组问题为主）</h4>
 <p>二分查找、两数之和、反转数组、滑动窗口。</p>
-<h3 id="%E5%8E%9F%E5%9C%B0%E4%BF%AE%E6%94%B9%E6%95%B0%E7%BB%84%EF%BC%88%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88%EF%BC%89">原地修改数组（快慢指针）</h3>
+<h4 id="%E5%8E%9F%E5%9C%B0%E4%BF%AE%E6%94%B9%E6%95%B0%E7%BB%84%EF%BC%88%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88%EF%BC%89">原地修改数组（快慢指针）</h4>
 <ol>
 <li>删除排序数组重复项</li>
 <li>删除有序列表重复项</li>
 <li>移除数组中等于 val 的元素：fast 遇到 val 跳过，否则赋值给 slow</li>
 <li>移动零到末尾：移除 0 后，后面全赋 0</li>
 </ol>
-<h2 id="%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2%EF%BC%88Binary%20Search%EF%BC%89">二分搜索（Binary Search）</h2>
+<h3 id="%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2%EF%BC%88Binary%20Search%EF%BC%89">二分搜索（Binary Search）</h3>
 <p>细节：mid 加一还是减一，while 用 <code>&#x3C;=</code> 还是 <code>&#x3C;</code>。<code>mid = left + (right - left) / 2</code> 防溢出。</p>
-<h3 id="%E6%90%9C%E7%B4%A2%E4%B8%80%E4%B8%AA%E5%85%83%E7%B4%A0">搜索一个元素</h3>
+<h4 id="%E6%90%9C%E7%B4%A2%E4%B8%80%E4%B8%AA%E5%85%83%E7%B4%A0">搜索一个元素</h4>
 <ul>
 <li>闭区间 <code>[left, right]</code>，<code>right = len - 1</code>，<code>while(left &#x3C;= right)</code></li>
 <li>终止条件 <code>left == right + 1</code></li>
 <li><code>left = mid + 1, right = mid - 1</code></li>
 </ul>
-<h3 id="%E6%90%9C%E7%B4%A2%E5%B7%A6%E8%BE%B9%E7%95%8C">搜索左边界</h3>
+<h4 id="%E6%90%9C%E7%B4%A2%E5%B7%A6%E8%BE%B9%E7%95%8C">搜索左边界</h4>
 <ul>
 <li>左闭右开 <code>[left, right)</code>，<code>right = len</code>，<code>while(left &#x3C; right)</code></li>
 <li>找到 target 时 <code>right = mid</code>（收缩右边界）</li>
 <li>返回 left（含义：小于 target 的元素有 left 个）</li>
 </ul>
-<h3 id="%E6%90%9C%E7%B4%A2%E5%8F%B3%E8%BE%B9%E7%95%8C">搜索右边界</h3>
+<h4 id="%E6%90%9C%E7%B4%A2%E5%8F%B3%E8%BE%B9%E7%95%8C">搜索右边界</h4>
 <ul>
 <li>找到 target 时 <code>left = mid + 1</code>（收缩左边界）</li>
 <li>返回 <code>left - 1</code></li>
 </ul>
-<h3 id="%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2%E5%BA%94%E7%94%A8">二分搜索应用</h3>
+<h4 id="%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2%E5%BA%94%E7%94%A8">二分搜索应用</h4>
 <ol>
 <li>KoKo 吃香蕉：K 从 1 到 max(piles)，线性遍历 → 二分查找</li>
 <li>货物运输：最低运载能力，范围 [max(weights), sum(weights)]，二分查找</li>
 </ol>
-<h2 id="%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%EF%BC%88Sliding%20Window%EF%BC%89">滑动窗口（Sliding Window）</h2>
+<h3 id="%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%EF%BC%88Sliding%20Window%EF%BC%89">滑动窗口（Sliding Window）</h3>
 <p>维护一个窗口，不断滑动，更新答案。时间复杂度 O(N)。不停移动右指针扩大窗口，满足收缩条件时移动左指针缩小窗口。</p>
 <p>关键问题：left 收缩条件？如何更新答案？结束条件？</p>
 <p>经典题目：最小覆盖子串、字符串排列、找所有字母异位词、最长无重复子串。</p>
-<h2 id="BFS">BFS</h2>
+<h3 id="BFS">BFS</h3>
 <p>问题抽象成图，从起点向四周扩散；使用队列 + visited 集合。每轮取出当前层所有节点，将其未访问的相邻节点入队，step++。与 DFS 相比路径短但空间复杂度大。</p>
 <ul>
 <li>二叉树最小高度：root 为 start，叶子为 target</li>
 <li>打开密码锁最少次数</li>
 <li>双向 BFS 优化：从起点和终点同时开始，交集时停止，只遍历半棵树</li>
 </ul>
-<h2 id="nSum%20%E9%97%AE%E9%A2%98">nSum 问题</h2>
+<h3 id="nSum%20%E9%97%AE%E9%A2%98">nSum 问题</h3>
 <ol>
 <li>2Sum：排序 + 双指针；多对不重复时跳过相同元素</li>
 <li>3Sum：穷举第一个数，剩余 2Sum</li>
 <li>4Sum：穷举第一个数，剩余 3Sum</li>
 <li>nSum：穷举第一个数，递归 (n-1)Sum</li>
 </ol>
-<h2 id="2Sum%20%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3">2Sum 核心思想</h2>
+<h3 id="2Sum%20%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3">2Sum 核心思想</h3>
 <p>无序时用哈希表；或在 add 时预计算所有和存入哈希表。</p>
-<h1 id="%E4%BA%94%E3%80%81%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">五、设计数据结构</h1>
-<h2 id="%E5%8D%95%E8%B0%83%E6%A0%88">单调栈</h2>
+<h2 id="%E4%BA%94%E3%80%81%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">五、设计数据结构</h2>
+<h3 id="%E5%8D%95%E8%B0%83%E6%A0%88">单调栈</h3>
 <p>栈内元素保持有序。</p>
 <ol>
 <li>下一个更大元素：倒序入栈，栈顶比当前小则弹出，栈顶即为下一个更大元素，最后将自身入栈。</li>
 <li>等几天更暖：存索引，相减得距离</li>
 <li>环形数组：数组长度翻倍 + <code>%</code> 取余</li>
 </ol>
-<h2 id="%E5%8D%95%E8%B0%83%E9%98%9F%E5%88%97">单调队列</h2>
+<h3 id="%E5%8D%95%E8%B0%83%E9%98%9F%E5%88%97">单调队列</h3>
 <p>队列中元素单调递增或递减。</p>
 <ul>
 <li>滑动窗口最大值：双链表实现，入队时删除小于新元素的队尾，头部即最大值。</li>
 </ul>
-<h2 id="Union-Find%20%E5%B9%B6%E6%9F%A5%E9%9B%86">Union-Find 并查集</h2>
+<h3 id="Union-Find%20%E5%B9%B6%E6%9F%A5%E9%9B%86">Union-Find 并查集</h3>
 <p>解决图的<code>动态连通性</code>问题。连通性：自反性、对称性、传递性。</p>
 <p>数组模拟森林，<code>parent[x]</code> 为 x 的父节点，<code>while (parent[x] != x) x = parent[x]</code> 找根。</p>
 <p>优化：</p>
@@ -254,32 +291,32 @@
 </li>
 <li>判定合法算式：先遍历 <code>==</code> 建立连通，再遍历 <code>!=</code> 检查</li>
 </ol>
-<h2 id="LRU%EF%BC%88Least%20Recently%20Used%EF%BC%89">LRU（Least Recently Used）</h2>
+<h3 id="LRU%EF%BC%88Least%20Recently%20Used%EF%BC%89">LRU（Least Recently Used）</h3>
 <p>哈希链表。</p>
-<h2 id="LFU%EF%BC%88Least%20Frequently%20Used%EF%BC%89">LFU（Least Frequently Used）</h2>
+<h3 id="LFU%EF%BC%88Least%20Frequently%20Used%EF%BC%89">LFU（Least Frequently Used）</h3>
 <p>key-freq 表、freq-key 表、key-val 表、变量 minFreq。</p>
-<h2 id="Design%20Twitter%20Timeline">Design Twitter Timeline</h2>
+<h3 id="Design%20Twitter%20Timeline">Design Twitter Timeline</h3>
 <p>合并 k 个有序链表（优先级队列）+ 面向对象设计。
 API: postTweet, getNewsFeed, follow, unfollow。
 用户推文存储在链表（按时间有序），关注 k 个用户 → 合并 k 个有序链表。</p>
-<h1 id="%E5%85%AD%E3%80%81%E7%BB%8F%E5%85%B8%E9%97%AE%E9%A2%98">六、经典问题</h1>
-<h2 id="%E5%8C%BA%E9%97%B4%E9%97%AE%E9%A2%98">区间问题</h2>
+<h2 id="%E5%85%AD%E3%80%81%E7%BB%8F%E5%85%B8%E9%97%AE%E9%A2%98">六、经典问题</h2>
+<h3 id="%E5%8C%BA%E9%97%B4%E9%97%AE%E9%A2%98">区间问题</h3>
 <p>排序 + 画图。</p>
 <ol>
 <li>区间覆盖：按起点升序（起点同则降序），三种关系 → 覆盖（计数+1）、相交（合并）、不相交（更新起止）</li>
 <li>区间合并：排序后，相交区间取 min(start) 和 max(end)</li>
 <li>区间交集：交集条件 <code>b2 >= a1 and a2 >= b1</code>，交集 <code>[max(a1,b1), min(a2,b2)]</code>，下标按区间尾大小移动</li>
 </ol>
-<h2 id="%E6%95%B0%E7%BB%84%E5%8E%BB%E9%87%8D">数组去重</h2>
+<h3 id="%E6%95%B0%E7%BB%84%E5%8E%BB%E9%87%8D">数组去重</h3>
 <p>去除重复字母，保持相对顺序，字典序最小：</p>
 <ul>
 <li>栈 + 计数器 + 是否在栈中标记</li>
 <li>插入时：待插入 &#x3C; 栈顶 且 栈顶后面还会出现 → 弹出栈顶</li>
 </ul>
-<h1 id="%E5%8F%82%E8%80%83%EF%BC%9A">参考：</h1>
+<h2 id="%E5%8F%82%E8%80%83">参考</h2>
 <ul>
 <li><a href="https://labuladong.gitbook.io/algo/">labuladong</a></li>
 <li><a href="https://matklad.github.io/2023/08/13/role-of-algorithms.html">role-of-algorithms</a></li>
 <li><a href="https://www.programiz.com/dsa">programiz dsa</a></li>
 <li><a href="https://en.wikipedia.org/wiki/Algorithmic_paradigm">algorithmic paradigm</a></li>
-</ul></article><aside id="outlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">引用了 1 篇笔记</h2><ul class="space-y-2"><li><a href="/notes/1776909486-DFJT" class="note-link underline-offset-4 hover:underline">role-of-algo</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="algo" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#algo">algo</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">algo</span></li><li class="group relative"><a data-toc-link data-heading-id="%E4%B8%80%E3%80%81%E5%A4%8D%E6%9D%82%E5%BA%A6" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%80%E3%80%81%E5%A4%8D%E6%9D%82%E5%BA%A6">一、复杂度</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">一、复杂度</span></li><li class="group relative"><a data-toc-link data-heading-id="%E4%BA%8C%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BA%8C%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">二、数据结构</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">二、数据结构</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F">存储方式</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">存储方式</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C">基本操作</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">基本操作</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">常见数据结构</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">常见数据结构</span></li><li class="group relative"><a data-toc-link data-heading-id="%E4%B8%89%E3%80%81%E7%AE%97%E6%B3%95%E8%8C%83%E5%BC%8F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%89%E3%80%81%E7%AE%97%E6%B3%95%E8%8C%83%E5%BC%8F">三、算法范式</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">三、算法范式</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E8%BF%AD%E4%BB%A3%E4%B8%8E%E9%80%92%E5%BD%92" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%BF%AD%E4%BB%A3%E4%B8%8E%E9%80%92%E5%BD%92">迭代与递归</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">迭代与递归</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%88%86%E6%B2%BB%E6%B3%95%EF%BC%88Divide-and-Conquer%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%88%86%E6%B2%BB%E6%B3%95%EF%BC%88Divide-and-Conquer%EF%BC%89">分治法（Divide-and-Conquer）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">分治法（Divide-and-Conquer）</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%EF%BC%88DP%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%EF%BC%88DP%EF%BC%89">动态规划（DP）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">动态规划（DP）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%B8%A4%E4%B8%AA%E8%A6%81%E7%B4%A0" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%A4%E4%B8%AA%E8%A6%81%E7%B4%A0">两个要素</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">两个要素</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%B8%89%E8%A6%81%E7%B4%A0%E4%B8%8E%E6%A1%86%E6%9E%B6" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%89%E8%A6%81%E7%B4%A0%E4%B8%8E%E6%A1%86%E6%9E%B6">三要素与框架</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">三要素与框架</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%AE%BE%E8%AE%A1%E5%9B%9B%E6%AD%A5%E9%AA%A4" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%AE%BE%E8%AE%A1%E5%9B%9B%E6%AD%A5%E9%AA%A4">设计四步骤</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">设计四步骤</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%B8%A4%E7%A7%8D%E5%AE%9E%E7%8E%B0" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%A4%E7%A7%8D%E5%AE%9E%E7%8E%B0">两种实现</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">两种实现</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E7%8A%B6%E6%80%81%E5%8E%8B%E7%BC%A9" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%8A%B6%E6%80%81%E5%8E%8B%E7%BC%A9">状态压缩</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">状态压缩</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="DP%20%E9%81%8D%E5%8E%86" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#DP%20%E9%81%8D%E5%8E%86">DP 遍历</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">DP 遍历</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E7%BB%8F%E5%85%B8%20DP%20%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%BB%8F%E5%85%B8%20DP%20%E9%97%AE%E9%A2%98">经典 DP 问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">经典 DP 问题</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95">贪心算法</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">贪心算法</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%9B%9E%E6%BA%AF%E6%B3%95%EF%BC%88Backtracking%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%9B%9E%E6%BA%AF%E6%B3%95%EF%BC%88Backtracking%EF%BC%89">回溯法（Backtracking）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">回溯法（Backtracking）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E7%BB%8F%E5%85%B8%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%BB%8F%E5%85%B8%E9%97%AE%E9%A2%98">经典问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">经典问题</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%88%86%E6%94%AF%E5%AE%9A%E7%95%8C%E6%B3%95%EF%BC%88Branch%20and%20Bound%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%88%86%E6%94%AF%E5%AE%9A%E7%95%8C%E6%B3%95%EF%BC%88Branch%20and%20Bound%EF%BC%89">分支定界法（Branch and Bound）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">分支定界法（Branch and Bound）</span></li><li class="group relative"><a data-toc-link data-heading-id="%E5%9B%9B%E3%80%81%E5%B8%B8%E7%94%A8%E6%8A%80%E5%B7%A7" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%9B%9B%E3%80%81%E5%B8%B8%E7%94%A8%E6%8A%80%E5%B7%A7">四、常用技巧</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">四、常用技巧</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%8F%8C%E6%8C%87%E9%92%88" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8F%8C%E6%8C%87%E9%92%88">双指针</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">双指针</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88%EF%BC%88%E9%93%BE%E8%A1%A8%E9%97%AE%E9%A2%98%E4%B8%BA%E4%B8%BB%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88%EF%BC%88%E9%93%BE%E8%A1%A8%E9%97%AE%E9%A2%98%E4%B8%BA%E4%B8%BB%EF%BC%89">快慢指针（链表问题为主）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">快慢指针（链表问题为主）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%B7%A6%E5%8F%B3%E6%8C%87%E9%92%88%EF%BC%88%E6%95%B0%E7%BB%84%E9%97%AE%E9%A2%98%E4%B8%BA%E4%B8%BB%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%B7%A6%E5%8F%B3%E6%8C%87%E9%92%88%EF%BC%88%E6%95%B0%E7%BB%84%E9%97%AE%E9%A2%98%E4%B8%BA%E4%B8%BB%EF%BC%89">左右指针（数组问题为主）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">左右指针（数组问题为主）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%8E%9F%E5%9C%B0%E4%BF%AE%E6%94%B9%E6%95%B0%E7%BB%84%EF%BC%88%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8E%9F%E5%9C%B0%E4%BF%AE%E6%94%B9%E6%95%B0%E7%BB%84%EF%BC%88%E5%BF%AB%E6%85%A2%E6%8C%87%E9%92%88%EF%BC%89">原地修改数组（快慢指针）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">原地修改数组（快慢指针）</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2%EF%BC%88Binary%20Search%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2%EF%BC%88Binary%20Search%EF%BC%89">二分搜索（Binary Search）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">二分搜索（Binary Search）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%90%9C%E7%B4%A2%E4%B8%80%E4%B8%AA%E5%85%83%E7%B4%A0" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%90%9C%E7%B4%A2%E4%B8%80%E4%B8%AA%E5%85%83%E7%B4%A0">搜索一个元素</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">搜索一个元素</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%90%9C%E7%B4%A2%E5%B7%A6%E8%BE%B9%E7%95%8C" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%90%9C%E7%B4%A2%E5%B7%A6%E8%BE%B9%E7%95%8C">搜索左边界</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">搜索左边界</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%90%9C%E7%B4%A2%E5%8F%B3%E8%BE%B9%E7%95%8C" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%90%9C%E7%B4%A2%E5%8F%B3%E8%BE%B9%E7%95%8C">搜索右边界</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">搜索右边界</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2%E5%BA%94%E7%94%A8" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2%E5%BA%94%E7%94%A8">二分搜索应用</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">二分搜索应用</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%EF%BC%88Sliding%20Window%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%EF%BC%88Sliding%20Window%EF%BC%89">滑动窗口（Sliding Window）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">滑动窗口（Sliding Window）</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="BFS" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#BFS">BFS</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">BFS</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="nSum%20%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#nSum%20%E9%97%AE%E9%A2%98">nSum 问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">nSum 问题</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="2Sum%20%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#2Sum%20%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3">2Sum 核心思想</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">2Sum 核心思想</span></li><li class="group relative"><a data-toc-link data-heading-id="%E4%BA%94%E3%80%81%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BA%94%E3%80%81%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">五、设计数据结构</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">五、设计数据结构</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%8D%95%E8%B0%83%E6%A0%88" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8D%95%E8%B0%83%E6%A0%88">单调栈</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">单调栈</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%8D%95%E8%B0%83%E9%98%9F%E5%88%97" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8D%95%E8%B0%83%E9%98%9F%E5%88%97">单调队列</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">单调队列</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Union-Find%20%E5%B9%B6%E6%9F%A5%E9%9B%86" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Union-Find%20%E5%B9%B6%E6%9F%A5%E9%9B%86">Union-Find 并查集</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Union-Find 并查集</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="LRU%EF%BC%88Least%20Recently%20Used%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#LRU%EF%BC%88Least%20Recently%20Used%EF%BC%89">LRU（Least Recently Used）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">LRU（Least Recently Used）</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="LFU%EF%BC%88Least%20Frequently%20Used%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#LFU%EF%BC%88Least%20Frequently%20Used%EF%BC%89">LFU（Least Frequently Used）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">LFU（Least Frequently Used）</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="Design%20Twitter%20Timeline" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Design%20Twitter%20Timeline">Design Twitter Timeline</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Design Twitter Timeline</span></li><li class="group relative"><a data-toc-link data-heading-id="%E5%85%AD%E3%80%81%E7%BB%8F%E5%85%B8%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%85%AD%E3%80%81%E7%BB%8F%E5%85%B8%E9%97%AE%E9%A2%98">六、经典问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">六、经典问题</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%8C%BA%E9%97%B4%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8C%BA%E9%97%B4%E9%97%AE%E9%A2%98">区间问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">区间问题</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%95%B0%E7%BB%84%E5%8E%BB%E9%87%8D" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%95%B0%E7%BB%84%E5%8E%BB%E9%87%8D">数组去重</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">数组去重</span></li><li class="group relative"><a data-toc-link data-heading-id="%E5%8F%82%E8%80%83%EF%BC%9A" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8F%82%E8%80%83%EF%BC%9A">参考：</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">参考：</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
+</ul></article><aside id="outlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">引用了 2 篇笔记</h2><ul class="space-y-2"><li><a href="/notes/1776912349-COYO" class="note-link underline-offset-4 hover:underline">algo-meta</a></li><li><a href="/notes/1776909486-DFJT" class="note-link underline-offset-4 hover:underline">role-of-algo</a></li></ul></aside><aside id="backlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">被 2 篇笔记引用</h2><ul class="space-y-2"><li><a href="/notes/1776912349-COYO" class="note-link underline-offset-4 hover:underline">algo-meta</a></li><li><a href="/notes/1776909486-DFJT" class="note-link underline-offset-4 hover:underline">role-of-algo</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E7%AE%97%E6%B3%95%E6%80%BB%E8%A7%88" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%AE%97%E6%B3%95%E6%80%BB%E8%A7%88">算法总览</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">算法总览</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%AE%97%E6%B3%95%E6%98%AF%E4%BB%80%E4%B9%88" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%AE%97%E6%B3%95%E6%98%AF%E4%BB%80%E4%B9%88">算法是什么</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">算法是什么</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%AD%A6%E4%B9%A0%E9%98%B6%E6%AE%B5" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%AD%A6%E4%B9%A0%E9%98%B6%E6%AE%B5">学习阶段</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">学习阶段</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%B8%80%E3%80%81%E5%A4%8D%E6%9D%82%E5%BA%A6" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%80%E3%80%81%E5%A4%8D%E6%9D%82%E5%BA%A6">一、复杂度</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">一、复杂度</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%BA%8C%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BA%8C%E3%80%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">二、数据结构</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">二、数据结构</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%AD%98%E5%82%A8%E6%96%B9%E5%BC%8F">存储方式</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">存储方式</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%9F%BA%E6%9C%AC%E6%93%8D%E4%BD%9C">基本操作</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">基本操作</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%B8%B8%E8%A7%81%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">常见数据结构</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">常见数据结构</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%B8%89%E3%80%81%E7%AE%97%E6%B3%95%E8%8C%83%E5%BC%8F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%89%E3%80%81%E7%AE%97%E6%B3%95%E8%8C%83%E5%BC%8F">三、算法范式</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">三、算法范式</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%BF%AD%E4%BB%A3%E4%B8%8E%E9%80%92%E5%BD%92" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%BF%AD%E4%BB%A3%E4%B8%8E%E9%80%92%E5%BD%92">迭代与递归</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">迭代与递归</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%88%86%E6%B2%BB%E6%B3%95%EF%BC%88Divide-and-Conquer%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%88%86%E6%B2%BB%E6%B3%95%EF%BC%88Divide-and-Conquer%EF%BC%89">分治法（Divide-and-Conquer）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">分治法（Divide-and-Conquer）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%EF%BC%88DP%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%EF%BC%88DP%EF%BC%89">动态规划（DP）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">动态规划（DP）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95">贪心算法</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">贪心算法</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%9B%9E%E6%BA%AF%E6%B3%95%EF%BC%88Backtracking%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%9B%9E%E6%BA%AF%E6%B3%95%EF%BC%88Backtracking%EF%BC%89">回溯法（Backtracking）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">回溯法（Backtracking）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%88%86%E6%94%AF%E5%AE%9A%E7%95%8C%E6%B3%95%EF%BC%88Branch%20and%20Bound%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%88%86%E6%94%AF%E5%AE%9A%E7%95%8C%E6%B3%95%EF%BC%88Branch%20and%20Bound%EF%BC%89">分支定界法（Branch and Bound）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">分支定界法（Branch and Bound）</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%9B%9B%E3%80%81%E5%B8%B8%E7%94%A8%E6%8A%80%E5%B7%A7" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%9B%9B%E3%80%81%E5%B8%B8%E7%94%A8%E6%8A%80%E5%B7%A7">四、常用技巧</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">四、常用技巧</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%8F%8C%E6%8C%87%E9%92%88" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8F%8C%E6%8C%87%E9%92%88">双指针</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">双指针</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2%EF%BC%88Binary%20Search%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BA%8C%E5%88%86%E6%90%9C%E7%B4%A2%EF%BC%88Binary%20Search%EF%BC%89">二分搜索（Binary Search）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">二分搜索（Binary Search）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%EF%BC%88Sliding%20Window%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%EF%BC%88Sliding%20Window%EF%BC%89">滑动窗口（Sliding Window）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">滑动窗口（Sliding Window）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="BFS" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#BFS">BFS</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">BFS</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="nSum%20%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#nSum%20%E9%97%AE%E9%A2%98">nSum 问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">nSum 问题</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="2Sum%20%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#2Sum%20%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3">2Sum 核心思想</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">2Sum 核心思想</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%BA%94%E3%80%81%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%BA%94%E3%80%81%E8%AE%BE%E8%AE%A1%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">五、设计数据结构</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">五、设计数据结构</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%8D%95%E8%B0%83%E6%A0%88" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8D%95%E8%B0%83%E6%A0%88">单调栈</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">单调栈</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%8D%95%E8%B0%83%E9%98%9F%E5%88%97" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8D%95%E8%B0%83%E9%98%9F%E5%88%97">单调队列</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">单调队列</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Union-Find%20%E5%B9%B6%E6%9F%A5%E9%9B%86" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Union-Find%20%E5%B9%B6%E6%9F%A5%E9%9B%86">Union-Find 并查集</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Union-Find 并查集</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="LRU%EF%BC%88Least%20Recently%20Used%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#LRU%EF%BC%88Least%20Recently%20Used%EF%BC%89">LRU（Least Recently Used）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">LRU（Least Recently Used）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="LFU%EF%BC%88Least%20Frequently%20Used%EF%BC%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#LFU%EF%BC%88Least%20Frequently%20Used%EF%BC%89">LFU（Least Frequently Used）</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">LFU（Least Frequently Used）</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Design%20Twitter%20Timeline" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Design%20Twitter%20Timeline">Design Twitter Timeline</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Design Twitter Timeline</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%85%AD%E3%80%81%E7%BB%8F%E5%85%B8%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%85%AD%E3%80%81%E7%BB%8F%E5%85%B8%E9%97%AE%E9%A2%98">六、经典问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">六、经典问题</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%8C%BA%E9%97%B4%E9%97%AE%E9%A2%98" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8C%BA%E9%97%B4%E9%97%AE%E9%A2%98">区间问题</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">区间问题</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%95%B0%E7%BB%84%E5%8E%BB%E9%87%8D" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%95%B0%E7%BB%84%E5%8E%BB%E9%87%8D">数组去重</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">数组去重</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%8F%82%E8%80%83" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8F%82%E8%80%83">参考</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">参考</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>

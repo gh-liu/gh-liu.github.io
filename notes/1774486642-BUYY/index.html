@@ -1,14 +1,50 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Compiler</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Compiler">Compiler</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-03-26</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-03-30</span><a href="#outlinks" class="meta-pill meta-pill-outlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">1 出链</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a></div></div>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Compiler</title><link rel="stylesheet" href="/_astro/global.BkjzAJIN.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="Compiler">Compiler</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-03-26</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-08-15</span><a href="#outlinks" class="meta-pill meta-pill-outlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">1 出链</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a></div></div>
 <ul>
-<li>S：在学习和实践“Compiler”时，需要建立统一的概念和问题边界。</li>
+<li>S：在学习和实践<code>Compiler</code>时，需要建立统一的概念和问题边界。</li>
 <li>C：相关概念、实现机制和工程取舍容易混在一起，导致只记住结论而无法判断适用条件。</li>
-<li>Q：“Compiler”要解决什么问题？它的核心抽象、工作机制和边界分别是什么？</li>
-<li>A：本文围绕“Compiler”整理核心概念、关键机制和工程实践，并明确其适用边界。</li>
+<li>Q：<code>Compiler</code>要解决什么问题？它的核心抽象、工作机制和边界分别是什么？</li>
+<li>A：本文围绕<code>Compiler</code>整理核心概念、关键机制和工程实践，并明确其适用边界。</li>
 </ul>
-<p>S 什么场景
-C 什么冲突
-Q 什么问题
-A 回答问题</p>
+<pre><code>source text
+    ↓
+characters
+    ↓
+tokens
+    ↓
+syntax tree
+    ↓
+semantic representation
+    ↓
+IR
+    ↓
+CFG
+    ↓
+machine instructions
+    ↓
+state transitions
+</code></pre>
+<p>每一层都在做：把一种问题重新编码成另一种更适合机械处理的问题。</p>
+<p>lexer：DFA 确定有限状态自动机（Deterministic Finite Automaton）：一种基础的计算模型，通过输入符号串进行状态转移，并根据最终状态来决定是<code>接受</code>还是<code>拒绝</code>该字符串。
+Parser：加一个stack -> Pushdown Automaton</p>
+<pre><code>Finite Automaton
+       │
+       │ + finite states
+       ▼
+Regular Language
+
+Pushdown Automaton
+       │
+       │ + stack
+       ▼
+Context-Free Language
+
+Turing Machine
+       │
+       │ + unbounded readable/writable memory
+       ▼
+Computable Functions
+</code></pre>
+<p>Church–Turing Thesis：如果一个过程可以被精确描述成有限规则，而且可以由机械过程一步一步执行，那么它就是我们所谓的有效计算。</p>
 <hr>
 <ol>
 <li><a href="https://github.com/DoctorWkt/acwj">https://github.com/DoctorWkt/acwj</a></li>
