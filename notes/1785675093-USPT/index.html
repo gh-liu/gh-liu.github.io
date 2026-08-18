@@ -32,7 +32,7 @@
 <figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">haskell</span><button type="button" class="code-copy-button" data-code="head :: [a] -> Maybe a
 head (x : _) = Just x
 head []      = Nothing">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="haskell" data-theme="nord"><code data-language="haskell" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">head</span><span style="color:#81A1C1"> ::</span><span style="color:#ECEFF4"> [</span><span style="color:#D8DEE9">a</span><span style="color:#ECEFF4">]</span><span style="color:#81A1C1"> -></span><span style="color:#81A1C1"> Maybe</span><span style="color:#D8DEE9"> a</span></span>
-<span data-line=""><span style="color:#D8DEE9FF">head </span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">x </span><span style="color:#81A1C1">:</span><span style="color:#D8DEE9FF"> _</span><span style="color:#ECEFF4">)</span><span style="color:#81A1C1"> =</span><span style="color:#D8DEE9FF"> Just x</span></span>
+<span data-line=""><span style="color:#D8DEE9FF">head </span><span style="color:#ECEFF4">(</span><span style="color:#D8DEE9FF">x </span><span style="color:#81A1C1">: _) = Just x</span></span>
 <span data-line=""><span style="color:#D8DEE9FF">head </span><span style="color:#ECEFF4">[]</span><span style="color:#81A1C1">      =</span><span style="color:#D8DEE9FF"> Nothing</span></span></code></pre></figure>
 <p>这样实现很方便，但代价被转移给了调用方。即使调用方已经检查过列表非空，类型仍然是 <code>[a]</code>，其中没有保存<code>非空</code>这个事实，所以每一次调用 <code>head</code> 都必须继续处理 <code>Nothing</code>。</p>
 <p>第二种是加强对参数的要求：</p>
