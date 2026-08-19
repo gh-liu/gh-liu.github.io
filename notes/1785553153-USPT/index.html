@@ -40,6 +40,7 @@ SQLite 实例 ≈ 执行引擎 + 一组数据库页 + WAL</p>
 <blockquote>
 <p>同一时刻，一个数据库只有一个拥有写权限的计算节点。</p>
 </blockquote>
+<p>SQLite 非常适合<code>细粒度、单活、serverless 式</code>的计算存储分离；不太适合<code>多个无状态计算节点共享同一个数据库并发写入</code>的计算存储分离。</p>
 <h2 id="%E5%87%A0%E7%A7%8D%E6%9E%B6%E6%9E%84">几种架构</h2>
 <ol>
 <li>备份型：SQLite 本地运行，定期把 WAL / 快照上传 S3</li>
