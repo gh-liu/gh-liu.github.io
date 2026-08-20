@@ -1,10 +1,4 @@
-<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>CRDT</title><link rel="stylesheet" href="/_astro/global.DX-ZqIUy.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="CRDT">CRDT</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-04-07</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-05-07</span><a href="#backlinks" class="meta-pill meta-pill-backlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">1 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a></div></div>
-<ul>
-<li>S：在学习和实践“CRDT”时，需要建立统一的概念和问题边界。</li>
-<li>C：相关概念、实现机制和工程取舍容易混在一起，导致只记住结论而无法判断适用条件。</li>
-<li>Q：“CRDT”要解决什么问题？它的核心抽象、工作机制和边界分别是什么？</li>
-<li>A：本文围绕“CRDT”整理核心概念、关键机制和工程实践，并明确其适用边界。</li>
-</ul>
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>CRDT</title><link rel="stylesheet" href="/_astro/global.DX-ZqIUy.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="CRDT">CRDT</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-04-07</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-08-20</span><a href="#backlinks" class="meta-pill meta-pill-backlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">1 引用</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a></div></div>
 <blockquote>
 <p><a href="https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type">https://en.wikipedia.org/wiki/Conflict-free_replicated_data_type</a></p>
 </blockquote>
@@ -13,16 +7,42 @@ C 并发更新会产生冲突；传统方案要么加锁/共识（牺牲延迟�
 Q 有没有一种数据结构，让多个副本可以独立并发修改，不需要协调，也不需要手动解冲突，最终自动收敛到一致状态？
 A CRDT（Conflict-free Replicated Data Type）。通过数学性质（半格/交换律）<code>保证合并操作无冲突</code>，任何副本收到所有更新后自动收敛，达到强最终一致性（SEC）</p>
 <h2 id="1.%20%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3">1. 核心思想</h2>
-<p>CRDT 的关键洞察：<strong>不去阻止冲突，而是设计让冲突不可能产生的数据结构</strong></p>
+<p>CRDT 的关键洞察：不去阻止冲突，而是设计让冲突不可能产生的数据结构</p>
 <p>传统思路：先检测冲突 → 再解决冲突（锁、共识、OT）
 CRDT 思路：让合并操作天然满足数学性质 → 冲突在数学上不存在</p>
 <p>所需的数学性质：</p>
 <ul>
-<li><strong>交换律</strong> (commutativity)：合并顺序无关 → merge(A,B) = merge(B,A)</li>
-<li><strong>结合律</strong> (associativity)：分组无关 → merge(merge(A,B),C) = merge(A,merge(B,C))</li>
-<li><strong>幂等性</strong> (idempotency)：重复合并无影响 → merge(A,A) = A</li>
+<li>交换律 (commutativity)：合并顺序无关 → merge(A,B) = merge(B,A)</li>
+<li>结合律 (associativity)：分组无关 → merge(merge(A,B),C) = merge(A,merge(B,C))</li>
+<li>幂等性 (idempotency)：重复合并无影响 → merge(A,A) = A</li>
 </ul>
-<p>这三个性质合在一起 = <strong>join-semilattice</strong>（半格），保证无论消息乱序、重复、延迟，最终状态都一样</p>
+<p>这三个性质合在一起 = join-semilattice（半格），保证无论消息乱序、重复、延迟，最终状态都一样</p>
+<table>
+<thead>
+<tr>
+<th>性质</th>
+<th>直觉</th>
+<th>主要应对</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Associative 结合律</td>
+<td><code>(a ⊔ b) ⊔ c = a ⊔ (b ⊔ c)</code></td>
+<td>节点暂时离线、分批同步</td>
+</tr>
+<tr>
+<td>Commutative 交换律</td>
+<td><code>a ⊔ b = b ⊔ a</code></td>
+<td>消息乱序</td>
+</tr>
+<tr>
+<td>Idempotent 幂等</td>
+<td><code>a ⊔ a = a</code></td>
+<td>消息重复</td>
+</tr>
+</tbody>
+</table>
 <h2 id="2.%20%E5%BC%BA%E6%9C%80%E7%BB%88%E4%B8%80%E8%87%B4%E6%80%A7%20(SEC)">2. 强最终一致性 (SEC)</h2>
 <p>普通最终一致性 (EC)：</p>
 <ul>
@@ -38,16 +58,16 @@ CRDT 思路：让合并操作天然满足数学性质 → 冲突在数学上不�
 </ul>
 <p>SEC 的工程意义：</p>
 <ul>
-<li><strong>低延迟</strong>：节点不需要互相协调就能处理读写</li>
-<li><strong>高可用</strong>：系统中只要有一个节点活着就能正常工作</li>
-<li><strong>离线友好</strong>：节点可以断网任意长时间，重新连接后合并即可</li>
+<li>低延迟：节点不需要互相协调就能处理读写</li>
+<li>高可用：系统中只要有一个节点活着就能正常工作</li>
+<li>离线友好：节点可以断网任意长时间，重新连接后合并即可</li>
 </ul>
 <blockquote>
 <p>SEC 就是"真正能用的最终一致性"。做 local-first 或地理分布式系统，不要接受比 SEC 更弱的保证。</p>
 </blockquote>
 <h2 id="3.%20%E4%B8%A4%E7%B1%BB%20CRDT">3. 两类 CRDT</h2>
 <h3 id="State-based%20CRDT%20(CvRDT%2C%20%E6%94%B6%E6%95%9B%E5%9E%8B)">State-based CRDT (CvRDT, 收敛型)</h3>
-<p>工作方式：每次同步时<strong>传输完整状态</strong>，接收方用 merge 函数合并</p>
+<p>工作方式：每次同步时传输完整状态，接收方用 merge 函数合并</p>
 <pre><code>replica A 的状态 ──────→ replica B
                           B.state = merge(B.state, A.state)
 </code></pre>
@@ -60,7 +80,7 @@ CRDT 思路：让合并操作天然满足数学性质 → 冲突在数学上不�
 <p>优点：实现简单，对网络要求低（消息可丢可重）
 缺点：每次传输完整状态，数据量大</p>
 <h3 id="Operation-based%20CRDT%20(CmRDT%2C%20%E4%BA%A4%E6%8D%A2%E5%9E%8B)">Operation-based CRDT (CmRDT, 交换型)</h3>
-<p>工作方式：只<strong>广播操作</strong>，各节点本地应用</p>
+<p>工作方式：只广播操作，各节点本地应用</p>
 <pre><code>replica A: increment(+3) ──广播──→ 所有其他 replica 应用 increment(+3)
 </code></pre>
 <p>要求：</p>
@@ -71,41 +91,41 @@ CRDT 思路：让合并操作天然满足数学性质 → 冲突在数学上不�
 <p>优点：传输数据小
 缺点：对通信中间件要求高</p>
 <h3 id="Delta-state%20CRDT">Delta-state CRDT</h3>
-<p>State-based 的优化：不传完整状态，只传<strong>最近变更的增量（delta）</strong></p>
+<p>State-based 的优化：不传完整状态，只传最近变更的增量（delta）</p>
 <p>兼具两者优点：传输量小 + 对网络要求低</p>
 <h2 id="4.%20%E5%B8%B8%E8%A7%81%20CRDT%20%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84">4. 常见 CRDT 数据结构</h2>
 <h3 id="Counter">Counter</h3>
-<p><strong>G-Counter（只增计数器）</strong></p>
+<p>G-Counter（只增计数器）</p>
 <ul>
 <li>每个节点维护自己的计数器 <code>P[nodeId]</code></li>
 <li>只能递增，值 = ΣP[i]</li>
 <li>merge：每个槽位取 max → <code>Z.P[i] = max(X.P[i], Y.P[i])</code></li>
 </ul>
-<p><strong>PN-Counter（可增可减计数器）</strong></p>
+<p>PN-Counter（可增可减计数器）</p>
 <ul>
 <li>两个 G-Counter 组合：P 计增量，N 计减量</li>
 <li>值 = ΣP[i] - ΣN[i]</li>
 <li>merge：分别对 P 和 N 取 max</li>
 </ul>
 <h3 id="Set">Set</h3>
-<p><strong>G-Set（只增集合）</strong></p>
+<p>G-Set（只增集合）</p>
 <ul>
 <li>只能 add，不能 remove</li>
 <li>merge = 两个集合取并集</li>
 </ul>
-<p><strong>2P-Set（两阶段集合）</strong></p>
+<p>2P-Set（两阶段集合）</p>
 <ul>
 <li>两个 G-Set：add-set A + tombstone-set R</li>
 <li>lookup(e) = e ∈ A ∧ e ∉ R</li>
 <li>一旦 remove 就不能再 add 回来（remove-wins）</li>
 </ul>
-<p><strong>LWW-Element-Set（最后写入胜出集合）</strong></p>
+<p>LWW-Element-Set（最后写入胜出集合）</p>
 <ul>
 <li>add-set 和 remove-set 中的元素都带时间戳</li>
 <li>元素是否存在取决于 add 和 remove 的时间戳谁更新</li>
 <li>支持 re-add（克服 2P-Set 的限制）</li>
 </ul>
-<p><strong>OR-Set（Observed-Remove Set）</strong></p>
+<p>OR-Set（Observed-Remove Set）</p>
 <ul>
 <li>每次 add 生成唯一 tag</li>
 <li>remove 时只移除当前已观察到的 tag</li>
@@ -117,8 +137,8 @@ CRDT 思路：让合并操作天然满足数学性质 → 冲突在数学上不�
 <p>常见算法：Treedoc, RGA, WOOT, Logoot, LSEQ</p>
 <p>工业实现（性能远超学术实现）：</p>
 <ul>
-<li><strong>Yjs</strong>：用 plain list 代替 tree，性能极好</li>
-<li><strong>Automerge</strong>：支持版本控制和离线</li>
+<li>Yjs：用 plain list 代替 tree，性能极好</li>
+<li>Automerge：支持版本控制和离线</li>
 </ul>
 <h2 id="5.%20%E5%B7%A5%E4%B8%9A%E5%BA%94%E7%94%A8">5. 工业应用</h2>
 <table>
@@ -164,8 +184,8 @@ CRDT 思路：让合并操作天然满足数学性质 → 冲突在数学上不�
 </tbody>
 </table>
 <h2 id="6.%20OT%20%E6%98%AF%E4%BB%80%E4%B9%88">6. OT 是什么</h2>
-<p>OT = <strong>Operational Transformation</strong>（操作变换）。</p>
-<p>它主要用于<strong>实时协同编辑</strong>，比如多人同时编辑一份文档。核心思路不是“合并状态”，而是“变换操作”：</p>
+<p>OT = Operational Transformation（操作变换）。</p>
+<p>它主要用于实时协同编辑，比如多人同时编辑一份文档。核心思路不是<code>合并状态</code>，而是<code>变换操作</code>：</p>
 <ul>
 <li>A 先产生操作 <code>opA</code></li>
 <li>B 同时产生操作 <code>opB</code></li>
@@ -182,8 +202,8 @@ CRDT 思路：让合并操作天然满足数学性质 → 冲突在数学上不�
 </ul>
 <p>和 CRDT 的区别：</p>
 <ul>
-<li>OT：核心问题是“并发操作到来后，如何把它改写成可安全应用的新操作”</li>
-<li>CRDT：核心问题是“如何设计一个天然可交换、可合并的数据结构”</li>
+<li>OT：核心问题是<code>并发操作到来后，如何把它改写成可安全应用的新操作</code></li>
+<li>CRDT：核心问题是<code>如何设计一个天然可交换、可合并的数据结构</code></li>
 </ul>
 <h2 id="7.%20CRDT%20vs%20%E5%85%B6%E4%BB%96%E6%96%B9%E6%A1%88">7. CRDT vs 其他方案</h2>
 <table>
@@ -236,10 +256,10 @@ CRDT 思路：让合并操作天然满足数学性质 → 冲突在数学上不�
 </table>
 <h2 id="8.%20%E6%8C%91%E6%88%98">8. 挑战</h2>
 <ul>
-<li><strong>元数据膨胀</strong>：tombstone set、版本向量等元数据会持续增长，需要 GC 策略</li>
-<li><strong>复杂数据类型</strong>：不是所有数据结构都有天然 CRDT 表示，可能需要组合多个 CRDT</li>
-<li><strong>语义约束</strong>：CRDT 只保证收敛，不保证业务语义（如库存不能为负），需要额外机制</li>
-<li><strong>调试困难</strong>：分布式状态合并的行为难以推理和测试</li>
+<li>元数据膨胀：tombstone set、版本向量等元数据会持续增长，需要 GC 策略</li>
+<li>复杂数据类型：不是所有数据结构都有天然 CRDT 表示，可能需要组合多个 CRDT</li>
+<li>语义约束：CRDT 只保证收敛，不保证业务语义（如库存不能为负），需要额外机制</li>
+<li>调试困难：分布式状态合并的行为难以推理和测试</li>
 </ul>
 <h2 id="9.%20%E5%85%B3%E9%94%AE%E5%88%A4%E6%96%AD">9. 关键判断</h2>
 <p>什么时候该用 CRDT：</p>
