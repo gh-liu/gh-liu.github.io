@@ -53,10 +53,38 @@
 <h3 id="%E8%87%AA%E6%A3%80%E7%94%A8%E7%9A%84%20mantra%20%E5%BC%8F%E6%8F%90%E9%97%AE">自检用的 mantra 式提问</h3>
 <p>作者认为关于<code>真正理解</code>写得最好的是 LessWrong 的 Sequences，尤其是 Noticing Confusion 一节。思考时可循环使用这些问题：</p>
 <ol>
-<li>X 到底是什么？（What exactly is X?）</li>
-<li>为什么 X 必须为真？(Why must X be true?)最根本的那条理由是什么？</li>
-<li>我内心深处真的相信它是真的吗？(Do I really believe X is true?)敢跟朋友押一大笔钱吗？</li>
+<li>X 到底是什么？（What exactly is X?）-- 找核心抽象</li>
+<li>为什么 X 必须为真？(Why must X be true?)最根本的那条理由是什么？ -- 找不变量</li>
+<li>我内心深处真的相信它是真的吗？(Do I really believe X is true?)敢跟朋友押一大笔钱吗？--  真正理解/有信心</li>
 </ol>
+<pre><code>1. What is X?
+      ↓
+   找核心抽象
+
+2. What problem does X solve?
+      ↓
+   找问题转换
+
+3. How does X actually work?
+      ↓
+   画执行 / 数据路径
+
+4. Why must it work?
+      ↓
+   找 invariant
+
+5. Where does it break?
+      ↓
+   找边界 / counterexample
+
+6. Can I reproduce it?
+      ↓
+   experiment / code / raw data
+
+7. Can I explain it from scratch?
+      ↓
+   真正理解
+</code></pre>
 <h3 id="%E4%B8%A4%E5%88%99%E5%AF%93%E8%A8%80%EF%BC%9A%E7%9B%B4%E6%8E%A5%E7%BB%8F%E9%AA%8C%E6%97%A0%E5%8F%AF%E6%9B%BF%E4%BB%A3">两则寓言：直接经验无可替代</h3>
 <p>Agassiz 与鱼（Pound《ABC of Reading》）：研究生报到，大师只给一条普通的太阳鱼让他描述。学生先用分类学术语交差，再写四页论文，都被要求回去<code>看着那条鱼</code>。三周后鱼已高度腐败，但学生终于真正知道了一些关于它的事。</p>
 <p>《禅与摩托车维修艺术》中的砖块：写不出美国的学生被一路收窄到博兹曼市主街歌剧院门面的第一块砖，反而写出五千字。她此前写不出东西，是因为总想复述<code>听过的话</code>；收到一块砖逼她只能<code>直接去看</code>。</p>
