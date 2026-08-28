@@ -1,0 +1,127 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>阿姆达尔定律</title><link rel="stylesheet" href="/_astro/global.DX-ZqIUy.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="%E9%98%BF%E5%A7%86%E8%BE%BE%E5%B0%94%E5%AE%9A%E5%BE%8B">阿姆达尔定律</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-08-28</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-08-28</span><a href="#outlinks" class="meta-pill meta-pill-outlinks rounded-md px-2 py-0.5 text-xs font-medium no-underline">2 出链</a></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/LAW" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">LAW</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">固定工作量下，并行加速受限于串行部分比例：S(N)=1/((1-p)+p/N)，核数无限多时上限为 1/(1-p)。</p>
+<blockquote>
+<p><a href="https://en.wikipedia.org/wiki/Amdahl%27s_law">https://en.wikipedia.org/wiki/Amdahl%27s_law</a></p>
+</blockquote>
+<ul>
+<li>S：在并行计算与性能优化中，我们常通过增加核数、加机器、拆任务来加速；评估"值不值得并行、理论上能快多少"需要可量化的模型。1967 年 Gene Amdahl 提出的阿姆达尔定律（Amdahl's Law）正是这样的模型，也常被列入软件工程定律清单。</li>
+<li>C：一方面，"核数翻倍速度就翻倍"的直觉几乎总是不成立——任务中总有不可并行部分（初始化、依赖链、结果合并、同步点），它的耗时不随核数减少，成为加速的硬上限；另一方面，也有人据此断言"并行化收益有限、不值得做"，两个方向都是误读。</li>
+<li>Q：在固定问题规模下，给定可并行比例 <code>p</code> 与处理器数 <code>N</code>，理论上限是多少？这个上限从哪来、在什么前提下成立、又在哪里失效？它与古斯塔夫森定律（Gustafson's Law）是什么关系？</li>
+<li>A：阿姆达尔定律：<code>S(N) = 1 / ((1-p) + p/N)</code>，N→∞ 时收敛到 <code>1/(1-p)</code>。它给出的是"固定工作量"视角下的悲观上界：串行比例决定了加速天花板，优化重点是串行部分与通信开销，而不是无限加核。</li>
+</ul>
+<blockquote>
+<p>并行化加速受限于不可并行部分的比例</p>
+</blockquote>
+<h2 id="%E4%B8%80%E5%8F%A5%E8%AF%9D%E7%BB%93%E8%AE%BA">一句话结论</h2>
+<p>在<strong>固定问题规模</strong>下，加速比由不可并行的串行部分决定：<code>S(N) = 1 / ((1-p) + p/N)</code>。即使处理器无限多，加速比也以 <code>1/(1-p)</code> 为硬上限；但只要串行比例不是 0，并行就仍有实际收益——定律否定的是"线性加速"的幻想，而不是并行本身。</p>
+<h2 id="%E6%A0%B8%E5%BF%83%E5%85%AC%E5%BC%8F%E4%B8%8E%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89">核心公式与变量定义</h2>
+<p>标准形式：</p>
+<pre><code>S(N) = 1 / ((1 - p) + p / N)
+</code></pre>
+<ul>
+<li><code>N</code>：处理器/核数（并行度），<code>N >= 1</code></li>
+<li><code>p</code>：可并行部分占<strong>原串行执行时间</strong>的比例（<code>0 &#x3C;= p &#x3C;= 1</code>）</li>
+<li><code>1 - p</code>：不可并行的串行部分比例</li>
+<li><code>S(N)</code>：使用 N 个处理器相对单处理器的加速比（<code>S(1) = 1</code>）</li>
+</ul>
+<p>N→∞ 的极限（并行部分耗时趋于 0，只剩串行部分）：</p>
+<pre><code>S_max = lim S(N) = 1 / (1 - p)
+</code></pre>
+<p>串行比例写法：记串行比例 <code>s = 1 - p</code>，则</p>
+<pre><code>S(N) = 1 / (s + (1 - s) / N) &#x3C;= 1 / s
+</code></pre>
+<p>上界 <code>1/s</code> 只由串行比例决定，与核数无关——这就是"串行部分是天花板"的数学形式。</p>
+<h2 id="%E7%9B%B4%E8%A7%89%E4%B8%8E%E6%8E%A8%E5%AF%BC">直觉与推导</h2>
+<p>把任务总耗时归一化为 <code>T(1) = 1</code>。其中比例 <code>p</code> 的部分可以完美并行，耗时随核数线性下降，为 <code>p/N</code>；其余 <code>1 - p</code> 的部分只能串行，耗时不变。于是：</p>
+<pre><code>T(N) = (1 - p) + p / N
+S(N) = T(1) / T(N) = 1 / ((1 - p) + p / N)
+</code></pre>
+<p>直觉类比：任务是一条"串行入口 → 并行区 → 串行出口"的流水线。无论并行区铺得多宽，串行入口和出口的耗时一点都不会少；当 N 很大时，并行区耗时趋近 0，整条链路就剩下串行段，加速自然封顶。p 越接近 1 上限越高，但只要 <code>p &#x3C; 1</code>，上限就有限。</p>
+<h2 id="%E7%AE%80%E5%8D%95%E7%AE%97%E4%BE%8B">简单算例</h2>
+<p>例 1（p=0.9, N=10）：90% 可并行、10 个核：</p>
+<pre><code>S(10) = 1 / (0.1 + 0.9/10) = 1 / 0.19 ≈ 5.26
+</code></pre>
+<p>10 个核只带来约 <strong>5.26 倍</strong>加速；即使把核数加到无穷大，上限也只有 <code>1/0.1 = 10</code> 倍。</p>
+<p>例 2（p=0.5，核数→∞）：一半串行的任务：</p>
+<pre><code>S_max = 1 / (1 - 0.5) = 2
+</code></pre>
+<p>无论多少核，加速比永远不会超过 <strong>2 倍</strong>。</p>
+<p>例 3（串行比例从 5% 压到 1%）：<code>p=0.95, N=16</code> 时</p>
+<pre><code>S(16) = 1 / (0.05 + 0.95/16) = 1 / 0.109375 ≈ 9.14
+</code></pre>
+<p>而 <code>p=0.99, N=1000</code> 时</p>
+<pre><code>S(1000) = 1 / (0.01 + 0.99/1000) = 1 / 0.01099 ≈ 91.0
+</code></pre>
+<p>对比可见：把串行比例从 5% 压到 1%（约 5 倍的串行段优化）带来的收益，远大于单纯把核数从 16 加到 1000——优化串行段是性价比最高的路径。</p>
+<h2 id="%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%20%2F%20%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97%E5%9C%BA%E6%99%AF">软件工程 / 并行计算场景</h2>
+<h3 id="%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97%20%2F%20%E5%A4%9A%E6%A0%B8">并行计算 / 多核</h3>
+<ul>
+<li>用公式估算并行化收益上限，决定是否值得投入：先 profile 出 <code>p</code>，再算 <code>1/(1-p)</code>；如果天花板本身就不高，先优化串行段（锁竞争、同步点、I/O 依赖链），而不是盲目加核。</li>
+<li>例：p=0.9 时 100 核理论上限约 9.2 倍——若实际只达到 5 倍，问题多半出在通信/调度开销，而非并行度不足。</li>
+</ul>
+<h3 id="GPU%20%2F%20SIMD%20%2F%20%E5%90%91%E9%87%8F%E5%8C%96">GPU / SIMD / 向量化</h3>
+<ul>
+<li>数据并行任务 <code>p</code> 很高，但 host↔device 数据传输、内存对齐、规约（reduction）都是事实上的串行开销，实测收益通常明显低于公式上限。</li>
+</ul>
+<h3 id="%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%20%2F%20%E5%BE%AE%E6%9C%8D%E5%8A%A1">分布式系统 / 微服务</h3>
+<ul>
+<li>把单请求拆成并行子请求（fan-out / fan-in）时，端到端延迟受制于请求的串行部分：首尾的网络往返、依赖链、结果聚合。这和并行计算的 <a href="/notes/1787054018-USPT">parallel</a> 是同一套思维。</li>
+</ul>
+<h3 id="CI%2FCD%20%E4%B8%8E%E6%9E%84%E5%BB%BA">CI/CD 与构建</h3>
+<ul>
+<li>并行化测试、编译受共享资源与合并阶段（link、打包、部署）限制；构建时间随并发下降同样存在"串行地板"。</li>
+</ul>
+<h3 id="%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%96%B9%E6%B3%95%E8%AE%BA">性能优化方法论</h3>
+<ul>
+<li>先 profile 出 <code>p</code>：如果串行比例明显（例如 <code>1-p >= 5%</code>），加核收益很快封顶，此时优化串行段（算法、锁、I/O 依赖）是性价比最高的路径；只有当 <code>p</code> 已接近 1 时，才值得继续在并行部分投入。</li>
+</ul>
+<h2 id="%E5%8F%8D%E4%BE%8B%E4%B8%8E%E5%B8%B8%E8%A7%81%E8%AF%AF%E7%94%A8">反例与常见误用</h2>
+<ul>
+<li><strong>把阿姆达尔定律当作"并行化没用"的证据</strong>：它只是"固定工作量"下的悲观上界。p=0.9 时 100 核仍有约 9.2 倍收益，且它没有计入问题规模随核数增长的现实（见下文古斯塔夫森定律）。</li>
+<li><strong>忽略问题规模变化</strong>：公式假设工作量固定。真实负载常随资源增加而扩大（更大数据集、更高精度、更多用户），此时串行比例会相对下降，实际加速可超过固定规模估计。</li>
+<li><strong>忽略通信/同步开销</strong>：公式假设并行部分完美线性、零开销。现实中线程创建、锁、cache 一致性、网络传输、结果合并都是额外成本，实际加速比会低于公式，极端情况下出现"核越多越慢"。</li>
+<li><strong>混淆延迟与吞吐</strong>：阿姆达尔衡量的是单个任务完成时间（延迟）的加速；吞吐（单位时间完成的任务数）另受并发度与资源利用率影响，不能直接套用该公式。</li>
+<li><strong><code>p</code> 与 <code>s</code> 口径错误</strong>：<code>p</code> 必须以"单核串行执行时间"为分母来测量；若用并行执行时间作分母、或把串行比例当成 <code>p</code>，会得到错误的上限。</li>
+<li><strong>把上界当承诺</strong>：<code>1/(1-p)</code> 是理论上限而非预测，负载不均、抢占、热核、GC 停顿都会让实际加速低于该值。</li>
+</ul>
+<h2 id="%E4%B8%8E%E5%8F%A4%E6%96%AF%E5%A1%94%E5%A4%AB%E6%A3%AE%E5%AE%9A%E5%BE%8B%E7%9A%84%E5%85%B3%E7%B3%BB">与古斯塔夫森定律的关系</h2>
+<table>
+<thead>
+<tr>
+<th>视角</th>
+<th>缩放对象</th>
+<th>加速比</th>
+<th>结论倾向</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>阿姆达尔（固定工作量）</td>
+<td>问题规模不变，只加核</td>
+<td><code>S(N) = 1/(s + (1-s)/N)</code>，上限 <code>1/s</code></td>
+<td>悲观：并行收益封顶</td>
+</tr>
+<tr>
+<td>古斯塔夫森（固定时间）</td>
+<td>核数增加，问题规模同步扩大</td>
+<td><code>S(N) = N + (1-N)·s</code>（<code>s</code> 为串行比例）</td>
+<td>乐观：近似线性扩展</td>
+</tr>
+</tbody>
+</table>
+<p>两者不是互相矛盾，而是"缩放什么"的假设不同：</p>
+<ul>
+<li>阿姆达尔适合<strong>延迟敏感、工作量固定</strong>的任务（响应式请求、实时处理）——评估"加核能把延迟压到多少"。</li>
+<li>古斯塔夫森适合<strong>算得越多越好</strong>的任务（科学计算、大数据分析）——评估"同样时间内能算多大问题"。</li>
+<li>工程上先明确负载模型再选视角：测 benchmark 用固定规模，评估扩容能力用固定时间。</li>
+</ul>
+<h2 id="%E7%9B%B8%E5%85%B3%E9%93%BE%E6%8E%A5">相关链接</h2>
+<ul>
+<li><a href="https://en.wikipedia.org/wiki/Amdahl%27s_law">Amdahl's law（Wikipedia）</a></li>
+<li><a href="https://zh.wikipedia.org/wiki/%E9%98%BF%E5%A7%86%E8%BE%BE%E5%B0%94%E5%AE%9A%E5%BE%8B">阿姆达尔定律（Wikipedia 中文）</a></li>
+<li><a href="https://en.wikipedia.org/wiki/Gustafson%27s_law">Gustafson's law（Wikipedia）</a></li>
+</ul>
+<h2 id="%E5%8F%82%E8%80%83">参考</h2>
+<ul>
+<li>Amdahl, G. M., "Validity of the Single Processor Approach to Achieving Large-Scale Computing Capabilities", AFIPS Conference Proceedings, 30, 1967.</li>
+<li>收录于 <a href="/notes/1777036819-AQLO">law-sofsoftware-engineering</a> 的 "Scale 规模" 一节，与古斯塔夫森定律、梅特卡夫定律并列对照；并行计算背景见 <a href="/notes/1787054018-USPT">parallel</a>。</li>
+</ul></article><aside id="outlinks" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">引用了 2 篇笔记</h2><ul class="space-y-2"><li><a href="/notes/1787054018-USPT" class="note-link underline-offset-4 hover:underline">parallel</a></li><li><a href="/notes/1777036819-AQLO" class="note-link underline-offset-4 hover:underline">law-sofsoftware-engineering</a></li></ul></aside><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="%E9%98%BF%E5%A7%86%E8%BE%BE%E5%B0%94%E5%AE%9A%E5%BE%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E9%98%BF%E5%A7%86%E8%BE%BE%E5%B0%94%E5%AE%9A%E5%BE%8B">阿姆达尔定律</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">阿姆达尔定律</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%B8%80%E5%8F%A5%E8%AF%9D%E7%BB%93%E8%AE%BA" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%80%E5%8F%A5%E8%AF%9D%E7%BB%93%E8%AE%BA">一句话结论</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">一句话结论</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E6%A0%B8%E5%BF%83%E5%85%AC%E5%BC%8F%E4%B8%8E%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%A0%B8%E5%BF%83%E5%85%AC%E5%BC%8F%E4%B8%8E%E5%8F%98%E9%87%8F%E5%AE%9A%E4%B9%89">核心公式与变量定义</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">核心公式与变量定义</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%9B%B4%E8%A7%89%E4%B8%8E%E6%8E%A8%E5%AF%BC" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%9B%B4%E8%A7%89%E4%B8%8E%E6%8E%A8%E5%AF%BC">直觉与推导</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">直觉与推导</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%AE%80%E5%8D%95%E7%AE%97%E4%BE%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%AE%80%E5%8D%95%E7%AE%97%E4%BE%8B">简单算例</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">简单算例</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%20%2F%20%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97%E5%9C%BA%E6%99%AF" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E8%BD%AF%E4%BB%B6%E5%B7%A5%E7%A8%8B%20%2F%20%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97%E5%9C%BA%E6%99%AF">软件工程 / 并行计算场景</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">软件工程 / 并行计算场景</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97%20%2F%20%E5%A4%9A%E6%A0%B8" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%B9%B6%E8%A1%8C%E8%AE%A1%E7%AE%97%20%2F%20%E5%A4%9A%E6%A0%B8">并行计算 / 多核</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">并行计算 / 多核</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="GPU%20%2F%20SIMD%20%2F%20%E5%90%91%E9%87%8F%E5%8C%96" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#GPU%20%2F%20SIMD%20%2F%20%E5%90%91%E9%87%8F%E5%8C%96">GPU / SIMD / 向量化</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">GPU / SIMD / 向量化</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%20%2F%20%E5%BE%AE%E6%9C%8D%E5%8A%A1" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%88%86%E5%B8%83%E5%BC%8F%E7%B3%BB%E7%BB%9F%20%2F%20%E5%BE%AE%E6%9C%8D%E5%8A%A1">分布式系统 / 微服务</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">分布式系统 / 微服务</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="CI%2FCD%20%E4%B8%8E%E6%9E%84%E5%BB%BA" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#CI%2FCD%20%E4%B8%8E%E6%9E%84%E5%BB%BA">CI/CD 与构建</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">CI/CD 与构建</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%96%B9%E6%B3%95%E8%AE%BA" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96%E6%96%B9%E6%B3%95%E8%AE%BA">性能优化方法论</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">性能优化方法论</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%8F%8D%E4%BE%8B%E4%B8%8E%E5%B8%B8%E8%A7%81%E8%AF%AF%E7%94%A8" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8F%8D%E4%BE%8B%E4%B8%8E%E5%B8%B8%E8%A7%81%E8%AF%AF%E7%94%A8">反例与常见误用</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">反例与常见误用</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E4%B8%8E%E5%8F%A4%E6%96%AF%E5%A1%94%E5%A4%AB%E6%A3%AE%E5%AE%9A%E5%BE%8B%E7%9A%84%E5%85%B3%E7%B3%BB" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E4%B8%8E%E5%8F%A4%E6%96%AF%E5%A1%94%E5%A4%AB%E6%A3%AE%E5%AE%9A%E5%BE%8B%E7%9A%84%E5%85%B3%E7%B3%BB">与古斯塔夫森定律的关系</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">与古斯塔夫森定律的关系</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E7%9B%B8%E5%85%B3%E9%93%BE%E6%8E%A5" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E7%9B%B8%E5%85%B3%E9%93%BE%E6%8E%A5">相关链接</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">相关链接</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="%E5%8F%82%E8%80%83" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%8F%82%E8%80%83">参考</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">参考</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
