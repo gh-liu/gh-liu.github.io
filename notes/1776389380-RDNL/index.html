@@ -77,6 +77,42 @@
 </tr>
 </tbody>
 </table>
+<table>
+<thead>
+<tr>
+<th>层次</th>
+<th>分布式系统</th>
+<th>数据库事务</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>机制</td>
+<td>Raft / quorum / replication</td>
+<td>locks / MVCC / SSI</td>
+</tr>
+<tr>
+<td>排序对象</td>
+<td>operation</td>
+<td>transaction</td>
+</tr>
+<tr>
+<td>较弱顺序</td>
+<td>Sequential consistency</td>
+<td>Serializable</td>
+</tr>
+<tr>
+<td>+ real-time</td>
+<td>Linearizability</td>
+<td>Strict Serializability</td>
+</tr>
+<tr>
+<td>弱模型</td>
+<td>Eventual / Causal</td>
+<td>Read Committed / Snapshot Isolation 等</td>
+</tr>
+</tbody>
+</table>
 <h3 id="%E5%8D%95%E5%AF%B9%E8%B1%A1%E6%A8%A1%E5%9E%8B%E6%97%8F">单对象模型族</h3>
 <ol>
 <li>是否要求所有人看到同一个顺序？</li>
