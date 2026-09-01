@@ -4,6 +4,31 @@
 </blockquote>
 <p>① 压力沿系统逐层传播，每层通过拒绝、缓存、并行、异步、聚合或分片来吸收压力。
 ② 对每一层做 capacity estimation：输入多少、吸收多少、输出多少、极限是多少。</p>
+<pre><code>① Rate
+每秒进来多少？
+QPS / msg/s / bytes/s
+② Amplification
+经过这一层会放大多少？
+SQL/request
+fan-out
+replication
+retry
+③ Absorption
+这一层吸收多少？
+cache hit
+rate limit
+aggregation
+async buffering
+④ Capacity
+这一层最大能处理多少？
+QPS
+connections
+CPU
+disk IOPS
+network
+storage
+5:对所有“可以积压”的组件，都问能撑多久？
+</code></pre>
 <p>高并发关心：系统能吞多少压力（吞吐、容量、扩展）。
 低延迟关心：一个请求在系统里要等多久（单请求等待时间）。</p>
 <hr>
