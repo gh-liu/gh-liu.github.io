@@ -1,0 +1,283 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>fs-overlayfs</title><link rel="stylesheet" href="/_astro/global.DX-ZqIUy.css"></head><body class="note-page antialiased"><div class="relative mx-auto max-w-4xl"><a href="/" aria-label="返回主页" title="返回主页" class="home-link fixed bottom-20 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg transition 2xl:bottom-auto 2xl:left-[calc(50%+28rem-2.5rem)] 2xl:right-auto 2xl:top-8 2xl:h-9 2xl:w-9 2xl:rounded-lg 2xl:shadow-sm"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5 2xl:h-4 2xl:w-4" aria-hidden="true"><path d="m3 11 9-8 9 8"></path><path d="M5 10v10h14V10"></path><path d="M9 20v-6h6v6"></path></svg></a><main class="note-main min-h-screen w-full px-5 py-10 shadow-sm sm:px-10 sm:py-14 lg:my-8 lg:rounded-2xl lg:border"><article class="prose prose-slate note-prose max-w-none prose-a:underline-offset-4 prose-pre:bg-slate-950 prose-pre:text-slate-100"><h1 id="OverlayFS">OverlayFS</h1><div class="note-meta mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-2 text-sm"><div class="flex flex-wrap items-center gap-2"><span class="meta-pill meta-pill-created rounded-md px-2 py-0.5 text-xs font-medium">2026-09-28</span><span class="meta-pill meta-pill-updated hidden rounded-md px-2 py-0.5 text-xs font-medium">2026-09-28</span></div><div class="flex flex-wrap gap-1.5"><a href="/tags/CS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">CS</a><a href="/tags/FS" class="topic-chip topic-chip-tag rounded-full border px-2.5 py-0.5 text-xs no-underline">FS</a></div></div><p class="note-desc mt-[-1.25rem] text-lg">OverlayFS 的分层视图、copy-up、whiteout、挂载约束与工程边界</p>
+<ul>
+<li>S：容器镜像、只读系统和临时开发环境需要复用一份不可变基础树，同时让每个实例拥有独立的可写视图。</li>
+<li>C：直接复制完整目录成本高；但把多层目录叠加后，读取、修改、删除和重命名都不能再简单等同于操作单个文件系统。</li>
+<li>Q：OverlayFS 如何把多棵目录树呈现为一个统一视图，并在不修改 lower layer 的前提下支持写入？</li>
+<li>A：OverlayFS 按优先级合并目录项：读时选择最上层可见对象，首次修改 lower 对象时按需 copy-up，删除则在 upper 中记录 whiteout；它节省的是初始复制和共享存储成本，代价是首次写放大、对象身份变化以及若干非标准语义。</li>
+</ul>
+<hr>
+<h2 id="1.%20%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B">1. 心智模型</h2>
+<p>OverlayFS 是 Linux 的联合挂载（union mount）实现。它不把各层物理合并，而是在 VFS 层提供一个组合后的命名空间。</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="应用访问 /merged
+        │
+        ▼
+┌──────────────────────────────┐
+│ merged：OverlayFS 统一视图   │
+├──────────────────────────────┤
+│ upper：新增和修改，可写      │
+│ lower：基础内容，通常只读    │
+└──────────────────────────────┘
+        │
+        └── work：内部临时工作区">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>应用访问 /merged</span></span>
+<span data-line=""><span>        │</span></span>
+<span data-line=""><span>        ▼</span></span>
+<span data-line=""><span>┌──────────────────────────────┐</span></span>
+<span data-line=""><span>│ merged：OverlayFS 统一视图   │</span></span>
+<span data-line=""><span>├──────────────────────────────┤</span></span>
+<span data-line=""><span>│ upper：新增和修改，可写      │</span></span>
+<span data-line=""><span>│ lower：基础内容，通常只读    │</span></span>
+<span data-line=""><span>└──────────────────────────────┘</span></span>
+<span data-line=""><span>        │</span></span>
+<span data-line=""><span>        └── work：内部临时工作区</span></span></code></pre></figure>
+<ul>
+<li><strong>lowerdir</strong>：一个或多个底层目录。可以只读，也可以是另一个 OverlayFS；共享 lower 是常见用法。</li>
+<li><strong>upperdir</strong>：记录新增文件、copy-up 后的文件以及删除标记。没有 upper 时，合并视图只读。</li>
+<li><strong>workdir</strong>：OverlayFS 完成 copy-up、rename 等操作时使用的内部目录，必须与 upper 位于同一文件系统，且应为专用空目录。</li>
+<li><strong>merged / mount point</strong>：应用实际访问的统一视图。应用不应绕过它直接修改正在使用的各层。</li>
+</ul>
+<p>基本挂载方式：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#d9b400" d="M29.4 27.6H2.5V4.5h26.9Zm-25.9-1h24.9V5.5H3.5Z"/><path fill="#d9b400" d="m6.077 19.316l-.555-.832l4.844-3.229l-4.887-4.071l.641-.768l5.915 4.928zM12.7 18.2h7.8v1h-7.8zM2.5 5.5h26.9v1.9H2.5z"/></svg>bash</span><button type="button" class="code-copy-button" data-code="mount -t overlay overlay \
+  -o lowerdir=/lower,upperdir=/upper,workdir=/work \
+  /merged">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">mount</span><span style="color:#A3BE8C"> -t</span><span style="color:#A3BE8C"> overlay</span><span style="color:#A3BE8C"> overlay</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">  -o</span><span style="color:#A3BE8C"> lowerdir=/lower,upperdir=/upper,workdir=/work</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">  /merged</span></span></code></pre></figure>
+<p>多个 lower 用 <code>:</code> 分隔，<strong>越靠左优先级越高</strong>：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#d9b400" d="M29.4 27.6H2.5V4.5h26.9Zm-25.9-1h24.9V5.5H3.5Z"/><path fill="#d9b400" d="m6.077 19.316l-.555-.832l4.844-3.229l-4.887-4.071l.641-.768l5.915 4.928zM12.7 18.2h7.8v1h-7.8zM2.5 5.5h26.9v1.9H2.5z"/></svg>bash</span><button type="button" class="code-copy-button" data-code="mount -t overlay overlay \
+  -o lowerdir=/lower1:/lower2:/lower3 \
+  /merged">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">mount</span><span style="color:#A3BE8C"> -t</span><span style="color:#A3BE8C"> overlay</span><span style="color:#A3BE8C"> overlay</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">  -o</span><span style="color:#A3BE8C"> lowerdir=/lower1:/lower2:/lower3</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">  /merged</span></span></code></pre></figure>
+<p>上例只提供 lower，因此 <code>/merged</code> 是只读视图；同名对象按 <code>lower1 > lower2 > lower3</code> 选择。</p>
+<h2 id="2.%20%E6%9F%A5%E6%89%BE%E4%B8%8E%E7%9B%AE%E5%BD%95%E5%90%88%E5%B9%B6">2. 查找与目录合并</h2>
+<p>查找路径时，OverlayFS 从高优先级层向低优先级层解析每一级名称：</p>
+<ol>
+<li>同名对象只在一层存在：使用该对象。</li>
+<li>upper 和 lower 都存在，且至少一个不是目录：upper 对象遮蔽 lower 对象。</li>
+<li>upper 和 lower 都是目录：形成 <strong>merged directory</strong>，继续合并两边的目录项。</li>
+</ol>
+<p>目录合并只合并<strong>名称列表</strong>。合并目录自身的权限、时间戳和扩展属性等元数据来自 upper 目录，而不是把上下层元数据再做合并。</p>
+<p>例如：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="lower/                 upper/                 merged/
+├── app.conf           ├── app.conf           ├── app.conf  (upper)
+├── bin/               ├── bin/               ├── bin/      (merged dir)
+│   └── server         │   └── debug           │   ├── server (lower)
+└── README                                      │   └── debug  (upper)
+                                                └── README    (lower)">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>lower/                 upper/                 merged/</span></span>
+<span data-line=""><span>├── app.conf           ├── app.conf           ├── app.conf  (upper)</span></span>
+<span data-line=""><span>├── bin/               ├── bin/               ├── bin/      (merged dir)</span></span>
+<span data-line=""><span>│   └── server         │   └── debug           │   ├── server (lower)</span></span>
+<span data-line=""><span>└── README                                      │   └── debug  (upper)</span></span>
+<span data-line=""><span>                                                └── README    (lower)</span></span></code></pre></figure>
+<p>读取 merged directory 时，内核先读 upper，再补入未出现过的 lower 名称，并为本次打开的目录缓存结果。因此：</p>
+<ul>
+<li>目录保持打开期间，其他修改不一定立即反映在该次 <code>readdir</code> 中；回到 offset 0 后重新读取会重建缓存。</li>
+<li>目录 offset 是合并时临时分配的；关闭目录、内容变化、重新打开后，旧 offset 不保证仍指向相同位置。</li>
+</ul>
+<h2 id="3.%20%E5%86%99%E5%85%A5%EF%BC%9Acopy-up">3. 写入：copy-up</h2>
+<p>lower 对象保持不变。对 lower 中的非目录对象执行需要写权限的操作时，OverlayFS 先把对象复制到 upper，再在 upper 上完成操作，这个过程称为 <strong>copy-up</strong>。</p>
+<p>常见触发条件包括：</p>
+<ul>
+<li>以可写方式打开文件，即使最终没有真正写入；</li>
+<li>修改数据或执行 <code>truncate</code>；</li>
+<li>修改 owner、mode、时间戳或扩展属性；</li>
+<li>为 lower 文件创建 hard link。</li>
+</ul>
+<p>copy-up 大致执行：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="确保 upper 中存在父目录
+  → 创建临时 upper 对象
+  → 复制元数据
+  → 复制文件数据
+  → 复制扩展属性
+  → 原子地安装到目标名称
+  → 后续访问使用 upper 对象">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>确保 upper 中存在父目录</span></span>
+<span data-line=""><span>  → 创建临时 upper 对象</span></span>
+<span data-line=""><span>  → 复制元数据</span></span>
+<span data-line=""><span>  → 复制文件数据</span></span>
+<span data-line=""><span>  → 复制扩展属性</span></span>
+<span data-line=""><span>  → 原子地安装到目标名称</span></span>
+<span data-line=""><span>  → 后续访问使用 upper 对象</span></span></code></pre></figure>
+<p>父目录会按需复制，但复制目录不等于递归复制其全部内容；未修改的子项仍可来自 lower。默认情况下，单纯 <code>chmod</code> 一个大文件也可能复制完整数据。启用 <code>metacopy=on</code> 后，元数据操作只先复制元数据，直到真正写数据时才复制文件内容。</p>
+<p>copy-up 的工程影响：</p>
+<ul>
+<li><strong>首次写延迟和写放大</strong>：大文件的第一次修改可能先复制整个文件。</li>
+<li><strong>空间占用</strong>：修改后的完整对象位于 upper；OverlayFS 不是块级增量存储。</li>
+<li><strong>身份变化</strong>：对象可能从 lower inode 切换为 upper inode，<code>st_dev</code> / <code>st_ino</code> 不应被当作永远稳定的业务标识。</li>
+<li><strong>hard link 语义</strong>：未启用 <code>index</code> 时，copy-up 一个有多个名称的 lower inode 可能打破名称间的 hard-link 关系。</li>
+</ul>
+<p><code>metacopy</code> 优化的是只改元数据的场景，并不消除真正写入时的数据 copy-up；也不应对不可信的 upper/lower 启用，因为伪造的 overlay 扩展属性可能让数据重定向到非预期 lower 文件。</p>
+<h2 id="4.%20%E5%88%A0%E9%99%A4%EF%BC%9Awhiteout%20%E4%B8%8E%20opaque%20directory">4. 删除：whiteout 与 opaque directory</h2>
+<p>删除 merged 视图中的 lower 文件时，OverlayFS 不能真的删除 lower 文件，否则其他共享该 lower 的挂载也会受影响。因此它在 upper 中写入一个不可见的“这里已经删除”标记。</p>
+<h3 id="Whiteout">Whiteout</h3>
+<p>whiteout 遮蔽 lower 中的<strong>同名对象</strong>。它在 upper 中通常表示为：</p>
+<ul>
+<li>设备号为 <code>0/0</code> 的字符设备；或</li>
+<li>带 <code>trusted.overlay.whiteout</code> 扩展属性的零长度普通文件。</li>
+</ul>
+<p>查找时，OverlayFS 既不显示 whiteout，也不再显示它遮蔽的 lower 对象。</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="lower/a.txt       upper/a.txt = whiteout       merged/ 中没有 a.txt">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>lower/a.txt       upper/a.txt = whiteout       merged/ 中没有 a.txt</span></span></code></pre></figure>
+<h3 id="Opaque%20directory">Opaque directory</h3>
+<p>upper 目录带 <code>trusted.overlay.opaque=y</code> 时，该目录是 <strong>opaque</strong> 的：同路径的 lower 目录及其内容完全不参与合并。这与 whiteout 只隐藏一个同名目录项不同。</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="lower/cache/      upper/cache/ = opaque        merged/cache/
+├── a             └── c                        └── c
+└── b">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>lower/cache/      upper/cache/ = opaque        merged/cache/</span></span>
+<span data-line=""><span>├── a             └── c                        └── c</span></span>
+<span data-line=""><span>└── b</span></span></code></pre></figure>
+<p>因此，“在 merged 中删除后 lower 仍存在”不是数据删除失败，而是 OverlayFS 的设计。备份、迁移或制作镜像层时，必须保留 whiteout、opaque 标记和相关 xattr；只复制普通可见文件会改变语义。</p>
+<h2 id="5.%20%E9%87%8D%E5%91%BD%E5%90%8D">5. 重命名</h2>
+<ul>
+<li>纯 upper 文件或目录可直接在 upper 中重命名。</li>
+<li>lower 文件通常先 copy-up，再完成重命名。</li>
+<li>lower 或 merged <strong>目录</strong>的跨目录 rename 默认可能返回 <code>EXDEV</code>。许多工具（如 <code>mv</code>）会退化为递归复制再删除，但应用不能假设 rename 始终原子且廉价。</li>
+</ul>
+<p>启用 <code>redirect_dir=on</code> 后，OverlayFS 可以只 copy-up 目录本身，在 upper 目录上记录 <code>trusted.overlay.redirect</code> 指向原 lower 路径，再移动 upper 目录；这样避免立即复制整棵子树。redirect 会增加持久化层之间的关联和安全校验要求，复制或替换 layer 时不能忽略这些 xattr。</p>
+<h2 id="6.%20%E6%8C%82%E8%BD%BD%E7%BA%A6%E6%9D%9F%E4%B8%8E%E5%85%B3%E9%94%AE%E9%80%89%E9%A1%B9">6. 挂载约束与关键选项</h2>
+<h3 id="%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BA%A6%E6%9D%9F">文件系统约束</h3>
+<ul>
+<li>upper 必须支持 <code>trusted.*</code> 或 <code>user.*</code> 扩展属性，并在 <code>readdir</code> 中提供有效的 <code>d_type</code>；NFS 因此不适合作为可写 upper。</li>
+<li>workdir 必须与 upper 在同一个底层文件系统。</li>
+<li>lower 不要求可写，可以有多个，也可以是另一个 OverlayFS。</li>
+<li>upper/workdir 不能同时被多个 OverlayFS 挂载复用或重叠；此类访问的行为未定义。</li>
+<li>挂载期间直接修改 lower、upper 或 workdir 的行为未定义。所有正常访问都应经过 merged。</li>
+</ul>
+<h3 id="%E5%B8%B8%E8%A7%81%E9%80%89%E9%A1%B9">常见选项</h3>
+<table>
+<thead>
+<tr>
+<th>选项</th>
+<th>解决的问题</th>
+<th>代价 / 注意点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metacopy=on</code></td>
+<td>元数据修改时延迟复制文件数据</td>
+<td>真正写入仍需 copy-up；不能信任恶意 layer</td>
+</tr>
+<tr>
+<td><code>redirect_dir=on</code></td>
+<td>lower/merged 目录 rename 不必返回 <code>EXDEV</code></td>
+<td>增加 redirect xattr 和跨层关联</td>
+</tr>
+<tr>
+<td><code>index=on</code></td>
+<td>copy-up 后维护 hard link 和 lower-origin 关系</td>
+<td>需要底层支持持久 file handle，会增加索引元数据</td>
+</tr>
+<tr>
+<td><code>xino=on/auto</code></td>
+<td>组合 fsid 与底层 inode，使 inode 标识更接近普通 FS</td>
+<td>依赖 inode 位宽和底层能力，溢出时会退化</td>
+</tr>
+<tr>
+<td><code>userxattr</code></td>
+<td>使用 <code>user.overlay.*</code>，支持非特权挂载场景</td>
+<td>安全模型与 trusted xattr 不同</td>
+</tr>
+<tr>
+<td><code>volatile</code></td>
+<td>跳过 upper 的同步写，降低写入开销</td>
+<td>崩溃后不保证可恢复，只适合可重建数据</td>
+</tr>
+</tbody>
+</table>
+<p>实际默认值还会受内核版本、构建选项和 module parameter 影响。判断当前挂载行为时，应查看 <code>/proc/self/mountinfo</code>、<code>findmnt -t overlay</code> 以及 <code>/sys/module/overlay/parameters/</code>，不要只依赖发行版文档中的默认值。</p>
+<h2 id="7.%20%E4%B8%80%E8%87%B4%E6%80%A7%E3%80%81%E6%9D%83%E9%99%90%E4%B8%8E%E9%9D%9E%E6%A0%87%E5%87%86%E8%AF%AD%E4%B9%89">7. 一致性、权限与非标准语义</h2>
+<h3 id="%E6%9D%83%E9%99%90">权限</h3>
+<p>OverlayFS 会进行两层检查：</p>
+<ol>
+<li>当前进程是否能按 merged inode 的 DAC/MAC 信息访问对象；</li>
+<li>创建 OverlayFS superblock 时保存的凭据，是否能在实际 upper/lower 上执行该操作。</li>
+</ol>
+<p>目标是让 copy-up 前后的访问结果尽量一致，同时防止挂载者借 OverlayFS 获得其原本没有的底层权限。排查“merged 看似有权限但操作仍失败”时，也要检查底层目录和挂载凭据。</p>
+<h3 id="inode%20%E4%B8%8E%E8%AE%BE%E5%A4%87%E5%8F%B7">inode 与设备号</h3>
+<p>OverlayFS 是 hybrid filesystem：目录通常报告 overlay 的 <code>st_dev</code>，非目录对象可能报告其实际 upper/lower 文件系统的 <code>st_dev</code>；非目录对象的 <code>st_ino</code> 也可能因 copy-up 变化。所有 layer 在同一文件系统，或可用 <code>xino</code> 时，表现会更接近普通文件系统。</p>
+<p>依赖 <code>(st_dev, st_ino)</code> 的扫描器、备份工具、文件监控和 NFS export 需要专门验证，不能从 ext4/xfs 的经验直接推导。</p>
+<h3 id="%E5%B7%B2%E7%9F%A5%E5%B7%AE%E5%BC%82">已知差异</h3>
+<p>OverlayFS 大体兼容 POSIX，但不是完全透明，内核文档明确列出一些差异，例如：</p>
+<ul>
+<li>读取仍位于 lower 的文件时，不更新其 <code>st_atime</code>；</li>
+<li>lower 文件以只读方式打开并 <code>MAP_SHARED</code> 映射后，之后对该文件的修改不会反映到既有映射；</li>
+<li>lower 文件正在执行时，对它写入或截断不一定像普通文件系统那样返回 <code>ETXTBSY</code>。</li>
+</ul>
+<p>此外，崩溃一致性仍依赖应用正确调用 <code>fsync</code>。OverlayFS 会避免暴露 copy-up 的中间文件，但默认并不承诺在应用未同步时持久化所有目录和纯元数据修改；<code>volatile</code> 更是明确放弃崩溃恢复保证。</p>
+<h2 id="8.%20%E4%B8%8E%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%9A%84%E5%85%B3%E7%B3%BB">8. 与容器镜像的关系</h2>
+<p>OverlayFS 的模型与容器的分层文件系统天然匹配：多个只读镜像层作为 lower，容器自己的可写层作为 upper，再把 merged 作为容器看到的 root filesystem。</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label">text</span><button type="button" class="code-copy-button" data-code="container rootfs (merged)
+├── writable container layer (upper)
+└── image layers (lower，按优先级排列)">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="text" data-theme="nord"><code data-language="text" data-theme="nord" style="display: grid;"><span data-line=""><span>container rootfs (merged)</span></span>
+<span data-line=""><span>├── writable container layer (upper)</span></span>
+<span data-line=""><span>└── image layers (lower，按优先级排列)</span></span></code></pre></figure>
+<p>这解释了几个常见现象：</p>
+<ul>
+<li>启动容器不必复制整个镜像；不同容器可以共享只读 layer。</li>
+<li>容器内修改镜像中的大文件会触发 copy-up，可能出现首次写延迟和额外空间占用。</li>
+<li>容器内删除镜像文件只在可写层生成 whiteout，不会改动镜像层。</li>
+<li>删除容器的 writable layer 后，所有未写入 volume/bind mount 的变更也随之消失。</li>
+</ul>
+<p>OverlayFS 只提供分层文件系统机制；镜像格式、layer 下载、内容寻址、快照生命周期和 volume 管理由 container runtime / snapshotter 等上层组件负责，二者不能等同。</p>
+<h2 id="9.%20%E6%9C%80%E5%B0%8F%E5%AE%9E%E9%AA%8C">9. 最小实验</h2>
+<p>下面的实验可以直接观察覆盖、copy-up 和 whiteout。需要 root 权限及支持 OverlayFS 的内核：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#d9b400" d="M29.4 27.6H2.5V4.5h26.9Zm-25.9-1h24.9V5.5H3.5Z"/><path fill="#d9b400" d="m6.077 19.316l-.555-.832l4.844-3.229l-4.887-4.071l.641-.768l5.915 4.928zM12.7 18.2h7.8v1h-7.8zM2.5 5.5h26.9v1.9H2.5z"/></svg>bash</span><button type="button" class="code-copy-button" data-code="root=$(mktemp -d)
+mkdir -p &#x22;$root&#x22;/{lower,upper,work,merged}
+printf &#x27;from lower\n&#x27; > &#x22;$root/lower/demo.txt&#x22;
+ 
+sudo mount -t overlay overlay \
+  -o &#x22;lowerdir=$root/lower,upperdir=$root/upper,workdir=$root/work&#x22; \
+  &#x22;$root/merged&#x22;
+ 
+# 读取不会复制文件，upper 此时为空。
+cat &#x22;$root/merged/demo.txt&#x22;
+ls -la &#x22;$root/upper&#x22;
+ 
+# 第一次写触发 copy-up；lower 保持原样。
+printf &#x27;from upper\n&#x27; | sudo tee &#x22;$root/merged/demo.txt&#x22;
+cat &#x22;$root/lower/demo.txt&#x22; &#x22;$root/upper/demo.txt&#x22; &#x22;$root/merged/demo.txt&#x22;
+ 
+# 删除后 merged 中不可见，upper 中留下 whiteout。
+sudo rm &#x22;$root/merged/demo.txt&#x22;
+ls -la &#x22;$root/lower&#x22; &#x22;$root/upper&#x22; &#x22;$root/merged&#x22;
+ 
+sudo umount &#x22;$root/merged&#x22;
+sudo rm -rf &#x22;$root&#x22;">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#D8DEE9">root</span><span style="color:#81A1C1">=</span><span style="color:#ECEFF4">$(</span><span style="color:#88C0D0">mktemp</span><span style="color:#A3BE8C"> -d</span><span style="color:#ECEFF4">)</span></span>
+<span data-line=""><span style="color:#88C0D0">mkdir</span><span style="color:#A3BE8C"> -p</span><span style="color:#ECEFF4"> "</span><span style="color:#D8DEE9">$root</span><span style="color:#ECEFF4">"</span><span style="color:#A3BE8C">/{lower,upper,work,merged}</span></span>
+<span data-line=""><span style="color:#88C0D0">printf</span><span style="color:#ECEFF4"> '</span><span style="color:#A3BE8C">from lower\n</span><span style="color:#ECEFF4">'</span><span style="color:#81A1C1"> ></span><span style="color:#ECEFF4"> "</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/lower/demo.txt</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#88C0D0">sudo</span><span style="color:#A3BE8C"> mount</span><span style="color:#A3BE8C"> -t</span><span style="color:#A3BE8C"> overlay</span><span style="color:#A3BE8C"> overlay</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#A3BE8C">  -o</span><span style="color:#ECEFF4"> "</span><span style="color:#A3BE8C">lowerdir=</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/lower,upperdir=</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/upper,workdir=</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/work</span><span style="color:#ECEFF4">"</span><span style="color:#EBCB8B"> \</span></span>
+<span data-line=""><span style="color:#ECEFF4">  "</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/merged</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88"># 读取不会复制文件，upper 此时为空。</span></span>
+<span data-line=""><span style="color:#88C0D0">cat</span><span style="color:#ECEFF4"> "</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/merged/demo.txt</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""><span style="color:#88C0D0">ls</span><span style="color:#A3BE8C"> -la</span><span style="color:#ECEFF4"> "</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/upper</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88"># 第一次写触发 copy-up；lower 保持原样。</span></span>
+<span data-line=""><span style="color:#88C0D0">printf</span><span style="color:#ECEFF4"> '</span><span style="color:#A3BE8C">from upper\n</span><span style="color:#ECEFF4">'</span><span style="color:#81A1C1"> |</span><span style="color:#88C0D0"> sudo</span><span style="color:#A3BE8C"> tee</span><span style="color:#ECEFF4"> "</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/merged/demo.txt</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""><span style="color:#88C0D0">cat</span><span style="color:#ECEFF4"> "</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/lower/demo.txt</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4"> "</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/upper/demo.txt</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4"> "</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/merged/demo.txt</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#616E88"># 删除后 merged 中不可见，upper 中留下 whiteout。</span></span>
+<span data-line=""><span style="color:#88C0D0">sudo</span><span style="color:#A3BE8C"> rm</span><span style="color:#ECEFF4"> "</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/merged/demo.txt</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""><span style="color:#88C0D0">ls</span><span style="color:#A3BE8C"> -la</span><span style="color:#ECEFF4"> "</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/lower</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4"> "</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/upper</span><span style="color:#ECEFF4">"</span><span style="color:#ECEFF4"> "</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/merged</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""> </span>
+<span data-line=""><span style="color:#88C0D0">sudo</span><span style="color:#A3BE8C"> umount</span><span style="color:#ECEFF4"> "</span><span style="color:#D8DEE9">$root</span><span style="color:#A3BE8C">/merged</span><span style="color:#ECEFF4">"</span></span>
+<span data-line=""><span style="color:#88C0D0">sudo</span><span style="color:#A3BE8C"> rm</span><span style="color:#A3BE8C"> -rf</span><span style="color:#ECEFF4"> "</span><span style="color:#D8DEE9">$root</span><span style="color:#ECEFF4">"</span></span></code></pre></figure>
+<p>排查现有挂载可先执行：</p>
+<figure data-rehype-pretty-code-figure=""><figcaption class="code-block-header"><span class="code-language-label"><svg aria-hidden="true" class="code-language-icon" viewBox="0 0 32 32"><path fill="#d9b400" d="M29.4 27.6H2.5V4.5h26.9Zm-25.9-1h24.9V5.5H3.5Z"/><path fill="#d9b400" d="m6.077 19.316l-.555-.832l4.844-3.229l-4.887-4.071l.641-.768l5.915 4.928zM12.7 18.2h7.8v1h-7.8zM2.5 5.5h26.9v1.9H2.5z"/></svg>bash</span><button type="button" class="code-copy-button" data-code="findmnt -t overlay -o TARGET,SOURCE,FSTYPE,OPTIONS
+grep &#x27; overlay &#x27; /proc/self/mountinfo
+getfattr -d -m &#x27;.*&#x27; /path/to/upper/object">Copy</button></figcaption><pre style="background-color:#2e3440ff;color:#d8dee9ff" tabindex="0" data-language="bash" data-theme="nord"><code data-language="bash" data-theme="nord" style="display: grid;"><span data-line=""><span style="color:#88C0D0">findmnt</span><span style="color:#A3BE8C"> -t</span><span style="color:#A3BE8C"> overlay</span><span style="color:#A3BE8C"> -o</span><span style="color:#A3BE8C"> TARGET,SOURCE,FSTYPE,OPTIONS</span></span>
+<span data-line=""><span style="color:#88C0D0">grep</span><span style="color:#ECEFF4"> '</span><span style="color:#A3BE8C"> overlay </span><span style="color:#ECEFF4">'</span><span style="color:#A3BE8C"> /proc/self/mountinfo</span></span>
+<span data-line=""><span style="color:#88C0D0">getfattr</span><span style="color:#A3BE8C"> -d</span><span style="color:#A3BE8C"> -m</span><span style="color:#ECEFF4"> '</span><span style="color:#A3BE8C">.*</span><span style="color:#ECEFF4">'</span><span style="color:#A3BE8C"> /path/to/upper/object</span></span></code></pre></figure>
+<p>不要在生产挂载仍在线时，为了检查而修改 upper 中的 whiteout 或 <code>trusted.overlay.*</code> xattr。</p>
+<h2 id="10.%20%E6%80%BB%E7%BB%93">10. 总结</h2>
+<p>用三条规则即可先建立正确直觉：</p>
+<ol>
+<li><strong>读：最上层同名对象获胜，目录可以继续合并。</strong></li>
+<li><strong>写：lower 不变，首次修改先 copy-up 到 upper。</strong></li>
+<li><strong>删：lower 不变，在 upper 用 whiteout / opaque 记录不可见性。</strong></li>
+</ol>
+<p>然后再根据工作负载评估 copy-up 成本、inode 身份、hard link、rename、崩溃一致性和底层文件系统能力。OverlayFS 的优势不是让写入免费，而是让大量只读内容能够共享，并把每个实例的差异集中到较小的可写层。</p>
+<h2 id="11.%20Links">11. Links</h2>
+<ol>
+<li><a href="https://docs.kernel.org/filesystems/overlayfs.html">Linux Kernel: Overlay Filesystem</a></li>
+<li><a href="https://docs.kernel.org/_sources/filesystems/overlayfs.rst.txt">Linux Kernel: OverlayFS source documentation</a></li>
+</ol></article><section id="comments" class="note-section mt-12 pt-8"><h2 class="note-section-title mb-4 text-sm font-semibold uppercase tracking-wider">评论</h2><div id="giscus-container"><button id="giscus-load" type="button" class="comments-placeholder text-sm underline underline-offset-4">加载评论</button></div></section><script type="module">var e=document.getElementById(`giscus-container`),t=document.getElementById(`giscus-load`);if(e&&t){let n=()=>{if(e.dataset.loaded===`true`)return;e.dataset.loaded=`true`,t.remove();let n=document.createElement(`script`);n.src=`https://giscus.app/client.js`,n.async=!0,n.crossOrigin=`anonymous`,Object.assign(n.dataset,{repo:`gh-liu/gh-liu.github.io`,repoId:`R_kgDOKwsMLg`,category:`General`,categoryId:`DIC_kwDOKwsMLs4DAjRD`,mapping:`pathname`,strict:`0`,reactionsEnabled:`1`,emitMetadata:`0`,inputPosition:`top`,theme:`light`,lang:`zh-CN`}),e.append(n)};if(t.addEventListener(`click`,n),`IntersectionObserver`in window){let t=new IntersectionObserver(e=>{e.some(e=>e.isIntersecting)&&(t.disconnect(),n())},{rootMargin:`600px 0px`});t.observe(e)}}</script></main><button id="toc-mobile-toggle" type="button" aria-label="打开目录" aria-controls="note-toc" aria-expanded="false" class="toc-mobile-toggle fixed bottom-5 right-5 z-30 flex h-11 w-11 items-center justify-center rounded-full border shadow-lg 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></button><div id="toc-backdrop" class="toc-backdrop fixed inset-0 z-30 hidden 2xl:hidden"></div><button id="toc-toggle" type="button" aria-label="切换目录显示" title="切换目录显示" aria-pressed="true" class="toc-toggle fixed left-[calc(50%+28rem-2.5rem)] top-20 z-30 hidden h-9 w-9 items-center justify-center rounded-lg border shadow-sm transition 2xl:flex"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-4 w-4"><rect x="3" y="3" width="18" height="18" rx="2"></rect><line x1="15" y1="3" x2="15" y2="21"></line></svg></button><aside id="note-toc" aria-label="文章目录" class="toc fixed inset-x-4 bottom-4 z-40 hidden 2xl:bottom-auto 2xl:left-[calc(50%+28rem)] 2xl:right-auto 2xl:top-8 2xl:block 2xl:w-60"><nav class="toc-panel max-h-[calc(100vh-6rem)] overflow-y-auto overflow-x-visible rounded-2xl border p-4 text-sm shadow-sm backdrop-blur 2xl:max-h-[calc(100vh-4rem)]"><div class="mb-4 flex items-center justify-between"><h2 class="toc-title text-xs font-semibold uppercase tracking-wide">目录</h2><button id="toc-mobile-close" type="button" aria-label="关闭目录" class="toc-title flex h-11 w-11 items-center justify-center rounded-md 2xl:hidden"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" class="h-4 w-4"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button></div><div><ol class="space-y-2"><li class="group relative"><a data-toc-link data-heading-id="OverlayFS" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#OverlayFS">OverlayFS</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">OverlayFS</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="1.%20%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#1.%20%E5%BF%83%E6%99%BA%E6%A8%A1%E5%9E%8B">1. 心智模型</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">1. 心智模型</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="2.%20%E6%9F%A5%E6%89%BE%E4%B8%8E%E7%9B%AE%E5%BD%95%E5%90%88%E5%B9%B6" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#2.%20%E6%9F%A5%E6%89%BE%E4%B8%8E%E7%9B%AE%E5%BD%95%E5%90%88%E5%B9%B6">2. 查找与目录合并</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">2. 查找与目录合并</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="3.%20%E5%86%99%E5%85%A5%EF%BC%9Acopy-up" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#3.%20%E5%86%99%E5%85%A5%EF%BC%9Acopy-up">3. 写入：copy-up</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">3. 写入：copy-up</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="4.%20%E5%88%A0%E9%99%A4%EF%BC%9Awhiteout%20%E4%B8%8E%20opaque%20directory" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#4.%20%E5%88%A0%E9%99%A4%EF%BC%9Awhiteout%20%E4%B8%8E%20opaque%20directory">4. 删除：whiteout 与 opaque directory</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">4. 删除：whiteout 与 opaque directory</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Whiteout" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Whiteout">Whiteout</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Whiteout</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="Opaque%20directory" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#Opaque%20directory">Opaque directory</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">Opaque directory</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="5.%20%E9%87%8D%E5%91%BD%E5%90%8D" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#5.%20%E9%87%8D%E5%91%BD%E5%90%8D">5. 重命名</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">5. 重命名</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="6.%20%E6%8C%82%E8%BD%BD%E7%BA%A6%E6%9D%9F%E4%B8%8E%E5%85%B3%E9%94%AE%E9%80%89%E9%A1%B9" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#6.%20%E6%8C%82%E8%BD%BD%E7%BA%A6%E6%9D%9F%E4%B8%8E%E5%85%B3%E9%94%AE%E9%80%89%E9%A1%B9">6. 挂载约束与关键选项</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">6. 挂载约束与关键选项</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BA%A6%E6%9D%9F" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E7%BA%A6%E6%9D%9F">文件系统约束</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">文件系统约束</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%B8%B8%E8%A7%81%E9%80%89%E9%A1%B9" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%B8%B8%E8%A7%81%E9%80%89%E9%A1%B9">常见选项</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">常见选项</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="7.%20%E4%B8%80%E8%87%B4%E6%80%A7%E3%80%81%E6%9D%83%E9%99%90%E4%B8%8E%E9%9D%9E%E6%A0%87%E5%87%86%E8%AF%AD%E4%B9%89" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#7.%20%E4%B8%80%E8%87%B4%E6%80%A7%E3%80%81%E6%9D%83%E9%99%90%E4%B8%8E%E9%9D%9E%E6%A0%87%E5%87%86%E8%AF%AD%E4%B9%89">7. 一致性、权限与非标准语义</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">7. 一致性、权限与非标准语义</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E6%9D%83%E9%99%90" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E6%9D%83%E9%99%90">权限</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">权限</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="inode%20%E4%B8%8E%E8%AE%BE%E5%A4%87%E5%8F%B7" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#inode%20%E4%B8%8E%E8%AE%BE%E5%A4%87%E5%8F%B7">inode 与设备号</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">inode 与设备号</span></li><li class="group relative pl-8"><a data-toc-link data-heading-id="%E5%B7%B2%E7%9F%A5%E5%B7%AE%E5%BC%82" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#%E5%B7%B2%E7%9F%A5%E5%B7%AE%E5%BC%82">已知差异</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">已知差异</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="8.%20%E4%B8%8E%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%9A%84%E5%85%B3%E7%B3%BB" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#8.%20%E4%B8%8E%E5%AE%B9%E5%99%A8%E9%95%9C%E5%83%8F%E7%9A%84%E5%85%B3%E7%B3%BB">8. 与容器镜像的关系</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">8. 与容器镜像的关系</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="9.%20%E6%9C%80%E5%B0%8F%E5%AE%9E%E9%AA%8C" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#9.%20%E6%9C%80%E5%B0%8F%E5%AE%9E%E9%AA%8C">9. 最小实验</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">9. 最小实验</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="10.%20%E6%80%BB%E7%BB%93" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#10.%20%E6%80%BB%E7%BB%93">10. 总结</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">10. 总结</span></li><li class="group relative pl-4"><a data-toc-link data-heading-id="11.%20Links" class="toc-link block truncate opacity-40 transition hover:opacity-100" href="#11.%20Links">11. Links</a><span class="toc-tooltip pointer-events-none absolute left-0 top-full z-10 mt-1 hidden rounded-md px-2 py-1 text-xs shadow-lg group-hover:block">11. Links</span></li></ol></div></nav></aside><script type="module">var e=Array.from(document.querySelectorAll(`h1[id], h2[id], h3[id]`)),t=Array.from(document.querySelectorAll(`[data-toc-link]`)),n=()=>{let n=(e.findLast(e=>e.getBoundingClientRect().top<=120)??e[0])?.id??``;t.forEach(e=>{let t=e.dataset.headingId===n;e.classList.toggle(`font-medium`,t),e.classList.toggle(`is-active`,t),e.classList.toggle(`opacity-100`,t),e.classList.toggle(`opacity-40`,!t)})};n(),window.addEventListener(`scroll`,n,{passive:!0});var r=document.querySelector(`aside.toc`),i=document.getElementById(`toc-toggle`),a=document.getElementById(`toc-mobile-toggle`),o=document.getElementById(`toc-mobile-close`),s=document.getElementById(`toc-backdrop`),c=`note-toc-hidden`;if(r&&i){let e=e=>{r.classList.toggle(`is-desktop-hidden`,e),i.setAttribute(`aria-pressed`,String(!e)),i.classList.toggle(`is-open`,!e)};e(localStorage.getItem(c)===`1`),i.addEventListener(`click`,()=>{let t=!r.classList.contains(`is-desktop-hidden`);localStorage.setItem(c,t?`1`:`0`),e(t)})}if(r&&a&&o&&s){let e=e=>{r.classList.toggle(`is-mobile-open`,e),s.classList.toggle(`is-open`,e),a.setAttribute(`aria-expanded`,String(e)),e?(r.setAttribute(`role`,`dialog`),r.setAttribute(`aria-modal`,`true`)):(r.removeAttribute(`role`),r.removeAttribute(`aria-modal`)),document.body.style.overflow=e?`hidden`:``,e&&o.focus()};a.addEventListener(`click`,()=>e(!0)),o.addEventListener(`click`,()=>{e(!1),a.focus()}),s.addEventListener(`click`,()=>{e(!1),a.focus()}),t.forEach(t=>t.addEventListener(`click`,()=>e(!1))),document.addEventListener(`keydown`,n=>{if(a.getAttribute(`aria-expanded`)===`true`&&(n.key===`Escape`&&(e(!1),a.focus()),n.key===`Tab`)){let e=o,r=t.at(-1)??o;n.shiftKey&&document.activeElement===e?(n.preventDefault(),r.focus()):!n.shiftKey&&document.activeElement===r&&(n.preventDefault(),e.focus())}}),window.matchMedia(`(min-width: 1536px)`).addEventListener(`change`,t=>{t.matches&&e(!1)})}</script></div><script type="module" src="/_astro/NoteLayout.astro_astro_type_script_index_0_lang.D1A7Bn7B.js"></script></body></html>
